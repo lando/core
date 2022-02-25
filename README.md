@@ -1,1 +1,3 @@
-# core
+# Lando Core
+
+In development

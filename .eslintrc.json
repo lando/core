@@ -1,0 +1,31 @@
+{
+  "env": {
+    "node": true,
+    "mocha": true
+  },
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 8,
+    "requireConfigFile": false
+  },
+  "extends": "google",
+  "rules": {
+    "arrow-parens": ["error",
+      "as-needed"
+    ],
+    "max-len": ["error", {
+      "code": 120,
+      "ignoreComments": true
+    }],
+    "require-jsdoc": ["error", {
+      "require": {
+        "FunctionDeclaration": true,
+        "MethodDefinition": false,
+        "ClassDeclaration": false,
+        "ArrowFunctionExpression": false,
+        "FunctionExpression": false
+      }
+    }]
+  }
+}
