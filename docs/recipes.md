@@ -46,11 +46,11 @@ The following recipes are currently offered. Please check out each one to learn 
 
 * [Acquia](https://docs.lando.dev/acquia/)
 * [Backdrop](https://docs.lando.dev/backdrop/)
-* [Drupal 6](https://docs.lando.dev/drupal6/)
-* [Drupal 7](https://docs.lando.dev/drupal7/)
-* [Drupal 8](https://docs.lando.dev/drupal8/)
-* [Drupal 9](https://docs.lando.dev/drupal9/)
-* [Drupal 10](https://docs.lando.dev/drupal10/)
+* [Drupal 6](https://docs.lando.dev/drupal/)
+* [Drupal 7](https://docs.lando.dev/drupal/)
+* [Drupal 8](https://docs.lando.dev/drupal/)
+* [Drupal 9](https://docs.lando.dev/drupal/)
+* [Drupal 10](https://docs.lando.dev/drupal/)
 * [Joomla](https://docs.lando.dev/joomla/)
 * [Lagoon](https://docs.lando.dev/lagoon/) **(BETA)**
 * [Laravel](https://docs.lando.dev/laravel/)
