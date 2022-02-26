@@ -88,7 +88,7 @@ module.exports = {
           },
           {
             text: 'Global Config',
-            link: '/config.md',
+            link: '/global.md',
           },
         ],
       },
