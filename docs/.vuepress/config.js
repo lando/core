@@ -21,79 +21,37 @@ module.exports = {
     sidebarHeader: {
       enabled: false,
     },
+    pages: {
+      contributors: {
+        enabled: false,
+      },
+      versions: {
+        enabled: false,
+      },
+    },
     sidebar: [
       {
         text: 'Core Config',
         collapsible: false,
         children: [
-          {
-            text: 'Landofile',
-            link: '/index.md',
-          },
-          {
-            text: 'Recipes',
-            link: '/recipes.md',
-          },
-          {
-            text: 'Services',
-            link: '/services.md',
-          },
-          {
-            text: 'Tooling',
-            link: '/tooling.md',
-          },
-          {
-            text: 'Proxy',
-            link: '/proxy.md',
-          },
-          {
-            text: 'Environment',
-            link: '/env.md',
-          },
-          {
-            text: 'Events',
-            link: '/events.md',
-          },
-          {
-            text: 'Experimental',
-            link: '/experimental.md',
-          },
-          {
-            text: 'Networking',
-            link: '/networking.md',
-          },
-          {
-            text: 'Performance',
-            link: '/performance.md',
-          },
-          {
-            text: 'Plugins',
-            link: '/plugins.md',
-          },
-          {
-            text: 'Releases',
-            link: '/releases.md',
-          },
-          {
-            text: 'SSH',
-            link: '/ssh.md',
-          },
-          {
-            text: 'Security',
-            link: '/security.md',
-          },
-          {
-            text: 'Shared Files',
-            link: '/files.md',
-          },
-          {
-            text: 'Global Config',
-            link: '/global.md',
-          },
+          '/index.md',
+          '/recipes.md',
+          '/services.md',
+          '/tooling.md',
+          '/proxy.md',
+          '/env.md',
+          '/events.md',
+          '/experimental.md',
+          '/networking.md',
+          '/performance.md',
+          '/plugins.md',
+          '/releases.md',
+          '/ssh.md',
+          '/security.md',
+          '/files.md',
+          '/global.md',
         ],
       },
-      '/support.md',
-      {text: 'Release Notes', link: 'https://github.com/lando/config/releases'},
     ],
   },
 };
