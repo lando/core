@@ -13,24 +13,24 @@ Events allow you to automate commands or tasks you might often or always run eit
 
 | **LANDO** | **APP** |
 | -- | -- |
-| [pre-bootstrap-config](https://docs.lando.dev/api/lando.html#event_pre_bootstrap_config) | [pre-destroy](https://docs.lando.dev/api/app.html#pre-destroy) |
-| [pre-bootstrap-tasks](https://docs.lando.dev/api/lando.html#event_pre_bootstrap_tasks) | [ post-destroy](https://docs.lando.dev/api/app.html#post-destroy) |
-| [pre-bootstrap-engine](https://docs.lando.dev/api/lando.html#event_pre_bootstrap_engine) | [pre-init](https://docs.lando.dev/api/app.html#pre-init) |
-| [pre-bootstrap-app](https://docs.lando.dev/api/lando.html#event_pre_bootstrap_app) | [post-init](https://docs.lando.dev/api/app.html#post-init) |
-| [post-bootstrap-config](https://docs.lando.dev/api/lando.html#event_post_bootstrap_config) | [pre-rebuild](https://docs.lando.dev/api/app.html#pre-rebuild) |
-| [post-bootstrap-tasks](https://docs.lando.dev/api/lando.html#event_post_bootstrap_tasks) | [post-rebuild](https://docs.lando.dev/api/app.html#post-rebuild) |
-| [post-bootstrap-engine](https://docs.lando.dev/api/lando.html#event_post_bootstrap_engine) | [pre-start](https://docs.lando.dev/api/app.html#pre-start) |
-| [post-bootstrap-app](https://docs.lando.dev/api/lando.html#event_post_bootstrap_app) | [post-start](https://docs.lando.dev/api/app.html#post-start) |
-| [pre-engine-build](https://docs.lando.dev/api/engine.html#event_pre_engine_build) | [pre-stop](https://docs.lando.dev/api/app.html#pre-stop) |
-| [post-engine-build](https://docs.lando.dev/api/engine.html#event_post_engine_build) | [post-stop](https://docs.lando.dev/api/app.html#pre-stop) |
-| [pre-engine-destroy](https://docs.lando.dev/api/engine.html#event_pre_engine_destroy) | [pre-uninstall](https://docs.lando.dev/api/app.html#pre-uninstall) |
-| [post-engine-destroy](https://docs.lando.dev/api/engine.html#event_post_engine_destroy) | [post-uninstall](https://docs.lando.dev/api/app.html#post-uninstall) |
-| [pre-engine-run](https://docs.lando.dev/api/engine.html#event_pre_engine_run) | [ready](https://docs.lando.dev/api/app.html#ready) |
-| [post-engine-run](https://docs.lando.dev/api/engine.html#event_post_engine_run) | []() |
-| [pre-engine-start](https://docs.lando.dev/api/engine.html#event_pre_engine_start) | []() |
-| [post-engine-start](https://docs.lando.dev/api/engine.html#event_post_engine_start) | []() |
-| [pre-engine-stop](https://docs.lando.dev/api/engine.html#event_pre_engine_stop) | []() |
-| [post-engine-stop](https://docs.lando.dev/api/engine.html#event_post_engine_stop) | []() |
+| pre-bootstrap-config | pre-destroy |
+| pre-bootstrap-tasks |  post-destroy |
+| pre-bootstrap-engine | pre-init |
+| pre-bootstrap-app | post-init |
+| post-bootstrap-config | pre-rebuild |
+| post-bootstrap-tasks | post-rebuild |
+| post-bootstrap-engine | pre-start |
+| post-bootstrap-app | post-start |
+| pre-engine-build | pre-stop |
+| post-engine-build | post-stop |
+| pre-engine-destroy | pre-uninstall |
+| post-engine-destroy | post-uninstall |
+| pre-engine-run | ready |
+| post-engine-run |  |
+| pre-engine-start |  |
+| post-engine-start |  |
+| pre-engine-stop |  |
+| post-engine-stop |  |
 
 You can also hook into `pre` and `post` events for all [tooling](./tooling.md) commands. For example, the command `lando db-import` should expose `pre-db-import` and `post-db-import`.
 
