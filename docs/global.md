@@ -17,7 +17,7 @@ You can also configure how Lando itself works using a file called `config.yml`. 
 *   The directories Lando scans for the `config.yml` itself.
 *   The config of various loaded plugins
 
-Note that there are some configuration options **THAT MUST** be set during the bootstrap of the `lando` object. For more information about how to bootstrap your own custom `lando` object, please consult the [Lando API](https://docs.lando.dev/api/lando.html#lando).
+Note that there are some configuration options **THAT MUST** be set during the bootstrap of the `lando` object. For more information about how to bootstrap your own custom `lando` object, please consult the Lando API.
 
 [[toc]]
 
