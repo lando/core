@@ -164,12 +164,12 @@ Lando services are just an abstraction layer on top of the [Docker compose v3 fi
 We give you access to the Docker Compose layer with the `overrides` key.
 
 ::: tip You can only override Docker Compose's top-level `services` config
-Overrides you specify get merged and injected directly into the `services` config used by Docker Compose. This means that you cannot use overrides to alter *top level* `networks` or `volumes`. If you are looking for that kind of **POWER**, we suggest you look at the [compose](https://docs.lando.dev/compose.html) service.
+Overrides you specify get merged and injected directly into the `services` config used by Docker Compose. This means that you cannot use overrides to alter *top level* `networks` or `volumes`. If you are looking for that kind of **POWER**, we suggest you look at the [compose](https://docs.lando.dev/compose) service.
 :::
 
 Here is an example of an overridden `apache` service that uses a custom image and injects some additional environment variables. However, you can put anything into `overrides` that you can put into the `services` config of a Docker Compose file. Note that if you change the image, your success in running with that image is directly correlated to how close that image is to the ones we use by default. For that reason, it is **highly recommended** your custom images are extended from ours so your chance of doing this with great success is maximized.
 
-If you are looking to use a *completely different* image then we recommend you use a [custom compose service](https://docs.lando.dev/compose.html).
+If you are looking to use a *completely different* image then we recommend you use a [custom compose service](https://docs.lando.dev/compose).
 
 ```yaml
 services:
@@ -218,7 +218,7 @@ services:
 
 ### Localhost Assignment
 
-Lando will attempt to assign `localhost` addresses to any service that has ports `80` or `443` exposed. By default, this is most of our services. An exception is the [`compose`](https://docs.lando.dev/compose.html) service which requires the user to manually expose the ports they need at the Docker Compose level. You can tell Lando to assign `localhost` addresses to additional `http` ports with the following.
+Lando will attempt to assign `localhost` addresses to any service that has ports `80` or `443` exposed. By default, this is most of our services. An exception is the [`compose`](https://docs.lando.dev/compose) service which requires the user to manually expose the ports they need at the Docker Compose level. You can tell Lando to assign `localhost` addresses to additional `http` ports with the following.
 
 ```yaml
 services:
@@ -287,7 +287,7 @@ RUN apt-get update -y \
 
 ### Building a Custom Service
 
-If the above is not enough and you still *crave more power*, you can consider our "catch all" [custom](https://docs.lando.dev/compose.html) service. This allows power users to specify custom services that are not currently one of Lando's "supported" services.
+If the above is not enough and you still *crave more power*, you can consider our "catch all" [custom](https://docs.lando.dev/compose) service. This allows power users to specify custom services that are not currently one of Lando's "supported" services.
 
 Technically speaking, this service is just a way for a user to define a service directly using the [Docker Compose V3](https://docs.docker.com/compose/compose-file/) file format and still get some of the Lando *secret sauce*.
 
@@ -299,4 +299,4 @@ This service is useful if you are:
 2. Using Docker Compose config from other projects
 3. Need a service not currently provided by Lando itself
 
-You will need to rebuild your app with `lando rebuild` to apply the changes to this file. You can check out the full code for this example [over here](https://github.com/lando/cli/tree/main/examples/compose).
+You will need to rebuild your app with `lando rebuild` to apply the changes to this file. You can check out the full code for this example [over here](https://github.com/lando/compose/tree/main/examples/compose).
