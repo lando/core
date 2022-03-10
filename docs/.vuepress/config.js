@@ -18,17 +18,9 @@ module.exports = {
     docsDir: 'docs',
     docsBranch: 'main',
     repo: 'lando/core',
-    sidebarHeader: {
-      enabled: false,
-    },
-    pages: {
-      contributors: {
-        enabled: false,
-      },
-      versions: {
-        enabled: false,
-      },
-    },
+    sidebarHeader: false,
+    versionsPage: false,
+    contributorsPage: false,
     sidebar: [
       {
         text: 'Core Config',
