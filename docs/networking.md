@@ -48,7 +48,6 @@ lando ssh -s database -c "mysql -uroot -h database.lamp1.internal"
 ## Port considerations
 
 ::: warning This behavior changed in `3.0.29`
-To read about previous behavior check out the [older networking docs](https://github.com/lando/lando/blob/v3.0.28/docs/config/networking.md#port-considerations)
 :::
 
 Prior to Lando `3.0.29`, when trying to communicate between two services using `proxy` addresses a la `thing.lndo.site` you had to explicitly use the internal proxy port and protocol if they differed from the proxy.

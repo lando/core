@@ -16,4 +16,4 @@ Nevertheless, if you want to live on the wild side, try the absolute bleeding ed
 lando --experimental
 ```
 
-While we've tried to document most experimental features, you can also [check the code directly](https://github.com/lando/lando/tree/master/experimental/plugins) for a list of things.
+While we've tried to document most experimental features, you can also [check the code directly](https://github.com/lando/cli/tree/main/experimental/lando-experimental) for a list of things.
