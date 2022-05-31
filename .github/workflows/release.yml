@@ -178,6 +178,7 @@ jobs:
       - sign-n-deploy
     env:
       TERM: xterm
+      PRERELEASE_TAG: edge
     strategy:
       matrix:
         os:
