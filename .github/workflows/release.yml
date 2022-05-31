@@ -1,15 +1,17 @@
 name: Publish to NPM
 
 on:
-  push:
-    tags:
-      - v*
+  release:
+    types:
+      - published
+      - edited
 
 jobs:
   deploy:
     runs-on: ${{ matrix.os }}
     env:
       TERM: xterm
+      PRERELEASE_TAG: edge
     strategy:
       matrix:
         os:
@@ -36,7 +38,16 @@ jobs:
         run: yarn test:unit
 
       # Deploy
-      - name: Deploy stable releases
-        run: npm publish --access public
+      - name: Publish to npm
+        run: |
+          if [ "${{ github.event.release.prerelease }}" ==  "false" ]; then
+            npm publish --access public --dry-run
+            npm publish --access public
+            echo "::notice title=Published ${{ github.ref_name }} to @${{ github.repository }}::This is a stable release published to the default 'latest' npm tag"
+          else
+            npm publish --access public --tag ${{ env.PRERELEASE_TAG }} --dry-run
+            npm publish --access public --tag ${{ env.PRERELEASE_TAG }}
+            echo "::notice title=Published ${{ github.ref_name }} to @${{ github.repository }}@${{ env.PRERELEASE_TAG }}::This is a pre-release published to the '${{ env.PRERELEASE_TAG }}' npm tag"
+          fi
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_DEPLOY_TOKEN}}
