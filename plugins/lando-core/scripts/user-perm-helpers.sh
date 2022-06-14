@@ -56,9 +56,13 @@ reset_user() {
     adduser -u "$HOST_UID" -G "$HOST_GROUP" -h /var/www -D "$USER" 2>/dev/null
     adduser "$USER" "$GROUP" 2>/dev/null
   else
-    usermod -o -u "$HOST_UID" "$USER" 2>/dev/null
+    if [ "$(id -u $USER)"  != "$HOST_UID" ]; then
+      usermod -o -u "$HOST_UID" "$USER" 2>/dev/null
+    fi
     groupmod -g "$HOST_GID" "$GROUP" 2>/dev/null || true
-    usermod -g "$HOST_GID" "$USER" 2>/dev/null || true
+    if [ "$(id -u $USER)"  != "$HOST_UID" ]; then
+      usermod -g "$HOST_GID" "$USER" 2>/dev/null || true
+    fi
     usermod -a -G "$GROUP" "$USER" 2>/dev/null || true
   fi;
   # If this mapping is incorrect lets abort here
