@@ -92,5 +92,5 @@ This assumes your custom file exists in the app root and is named `config`. Also
 If you are unsure how to to get `$HOME`, you can discover it by watching either [this](https://www.youtube.com/watch?v=JVj61ZX_8Cs) or [this](https://www.youtube.com/watch?v=1vrEljMfXYo) video tutorial or by running the command as follows:
 
 ```bash
-lando -s SERVICE -c "env | grep HOME"
+lando ssh -s SERVICE -c "env | grep HOME"
 ```
