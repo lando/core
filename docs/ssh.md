@@ -89,8 +89,8 @@ In the above `.lando.local.yml` example, we are disabling key loading for the pr
 
 This assumes your custom file exists in the app root and is named `config`. Also note that you will want to mount at the _user_ `ssh` config location and not the _system_ level one. This file will, generally, live at `$HOME/.ssh/config` which resolves to `/var/www/.ssh/config` for many, but not all, Lando services.
 
-If you are unsure how to to get `$HOME`, you can discover it by watching either [this](https://www.youtube.com/watch?v=JVj61ZX_8Cs) or [this](https://www.youtube.com/watch?v=1vrEljMfXYo) video tutorial or by running the command as follows:
+If you are unsure how to get `$HOME`, you can discover it by watching either [this](https://www.youtube.com/watch?v=JVj61ZX_8Cs) or [this](https://www.youtube.com/watch?v=1vrEljMfXYo) video tutorial or by running the command as follows:
 
 ```bash
-lando -s SERVICE -c "env | grep HOME"
+lando ssh -s SERVICE -c "env | grep HOME"
 ```
