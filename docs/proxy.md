@@ -163,6 +163,19 @@ The former will tell the service to attempt to generate a certificate.
 
 The latter will expose the secure port (usually 443) for the service and assign a `localhost:someport` address to the service. This means that if your service does not actually plan to serve https by itself you may experience a hang as Lando tries to health scan a `localhost` https address that doesn't actually serve https. In these scenarios its best to tell Lando you just want a cert.
 
+**just generate a cert**
+
+```yaml
+services:
+  web:
+    ssl: true
+    sslExpose: false
+```
+
+In some rare scenarios a service does not boot up as `root`. This is especially true for the `compose` service. In these situations Lando will be unable to generate a cert and will fall back to the global wildcard certificate for the `proxyDomain` which is `*.lndo.site` by default.
+
+This means that subdomains like `sub.mysite.lndo.site` will likely produce a browser warning. However, domains like `sub-mysite.lndo.site` will continue to work since they are covered by the global wildcard cert.
+
 ### Disable HTTPS-Only Mode in Firefox, to allow a http URL
 
 By default, Firefox will redirect `http` domains to `https`, which can result in a `404 page not found` error for proxy URLs.
@@ -188,19 +201,6 @@ PMA URLS  http://localhost:49199
 ```
 
 If you visit the URL `http://pma.lndo.site/` in Firefox, it will be redirected to `https://pma.lndo.site/` resulting in a `404 page not found` error. To fix this, disable HTTPS-Only Mode following the steps under [Add exceptions for HTTP websites when you’re in HTTPS-Only Mode](https://support.mozilla.org/en-US/kb/https-only-prefs#w_add-exceptions-for-http-websites-when-youre-in-https-only-mode).
-
-**just generate a cert**
-
-```yaml
-services:
-  web:
-    ssl: true
-    sslExpose: false
-```
-
-In some rare scenarios a service does not boot up as `root`. This is especially true for the `compose` service. In these situations Lando will be unable to generate a cert and will fall back to the global wildcard certificate for the `proxyDomain` which is `*.lndo.site` by default.
-
-This means that subdomains like `sub.mysite.lndo.site` will likely produce a browser warning. However, domains like `sub-mysite.lndo.site` will continue to work since they are covered by the global wildcard cert.
 
 ### Advanced
 
