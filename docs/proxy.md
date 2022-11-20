@@ -163,6 +163,32 @@ The former will tell the service to attempt to generate a certificate.
 
 The latter will expose the secure port (usually 443) for the service and assign a `localhost:someport` address to the service. This means that if your service does not actually plan to serve https by itself you may experience a hang as Lando tries to health scan a `localhost` https address that doesn't actually serve https. In these scenarios its best to tell Lando you just want a cert.
 
+### Disable HTTPS-Only Mode in Firefox, to allow a http URL
+
+By default, Firefox will redirect `http` domains to `https`, which can result in a `404 page not found` error for proxy URLs.
+
+For example, you can add phpMyAdmin as a service with this:
+
+```
+services:
+  pma:
+    type: phpmyadmin
+    hosts:
+      - database
+proxy:
+  pma:
+    - pma.lndo.site
+```
+
+... which will be available at these URLs, where port number `49199` is dynamic:
+
+```
+PMA URLS  http://localhost:49199        
+          http://pma.lndo.site/        
+```
+
+If you visit the URL `http://pma.lndo.site/` in Firefox, it will be redirected to `https://pma.lndo.site/` resulting in a `404 page not found` error. To fix this, disable HTTPS-Only Mode following the steps under [Add exceptions for HTTP websites when you’re in HTTPS-Only Mode](https://support.mozilla.org/en-US/kb/https-only-prefs#w_add-exceptions-for-http-websites-when-youre-in-https-only-mode).
+
 **just generate a cert**
 
 ```yaml
