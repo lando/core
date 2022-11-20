@@ -169,7 +169,7 @@ By default, Firefox will redirect `http` domains to `https`, which can result in
 
 For example, you can add phpMyAdmin as a service with this:
 
-```
+```yaml
 services:
   pma:
     type: phpmyadmin
@@ -182,7 +182,7 @@ proxy:
 
 ... which will be available at these URLs, where port number `49199` is dynamic:
 
-```
+```bash
 PMA URLS  http://localhost:49199        
           http://pma.lndo.site/        
 ```
