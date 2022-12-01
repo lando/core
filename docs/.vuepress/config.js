@@ -1,6 +1,7 @@
-const customTheme = require('@lando/vuepress-theme-default-plus');
+import {defineUserConfig} from '@vuepress/cli';
+import {defaultThemePlus} from '@lando/vuepress-theme-default-plus';
 
-module.exports = {
+export default defineUserConfig({
   lang: 'en-US',
   title: 'Lando',
   description: 'Lando Config Docs.',
@@ -13,7 +14,7 @@ module.exports = {
     ['link', {rel: 'preconnect', href: '//fonts.gstatic.com', crossorigin: true}],
     ['link', {rel: 'stylesheet', href: '//fonts.googleapis.com/css2?family=Lexend:wght@500&display=swap'}],
   ],
-  theme: customTheme({
+  theme: defaultThemePlus({
     landoDocs: true,
     logo: '/images/icon.svg',
     docsDir: 'docs',
@@ -47,4 +48,4 @@ module.exports = {
       },
     ],
   }),
-};
+});
