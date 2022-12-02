@@ -20,9 +20,11 @@ export default defineUserConfig({
     docsDir: 'docs',
     docsBranch: 'main',
     repo: 'lando/core',
-    sidebarHeader: false,
-    versionsPage: false,
-    contributorsPage: false,
+    sidebarHeader: {
+      enabled: true,
+      title: 'Lando Core',
+      icon: '/images/icon.png',
+    },
     sidebar: [
       {
         text: 'Core Config',
