@@ -1,7 +1,7 @@
 {
   "name": "@lando/core",
-  "description": "Lando Core.",
-  "version": "0.5.0",
+  "description": "The libraries that power all of Lando.",
+  "version": "3.6.5",
   "author": "John Ouellet @labboy0276",
   "license": "GPL-3.0",
   "repository": "lando/core",
