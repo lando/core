@@ -5,7 +5,7 @@ export default defineUserConfig({
   lang: 'en-US',
   title: 'Lando',
   description: 'Lando Config Docs.',
-  base: '/config/',
+  base: '/config/v3',
   head: [
     ['meta', {name: 'viewport', content: 'width=device-width, initial-scale=1'}],
     ['link', {rel: 'icon', href: '/config/favicon.ico', size: 'any'}],
