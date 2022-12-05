@@ -474,47 +474,10 @@
     mocha "^5.2.0"
     object-hash "^2.2.0"
 
-"@lando/vuepress-theme-default-plus@1.0.0-beta.42":
+"@lando/vuepress-theme-default-plus@^1.0.0-beta.42":
   version "1.0.0-beta.42"
   resolved "https://registry.yarnpkg.com/@lando/vuepress-theme-default-plus/-/vuepress-theme-default-plus-1.0.0-beta.42.tgz#de450ec228bd51d6f3b30a55a28d189035de19db"
   integrity sha512-+1KiN94VGekoSrRGOAbfZgyFaj8eWgTCFhbafJy/fzNNK7Vg3UaBrUViiy8j4JEeSDnP+3Ro880gxX1vGrsKlQ==
-  dependencies:
-    "@octokit/core" "^3.5.1"
-    "@octokit/plugin-paginate-rest" "^2.17.0"
-    "@vuepress/client" "2.0.0-beta.53"
-    "@vuepress/core" "2.0.0-beta.53"
-    "@vuepress/plugin-active-header-links" "2.0.0-beta.53"
-    "@vuepress/plugin-back-to-top" "2.0.0-beta.53"
-    "@vuepress/plugin-container" "2.0.0-beta.53"
-    "@vuepress/plugin-docsearch" "2.0.0-beta.53"
-    "@vuepress/plugin-git" "2.0.0-beta.53"
-    "@vuepress/plugin-google-analytics" "2.0.0-beta.53"
-    "@vuepress/plugin-medium-zoom" "2.0.0-beta.53"
-    "@vuepress/plugin-nprogress" "2.0.0-beta.53"
-    "@vuepress/plugin-palette" "2.0.0-beta.53"
-    "@vuepress/plugin-prismjs" "2.0.0-beta.53"
-    "@vuepress/plugin-register-components" "2.0.0-beta.53"
-    "@vuepress/plugin-search" "2.0.0-beta.53"
-    "@vuepress/plugin-theme-data" "2.0.0-beta.53"
-    "@vuepress/shared" "2.0.0-beta.53"
-    "@vuepress/theme-default" "2.0.0-beta.53"
-    "@vuepress/utils" "2.0.0-beta.53"
-    "@vueuse/core" "^9.6.0"
-    generate-robotstxt "^8.0.3"
-    gravatar-url "^4.0.1"
-    js-yaml "^4.1.0"
-    lodash "^4.17.21"
-    sass "^1.47.0"
-    sass-loader "^12.4.0"
-    semver "^7.3.8"
-    sitemap "^7.1.1"
-    timeago.js "^4.0.2"
-    vue "^3.2.20"
-    vue-router "^4.0.12"
-
-"@lando/vuepress-theme-default-plus@lando/vuepress-theme-default-plus#main":
-  version "1.0.0-beta.42"
-  resolved "https://codeload.github.com/lando/vuepress-theme-default-plus/tar.gz/c238dc75796ec3b151ea43d3de51a007b101e96d"
   dependencies:
     "@octokit/core" "^3.5.1"
     "@octokit/plugin-paginate-rest" "^2.17.0"
