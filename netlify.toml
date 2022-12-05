@@ -20,13 +20,13 @@
   for = "/images/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000"
-	  
+
 # We need this so preview environments and the base site look ok on their own
 [[redirects]]
   from = "/"
-  to = "/config"
+  to = "/config/v3"
   status = 200
 [[redirects]]
-  from = "/config/*"
+  from = "/config/v3/*"
   to = "/:splat"
   status = 200
