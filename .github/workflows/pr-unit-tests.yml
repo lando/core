@@ -13,7 +13,7 @@ jobs:
           - ubuntu-20.04
           - macos-10.15
         node-version:
-          - '14'
+          - '16'
     steps:
       # Install deps and cache
       - name: Checkout code

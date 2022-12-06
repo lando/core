@@ -11,7 +11,7 @@ jobs:
         os:
           - ubuntu-20.04
         node-version:
-          - '14'
+          - '16'
     steps:
       # Install deps and cache
       - name: Checkout code
@@ -26,6 +26,10 @@ jobs:
 
       # Run tests
       - name: Run linter
-        run: yarn docs:lint
+        run: |
+          yarn docs:lint
+          yarn docs3:lint
       - name: Test build
-        run: yarn docs:build
+        run: |
+          yarn docs:lint
+          yarn docs3:build
