@@ -1,4 +1,5 @@
 import {defineUserConfig} from '@vuepress/cli';
+import {viteBundler} from '@vuepress/bundler-vite';
 import {defaultThemePlus} from '@lando/vuepress-theme-default-plus';
 
 export default defineUserConfig({
@@ -6,6 +7,15 @@ export default defineUserConfig({
   title: 'Lando',
   description: 'Lando Config Docs.',
   base: '/config/v3/',
+  bundler: viteBundler({
+    viteOptions: {
+      server: {
+        fs: {
+          strict: false,
+        },
+      },
+    },
+  }),
   head: [
     ['meta', {name: 'viewport', content: 'width=device-width, initial-scale=1'}],
     ['link', {rel: 'icon', href: '/config/favicon.ico', size: 'any'}],
