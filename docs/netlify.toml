@@ -24,9 +24,9 @@
 # We need this so preview environments and the base site look ok on their own
 [[redirects]]
   from = "/"
-  to = "/config/v4"
+  to = "/core/v4"
   status = 200
 [[redirects]]
-  from = "/config/v4/*"
+  from = "/core/v4/*"
   to = "/:splat"
   status = 200

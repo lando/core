@@ -6,7 +6,7 @@ export default defineUserConfig({
   lang: 'en-US',
   title: 'Lando 4',
   description: 'Lando 4 Config Docs.',
-  base: '/config/v4/',
+  base: '/core/v4/',
   bundler: viteBundler({
     viteOptions: {
       server: {
