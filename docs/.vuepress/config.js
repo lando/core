@@ -34,10 +34,11 @@ export default defineUserConfig({
       enabled: true,
       title: 'Core',
       icon: '/images/icon.png',
-      // once we have a relase we can remove this?
-      version: '4.0.0-unstable.1',
-      satisfies: '>4',
-      type: 'success',
+    },
+    versionsPage: {
+      auto: true,
+      trimLatest: true,
+      showEdge: true,
     },
     sidebar: [
       {

@@ -184,10 +184,9 @@
   resolved "https://registry.yarnpkg.com/@esbuild/linux-loong64/-/linux-loong64-0.15.18.tgz#128b76ecb9be48b60cf5cfc1c63a4f00691a3239"
   integrity sha512-L4jVKS82XVhw2nvzLg/19ClLWg0y27ulRwuP7lcyL6AbUWB5aPglXY3M21mauDQMDfRLs8cQmeT03r/+X3cZYQ==
 
-"@lando/vuepress-theme-default-plus@^1.0.0-beta.42":
+"@lando/vuepress-theme-default-plus@lando/vuepress-theme-default-plus#main":
   version "1.0.0-beta.42"
-  resolved "https://registry.yarnpkg.com/@lando/vuepress-theme-default-plus/-/vuepress-theme-default-plus-1.0.0-beta.42.tgz#de450ec228bd51d6f3b30a55a28d189035de19db"
-  integrity sha512-+1KiN94VGekoSrRGOAbfZgyFaj8eWgTCFhbafJy/fzNNK7Vg3UaBrUViiy8j4JEeSDnP+3Ro880gxX1vGrsKlQ==
+  resolved "https://codeload.github.com/lando/vuepress-theme-default-plus/tar.gz/68f0a556ea0651e1bef9eed5f81209b589f9c00a"
   dependencies:
     "@octokit/core" "^3.5.1"
     "@octokit/plugin-paginate-rest" "^2.17.0"
