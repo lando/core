@@ -2,7 +2,7 @@
   "name": "@lando/core",
   "description": "The libraries that power all of Lando.",
   "version": "3.6.5",
-  "author": "John Ouellet @labboy0276",
+  "author": "Mike Pirog @pirog",
   "license": "GPL-3.0",
   "repository": "lando/core",
   "bugs": "https://github.com/lando/core/issues/new/choose",
