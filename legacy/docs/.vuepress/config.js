@@ -25,6 +25,11 @@ export default defineUserConfig({
       title: 'Lando Core',
       icon: '/images/icon.png',
     },
+    versionsPage: {
+      auto: true,
+      trimLatest: true,
+      showEdge: true,
+    },
     sidebar: [
       {
         text: 'Core Config',
