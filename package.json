@@ -49,7 +49,7 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.0",
     "@lando/leia": "^0.6.4",
-    "@lando/vuepress-theme-default-plus": "1.0.0-beta.43",
+    "@lando/vuepress-theme-default-plus": "1.0.0-beta.44",
     "chai": "^4.3.4",
     "command-line-test": "^1.0.10",
     "eslint": "^7.32.0",

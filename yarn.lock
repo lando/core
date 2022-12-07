@@ -474,10 +474,10 @@
     mocha "^5.2.0"
     object-hash "^2.2.0"
 
-"@lando/vuepress-theme-default-plus@1.0.0-beta.43":
-  version "1.0.0-beta.43"
-  resolved "https://registry.yarnpkg.com/@lando/vuepress-theme-default-plus/-/vuepress-theme-default-plus-1.0.0-beta.43.tgz#0e6ac77adef6d173cbc5f4ee477ccd9e24e924d6"
-  integrity sha512-Ej+sGIP6HFJiQRK4ZEufaFHgt7xFhy7oaV/lhxPfEW41BVlfwtG3+hdVldmXk0IFtspFWcJTK7ZfHOc9aGWR3Q==
+"@lando/vuepress-theme-default-plus@1.0.0-beta.44":
+  version "1.0.0-beta.44"
+  resolved "https://registry.yarnpkg.com/@lando/vuepress-theme-default-plus/-/vuepress-theme-default-plus-1.0.0-beta.44.tgz#d7839497cfe1b6e323dc507965501476f38bd087"
+  integrity sha512-d3SoU6A05JR+1YJwMYOfTSXhtvFfhZ0W0tapm3IgXQBcOPNadCvtQ/uV2GIDuZr4kRpxrsNEhilyZ1xiKWavow==
   dependencies:
     "@octokit/core" "^3.5.1"
     "@octokit/plugin-paginate-rest" "^2.17.0"
