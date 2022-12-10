@@ -1,10 +1,10 @@
 name: Publish to NPM
 
-# on:
-#   release:
-#     types:
-#       - published
-#       - edited
+on:
+  release:
+    types:
+      - published
+      - edited
 
 jobs:
   deploy:
