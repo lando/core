@@ -1,7 +1,7 @@
 [build]
-  base = "./legacy/docs"
-  publish = "./.vuepress/dist"
-  command = "yarn build"
+  base = "./"
+  publish = "./docs/.vuepress/dist"
+  command = "yarn docs:build"
 
 # Sets our asset optimization
 [build.processing.css]
@@ -24,7 +24,7 @@
 # We need this so preview environments and the base site look ok on their own
 [[redirects]]
   from = "/"
-  to = "/core/v3"
+  to = "/core/v43"
   status = 200
 [[redirects]]
   from = "/core/v3/*"
