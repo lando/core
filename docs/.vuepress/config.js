@@ -4,9 +4,9 @@ import {defaultThemePlus} from '@lando/vuepress-theme-default-plus';
 
 export default defineUserConfig({
   lang: 'en-US',
-  title: 'Lando 4',
-  description: 'Lando 4 Config Docs.',
-  base: '/core/v4/',
+  title: 'Lando',
+  description: 'Lando Config Docs.',
+  base: '/core/v3/',
   bundler: viteBundler({
     viteOptions: {
       server: {
@@ -25,14 +25,14 @@ export default defineUserConfig({
     ['link', {rel: 'stylesheet', href: '//fonts.googleapis.com/css2?family=Lexend:wght@500&display=swap'}],
   ],
   theme: defaultThemePlus({
-    landoDocs: 4,
+    landoDocs: 3,
     logo: '/images/icon.svg',
     docsDir: 'docs',
     docsBranch: 'main',
     repo: 'lando/core',
     sidebarHeader: {
       enabled: true,
-      title: 'Core',
+      title: 'Lando Core',
       icon: '/images/icon.png',
     },
     versionsPage: {
@@ -42,21 +42,27 @@ export default defineUserConfig({
     },
     sidebar: [
       {
-        text: 'Config',
+        text: 'Core Config',
         collapsible: false,
         children: [
           '/index.html',
+          '/recipes.html',
+          '/services.html',
+          '/tooling.html',
+          '/proxy.html',
+          '/env.html',
+          '/events.html',
+          '/experimental.html',
+          '/networking.html',
+          '/performance.html',
+          '/plugins.html',
+          '/releases.html',
+          '/ssh.html',
+          '/security.html',
+          '/files.html',
+          '/global.html',
         ],
       },
-      {
-        text: 'Plugins',
-        collapsible: false,
-        children: [
-          '/index.html',
-        ],
-      },
-      '/support.html',
-      '/development.html',
     ],
   }),
 });
