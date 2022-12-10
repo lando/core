@@ -28,8 +28,6 @@ jobs:
       - name: Run linter
         run: |
           yarn docs:lint
-          yarn docs3:lint
       - name: Test build
         run: |
           yarn docs:build
-          yarn docs3:build
