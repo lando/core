@@ -1,6 +1,7 @@
 ## v3.8.1 - [RELEASE TBD](https://github.com/lando/core/releases/tag/3.8.1)
 
-* [Core ejected II](https://www.youtube.com/watch?v=BhQ59YzEdUY)
+* [Ejected the core](https://www.youtube.com/watch?v=BhQ59YzEdUY)
+* Removed `lando-alliance` core plugin
 
 ## v3.8.0 - [December 10, 2022](https://github.com/lando/core/releases/tag/3.8.0)
 

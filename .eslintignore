@@ -2,3 +2,4 @@
 .cache
 dist
 _site
+coverage
