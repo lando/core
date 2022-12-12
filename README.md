@@ -38,10 +38,10 @@ We try to log all changes big and small in both [THE CHANGELOG](https://github.c
 ## Contributors
 
 <a href="https://github.com/lando/core/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=lando/core" />
+  <img src="https://contrib.rocks/image?repo=lando/cli" />
 </a>
 
-Made with [contributors-img](https://contrib.rocks).
+Made with [contributors-img](https://contrib.rocks).`
 
 ## Other Selected Resources
 
