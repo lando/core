@@ -124,7 +124,7 @@ exports.buildCommand = (app, command, service, user, env = {}, dir = undefined) 
       services: _.compact([service]),
       hijack: false,
       autoRemove: true,
-    }
+    },
   };
 };
 
