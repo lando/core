@@ -3,6 +3,7 @@
 // Modules
 const _ = require('lodash');
 const utils = require('./lib/utils');
+const serviceFromContainerName = require('./../../lib/utils').serviceFromContainerName;
 
 /*
  * @TODO
@@ -22,7 +23,7 @@ module.exports = (app, lando) => {
               opts: {
                 mode: 'attach',
                 user: 'root',
-                services: [container.split('_')[1]],
+                services: [serviceFromContainerName(app, container)],
               },
             });
           });

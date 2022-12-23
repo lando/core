@@ -109,21 +109,24 @@ const parseCommand = (cmd, service) => ({
 /*
  * Helper to build commands
  */
-exports.buildCommand = (app, command, service, user, env = {}, dir = undefined) => ({
-  id: `${app.project}_${service}_1`,
-  compose: app.compose,
-  project: app.project,
-  cmd: command,
-  opts: {
-    environment: getCliEnvironment(env),
-    mode: 'attach',
-    workdir: dir || getContainerPath(app.root),
-    user: (user === null) ? getUser(service, app.info) : user,
-    services: _.compact([service]),
-    hijack: false,
-    autoRemove: true,
-  },
-});
+exports.buildCommand = (app, command, service, user, env = {}, dir = undefined) => {
+  const separator = app._config.composeSeparator;
+  return {
+    id: `${app.project}${separator}${service}${separator}1`,
+    compose: app.compose,
+    project: app.project,
+    cmd: command,
+    opts: {
+      environment: getCliEnvironment(env),
+      mode: 'attach',
+      workdir: dir || getContainerPath(app.root),
+      user: (user === null) ? getUser(service, app.info) : user,
+      services: _.compact([service]),
+      hijack: false,
+      autoRemove: true,
+    }
+  };
+};
 
 /*
  * Helper to build docker exec command

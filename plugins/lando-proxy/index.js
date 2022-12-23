@@ -50,6 +50,11 @@ module.exports = lando => {
     config.proxyConfigDir = path.join(config.proxyDir, 'config');
   });
 
+  lando.events.on('post-bootstrap-engine', () => {
+    const separator = lando.config.composeSeparator;
+    lando.config.proxyContainer = `${lando.config.proxyName}${separator}proxy${separator}1`;
+  })
+
   // Return config defaults to rebase
   return {
     config: _.merge({}, defaultConfig, {
