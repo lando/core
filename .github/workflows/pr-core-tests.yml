@@ -69,22 +69,23 @@ jobs:
       # we are just going to do the lazy thing
       - name: Move core over before we package
         run: |
+          # touch a file so we can test the copy
           touch COPY_TEST
+
+          # move cli to tmp dir and replace its core
           mv ./cli /tmp/cli
-          ls -lsa /tmp/cli
           cd /tmp/cli
-          ls -lsa ./node_modules/@lando
           rm -rf ./node_modules/@lando/core
-          ls -lsa ./node_modules/@lando
           cp -rf $GITHUB_WORKSPACE node_modules/@lando/core
-          ls -lsa ./node_modules/@lando
-          cd ..
-          pwd
+
+          # verify the copy
+          ls -lsa ./node_modules/@lando/core
+          ls -lsa ./node_modules/@lando/core | grep COPY_TEST
 
       - name: Package CLI
-        run: yarn cli:build
+        run: cd /tmp/cli && yarn cli:build
       - name: Replace source CLI with packaged one
-        run: sudo mv ./dist/@lando/cli /usr/local/bin/lando
+        run: sudo mv /tmp/cli/dist/@lando/cli /usr/local/bin/lando
       - name: Verify we can run the packaged CLI
         run: |
           lando version
