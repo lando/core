@@ -55,7 +55,6 @@ jobs:
       # This block should eventually become use lando/actions-hyperdrive@v2
       - name: Verify Docker dependencies
         run: |
-          pwd
           docker --version | grep "20.10."
           docker-compose --version | grep "1.29."
       # - name: Install via hyperdrive if above is bad
@@ -70,12 +69,13 @@ jobs:
       # we are just going to do the lazy thing
       - name: Move core over before we package
         run: |
-          pwd
           touch COPY_TEST
-          cd ./../
-          rm -rf node_modules/@lando/core
-          ls -lsa node_modules/@lando
-          # cp -rf $GITHUB_WORKSPACE
+          cd cli
+          ls -lsa ./node_modules/@lando
+          rm -rf ./node_modules/@lando/core
+          ls -lsa ./node_modules/@lando
+          cp -rf ./../ node_modules/@lando/core
+          ls -lsa ./node_modules/@lando
 
       - name: Package CLI
         run: yarn cli:build
