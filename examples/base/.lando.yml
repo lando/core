@@ -1,0 +1,12 @@
+name: lando-base
+env_file:
+  - environment/moar.env
+compose:
+  - docker-compose/moar.yml
+tooling:
+  php:
+    service: log
+pluginDirs:
+  - plugins
+plugins:
+  "@lando/base-test-plugin-2": ./test-plugin-2
