@@ -53,6 +53,7 @@ jobs:
           pwd
           yarn install --prefer-offline --frozen-lockfile
           cd ..
+          pwd
 
       # This block should eventually become use lando/actions-hyperdrive@v2
       - name: Verify Docker dependencies
