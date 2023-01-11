@@ -76,6 +76,8 @@ jobs:
           ls -lsa ./node_modules/@lando
           cp -rf ./../ node_modules/@lando/core
           ls -lsa ./node_modules/@lando
+          cd ..
+          pwd
 
       - name: Package CLI
         run: yarn cli:build
