@@ -1,0 +1,6 @@
+name: lando-the-sitename-that-never-ends-it-goes-on-and-on-my-friends-no-seriously-it-keeps-going-on-and-on
+services:
+  defaults:
+    type: nginx
+    ssl: true
+

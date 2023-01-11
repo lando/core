@@ -1,0 +1,5 @@
+{
+  "name": "@lando/base-test-plugin",
+  "version": "1.0.1",
+  "description": "a test plugin"
+}
