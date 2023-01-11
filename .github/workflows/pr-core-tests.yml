@@ -70,11 +70,13 @@ jobs:
       - name: Move core over before we package
         run: |
           touch COPY_TEST
-          cd cli
+          mv ./cli /tmp/cli
+          ls -lsa /tmp/cli
+          cd /tmp/cli
           ls -lsa ./node_modules/@lando
           rm -rf ./node_modules/@lando/core
           ls -lsa ./node_modules/@lando
-          cp -rf ./../ node_modules/@lando/core
+          cp -rf $GITHUB_WORKSPACE node_modules/@lando/core
           ls -lsa ./node_modules/@lando
           cd ..
           pwd
