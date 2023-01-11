@@ -1,0 +1,96 @@
+name: Core Tests
+
+on:
+  pull_request:
+
+jobs:
+  leia-tests:
+    runs-on: ${{ matrix.os }}
+    env:
+      TERM: xterm
+      DEBUG: "lando*"
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
+        node-version:
+          - '16'
+        leia-tests:
+          - examples/badname
+          - examples/base
+          - examples/events
+          - examples/keys
+          - examples/lando-101
+          - examples/landofile-custom
+          - examples/long-name
+          - examples/networking
+          - examples/proxy
+          - examples/scanner
+          - examples/services
+          - examples/tooling
+    steps:
+
+      # Install deps and cache
+      # Eventually it would be great if these steps could live in a separate YAML file
+      # that could be included in line to avoid code duplication
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Checkout @lando/cli repo
+        uses: actions/checkout@v3
+        with:
+          repository: lando/cli
+          path: cli
+      - name: Install node ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: yarn
+      - name: Install Yarn dependencies
+        run: |
+          yarn install --prefer-offline --frozen-lockfile
+          cd cli
+          yarn install --prefer-offline --frozen-lockfile
+
+      # This block should eventually become use lando/actions-hyperdrive@v2
+      - name: Verify Docker dependencies
+        run: |
+          docker --version | grep "20.10."
+          docker-compose --version | grep "1.29."
+      # - name: Install via hyperdrive if above is bad
+      - name: Disable usage and error reporting
+        run: |
+          mkdir -p ~/.lando/cache
+          echo false > ~/.lando/cache/report_errors
+          sed -i "s/report: true.*/report: false/" config.yml
+
+      # get the cli repo, copy core into it, build the cli repo and use that
+      # we'd probably figure out a better way to dog food but since runtime 3 is on the way out
+      # we are just going to do the lazy thing
+      - name: Move core over before we package
+        run: |
+          # touch a file so we can test the copy
+          touch COPY_TEST
+
+          # move cli to tmp dir and replace its core
+          mv ./cli /tmp/cli
+          cd /tmp/cli
+          rm -rf ./node_modules/@lando/core
+          cp -rf $GITHUB_WORKSPACE node_modules/@lando/core
+
+          # verify the copy
+          ls -lsa ./node_modules/@lando/core
+          ls -lsa ./node_modules/@lando/core | grep COPY_TEST
+      - name: Package CLI
+        run: cd /tmp/cli && yarn cli:build
+      - name: Replace source CLI with packaged one
+        run: sudo mv /tmp/cli/dist/@lando/cli /usr/local/bin/lando
+      - name: Verify we can run the packaged CLI
+        run: |
+          lando version
+          lando config
+
+      # This block should eventually become use lando/actions-leia@v2
+      - name: Run leia tests
+        shell: bash
+        run: yarn leia "./${{ matrix.leia-tests }}/README.md" -c 'Destroy tests' --stdin --shell bash
