@@ -24,21 +24,21 @@ jobs:
       # that could be included in line to avoid code duplication
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Checkout @lando/cli repo
+        uses: actions/checkout@v3
+        with:
+          repository: lando/cli
+          path: cli
       - name: Install node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Get Yarn cache directory
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - name: Use Yarn cache
-        uses: actions/cache@v2
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+          cache: yarn
       - name: Install Yarn dependencies
-        run: yarn install --prefer-offline --frozen-lockfile
+        run: |
+          yarn install --prefer-offline --frozen-lockfile
+          cd cli
+          yarn install --prefer-offline --frozen-lockfile
 
       # This block should eventually become use lando/actions-hyperdrive@v2
       - name: Verify Docker dependencies
@@ -51,10 +51,28 @@ jobs:
           mkdir -p ~/.lando/cache
           echo false > ~/.lando/cache/report_errors
           sed -i "s/report: true.*/report: false/" config.yml
+
+      # get the cli repo, copy core into it, build the cli repo and use that
+      # we'd probably figure out a better way to dog food but since runtime 3 is on the way out
+      # we are just going to do the lazy thing
+      - name: Move core over before we package
+        run: |
+          # touch a file so we can test the copy
+          touch COPY_TEST
+
+          # move cli to tmp dir and replace its core
+          mv ./cli /tmp/cli
+          cd /tmp/cli
+          rm -rf ./node_modules/@lando/core
+          cp -rf $GITHUB_WORKSPACE node_modules/@lando/core
+
+          # verify the copy
+          ls -lsa ./node_modules/@lando/core
+          ls -lsa ./node_modules/@lando/core | grep COPY_TEST
       - name: Package CLI
-        run: yarn build:cli
+        run: cd /tmp/cli && yarn cli:build
       - name: Replace source CLI with packaged one
-        run: sudo mv ./dist/@lando/cli /usr/local/bin/lando
+        run: sudo mv /tmp/cli/dist/@lando/cli /usr/local/bin/lando
       - name: Verify we can run the packaged CLI
         run: |
           lando version

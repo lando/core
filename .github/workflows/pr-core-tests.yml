@@ -81,7 +81,6 @@ jobs:
           # verify the copy
           ls -lsa ./node_modules/@lando/core
           ls -lsa ./node_modules/@lando/core | grep COPY_TEST
-
       - name: Package CLI
         run: cd /tmp/cli && yarn cli:build
       - name: Replace source CLI with packaged one
