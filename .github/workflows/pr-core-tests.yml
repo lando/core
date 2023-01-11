@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: lando/cli
-          path: ./../cli
+          path: cli
       - name: Install node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
@@ -49,11 +49,10 @@ jobs:
       - name: Install Yarn dependencies
         run: |
           yarn install --prefer-offline --frozen-lockfile
-          cd ./../
-          ls -lsa
+          cd cli
           pwd
           yarn install --prefer-offline --frozen-lockfile
-          cd core
+          cd ..
 
       # This block should eventually become use lando/actions-hyperdrive@v2
       - name: Verify Docker dependencies
