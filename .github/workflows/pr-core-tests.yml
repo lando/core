@@ -17,18 +17,18 @@ jobs:
         node-version:
           - '16'
         leia-tests:
-          # - examples/badname
+          - examples/badname
           - examples/base
-          # - examples/events
-          # - examples/keys
-          # - examples/lando-101
-          # - examples/landofile-custom
-          # - examples/long-name
-          # - examples/networking
-          # - examples/proxy
-          # - examples/scanner
-          # - examples/services
-          # - examples/tooling
+          - examples/events
+          - examples/keys
+          - examples/lando-101
+          - examples/landofile-custom
+          - examples/long-name
+          - examples/networking
+          - examples/proxy
+          - examples/scanner
+          - examples/services
+          - examples/tooling
     steps:
 
       # Install deps and cache
@@ -92,6 +92,6 @@ jobs:
           lando config
 
       # This block should eventually become use lando/actions-leia@v2
-      # - name: Run leia tests
-      #   shell: bash
-      #   run: yarn leia "./${{ matrix.leia-tests }}/README.md" -c 'Destroy tests' --stdin --shell bash
+      - name: Run leia tests
+        shell: bash
+        run: yarn leia "./${{ matrix.leia-tests }}/README.md" -c 'Destroy tests' --stdin --shell bash
