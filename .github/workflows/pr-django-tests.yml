@@ -54,7 +54,7 @@ jobs:
 
       # get the cli repo, copy core into it, build the cli repo and use that
       # we'd probably figure out a better way to dog food but since runtime 3 is on the way out
-      # we are just going to do the lazy thing
+      # we are just going to do the lazy thing werg
       - name: Move core over before we package
         run: |
           # touch a file so we can test the copy
