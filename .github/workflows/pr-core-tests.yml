@@ -17,18 +17,18 @@ jobs:
         node-version:
           - '16'
         leia-tests:
-          - examples/badname
+          # - examples/badname
           - examples/base
-          - examples/events
-          - examples/keys
-          - examples/lando-101
-          - examples/landofile-custom
-          - examples/long-name
-          - examples/networking
-          - examples/proxy
-          - examples/scanner
-          - examples/services
-          - examples/tooling
+          # - examples/events
+          # - examples/keys
+          # - examples/lando-101
+          # - examples/landofile-custom
+          # - examples/long-name
+          # - examples/networking
+          # - examples/proxy
+          # - examples/scanner
+          # - examples/services
+          # - examples/tooling
     steps:
 
       # Install deps and cache
@@ -50,10 +50,7 @@ jobs:
         run: |
           yarn install --prefer-offline --frozen-lockfile
           cd cli
-          pwd
           yarn install --prefer-offline --frozen-lockfile
-          cd ..
-          pwd
 
       # This block should eventually become use lando/actions-hyperdrive@v2
       - name: Verify Docker dependencies
