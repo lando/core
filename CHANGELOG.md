@@ -1,4 +1,4 @@
-## v3.8.3 - Release TBD
+## v3.8.3 - [January 13, 2023](https://github.com/lando/core/releases/tag/3.8.3)
 
 * Fixed bug causing `null` `lando.versions` to fatally error
 
