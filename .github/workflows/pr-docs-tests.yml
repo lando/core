@@ -6,6 +6,9 @@ on:
 jobs:
   unit-tests:
     runs-on: ${{ matrix.os }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DEBUG: "@lando/*"
     strategy:
       matrix:
         os:
