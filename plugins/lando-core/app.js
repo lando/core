@@ -218,7 +218,7 @@ module.exports = (app, lando) => {
 
   // Check for docker compat warnings and surface them nicely as well
   app.events.on('post-start', () => {
-    _.forEach(_(lando.versions).filter(version => version.dockerVersion).value(), thing => {
+    _.forEach(_(lando.versions).filter(version => version && version.dockerVersion).value(), thing => {
       if (!thing.satisfied) app.addWarning(warnings.unsupportedVersionWarning(thing));
     });
   });
