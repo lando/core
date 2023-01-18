@@ -1,3 +1,7 @@
+## v3.8.3 - [January 18, 2023](https://github.com/lando/core/releases/tag/3.8.4)
+
+* Bumped supported Docker Desktop version to `4.16.99`
+
 ## v3.8.3 - [January 13, 2023](https://github.com/lando/core/releases/tag/3.8.3)
 
 * Fixed bug causing `null` `lando.versions` to fatally error
