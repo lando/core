@@ -5,20 +5,40 @@ description: If you've ever tried to run a site with a shload of files using Doc
 
 # Performance
 
-If you've ever tried to run a site with a shload of files using Docker Desktop for Windows or macOS then you've likely experienced some of the [very well documented](https://forums.docker.com/t/file-access-in-mounted-volumes-extremely-slow-cpu-bound/8076/89) performance issues associated with doing so. Usually, these performance issues manifest themselves in slow page load times, or exceptionally long cli operations like installing a dependency or clearing an application's cache.
+If you've ever tried to run a site with a shload of files using Docker Desktop then you've likely experienced some of the [very well documented](https://forums.docker.com/t/file-access-in-mounted-volumes-extremely-slow-cpu-bound/8076/89) performance issues associated with doing so. Usually, these performance issues manifest themselves in slow page load times, or exceptionally long cli operations like installing a dependency or clearing an application's cache.
 
 Similarly, since Lando is built on top of these technologies, you likely have experienced them while running big sites on Lando as well; despite the fact that we already [optimize our app mounts](./services.md#app-mount).
 
-The good news is that as of Lando 3.0.8, we can offer an _experimental_, opt-in, performance optimization pathway to users on macOS or Windows. Note that the below configuration does not impact Linux users who already have "native" performance by default.
-
-The `tl;dr` is that users can now `exclude` certain directories from using the default Docker Desktop. Depending on the amount of files you exclude, this can bring your application from [_ugh fml_ to _pretty close_](https://github.com/lando/lando/issues/1460#issuecomment-467126103) to native speed.
-
-The downside of this approach is that all "excluded" directories are decoupled from your host, meaning that you can no longer edit their contents from your host machine. As a result, we recommend you only exclude directories containing code you don't need to modify such as `vendor` or `node_modules`.
-
+There are, however, a few different things you can do to improve performance.
 
 [[toc]]
 
-## Configuration
+## 1. VirtioFS on macOS
+
+Docker Desktop [4.16.1](https://docs.docker.com/desktop/release-notes/#4161) finally makes VirtioFS file sharing generally available. VirtioFS offers [significant improvements in performance](https://www.jeffgeerling.com/blog/2022/new-docker-mac-virtiofs-file-sync-4x-faster) over the default gRPC FUSE mechanism. It's worth switching to but you will need at least Lando [3.9.0](https://github.com/lando/lando/releases/tag/v3.9.0) for it to work correctly.
+
+If you see errors when using it we recommend the following corrective action:
+
+```bash
+rm -rf ~/.lando/scripts
+```
+
+## 2. WSL2 on Windows
+
+While you _can_ use Lando on your host Windows machine and have it talk to the Docker Desktop WSL2 backend it's probably _best_ to spin up another Linux distribution like Ubuntu, also install Lando there and do all your development there. This avoids most file sharing misery and as you might expect is almost as fast as running on Linux natively.
+
+In this model the user can usually use something like Windows Terminal to directly interface with the WSL2 machine or something like the [WSL2 Extension in VSCODE](https://code.visualstudio.com/docs/remote/wsl) to directly edit their files on the same machine.
+
+
+Here is a good [third-party guide](https://alexanderallen.medium.com/installing-lando-in-wsl-2-f965c47a8f03) on setting most of the above up.
+
+## 3. Excluding directories
+
+Users can now `exclude` certain directories from using the default Docker Desktop sharing mechanism. Depending on the amount of files you exclude, this can bring your application from [_ugh fml_ to _pretty close_](https://github.com/lando/lando/issues/1460#issuecomment-467126103) to native speed.
+
+The downside of this approach is that all "excluded" directories are decoupled from your host, meaning that you can no longer edit their contents from your host machine. As a result, we recommend you only exclude directories containing code you don't need to modify such as `vendor` or `node_modules`.
+
+### Configuration
 
 You can exclude directories by adding the top-level `excludes` key to your Landofile and then running a `lando rebuild`.
 
@@ -45,17 +65,17 @@ excludes:
 We've noticed in some instances you need to restart Docker in order to benefit from these performance improvements. If you exclude a decent amount of directories and do not notice a considerable speed increase, we recommend you restart Docker and try again.
 :::
 
-### Caveats
+#### Caveats
 
 Some of the main caveats you need to be aware of when structuring your excludes are shown below:
 
-#### Rebuild slowness
+##### Rebuild slowness
 
 During each rebuild, Lando will attempt to sync the excluded directories from your host to their analogs inside each container. Depending on how many files you are excluding, this can add significant overhead to rebuilds. Note that on subsequent rebuilds, Lando will only sync new or modified files.
 
 You can mitigate this by installing large directories such as `vendor` as part of a build step.
 
-#### Editing code
+##### Editing code
 
 If you find yourself needing to edit specific directories or files, we recommend you add them as "exclude excludes" and rebuild your app.
 
@@ -128,7 +148,7 @@ services:
 
 If you run a `lando rebuild` with the above Landofile, you should expect to see a `vendor` directory containing just the `pirog/my-module` project on your host. You should be able to edit this directory directly from your host and see the changes in your container.
 
-#### Cannot remove mounted directories
+##### Cannot remove mounted directories
 
 All of the directories you exclude cannot be removed with a `rm -rf /path/to/exclude` while inside of your container. You will likely get an error indicating the device is busy. This means if you exclude a directory that gets removed during a dependency update or build step you will likely experience some degree of sadness.
 
