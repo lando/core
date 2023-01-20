@@ -1,3 +1,8 @@
+## v3.8.5 - [January 20, 2023](https://github.com/lando/core/releases/tag/3.8.5)
+
+* Added support for "sandboxed" v3 plugins in anticipation of plugin hybridization
+* Fixed bug causing loading of non V3 plugins on Windows [#27](https://github.com/lando/core/issues/27)
+
 ## v3.8.4 - [January 18, 2023](https://github.com/lando/core/releases/tag/3.8.4)
 
 * Added workaround to help with `VirtioFS` support in Docker Desktop `4.16.1`
