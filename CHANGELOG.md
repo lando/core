@@ -1,3 +1,7 @@
+## v3.10.0 - [January 23, 2023](https://github.com/lando/core/releases/tag/3.10.0)
+
+* Bumped version just to indicate push to stable
+
 ## v3.8.5 - [January 20, 2023](https://github.com/lando/core/releases/tag/3.8.5)
 
 * Added support for "sandboxed" v3 plugins in anticipation of plugin hybridization
