@@ -60,9 +60,9 @@ const getConfigDefaults = options => {
   // Get the default db conf
   const dbConfig = _.get(options, 'database', 'mysql');
   const database = _.first(dbConfig.split(':'));
-  const version = _.last(dbConfig.split(':'));
+  const version = _.last(dbConfig.split(':')).substring(0, 2);
   if (database === 'mysql' || database === 'mariadb') {
-    if (version === '8.0') {
+    if (version === '8.') {
       options.defaultFiles.database = 'mysql8.cnf';
     } else {
       options.defaultFiles.database = 'mysql.cnf';
