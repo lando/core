@@ -1,6 +1,6 @@
-## v3.11.0 - [TBD](https://github.com/lando/core/releases/tag/3.11.0)
+## v3.11.0 - [February 26, 2023](https://github.com/lando/core/releases/tag/3.11.0)
 
-* Detect MySQL 8 DBs for `laemp` recipes to insert appropriate config [lando/lando#1426](https://github.com/lando/lando/issues/1462)
+* Added detection of MySQL 8 DBs for `laemp` recipes to insert appropriate config [lando/lando#1426](https://github.com/lando/lando/issues/1462)
 
 ## v3.10.0 - [January 23, 2023](https://github.com/lando/core/releases/tag/3.10.0)
 
