@@ -10,6 +10,7 @@ module.exports = lando => {
     run: options => {
       // Try to get our app
       const app = lando.getApp(options._app.root);
+      const legacyScanner = _.get(lando, 'config.scanner', true) === 'legacy';
       // Start it if we can!
       if (app) {
         console.log(lando.cli.makeArt('appStart', {name: app.name, phase: 'pre'}));
@@ -17,7 +18,7 @@ module.exports = lando => {
         return app.start().then(() => {
           const type = !_.isEmpty(app.warnings) ? 'report' : 'post';
           console.log(lando.cli.makeArt('appStart', {name: app.name, phase: type, warnings: app.warnings}));
-          console.log(lando.cli.formatData(utils.startTable(app), {format: 'table'}, {border: false}));
+          console.log(lando.cli.formatData(utils.startTable(app, {legacyScanner}), {format: 'table'}, {border: false}));
           console.log('');
         })
         // Provide help if there is an error

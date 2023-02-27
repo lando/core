@@ -80,7 +80,7 @@ exports.normalizeOverrides = (overrides, base = '.', volumes = {}) => {
 /*
  * Returns a CLI table with app start metadata info
  */
-exports.startTable = app => {
+exports.startTable = (app, {legacyScanner = false} = {}) => {
   const data = {
     name: app.name,
     location: app.root,
@@ -92,19 +92,22 @@ exports.startTable = app => {
   const urls = {};
 
   // Categorize and colorize URLS if and as appropriate
-  _.forEach(app.info, info => {
-    if (_.has(info, 'urls') && !_.isEmpty(info.urls)) {
-      urls[info.service] = _.filter(app.urls, item => {
-        item.theme = chalk[item.color](item.url);
-        return _.includes(info.urls, item.url);
-      });
-    }
-  });
+  // add legacy scanner info if appropriate
+  if (legacyScanner) {
+    _.forEach(app.info, info => {
+      if (_.has(info, 'urls') && !_.isEmpty(info.urls)) {
+        urls[info.service] = _.filter(app.urls, item => {
+          item.theme = chalk[item.color](item.url);
+          return _.includes(info.urls, item.url);
+        });
+      }
+    });
 
-  // Add service URLS
-  _.forEach(urls, (items, service) => {
-    data[service + ' urls'] = _.map(items, 'theme');
-  });
+    // Add service URLS
+    _.forEach(urls, (items, service) => {
+      data[service + ' urls'] = _.map(items, 'theme');
+    });
+  }
 
   // Return data
   return data;

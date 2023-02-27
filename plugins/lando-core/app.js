@@ -223,24 +223,26 @@ module.exports = (app, lando) => {
     });
   });
 
-  // Scan urls
-  app.events.on('post-start', 10, () => {
-    // Message to let the user know it could take a bit
-    console.log('Scanning to determine which services are ready... Please stand by...');
-    // Filter out any services where the scanner might be disabled
-    return app.scanUrls(_.flatMap(getScannable(app), 'urls'), {max: 16}).then(urls => {
-      // Get data about our scanned urls
-      app.urls = urls;
-      // Add in unscannable ones if we have them
-      if (!_.isEmpty(getScannable(app, false))) {
-        app.urls = app.urls.concat(_.map(_.flatMap(getScannable(app, false), 'urls'), url => ({
-          url,
-          status: true,
-          color: 'yellow',
-        })));
-      }
+  // LEGACY URL Scanner urls
+  if (_.get(lando, 'config.scanner', true) === 'legacy') {
+    app.events.on('post-start', 10, () => {
+      // Message to let the user know it could take a bit
+      console.log('Scanning to determine which services are ready... Please stand by...');
+      // Filter out any services where the scanner might be disabled
+      return app.scanUrls(_.flatMap(getScannable(app), 'urls'), {max: 16}).then(urls => {
+        // Get data about our scanned urls
+        app.urls = urls;
+        // Add in unscannable ones if we have them
+        if (!_.isEmpty(getScannable(app, false))) {
+          app.urls = app.urls.concat(_.map(_.flatMap(getScannable(app, false), 'urls'), url => ({
+            url,
+            status: true,
+            color: 'yellow',
+          })));
+        }
+      });
     });
-  });
+  };
 
   // Reset app info on a stop, this helps prevent wrong/duplicate information being reported on a restart
   app.events.on('post-stop', () => lando.utils.getInfoDefaults(app));
