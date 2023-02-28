@@ -12,10 +12,15 @@ const warnings = require('./lib/warnings');
 const getHttpPorts = data => _.get(data, 'Config.Labels["io.lando.http-ports"]', '80,443').split(',');
 const getHttpsPorts = data => _.get(data, 'Config.Labels["io.lando.https-ports"]', '443').split(',');
 
-// Helper to get scannable or not scannable services
-const getScannable = (app, scan = true) => _.filter(app.info, service => {
-  return _.get(app, `config.services.${service.service}.scanner`, true) === scan;
+// Helpers to get scannable or not scannable services
+const getScannable = app => _.filter(app.info, service => {
+  const scanner = _.get(app, `config.services.${service.service}.scanner`, true);
+  return scanner || _.isObject(scanner);
 });
+const getUnscannable = app => _.filter(app.info, service => {
+  return _.get(app, `config.services.${service.service}.scanner`, true) === false;
+});
+
 
 // Helper to set the LANDO_LOAD_KEYS var
 const getKeys = (keys = true) => {
@@ -233,8 +238,8 @@ module.exports = (app, lando) => {
         // Get data about our scanned urls
         app.urls = urls;
         // Add in unscannable ones if we have them
-        if (!_.isEmpty(getScannable(app, false))) {
-          app.urls = app.urls.concat(_.map(_.flatMap(getScannable(app, false), 'urls'), url => ({
+        if (!_.isEmpty(getUnscannable(app))) {
+          app.urls = app.urls.concat(_.map(_.flatMap(getUnscannable(app), 'urls'), url => ({
             url,
             status: true,
             color: 'yellow',

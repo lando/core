@@ -16,7 +16,7 @@ services:
     type: apache
     scanner:
       timeout: 1000
-      max: 10
+      retry: 10
       path: /another.html
       okCodes:
         - 404
@@ -26,3 +26,9 @@ services:
       path: /missing.html
       okCodes:
         - 404
+  fail:
+    type: apache
+    scanner:
+      path: /missing.html
+      retry: 4
+

@@ -107,6 +107,10 @@ exports.startTable = (app, {legacyScanner = false} = {}) => {
     _.forEach(urls, (items, service) => {
       data[service + ' urls'] = _.map(items, 'theme');
     });
+
+  // add placeholder URLS for non le
+  } else {
+    data.urls = '';
   }
 
   // Return data
