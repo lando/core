@@ -40,8 +40,8 @@ module.exports = lando => {
 
             // listr things
             // if verbose or debug mode is on then use the verbose renderer
-            const renderer = options.debug || options.verbose > 0 ? 'verbose' : 'default';
-            const rendererOptions = {collapse: false, suffixRetries: false, showErrorMessage: false};
+            const renderer = options.debug || options.verbose > 0 ? 'verbose' : lando.cli.getRenderer();
+            const rendererOptions = {collapse: false, level: 1, suffixRetries: false, showErrorMessage: false};
             const listrOptions = {renderer, concurrent: true, showErrorMessage: false, rendererOptions};
             const tasks = new Manager(listrOptions);
             tasks.add(scanTasks);
@@ -54,7 +54,7 @@ module.exports = lando => {
             .catch(error => {
               throw error;
             });
-          }
+          } else console.log(' ');
         })
         // Provide help if there is an error
         .catch(err => {
