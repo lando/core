@@ -1,4 +1,7 @@
 name: lando-scanner
+proxy:
+  scanme:
+    - lando-scanner.lndo.site
 services:
   scanme:
     type: apache
@@ -9,3 +12,23 @@ services:
   dontlookatme:
     type: apache
     scanner: false
+  options:
+    type: apache
+    scanner:
+      timeout: 1000
+      retry: 10
+      path: /another.html
+      okCodes:
+        - 404
+  allowmissing:
+    type: apache
+    scanner:
+      path: /missing.html
+      okCodes:
+        - 404
+  fail:
+    type: apache
+    scanner:
+      path: /missing.html
+      retry: 4
+
