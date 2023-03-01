@@ -56,17 +56,18 @@ jobs:
       # - name: Install via hyperdrive if above is bad
       - name: Disable usage and error reporting
         run: |
-          mkdir -p ~/.lando/cache
-          echo false > ~/.lando/cache/report_errors
+          mkdir -p /home/runner/.lando/cache
+          echo false > /home/runner/.lando/cache/report_errors
           sed -i "s/report: true.*/report: false/" config.yml
       - name: Symlink for external core usage
         run: |
-          mkdir -p ~/.lando/plugins/@lando
-          ln -sf /home/runner/work/core/core ~/.lando/plugins/@lando/core
+          mkdir -p /home/runner/.lando/plugins/@lando
+          ln -sf /home/runner/work/core/core /home/runner/.lando/plugins/@lando/core
           lando --clear
       - name: Verify Lando works and we are dogfooding this plugin for tests
         run: |
           lando version
+          # we use the symlinked path from above here instead of the usual
           lando config --path plugins | grep core | grep /home/runner/work/core/core || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
 
       # This block should eventually become use lando/actions-leia@v2
