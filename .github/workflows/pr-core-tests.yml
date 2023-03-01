@@ -16,6 +16,8 @@ jobs:
           - ubuntu-22.04
         node-version:
           - '16'
+        lando-versions:
+          - dev
         leia-tests:
           - examples/badname
           - examples/base
@@ -30,65 +32,43 @@ jobs:
           - examples/services
           - examples/tooling
     steps:
-
-      # Install deps and cache
-      # Eventually it would be great if these steps could live in a separate YAML file
-      # that could be included in line to avoid code duplication
       - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Checkout @lando/cli repo
         uses: actions/checkout@v3
-        with:
-          repository: lando/cli
-          path: cli
       - name: Install node ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org
           cache: yarn
       - name: Install Yarn dependencies
-        run: |
-          yarn install --prefer-offline --frozen-lockfile
-          cd cli
-          yarn install --prefer-offline --frozen-lockfile
+        run: yarn install --prefer-offline --frozen-lockfile
 
       # This block should eventually become use lando/actions-hyperdrive@v2
       - name: Verify Docker dependencies
         run: |
           docker --version | grep "20.10."
           docker-compose --version | grep "1.29."
+      - name: Grab Lando CLI (${{ matrix.lando-versions }})
+        run: |
+          sudo curl -fsSL -o /usr/local/bin/lando "https://files.lando.dev/cli/lando-linux-x64-${{ matrix.lando-versions }}"
+          sudo chmod +x /usr/local/bin/lando
+
       # - name: Install via hyperdrive if above is bad
       - name: Disable usage and error reporting
         run: |
-          mkdir -p ~/.lando/cache
-          echo false > ~/.lando/cache/report_errors
+          mkdir -p /home/runner/.lando/cache
+          echo false > /home/runner/.lando/cache/report_errors
           sed -i "s/report: true.*/report: false/" config.yml
-
-      # get the cli repo, copy core into it, build the cli repo and use that
-      # we'd probably figure out a better way to dog food but since runtime 3 is on the way out
-      # we are just going to do the lazy thing
-      - name: Move core over before we package
+      - name: Symlink for external core usage
         run: |
-          # touch a file so we can test the copy
-          touch COPY_TEST
-
-          # move cli to tmp dir and replace its core
-          mv ./cli /tmp/cli
-          cd /tmp/cli
-          rm -rf ./node_modules/@lando/core
-          cp -rf $GITHUB_WORKSPACE node_modules/@lando/core
-
-          # verify the copy
-          ls -lsa ./node_modules/@lando/core
-          ls -lsa ./node_modules/@lando/core | grep COPY_TEST
-      - name: Package CLI
-        run: cd /tmp/cli && yarn cli:build
-      - name: Replace source CLI with packaged one
-        run: sudo mv /tmp/cli/dist/@lando/cli /usr/local/bin/lando
-      - name: Verify we can run the packaged CLI
+          mkdir -p /home/runner/.lando/plugins/@lando
+          ln -sf /home/runner/work/core/core /home/runner/.lando/plugins/@lando/core
+          lando --clear
+      - name: Verify Lando works and we are dogfooding this plugin for tests
         run: |
           lando version
-          lando config
+          # we use the symlinked path from above here instead of the usual
+          lando config --path plugins | grep lando-core | grep /home/runner/.lando/plugins/@lando/core || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
 
       # This block should eventually become use lando/actions-leia@v2
       - name: Run leia tests

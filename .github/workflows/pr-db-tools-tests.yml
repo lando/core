@@ -1,7 +1,7 @@
 name: Database Tools Tests
 
-on:
-  pull_request:
+# on:
+#   pull_request:
 
 jobs:
   leia-tests:
