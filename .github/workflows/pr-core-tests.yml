@@ -68,7 +68,7 @@ jobs:
         run: |
           lando version
           # we use the symlinked path from above here instead of the usual
-          lando config --path plugins | grep core | grep /home/runner/work/core/core || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
+          lando config --path plugins | grep lando-core | grep /home/runner/.lando/plugins/@lando/core || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
 
       # This block should eventually become use lando/actions-leia@v2
       - name: Run leia tests
