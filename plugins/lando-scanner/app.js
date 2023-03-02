@@ -3,13 +3,18 @@
 // Modules
 const _ = require('lodash');
 const debug = require('debug')('@lando/core:scanner');
+const http = require('http');
 const https = require('https');
 
 const request = () => {
   const axios = require('axios');
   // @todo: is it ok to turn redirects off here?
   // if we don't we get an error every time http tries to redirect to https
-  return axios.create({maxRedirects: 3, httpsAgent: new https.Agent({rejectUnauthorized: false})});
+  return axios.create({
+    maxRedirects: 3,
+    httpAgent: new http.Agent({family: 4}),
+    httpsAgent: new https.Agent({rejectUnauthorized: false, family: 4}),
+  });
 };
 
 // @TODO: add some debugging? or only in CLI?
