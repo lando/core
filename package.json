@@ -34,7 +34,7 @@
     "docs:build": "vuepress build docs",
     "docs:lint": "eslint -c docs/.eslintrc.json --quiet docs/.vuepress",
     "lint": "eslint --quiet . && yarn docs:lint",
-    "release": "bump --prompt --tag --all --push",
+    "release": "bundle-dependencies update && bump --prompt --tag --all --push",
     "test:unit": "nyc --reporter=html --reporter=text mocha --timeout 5000 test/**/*.spec.js",
     "test:leia": "yarn leia \"examples/**/README.md\" -c 'Destroy tests' --stdin",
     "test": "yarn lint && yarn test:unit"
@@ -71,6 +71,7 @@
     "@babel/eslint-parser": "^7.16.0",
     "@lando/leia": "^0.6.4",
     "@lando/vuepress-theme-default-plus": "1.0.0-beta.44",
+    "bundle-dependencies": "^1.0.2",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "chai-events": "^0.0.1",
@@ -85,5 +86,33 @@
     "sinon-chai": "^2.14.0",
     "version-bump-prompt": "^4.2.1",
     "vuepress": "2.0.0-beta.53"
-  }
+  },
+  "bundledDependencies": [
+    "axios",
+    "bluebird",
+    "clean-stacktrace",
+    "copy-dir",
+    "dayjs",
+    "debug",
+    "dockerode",
+    "github",
+    "glob",
+    "ip",
+    "js-yaml",
+    "jsonfile",
+    "listr2",
+    "lodash",
+    "mkdirp",
+    "node-cache",
+    "object-hash",
+    "rimraf",
+    "semver",
+    "shelljs",
+    "string-argv",
+    "through",
+    "transliteration",
+    "uuid",
+    "valid-url",
+    "winston"
+  ]
 }
