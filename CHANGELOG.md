@@ -1,4 +1,4 @@
-## v3.12.0 - [March 1, 2023](https://github.com/lando/core/releases/tag/3.12.0)
+## v3.14.0 - [March 1, 2023](https://github.com/lando/core/releases/tag/3.14.0)
 
 * Improved `scanner` reliability by preferring IPv4 [#21](https://github.com/lando/core/issues/21)
 
