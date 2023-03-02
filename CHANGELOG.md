@@ -1,5 +1,6 @@
 ## v3.14.0 - [March 1, 2023](https://github.com/lando/core/releases/tag/3.14.0)
 
+* Added new and improved URL `scanner` provides real time feedback on service status. [READ MORE](https://docs.lando.dev/core/v3/scanner.html)
 * Improved `scanner` reliability by preferring IPv4 [#21](https://github.com/lando/core/issues/21)
 
 ## v3.11.0 - [February 26, 2023](https://github.com/lando/core/releases/tag/3.11.0)
