@@ -1,3 +1,7 @@
+## v3.12.0 - [March 1, 2023](https://github.com/lando/core/releases/tag/3.12.0)
+
+* Improved `scanner` reliability by preferring IPv4 [#21](https://github.com/lando/core/issues/21)
+
 ## v3.11.0 - [February 26, 2023](https://github.com/lando/core/releases/tag/3.11.0)
 
 * Added detection of MySQL 8 DBs for `laemp` recipes to insert appropriate config [lando/lando#1426](https://github.com/lando/lando/issues/1462)
