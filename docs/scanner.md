@@ -18,7 +18,7 @@ The results of the scan will be coded:
 
 By default the scanner will request `/` for each URL a service exposes. It will error for any non `2XX` code and it will retry 25 times with a slight backoff per retry.
 
-That said, we do realize there are legitimate use cases where you may not want this behavior or have purposefully set up your application to emit one a naughty status code. For these use cases, see below:
+We realize there are legitimate use cases where you may not want the above behavior. For example you may have purposefully set up your application to emit a naughty status code. For these use cases, see the configuration options below:
 
 ::: tip NEW FEATURES!
 Please note that the vast majority of these configuration options were added in [Lando 3.14.0](https://github.com/lando/lando/releases/tag/v3.14.0). So if they are not working for you we recommend you first update to the latest Lando.
@@ -26,7 +26,7 @@ Please note that the vast majority of these configuration options were added in 
 
 ## Skipping
 
-If you would like to bypass scanning altogether then just set to `false`. This will cause the scan to immediately pass but the URL will show up yellow.
+If you would like to bypass scanning altogether then just set `scanner` to `false`. This will cause the scan to immediately pass. The URL will show up as yellow do denote it has been skipped.
 
 ```yaml
 services:
@@ -37,7 +37,9 @@ services:
 
 ## Adding OK codes
 
-Some applications start up serving alternate non `2XX` response codes. For example, some PHP frameworks will serve a `404` page by default. If you are in a similar situation you can explicitly add additional codes that Lando will interpret as expected.
+Some applications start up serving alternate non `2XX` response codes.
+
+For example, some PHP frameworks will serve a `404` page by default. If you are in a similar situation you can explicitly add additional codes that Lando will interpret as "OK".
 
 ```yaml
 services:
@@ -72,4 +74,28 @@ services:
     scanner:
       timeout: 1000
       retry: 10
+```
+
+## Using the legacy scanner
+
+You can also elect to use the legacy pre-3.14.0 scanner by editing the Lando [global configuration](./global.md).
+
+**config.yml**
+
+```yaml
+scanner: legacy
+```
+
+Alternatively you can use the legacy scanner by setting the environment variable `LANDO_SCANNER` to `legacy`. Here is a use-at-start example:
+
+```bash:no-line-numbers
+LANDO_SCANNER=legacy lando start
+```
+
+You can see whether the legacy scanner is being used with `lando config` and looking for the `scanner` key.
+
+Note that the key will only be set if you elected to use the `legacy` scanner.
+
+```bash:no-line-numbers
+LANDO_SCANNER=legacy lando config --path scanner
 ```
