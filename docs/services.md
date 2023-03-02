@@ -19,7 +19,6 @@ services:
     run:
     run_as_root:
     moreHttpPorts: []
-    scanner: true
 ```
 
 `myservice` in the example above can actually be set to anything the user wants but common conventions are things like `appserver`, `index`, `cache`, `database` or `kanye`.
@@ -235,25 +234,7 @@ Note that while you *can* do the above, it is highly unlikely you will *need* to
 
 ### Service URL Scanning
 
-Lando will automatically try to scan all `localhost` and `proxy` URLs after your app starts. We do this to:
-
-1. Provide some immediate feedback to the user regarding the health of their application and the routing that Lando has set up for it
-2. Help compile first-run application caches behind the scenes to improve initial loaded-in-browser speed
-
-Note that by default, the "scan" will pass unless your app returns either a `400`, `502` or `404` https status code. The results of the scan will be coded:
-
-* GREEN - Scan passed and you are good to go!
-* YELLOW - Scan was not attempted
-* RED - There *may* be a problem with your networking, routing or application
-
-That said, we do realize there are legitimate use cases where you may not want this behavior or have purposefully set up your application to emit one of the naughty status codes above. For these use cases, you can disable the scanner as shown below:
-
-```yaml
-services:
-  myservice:
-    type: apache
-    scanner: false
-```
+Since [Lando 3.14.0](https://github.com/lando/lando/releases/tag/v3.14.0) service URL scanning is [in its own plugin](./scanner).
 
 ### Using Dockerfiles
 
