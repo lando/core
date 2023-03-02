@@ -12,14 +12,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scanner:
-          - new
-        os:
-          - ubuntu-22.04
-        node-version:
-          - '16'
-        lando-versions:
-          - dev
         leia-tests:
           - examples/badname
           - examples/base
@@ -33,12 +25,21 @@ jobs:
           - examples/scanner
           - examples/services
           - examples/tooling
+        os:
+          - ubuntu-22.04
+        node-version:
+          - '16'
+        lando-versions:
+          - dev
+        scanner:
+          - new
         include:
           - leia-tests: examples/scanner
-            scanner: legacy
             os: ubuntu-22.04
             node-version: '16'
             lando-versions: 'dev'
+            scanner: legacy
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
