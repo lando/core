@@ -1,3 +1,8 @@
+## v3.15.0 - [April 7, 2023](https://github.com/lando/core/releases/tag/3.15.0)
+
+* Added `maxRedirects` as a configurable option of the new `scanner`
+* Reverted new url `scanner` to not follow redirects by default, this is more aligned with the behavior of the older `scanner`. [READ MORE](https://docs.lando.dev/core/v3/scanner.html)
+
 ## v3.14.0 - [March 1, 2023](https://github.com/lando/core/releases/tag/3.14.0)
 
 * Added new and improved URL `scanner` provides real time feedback on service status. [READ MORE](https://docs.lando.dev/core/v3/scanner.html)
