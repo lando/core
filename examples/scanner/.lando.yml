@@ -24,6 +24,7 @@ services:
     type: apache
     scanner:
       path: /missing.html
+      maxRedirects: 6
       okCodes:
         - 404
   fail:

@@ -16,7 +16,7 @@ The results of the scan will be coded:
 * <Badge type="warning" text="YELLOW" vertical="middle" /> - Scan was skipped or not attempted
 * <Badge type="danger" text="RED" vertical="middle" /> - [ComScan](https://www.youtube.com/watch?v=aV2DLkDPwM8&t=18s) has detected there *may* be a problem with your networking, routing or application
 
-By default the scanner will request `/` for each URL a service exposes. It will error for any non `2XX` code and it will retry 25 times with a slight backoff per retry.
+By default the scanner will request `/` for each URL a service exposes. It will error for any non `2XX` code and it will retry 25 times with a slight backoff per retry. It _will not_ follow redirects.
 
 We realize there are legitimate use cases where you may not want the above behavior. For example you may have purposefully set up your application to emit a naughty status code. For these use cases, see the configuration options below:
 
@@ -65,13 +65,14 @@ services:
 
 ## Other options
 
-You can also change the amount of time to wait for a request and the number of retries.
+You can also change the amount of time to wait for a request, the number of retries and the number of redirects to follow.
 
 ```yaml
 services:
   myservice:
     type: apache
     scanner:
+      maxRedirects: 0
       timeout: 1000
       retry: 10
 ```
