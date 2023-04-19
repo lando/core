@@ -51,7 +51,9 @@ module.exports = (app, lando) => {
       app.log.verbose('building %s service %s', service.type, service.name);
       // Build da things
       // @NOTE: this also gathers app.info and build steps
+      // @TODO: ?
       const Service = lando.factory.get(service.type);
+
       const data = new Service(service.name, service, lando.factory);
       app.add(data);
       app.info.push(data.info);
