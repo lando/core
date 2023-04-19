@@ -17,7 +17,8 @@ jobs:
         include:
           - image: util
             tag: 4
-            context: plugins/lando-core/types/utility
+            context: plugins/lando-core/images
+            dockerfile: Dockerfile.util.4
 
     steps:
       - name: Checkout code
@@ -44,6 +45,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
           platforms: linux/amd64,linux/arm64
           push: true
           tags: devwithlando/${{ matrix.image }}:${{ matrix.tag }}${{ steps.pr.outputs.TAG_SUFFIX }}

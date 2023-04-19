@@ -2,7 +2,7 @@
 
 // Modules
 const _ = require('lodash');
-const utils = require('./../../lib/utils');
+const utils = require('../lib/utils');
 
 /*
  * Build CA service
