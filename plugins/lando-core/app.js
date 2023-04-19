@@ -21,7 +21,6 @@ const getUnscannable = app => _.filter(app.info, service => {
   return _.get(app, `config.services.${service.service}.scanner`, true) === false;
 });
 
-
 // Helper to set the LANDO_LOAD_KEYS var
 const getKeys = (keys = true) => {
   if (_.isArray(keys)) return keys.join(' ');
