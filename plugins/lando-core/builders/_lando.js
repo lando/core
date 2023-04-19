@@ -6,8 +6,8 @@ const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
 // @TODO: not the best to reach back this far
-const moveConfig = require('./../../../../lib/utils').moveConfig;
-const utils = require('./../../lib/utils');
+const moveConfig = require('../../../lib/utils').moveConfig;
+const utils = require('../lib/utils');
 
 /*
  * The lowest level lando service, this is where a lot of the deep magic lives
