@@ -1,8 +1,9 @@
 name: Database Tools Tests
 
-# on:
-#   pull_request:
-
+on:
+  push:
+    branches:
+      - should-never-run
 jobs:
   leia-tests:
     runs-on: ${{ matrix.os }}
