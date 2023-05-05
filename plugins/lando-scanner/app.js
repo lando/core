@@ -67,7 +67,7 @@ module.exports = async (app, lando) => {
           skip: _.get(app, `config.services.${service.service}.scanner`) === false || _.includes(url, '*'),
           title: url,
           args: [url, {
-            okCodes: _.get(app, `config.services.${service.service}.scanner.okCodes`, []),
+            okCodes: _.get(app, `config.services.${service.service}.scanner.okCodes`, [300, 301, 302, 404]),
             maxRedirects: _.get(app, `config.services.${service.service}.scanner.maxRedirects`, 0),
             timeout: _.get(app, `config.services.${service.service}.scanner.timeout`, 10000),
             log: app.log.debug,

@@ -16,7 +16,7 @@ The results of the scan will be coded:
 * <Badge type="warning" text="YELLOW" vertical="middle" /> - Scan was skipped or not attempted
 * <Badge type="danger" text="RED" vertical="middle" /> - [ComScan](https://www.youtube.com/watch?v=aV2DLkDPwM8&t=18s) has detected there *may* be a problem with your networking, routing or application
 
-By default the scanner will request `/` for each URL a service exposes. It will error for any non `2XX` code and it will retry 25 times with a slight backoff per retry. It _will not_ follow redirects.
+By default the scanner will request `/` for each URL a service exposes. By default it will pass for any valid `2xx`, `3xx`, or `404` response code and it will retry 25 times with a slight backoff per retry. It _will not_ follow redirects.
 
 We realize there are legitimate use cases where you may not want the above behavior. For example you may have purposefully set up your application to emit a naughty status code. For these use cases, see the configuration options below:
 
@@ -37,9 +37,14 @@ services:
 
 ## Adding OK codes
 
-Some applications start up serving alternate non `2XX` response codes.
+Some applications start up serving alternate non `2XX` response codes. For example, some PHP frameworks will serve a `404` page by default. For that reason, we've added the following codes as default valid `okCodes` in Lando:
 
-For example, some PHP frameworks will serve a `404` page by default. If you are in a similar situation you can explicitly add additional codes that Lando will interpret as "OK".
+- `300`
+- `301`
+- `302`
+- `404`
+
+However, if you want to explicitly redefine the response codes that Lando will interpret as "OK", you can overwrite them for a given service in your Landofile:
 
 ```yaml
 services:
