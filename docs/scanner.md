@@ -20,8 +20,11 @@ By default the scanner will request `/` for each URL a service exposes. By defau
 
 We realize there are legitimate use cases where you may not want the above behavior. For example you may have purposefully set up your application to emit a naughty status code. For these use cases, see the configuration options below:
 
-::: tip NEW FEATURES!
-Please note that the vast majority of these configuration options were added in [Lando 3.14.0](https://github.com/lando/lando/releases/tag/v3.14.0). So if they are not working for you we recommend you first update to the latest Lando.
+::: tip Why Accept 404s?
+
+Some applications initially serve a `404` page after successful startup - hence why Lando's scanner has always accepted `404` as a valid response code.
+
+When we updated the scanner in [Lando 3.14.0](https://github.com/lando/lando/releases/tag/v3.14.0), we tried to keep behavior as consistent as possible with the legacy scanner. This behavior may change in future releases and [can be customized](#adding-ok-codes) if it does not suit your use case.
 :::
 
 ## Skipping
@@ -42,6 +45,12 @@ Some applications start up serving alternate non `2XX` response codes. For examp
 - `300`
 - `301`
 - `302`
+- `303`
+- `304`
+- `305`
+- `306`
+- `307`
+- `308`
 - `404`
 
 However, if you want to explicitly redefine the response codes that Lando will interpret as "OK", you can overwrite them for a given service in your Landofile:
