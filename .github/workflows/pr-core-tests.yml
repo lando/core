@@ -29,7 +29,7 @@ jobs:
           - ubuntu-22.04
         node-version:
           - '16'
-        lando-versions:
+        lando-version:
           - 3-dev
         scanner:
           - new
@@ -37,7 +37,7 @@ jobs:
           - leia-tests: examples/scanner
             os: ubuntu-22.04
             node-version: '16'
-            lando-versions: 'dev'
+            lando-version: '3-dev'
             scanner: legacy
 
     steps:
