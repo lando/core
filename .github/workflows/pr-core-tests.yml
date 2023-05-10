@@ -56,14 +56,13 @@ jobs:
         uses: lando/setup-lando@v2
         with:
           lando-version: ${{ matrix.lando-version }}
-          config: |
-            plugins.@lando/core=/home/runner/.lando/plugins/@lando/core
           telemetry: false
 
       - name: Verify Lando works and we are dogfooding this plugin for tests
         run: |
           mkdir -p /home/runner/.lando/plugins/@lando
           ln -sf /home/runner/work/core/core /home/runner/.lando/plugins/@lando/core
+          lando config
           lando --clear
           lando version
           lando config --path plugins | grep lando-core | grep /home/runner/.lando/plugins/@lando/core || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
