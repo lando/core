@@ -29,8 +29,6 @@ jobs:
 
       # Run tests
       - name: Run linter
-        run: |
-          yarn docs:lint
+        run: yarn docs:lint
       - name: Test build
-        run: |
-          yarn docs:build
+        run: yarn docs:build
