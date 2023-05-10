@@ -70,7 +70,7 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.0",
-    "@lando/leia": "^0.6.4",
+    "@lando/leia": "^0.6.5",
     "@lando/vuepress-theme-default-plus": "1.0.0-beta.44",
     "bundle-dependencies": "^1.0.2",
     "chai": "^4.3.4",

@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        leia-tests:
+        leia-test:
           - examples/badname
           - examples/base
           - examples/events
@@ -34,7 +34,7 @@ jobs:
         scanner:
           - new
         include:
-          - leia-tests: examples/scanner
+          - leia-test: examples/scanner
             os: ubuntu-22.04
             node-version: '16'
             lando-version: '3-dev'
@@ -72,7 +72,7 @@ jobs:
         env:
           LANDO_SCANNER: ${{ matrix.scanner }}
         with:
-          leia-test: "./${{ matrix.leia-tests }}/README.md"
+          leia-test: "./${{ matrix.leia-test }}/README.md"
           debug: true
           cleanup-header: "Destroy tests"
           shell: bash
