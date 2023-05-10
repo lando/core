@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        leia-tests:
+        leia-test:
           - examples/badname
           - examples/base
           - examples/events
@@ -29,15 +29,15 @@ jobs:
           - ubuntu-22.04
         node-version:
           - '16'
-        lando-versions:
-          - dev
+        lando-version:
+          - 3-dev
         scanner:
           - new
         include:
-          - leia-tests: examples/scanner
+          - leia-test: examples/scanner
             os: ubuntu-22.04
             node-version: '16'
-            lando-versions: 'dev'
+            lando-version: '3-dev'
             scanner: legacy
 
     steps:
@@ -52,36 +52,28 @@ jobs:
       - name: Install Yarn dependencies
         run: yarn install --prefer-offline --frozen-lockfile
 
-      # This block should eventually become use lando/actions-hyperdrive@v2
-      - name: Verify Docker dependencies
-        run: |
-          docker --version | grep "20.10."
-          docker-compose --version | grep "1.29."
-      - name: Grab Lando CLI (${{ matrix.lando-versions }})
-        run: |
-          sudo curl -fsSL -o /usr/local/bin/lando "https://files.lando.dev/cli/lando-linux-x64-${{ matrix.lando-versions }}"
-          sudo chmod +x /usr/local/bin/lando
+      - name: Setup lando ${{ matrix.lando-version }}
+        uses: lando/setup-lando@v2
+        with:
+          lando-version: ${{ matrix.lando-version }}
+          telemetry: false
 
-      # - name: Install via hyperdrive if above is bad
-      - name: Disable usage and error reporting
-        run: |
-          mkdir -p /home/runner/.lando/cache
-          echo false > /home/runner/.lando/cache/report_errors
-          sed -i "s/report: true.*/report: false/" config.yml
-      - name: Symlink for external core usage
+      - name: Verify Lando works and we are dogfooding this plugin for tests
         run: |
           mkdir -p /home/runner/.lando/plugins/@lando
           ln -sf /home/runner/work/core/core /home/runner/.lando/plugins/@lando/core
           lando --clear
-      - name: Verify Lando works and we are dogfooding this plugin for tests
-        run: |
+          ls -lsa /home/runner/.lando/plugins/@lando
+          lando config
           lando version
-          # we use the symlinked path from above here instead of the usual
           lando config --path plugins | grep lando-core | grep /home/runner/.lando/plugins/@lando/core || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
-
-      # This block should eventually become use lando/actions-leia@v2
-      - name: Run leia tests
-        shell: bash
+      - name: Run Leia Tests
+        uses: lando/run-leia-action@v2
         env:
           LANDO_SCANNER: ${{ matrix.scanner }}
-        run: yarn leia "./${{ matrix.leia-tests }}/README.md" -c 'Destroy tests' --stdin --shell bash
+        with:
+          leia-test: "./${{ matrix.leia-test }}/README.md"
+          debug: true
+          cleanup-header: "Destroy tests"
+          shell: bash
+          stdin: true
