@@ -12,6 +12,11 @@ services:
   dontlookatme:
     type: apache
     scanner: false
+  redirect:
+    type: php
+    scanner:
+      timeout: 1000
+      retry: 10
   options:
     type: apache
     scanner:
@@ -21,7 +26,7 @@ services:
       okCodes:
         - 404
   allowmissing:
-    type: apache
+    type: php
     scanner:
       path: /missing.html
       maxRedirects: 6
