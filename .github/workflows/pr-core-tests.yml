@@ -63,8 +63,6 @@ jobs:
           mkdir -p /home/runner/.lando/plugins/@lando
           ln -sf /home/runner/work/core/core /home/runner/.lando/plugins/@lando/core
           lando --clear
-          ls -lsa /home/runner/.lando/plugins/@lando
-          lando config
           lando version
           lando config --path plugins | grep lando-core | grep /home/runner/.lando/plugins/@lando/core || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
       - name: Run Leia Tests
