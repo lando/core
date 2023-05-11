@@ -1,3 +1,7 @@
+## v3.16.0 - [TBD 2023](https://github.com/lando/core/releases/tag/3.16.0)
+
+* Added default okCodes to the scanner to allow 3xxs and 404 [#39](https://github.com/lando/core/pull/39). 
+
 ## v3.15.0 - [April 7, 2023](https://github.com/lando/core/releases/tag/3.15.0)
 
 * Added `maxRedirects` as a configurable option of the new `scanner`
