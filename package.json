@@ -9,11 +9,14 @@
   "homepage": "https://github.com/lando/core",
   "keywords": [
     "lando",
-    "core"
+    "lando-plugin",
+    "lando-core",
+    "php"
   ],
   "engines": {
     "node": ">=14.0.0"
   },
+  "lando": {},
   "main": "lib/lando.js",
   "nyc": {
     "include": [
