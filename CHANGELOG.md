@@ -1,3 +1,7 @@
+## v3.17.0 - [IN DEV, TBD](https://github.com/lando/core/releases/tag/3.17.0)
+
+* Fixed bug causing key sanitization to mutate the underlying data
+
 ## v3.16.1 - [May 25, 2023](https://github.com/lando/core/releases/tag/3.16.1)
 
 * Added metadata required for `@lando/core` to be pass plugin validation
