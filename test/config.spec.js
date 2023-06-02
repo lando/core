@@ -165,9 +165,6 @@ describe('config', () => {
     it('should return an object built from all keys from process.env that start with a given prefix', () => {
       process.env.DANCE_NOW = 'everybody';
       const result = config.loadEnvs('DANCE');
-      console.log('seg')
-      console.log(result);
-
       expect(result).to.be.an('object');
       expect(result).to.have.key('now');
       expect(result.now).to.equal(process.env.DANCE_NOW);
