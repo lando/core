@@ -1,3 +1,47 @@
+## v3.16.2 - [June 25, 2023](https://github.com/lando/core/releases/tag/3.16.2)
+
+* Fixed bug causing key sanitization to mutate the underlying data
+
+## v3.16.1 - [May 25, 2023](https://github.com/lando/core/releases/tag/3.16.1)
+
+* Added metadata required for `@lando/core` to be pass plugin validation
+
+## v3.16.0 - [May 11, 2023](https://github.com/lando/core/releases/tag/3.16.0)
+
+* Added default `okCodes` to the scanner to allow `3xx` and `404` [#39](https://github.com/lando/core/pull/39).
+
+## v3.15.0 - [April 7, 2023](https://github.com/lando/core/releases/tag/3.15.0)
+
+* Added `maxRedirects` as a configurable option of the new `scanner`
+* Reverted new url `scanner` to not follow redirects by default, this is more aligned with the behavior of the older `scanner`. [READ MORE](https://docs.lando.dev/core/v3/scanner.html)
+
+## v3.14.0 - [March 1, 2023](https://github.com/lando/core/releases/tag/3.14.0)
+
+* Added new and improved URL `scanner` provides real time feedback on service status. [READ MORE](https://docs.lando.dev/core/v3/scanner.html)
+* Improved `scanner` reliability by preferring IPv4 [#21](https://github.com/lando/core/issues/21)
+
+## v3.11.0 - [February 26, 2023](https://github.com/lando/core/releases/tag/3.11.0)
+
+* Added detection of MySQL 8 DBs for `laemp` recipes to insert appropriate config [lando/lando#1426](https://github.com/lando/lando/issues/1462)
+
+## v3.10.0 - [January 23, 2023](https://github.com/lando/core/releases/tag/3.10.0)
+
+* Bumped version just to indicate push to stable
+
+## v3.8.5 - [January 20, 2023](https://github.com/lando/core/releases/tag/3.8.5)
+
+* Added support for "sandboxed" v3 plugins in anticipation of plugin hybridization
+* Fixed bug causing loading of non V3 plugins on Windows [#27](https://github.com/lando/core/issues/27)
+
+## v3.8.4 - [January 18, 2023](https://github.com/lando/core/releases/tag/3.8.4)
+
+* Added workaround to help with `VirtioFS` support in Docker Desktop `4.16.1`
+* Bumped supported Docker Desktop version to `4.16.99`
+
+## v3.8.3 - [January 13, 2023](https://github.com/lando/core/releases/tag/3.8.3)
+
+* Fixed bug causing `null` `lando.versions` to fatally error
+
 ## v3.8.2 - [December 11, 2022](https://github.com/lando/core/releases/tag/3.8.2)
 
 * Needed fixes to power a deteched `@lando/core`

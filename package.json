@@ -1,7 +1,7 @@
 {
   "name": "@lando/core",
   "description": "The libraries that power all of Lando.",
-  "version": "3.8.2",
+  "version": "3.16.2",
   "author": "Mike Pirog @pirog",
   "license": "GPL-3.0",
   "repository": "lando/core",
@@ -9,11 +9,14 @@
   "homepage": "https://github.com/lando/core",
   "keywords": [
     "lando",
-    "core"
+    "lando-plugin",
+    "lando-core",
+    "php"
   ],
   "engines": {
     "node": ">=14.0.0"
   },
+  "lando": {},
   "main": "lib/lando.js",
   "nyc": {
     "include": [
@@ -34,7 +37,7 @@
     "docs:build": "vuepress build docs",
     "docs:lint": "eslint -c docs/.eslintrc.json --quiet docs/.vuepress",
     "lint": "eslint --quiet . && yarn docs:lint",
-    "release": "bump --prompt --tag --all --push",
+    "release": "bundle-dependencies update && bump --prompt --tag --all --push",
     "test:unit": "nyc --reporter=html --reporter=text mocha --timeout 5000 test/**/*.spec.js",
     "test:leia": "yarn leia \"examples/**/README.md\" -c 'Destroy tests' --stdin",
     "test": "yarn lint && yarn test:unit"
@@ -45,16 +48,20 @@
     "clean-stacktrace": "^1.1.0",
     "copy-dir": "^0.4.0",
     "dayjs": "^1.8.25",
+    "debug": "^4.3.4",
     "dockerode": "^2.4.2",
     "github": "^12.0.0",
     "glob": "^7.1.3",
     "ip": "^1.1.8",
+    "is-class": "^0.0.9",
     "js-yaml": "^3.4.6",
     "jsonfile": "^2.4.0",
+    "listr2": "^5.0.7",
     "lodash": "^4.17.21",
     "mkdirp": "^0.5.1",
     "node-cache": "^4.1.1",
     "object-hash": "^1.1.8",
+    "rimraf": "^4.1.1",
     "semver": "^7.3.2",
     "shelljs": "^0.8.4",
     "string-argv": "0.1.1",
@@ -66,8 +73,9 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.0",
-    "@lando/leia": "^0.6.4",
-    "@lando/vuepress-theme-default-plus": "1.0.0-beta.44",
+    "@lando/leia": "^0.6.5",
+    "@lando/vuepress-theme-default-plus": "1.0.0-beta.45",
+    "bundle-dependencies": "^1.0.2",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "chai-events": "^0.0.1",
@@ -82,5 +90,34 @@
     "sinon-chai": "^2.14.0",
     "version-bump-prompt": "^4.2.1",
     "vuepress": "2.0.0-beta.53"
-  }
+  },
+  "bundledDependencies": [
+    "axios",
+    "bluebird",
+    "clean-stacktrace",
+    "copy-dir",
+    "dayjs",
+    "debug",
+    "dockerode",
+    "github",
+    "glob",
+    "ip",
+    "is-class",
+    "js-yaml",
+    "jsonfile",
+    "listr2",
+    "lodash",
+    "mkdirp",
+    "node-cache",
+    "object-hash",
+    "rimraf",
+    "semver",
+    "shelljs",
+    "string-argv",
+    "through",
+    "transliteration",
+    "uuid",
+    "valid-url",
+    "winston"
+  ]
 }

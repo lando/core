@@ -1,0 +1,77 @@
+name: Core Tests
+
+on:
+  pull_request:
+
+jobs:
+  leia-tests:
+    runs-on: ${{ matrix.os }}
+    env:
+      TERM: xterm
+      DEBUG: "lando*"
+    strategy:
+      fail-fast: false
+      matrix:
+        leia-test:
+          - examples/badname
+          - examples/base
+          - examples/events
+          - examples/keys
+          - examples/lando-101
+          - examples/landofile-custom
+          - examples/long-name
+          - examples/networking
+          - examples/proxy
+          - examples/scanner
+          - examples/services
+          - examples/tooling
+        os:
+          - ubuntu-22.04
+        node-version:
+          - '16'
+        lando-version:
+          - 3-dev
+        scanner:
+          - new
+        include:
+          - leia-test: examples/scanner
+            os: ubuntu-22.04
+            node-version: '16'
+            lando-version: '3-dev'
+            scanner: legacy
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Install node ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org
+          cache: yarn
+      - name: Install Yarn dependencies
+        run: yarn install --prefer-offline --frozen-lockfile
+
+      - name: Setup lando ${{ matrix.lando-version }}
+        uses: lando/setup-lando@v2
+        with:
+          lando-version: ${{ matrix.lando-version }}
+          telemetry: false
+
+      - name: Verify Lando works and we are dogfooding this plugin for tests
+        run: |
+          mkdir -p /home/runner/.lando/plugins/@lando
+          ln -sf /home/runner/work/core/core /home/runner/.lando/plugins/@lando/core
+          lando --clear
+          lando version
+          lando config --path plugins | grep lando-core | grep /home/runner/.lando/plugins/@lando/core || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
+      - name: Run Leia Tests
+        uses: lando/run-leia-action@v2
+        env:
+          LANDO_SCANNER: ${{ matrix.scanner }}
+        with:
+          leia-test: "./${{ matrix.leia-test }}/README.md"
+          debug: true
+          cleanup-header: "Destroy tests"
+          shell: bash
+          stdin: true

@@ -1,0 +1,40 @@
+name: lando-scanner
+proxy:
+  scanme:
+    - lando-scanner.lndo.site
+services:
+  scanme:
+    type: apache
+  moreports:
+    type: apache
+    moreHttpPorts:
+      - '8888'
+  dontlookatme:
+    type: apache
+    scanner: false
+  redirect:
+    type: php
+    scanner:
+      timeout: 1000
+      retry: 10
+  options:
+    type: apache
+    scanner:
+      timeout: 1000
+      retry: 10
+      path: /another.html
+      okCodes:
+        - 404
+  allowmissing:
+    type: php
+    scanner:
+      path: /missing.html
+      maxRedirects: 6
+      okCodes:
+        - 404
+  fail:
+    type: apache
+    scanner:
+      path: /missing.html
+      retry: 4
+

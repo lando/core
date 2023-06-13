@@ -57,6 +57,7 @@ export default defineUserConfig({
           '/performance.html',
           '/plugins.html',
           '/releases.html',
+          '/scanner.html',
           '/ssh.html',
           '/security.html',
           '/files.html',
