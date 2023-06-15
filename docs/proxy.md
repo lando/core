@@ -178,7 +178,7 @@ This means that subdomains like `sub.mysite.lndo.site` will likely produce a bro
 
 #### Proxy URLs Create 404 Error in Firefox
 
-By default, Firefox will redirect `http` domains to `https`. If you have not [enabled https for your proxy URLs](#using-https), this will mean your proxy URLs will result in a `404 page not found` error
+By default, Firefox will redirect `http` domains to `https`. If you have not [enabled https for your proxy URLs](#using-https), this will mean your proxy URLs will result in a `404 page not found` error.
 
 To fix this, either enable https for your Lando proxy urls, or disable HTTPS-Only Mode in Firefox following the steps under [Add exceptions for HTTP websites when you’re in HTTPS-Only Mode](https://support.mozilla.org/en-US/kb/https-only-prefs#w_add-exceptions-for-http-websites-when-youre-in-https-only-mode).
 
