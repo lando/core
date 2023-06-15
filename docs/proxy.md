@@ -176,31 +176,11 @@ In some rare scenarios a service does not boot up as `root`. This is especially 
 
 This means that subdomains like `sub.mysite.lndo.site` will likely produce a browser warning. However, domains like `sub-mysite.lndo.site` will continue to work since they are covered by the global wildcard cert.
 
-### Disable HTTPS-Only Mode in Firefox, to allow a http URL
+#### Proxy URLs Create 404 Error in Firefox
 
-By default, Firefox will redirect `http` domains to `https`, which can result in a `404 page not found` error for proxy URLs.
+By default, Firefox will redirect `http` domains to `https`. If you have not [enabled https for your proxy URLs](#using-https), this will mean your proxy URLs will result in a `404 page not found` error
 
-For example, you can add phpMyAdmin as a service with this:
-
-```yaml
-services:
-  pma:
-    type: phpmyadmin
-    hosts:
-      - database
-proxy:
-  pma:
-    - pma.lndo.site
-```
-
-... which will be available at these URLs, where port number `49199` is dynamic:
-
-```bash
-PMA URLS  http://localhost:49199        
-          http://pma.lndo.site/        
-```
-
-If you visit the URL `http://pma.lndo.site/` in Firefox, it will be redirected to `https://pma.lndo.site/` resulting in a `404 page not found` error. To fix this, disable HTTPS-Only Mode following the steps under [Add exceptions for HTTP websites when you’re in HTTPS-Only Mode](https://support.mozilla.org/en-US/kb/https-only-prefs#w_add-exceptions-for-http-websites-when-youre-in-https-only-mode).
+To fix this, either enable https for your Lando proxy urls, or disable HTTPS-Only Mode in Firefox following the steps under [Add exceptions for HTTP websites when you’re in HTTPS-Only Mode](https://support.mozilla.org/en-US/kb/https-only-prefs#w_add-exceptions-for-http-websites-when-youre-in-https-only-mode).
 
 ### Advanced
 
