@@ -74,7 +74,7 @@ Setting this to a sufficiently large integer effectively disables the warning.
 
 ### Using a custom `ssh` config file
 
-If you want complete control over the `ssh` config Lando is using on your project, you should set `keys: false` and also inject a custom `ssh` config into the services that need it.
+Lando doesn't automatically forward the contents of your local ssh config. You can inject a custom `ssh` config into the services that need it.
 
 ```yaml
 keys: false
@@ -85,7 +85,7 @@ services:
         - ./config:/var/www/.ssh/config
 ```
 
-In the above `.lando.local.yml` example, we are disabling key loading for the project and using a custom `ssh` config for the service named `appserver`.
+In the above `.lando.local.yml` example, we are disabling key loading for the project (`keys: false`) and using a custom `ssh` config for the service named `appserver`.
 
 This assumes your custom file exists in the app root and is named `config`. Also note that you will want to mount at the _user_ `ssh` config location and not the _system_ level one. This file will, generally, live at `$HOME/.ssh/config` which resolves to `/var/www/.ssh/config` for many, but not all, Lando services.
 
