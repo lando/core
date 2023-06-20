@@ -44,7 +44,7 @@ const uc = (uid, gid, username) => ({
 /*
  * Helper to get docker compose v1 download url
  */
-const getComposeDownloadUrl = (version = '1.29.1') => {
+const getComposeDownloadUrl = (version = '1.29.2') => {
   switch (process.platform) {
     case 'darwin':
       return `https://github.com/docker/compose/releases/download/${version}/docker-compose-Darwin-x86_64`;
