@@ -1,3 +1,7 @@
+## v3.17.1 - [June 20, 2023](https://github.com/lando/core/releases/tag/3.17.1)
+
+* Fixed busted cutover to new release process
+
 ## v3.17.0 - [June 20, 2023](https://github.com/lando/core/releases/tag/3.17.0)
 
 * Added `~/.lando/bin` as preferred install location for Docker Compose
