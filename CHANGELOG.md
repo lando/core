@@ -2,7 +2,7 @@
 
 * Added `~/.lando/bin` as preferred install location for Docker Compose
 * Switched release flow over to [@lando/prepare-release-action](https://github.com/lando/prepare-release-action)
-* Docker Compose `1.29.1` will now be automatically installed to `~/.lando/bin` if a suitable version is not detected, this is to prepare for Docker Compose V1 being removed from Docker Desktop
+* Docker Compose `1.29.2` will now be automatically installed to `~/.lando/bin` if a suitable version is not detected, this is to prepare for Docker Compose V1 being removed from Docker Desktop
 
 ## v3.16.2 - [June 5, 2023](https://github.com/lando/core/releases/tag/3.16.2)
 
