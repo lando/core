@@ -1,3 +1,7 @@
+## v3.17.2 - [June 20, 2023](https://github.com/lando/core/releases/tag/3.17.2)
+
+* Fixed busted cutover to new release process take 2
+
 ## v3.17.1 - [June 20, 2023](https://github.com/lando/core/releases/tag/3.17.1)
 
 * Fixed busted cutover to new release process
