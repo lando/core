@@ -99,13 +99,16 @@ module.exports = lando => {
   // Ensure we have docker-compose v1 available
   lando.events.on('post-bootstrap-engine', () => {
     if (lando.config.composeBin === false) {
-      lando.log.debug('could not detect docker-compose v1, downloading...');
+      // get needed things
+      const url = getComposeDownloadUrl();
+      const dest = getComposeDownloadDest(path.join(lando.config.userConfRoot, 'bin'));
+      lando.log.debug('could not detect docker-compose v1, downloading from %s to %s...', url, dest);
 
       // download docker-compose v1
-      return axios({method: 'get', url: getComposeDownloadUrl(), responseType: 'stream'})
+      return axios({method: 'get', url, responseType: 'stream'})
       // stream it into a file and reset the config
       .then(response => {
-        const writer = fs.createWriteStream(getComposeDownloadDest(path.join(lando.config.userConfRoot, 'bin')));
+        const writer = fs.createWriteStream(dest);
         response.data.pipe(writer);
         // wait for the stream to finish
         return new Promise((resolve, reject) => {
