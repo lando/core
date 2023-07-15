@@ -109,12 +109,23 @@ exports.parseConfig = (config, app) => _(config)
     confDest: path.join(app._config.userConfRoot, 'config', service.type.split(':')[0]),
     home: app._config.home,
     project: app.project,
-    type: service.type.split(':')[0],
     root: app.root,
     userConfRoot: app._config.userConfRoot,
-    version: service.type.split(':')[1],
   }))
+  .map(service => _.merge({}, service, this.extractType(service)))
   .value();
+
+/*
+ * Extract the type, registry and version from the landofile type value.
+ */
+exports.extractType = (service) => {
+  const type = service.type.split(':')[0];
+  // @todo: what should the default value be?
+  const image = service.type.split(':').length > 2 ? service.type.split(':')[1] : undefined;
+  // @todo: take tail and clean up the semver verison.
+  const version = service.type.split(':').at(-1);
+  return {type: type, image: image, version: version};
+};
 
 /*
  * Run build
