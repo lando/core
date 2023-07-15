@@ -4,6 +4,7 @@
 const _ = require('lodash');
 const chalk = require('chalk');
 const fs = require('fs');
+const generator = require('dockerfile-generator');
 const path = require('path');
 // @TODO: not the best to reach back this far
 const moveConfig = require('../../../lib/utils').moveConfig;
@@ -13,9 +14,9 @@ const utils = require('../lib/utils');
  * The lowest level lando service, this is where a lot of the deep magic lives
  */
 module.exports = {
-  name: '_lando',
+  name: '_lando-v4',
   parent: '_compose',
-  builder: parent => class LandoLando extends parent {
+  builder: parent => class LandoLandoV4 extends parent {
     constructor(
       id,
       {
@@ -51,6 +52,7 @@ module.exports = {
         root = '',
         webroot = '/app',
       } = {},
+      imageFile,
       ...sources
     ) {
       // Add custom to list of supported
@@ -159,6 +161,24 @@ module.exports = {
 
       // Pass it down
       super(id, info, ...sources);
+
+      // Generate our dockerfile
+      this.generateDockerFile(imageFile, ...sources);
     };
+
+    // @todo: figure out how to generate the tmpDir string from info available.
+    generateDockerFile(imageFile, ...sources) {
+      const tmpDir = `/tmp/${this.project}/${this.service}`;
+      console.log('tmpDir', tmpDir);
+      // Generate Dockerfile and save to filesystem.
+      // @todo: Move to _lando-v4.js in core.
+      generator.generate(imageFile).then((dockerFile) => {
+        return fs.writeFileSync(`${tmpDir}/Dockerfile`, dockerFile);
+      }).then(() => {
+        console.log('Dockerfile saved successfully!');
+      }).catch((err) => {
+        console.error('Error saving Dockerfile:', err);
+      });
+    }
   },
 };
