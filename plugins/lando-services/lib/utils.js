@@ -5,6 +5,15 @@ const _ = require('lodash');
 const getUser = require('./../../../lib/utils').getUser;
 const path = require('path');
 
+const getApiVersion = (version = 3) => {
+  // return 4 if its 4ish
+  if (version === 4 || version === '4' || version === 'v4') return 4;
+  // return 3 if its 3ish
+  else if (version === 3 || version === '3' || version === 'v3') return 3;
+  // if we have no idea then also return 3
+  return 3;
+};
+
 /*
  * Helper to get global deps
  * @TODO: this looks pretty testable? should services have libs?
@@ -97,10 +106,15 @@ exports.filterBuildSteps = (services, app, rootSteps = [], buildSteps= [], prest
 exports.parseConfig = (config, app) => _(config)
   // Arrayify
   .map((service, name) => _.merge({}, service, {name}))
+  // ensure api is set to something valid
+  .map(service => _.merge({}, service, {api: getApiVersion(service.api)}))
+  // set v4 base type if applicable
+  // @TODO: is lando-v4 a good name?
+  .map(service => _.merge({}, {type: service.api === 4 ? '_lando' : undefined}, service))
   // Filter out any services without a type, this implicitly assumes these
   // services are "managed" by lando eg their type/version details are provided
   // by another service
-  .filter(service => _.has(service, 'type'))
+  .filter(service => !_.isNil(service.type))
   // Build the config
   .map(service => _.merge({}, service, {
     _app: app,
@@ -112,19 +126,29 @@ exports.parseConfig = (config, app) => _(config)
     root: app.root,
     userConfRoot: app._config.userConfRoot,
   }))
-  .map(service => _.merge({}, service, this.extractType(service)))
+  // parse the type into stuff that makes sense per api version
+  .map(service => _.merge({}, service, exports.parseType(service)))
   .value();
 
 /*
  * Extract the type, registry and version from the landofile type value.
  */
-exports.extractType = (service) => {
+exports.parseType = service => {
+  // in the case that this is a typeless v4 service we should also do nothing becaus the handling is different
+  if (service.api === 4 && service.type === '_lando') return {};
+  // if this is a v3 service then do the "old" type parsing
+  if (service.api === 3) return {type: service.type.split(':')[0], version: service.type.split(':')[1]};
+
+  // if we are here then it is safe to assume normal v4 type parsing
   const type = service.type.split(':')[0];
   // @todo: what should the default value be?
   const image = service.type.split(':').length > 2 ? service.type.split(':')[1] : undefined;
+  // tag
+  const tag = service.type.split(':').at(-1);
   // @todo: take tail and clean up the semver verison.
   const version = service.type.split(':').at(-1);
-  return {type: type, image: image, version: version};
+
+  return {type, image, tag, version};
 };
 
 /*
