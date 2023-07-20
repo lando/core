@@ -1,0 +1,115 @@
+name: service-v4
+
+services:
+  web:
+    api: 4
+    # type: what about webserver-v4? service-v4?
+    # type: _lando-v4 (by default)
+    image: php:8.2
+    # user: filled in automatically to map host?
+    # app-mount: /app # more options here?
+    # shared-home: universal
+
+    # what about https?
+    ports:
+      - https:443
+      - http:80:80
+      - 3306
+
+  db:
+    api: 4
+    image: mariadb:10.4
+    # user: filled in automatically to map host?
+    # app-mount: /app # more options here?
+    # shared-home: universal
+    data: /var/mysql/data
+
+    ports:
+      - 3306
+
+    # spin up two containers php-apache and mariadb
+      # user mapping
+      # mount home/persisiten data
+      # localhost
+
+    # what else is core?
+    4. networking
+    3. bind address??? feels like a different hign? just global config?
+    6. overrides?
+    9. healthcheck?
+
+    7. dependencies/build steps
+      - continue to support build and build as root?
+      - lowest level thing is
+      - groups like this
+      - adding scripts to the build context
+
+      weight: 9
+      name: pre-lando-system-1-internal
+      env:
+      labels:
+      run: <-how do other things add to this? user and programattically eg plugin
+      user: i fblank uses user ^ otehrwise explicit user eg root
+      scripts:
+        - path/to/file/on/host:/path/to/file/in/container
+          -> figure out better namespacing?
+          -> copy hostfile to build context have to namespace? -> COPY NAMESPACEDSCRIPT /etc/lando/
+
+      weight: 10
+      name: lando-system-1-internal
+      env:
+      labels:
+      run: <-how do other things add to this? user and programattically eg plugin
+
+      weight: 100
+      name: lando-system-2-internal
+      env:
+      labels:
+      run: <-how do other things add to this? user and programattically eg plugin
+
+
+
+
+    8. ssh?
+    9. keys?
+    10. certs?
+    11 user
+
+    # 2. what goes into the dockerfile and what goes into compose?
+      # self contained portable service vs application
+
+    # dockerfile:
+    #   # aht goes here?
+    #   - run: myscript.sh
+
+    # compose:
+    #   image: |
+    #     FROM thinweg
+
+    #     wefoiwejg
+
+    #     wegweg
+    #     weg
+    #     weg
+    #     weg
+
+
+    #   # Required. See Below
+    #   command: docker-php-entrypoint apache2-foreground
+    #   ports:
+    #     - '80'
+
+
+
+    # we will support the below?
+    # volumes:
+    #   my-volume:
+    # networks:
+    #   my-network:
+
+
+# @TODO: what about these?
+# env_file:
+#   - environment/moar.env
+# compose:
+#   - docker-compose/moar.yml

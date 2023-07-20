@@ -2,6 +2,7 @@
 
 // Modules
 const _ = require('lodash');
+const generator = require('dockerfile-generator');
 const utils = require('./lib/utils');
 
 // Build keys
@@ -38,25 +39,38 @@ module.exports = (app, lando) => {
   app.preLockfile = `${app.name}.build.lock`;
   app.postLockfile = `${app.name}.post-build.lock`;
 
+  // @NOTES:
+  // * NEW build steps are conditional on v4 api and go in same "handle build steps" event
+  // * need to make sure that we flag all "locally" build services?
+
   // Init this early on but not before our recipes
   app.events.on('pre-init', () => {
-    // @TODO sexier _() implementation?
     const services = utils.parseConfig(_.get(app, 'config.services', {}), app);
     _.forEach(services, service => {
       // Throw a warning if service is not supported
-      if (_.isEmpty(_.find(lando.factory.get(), {name: service.type}))) {
+      if (_.isEmpty(_.find(lando.factory.get(), {api: service.api, name: service.type}))) {
         app.log.warn('%s is not a supported service type.', service.type);
       }
       // Log da things
       app.log.verbose('building %s service %s', service.type, service.name);
       // Build da things
       // @NOTE: this also gathers app.info and build steps
-      // @TODO: ?
-      const Service = lando.factory.get(service.type);
+      const Service = lando.factory.get(service.type, service.api);
 
-      const data = new Service(service.name, service, lando.factory);
-      app.add(data);
-      app.info.push(data.info);
+      // service v4 also needs to return dockerfile build context stuff so it is different
+      if (service.api === 4) {
+        const {buildContext, compose, info} = new Service(service.name, service, lando.factory);
+        console.log(buildContext, compose, info);
+        app.addBuildContext(buildContext);
+        app.add(compose);
+        app.info.push(info);
+
+      // v3 stays teh same as it was before
+      } else {
+        const data = new Service(service.name, service, lando.factory);
+        app.add(data);
+        app.info.push(data.info);
+      }
     });
   });
 
@@ -66,17 +80,28 @@ module.exports = (app, lando) => {
     // Add in build hashes
     app.meta.lastPreBuildHash = _.trim(lando.cache.get(app.preLockfile));
     app.meta.lastPostBuildHash = _.trim(lando.cache.get(app.postLockfile));
-    // Make sure containers for this app exist; if they don't and we have build locks, we need to kill them
-    const buildServices = _.get(app, 'opts.services', app.services);
-    app.events.on('pre-start', () => {
-      return lando.engine.list({project: app.project, all: true}).then(data => {
-        if (_.isEmpty(data)) {
-          lando.cache.remove(app.preLockfile);
-          lando.cache.remove(app.postLockfile);
-        }
-      });
+
+    // v4 image build goes here
+    app.events.on('pre-start', 4, () => {
+      // const dockerfileJSON = app.v4.buildContexts[0];
+      // return generator.generate(dockerfileJSON).then(dockerFile => {
+      //   console.log(dockerFile);
+      //   return fs.writeFileSync(`${app.v4._dir}/Dockerfile`, dockerFile);
+      // }).then(() => {
+      //   console.log('Dockerfile saved successfully!');
+      // }).catch(err => {
+      //   console.error('Error saving Dockerfile:', err);
+      // });
+
+      // @TODO: iterate through app.v4.buildContexts or wherever app.addBuildCOntext sets things
+      // and build images with docker-engine.build
+      // @NOTE: we will probably need to override the debugger?
     });
-    // Queue up both legacy and new build steps
+
+    // Queue up all v3 build steps (image and app) AND v4 app-build steps
+    // @TODO: at first we will take "app-build" v4 steps and put them through here just like in v3
+    // @TODO: eventually we want to use the image produced above and docker run the app build steps using them
+    // eg mutating the mounted app root but not the underlying image
     app.events.on('pre-start', 100, () => {
       const preBuild = utils.filterBuildSteps(buildServices, app, preRootSteps, preBuildSteps, true);
       return utils.runBuild(app, preBuild, app.preLockfile, app.configHash);
@@ -84,6 +109,17 @@ module.exports = (app, lando) => {
     app.events.on('post-start', 100, () => {
       const postBuild = utils.filterBuildSteps(buildServices, app, postRootSteps, postBuildSteps);
       return utils.runBuild(app, postBuild, app.postLockfile, app.configHash);
+    });
+  });
+
+  // clean up dangling build locks
+  const buildServices = _.get(app, 'opts.services', app.services);
+  app.events.on('pre-start', () => {
+    return lando.engine.list({project: app.project, all: true}).then(data => {
+      if (_.isEmpty(data)) {
+        lando.cache.remove(app.preLockfile);
+        lando.cache.remove(app.postLockfile);
+      }
     });
   });
 

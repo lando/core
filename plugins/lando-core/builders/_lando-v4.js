@@ -4,8 +4,8 @@
 const _ = require('lodash');
 const chalk = require('chalk');
 const fs = require('fs');
-const generator = require('dockerfile-generator');
 const path = require('path');
+
 // @TODO: not the best to reach back this far
 const moveConfig = require('../../../lib/utils').moveConfig;
 const utils = require('../lib/utils');
@@ -14,7 +14,8 @@ const utils = require('../lib/utils');
  * The lowest level lando service, this is where a lot of the deep magic lives
  */
 module.exports = {
-  name: '_lando-v4',
+  api: 4,
+  name: '_lando',
   parent: '_compose',
   builder: parent => class LandoLandoV4 extends parent {
     constructor(
@@ -47,24 +48,34 @@ module.exports = {
         sport = '443',
         ssl = false,
         sslExpose = true,
-        supported = ['custom'],
-        supportedIgnore = false,
         root = '',
         webroot = '/app',
       } = {},
       imageFile,
-      ...sources
+      ...compose
     ) {
-      // Add custom to list of supported
-      supported.push('custom');
+      // @NOTE:
+      // 1. restructure file so it rougly works like
+      // compute shared stuff eg tag name
+      // generate dockerfiles?
+      // generate compose files
 
-      // If this version is not supported throw an error
-      // @TODO: get this someplace else for unit tezting
-      if (!supportedIgnore && !_.includes(supported, version)) {
-        if (!patchesSupported || !_.includes(utils.stripWild(supported), utils.stripPatch(version))) {
-          throw Error(`${type} version ${version} is not supported`);
-        }
-      }
+      // @TODO POC:
+      // 1. purge shit?
+      // 2. generate a dockerfile?
+      // 3. set the built image into the compose data?
+
+      // @TODO SCRIPTS:
+      // 1. how do we add scripts to the build context?
+      // * add a script to the builderfile, have a app.addScript func that also adds script to the builderfile
+      // * lando-v4 needs some handler for the scripts metadata -> copy to build context -> COPY scripts /etc/lando
+
+      // @TODO POC BUILDSTEPS?:
+      // 1. how do we add ENV/LABELS/USER/RUN instructions (build groups)
+      // 2. how do we set the entrypoint/command?
+
+      // console.log(JSON.stringify(data.data, null, 2));
+      // @todo: figure out how to generate the tmpDir string from info available.
       if (_.includes(legacy, version)) {
         console.error(chalk.yellow(`${type} version ${version} is a legacy version! We recommend upgrading.`));
       }
@@ -131,7 +142,7 @@ module.exports = {
       const namedVols = {};
       _.set(namedVols, data, {});
       _.set(namedVols, dataHome, {});
-      sources.push({
+      compose.push({
         services: _.set({}, name, {
           entrypoint,
           environment,
@@ -145,11 +156,11 @@ module.exports = {
 
       // Add a final source if we need to pin pair
       if (_.includes(_.keys(pinPairs), version)) {
-        sources.push({services: _.set({}, name, {image: _.get(pinPairs, version, version)})});
+        compose.push({services: _.set({}, name, {image: _.get(pinPairs, version, version)})});
       }
 
       // Add our overrides at the end
-      sources.push({services: _.set({}, name, utils.normalizeOverrides(overrides, root))});
+      compose.push({services: _.set({}, name, utils.normalizeOverrides(overrides, root))});
 
       // Add some info basics
       info.config = config;
@@ -159,26 +170,46 @@ module.exports = {
       info.meUser = meUser;
       info.hasCerts = ssl;
 
+      // @TODO: what should this be?
+      // should this just be whatever dockerfile-generator needs? we guess?
+      // lets hardcode for now and then we need to consider how this is computed?
+      // DO NOT FORGET ABOUT generator.convertToJSON(inputDockerFile)
+
+      // @TODO: use generateFromArray directly because doesnt even seem to need the promise?
+      const buildContext = `[
+        {
+          "from": "nginx:latest"
+        },
+        {
+          "run": [ "adduser", "--disabled-password", "-gecos", "", "testuser" ]
+        },
+         {
+          "run": [ "adduser", "--disabled-password", "-gecos", "", "testuser2" ]
+        },
+         {
+          "user": "testuser"
+        },
+         {
+          "working_dir": "/home/testuser/app"
+        },
+        {
+          "volumes": [ "/home/testuser/app" ]
+        },
+         {
+          "labels": {
+            "name": "value"
+          }
+        },
+         {
+          "env": {
+            "MIKE": "value1",
+            "ALEC": "value2"
+          }
+        }
+      ]`;
+
       // Pass it down
-      super(id, info, ...sources);
-
-      // Generate our dockerfile
-      this.generateDockerFile(imageFile, ...sources);
+      super(id, info, buildContext, ...compose);
     };
-
-    // @todo: figure out how to generate the tmpDir string from info available.
-    generateDockerFile(imageFile, ...sources) {
-      const tmpDir = `/tmp/${this.project}/${this.service}`;
-      console.log('tmpDir', tmpDir);
-      // Generate Dockerfile and save to filesystem.
-      // @todo: Move to _lando-v4.js in core.
-      generator.generate(imageFile).then((dockerFile) => {
-        return fs.writeFileSync(`${tmpDir}/Dockerfile`, dockerFile);
-      }).then(() => {
-        console.log('Dockerfile saved successfully!');
-      }).catch((err) => {
-        console.error('Error saving Dockerfile:', err);
-      });
-    }
   },
 };

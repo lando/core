@@ -1,0 +1,84 @@
+name: service-v4
+
+services:
+  web:
+    api: 4
+    # type: what about webserver-v4? service-v4?
+    # type: _lando-v4 (by default)
+    image: php:8.2
+
+    # NOTE: if below is to work we need a image build step to complete first so that
+    # the image in docker compose is set to that locally built image
+    # image: |
+    #   DOCKERFILE CONTENT?
+    # image: /path/to/dockerfile
+
+    # # full syntax:
+    # image:
+    #   context:
+    #   dockerfile:
+    #   args:
+
+    # 1. what does the "core" lando v4 service do?
+    # 1. user mapping
+    #    which is host/container perm syncing eg the container should run as the host user and its volumes should be owned by the host user
+    # 2. app-mount
+    # 3?. shared-home or something? universal | app | service | false|disabled|none?\
+    # 4. data-persistance?
+
+    # build:
+
+    # spin up two containers php-apache and mariadb
+      # user mapping
+      # mount home/persisiten data
+      # localhost
+
+
+    # 5. dependencies?
+    # 7. build steps
+
+    # # other stuff we have
+    # 6. overrides?
+
+    # 8. locahost assignment
+
+    # 9. scanner -> healthcheck?
+
+    # 2. what goes into the dockerfile and what goes into compose?
+      # self contained portable service vs application
+
+    # dockerfile:
+    #   # aht goes here?
+    #   - run: myscript.sh
+
+    # compose:
+    #   image: |
+    #     FROM thinweg
+
+    #     wefoiwejg
+
+    #     wegweg
+    #     weg
+    #     weg
+    #     weg
+
+
+    #   # Required. See Below
+    #   command: docker-php-entrypoint apache2-foreground
+    #   ports:
+    #     - '80'
+
+
+
+    # we will support the below?
+    # volumes:
+    #   my-volume:
+    # networks:
+    #   my-network:
+
+
+# @TODO: what about these?
+# env_file:
+#   - environment/moar.env
+# compose:
+#   - docker-compose/moar.yml
