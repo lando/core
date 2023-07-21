@@ -4,7 +4,6 @@ services:
   web:
     api: 4
     # type: what about webserver-v4? service-v4?
-    # type: _lando-v4 (by default)
     image: php:8.2
 
     # NOTE: if below is to work we need a image build step to complete first so that
