@@ -2,7 +2,6 @@
 
 // Modules
 const _ = require('lodash');
-const generator = require('dockerfile-generator');
 const utils = require('./lib/utils');
 
 // Build keys
@@ -59,8 +58,7 @@ module.exports = (app, lando) => {
 
       // service v4 also needs to return dockerfile build context stuff so it is different
       if (service.api === 4) {
-        const {buildContext, compose, info} = new Service(service.name, service, lando.factory);
-        console.log(buildContext, compose, info);
+        const {buildContext, compose, info} = new Service(service.name, service);
         app.addBuildContext(buildContext);
         app.add(compose);
         app.info.push(info);
@@ -82,16 +80,16 @@ module.exports = (app, lando) => {
     app.meta.lastPostBuildHash = _.trim(lando.cache.get(app.postLockfile));
 
     // v4 image build goes here
-    app.events.on('pre-start', 4, () => {
-      // const dockerfileJSON = app.v4.buildContexts[0];
-      // return generator.generate(dockerfileJSON).then(dockerFile => {
-      //   console.log(dockerFile);
-      //   return fs.writeFileSync(`${app.v4._dir}/Dockerfile`, dockerFile);
-      // }).then(() => {
-      //   console.log('Dockerfile saved successfully!');
-      // }).catch(err => {
-      //   console.error('Error saving Dockerfile:', err);
-      // });
+    // @TODO: only run if the app has a v4 service? is build context empty?
+    app.events.on('pre-start', 4, async () => {
+      // require our V4 stuff here
+      const DockerEngine = require('./lib/docker-engine');
+      // @TODO: pass in debug shim for unified debug output in v3?
+      const dockerEngine = new DockerEngine(lando.config.engineConfig, require('./lib/debug-shim')(lando.log));
+
+      const build = app.v4.buildContexts[0];
+
+      await dockerEngine.build(build.dockerfile, build);
 
       // @TODO: iterate through app.v4.buildContexts or wherever app.addBuildCOntext sets things
       // and build images with docker-engine.build

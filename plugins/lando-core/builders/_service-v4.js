@@ -7,11 +7,11 @@ const _ = require('lodash');
  * The lowest level lando service
  */
 module.exports = {
-  name: '_service-v4',
-  parent: '_lando-v4',
+  api: 4,
+  name: '_service',
+  parent: '_lando',
   builder: parent => class LandoService extends parent {
-    constructor(id, options = {}, imageFile, ...sources) {
-      console.log(imageFile);
+    constructor(id, options = {}, buildContext, ...sources) {
       sources.push({services: _.set({}, options.name, {
         environment: {
           LANDO_WEBROOT: `/app/${options.webroot}`,
