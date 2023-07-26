@@ -18,13 +18,37 @@ module.exports = {
     constructor(id, config, buildContext = {}, ...compose) {
       // get that app from the config
       const app = config._app;
+      const product = _.get(app, '_lando.config.product', 'lando');
       // and some other generic properties
-      const {name, type, version} = config;
+      const {name, image, type, version} = config;
+      // ensure we have a build context directory
+      const buildContextPath = path.join(app.v4._dir, 'build-contexts', id);
+      fs.mkdirSync(buildContextPath, {recursive: true});
 
-      // lets just hardcode stuff for now
-      buildContext.path = path.join(app.v4._dir, 'build-contexts', id);
-      // ensure it exists
-      fs.mkdirSync(buildContext.path, {recursive: true});
+      // @TODO: some mechanism to parse lando dockerfile instructions into dockerfile-generator ones?
+      // @TODO: data should contain the lando format dockerfile metadata?
+      // lets start to compute the build context
+      buildContext.context = buildContextPath;
+      buildContext.data = buildContext.data || [];
+      buildContext.dockerfile = path.join(buildContextPath, 'Dockerfile');
+      buildContext.dockerfileInline = '';
+      buildContext.id = id;
+      buildContext.name = name;
+      buildContext.service = name;
+      buildContext.tag = `${product}/${app.name}-${name}-${app.id}`;
+      // @TODO:
+      // buildContext.sources =
+
+      // if we have an image that is a string then set the base image
+      if (typeof image === 'string') buildContext.data.unshift({from: {baseImage: image}});
+      // or if we have a path to a dockerfile load its contents
+      else if (_.has(image, 'dockerfile')) buildContext.dockerfileInline = fs.readFileSync(image.dockerfile, 'utf8');
+
+      // @TODO: some error if there is no from.baseImage?
+      // just hardcode something here
+      buildContext.data.push({
+        comment: 'do shit', run: ['bash', '-c', 'apt-get update -y && apt-get install openssl -y'],
+      });
 
       // @NOTE:
       // 1. restructure file so it rougly works like
@@ -53,24 +77,17 @@ module.exports = {
       // info.meUser = meUser;
       // info.hasCerts = ssl;
 
-      // @TODO: some mechanism to parse lando dockerfile instructions into dockerfile-generator ones?
-      // @NOTE: DO NOT FORGET ABOUT generator.convertToJSON(inputDockerFile)
-      // @TODO: data should contain the lando format dockerfile metadata?
-      buildContext.dockerfile = path.join(buildContext.path, 'Dockerfile');
-      buildContext.data = [
-        {from: {baseImage: 'nginx'}},
-        {comment: 'do shit', run: ['bash', '-c', 'apt-get update -y && apt-get install openssl -y']},
-      ];
-      buildContext.tag = 'vibes:1';
-
-      // @TODO:
-      // buildContext.sources =
-
       // run buildContext.data through some helper function that translates into generateDockerFileFromArray format
       // and writes the dockerfile and returns its patth
       // @TODO: try/catch
       // buildContext.dockerfile = dumpSomething(buildContext.data, buildContext.path/Dockerifle);
-      fs.writeFileSync(buildContext.dockerfile, generateDockerFileFromArray(buildContext.data));
+
+      // generate the dockerfile and dump it
+      // @TODO: make this a bit prettier?
+      fs.writeFileSync(
+        buildContext.dockerfile,
+        `${buildContext.dockerfileInline}${generateDockerFileFromArray(buildContext.data)}`,
+      );
 
       // Envvars & Labels
       // @TODO: what should go in each?
@@ -82,6 +99,7 @@ module.exports = {
         LANDO_SERVICE_TYPE: type,
       };
       // should be state data that lando uses?
+      // user/team that "owns" the image
       const labels = {
         'dev.lando.api': 4,
       };
@@ -96,7 +114,7 @@ module.exports = {
           environment,
           labels,
           logging,
-          ports: ['80:80'],
+          ports: ['80'],
         }),
       });
 

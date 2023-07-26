@@ -18,11 +18,12 @@ const {PassThrough} = require('stream');
 class DockerEngine extends Dockerode {
   static name = 'docker-engine';
   static cspace = 'docker-engine';
+  static debug = require('debug')('docker-engine');
   static config = {};
   // @NOTE: is wsl accurate here?
   static supportedPlatforms = ['linux', 'wsl'];
 
-  constructor(config, debug) {
+  constructor(config, {debug = DockerEngine.debug} = {}) {
     super(config);
     this.debug = debug;
   }
@@ -62,8 +63,7 @@ class DockerEngine extends Dockerode {
           resolve(makeSuccess(merge({}, args, {stdout: output[output.length - 1].status})));
         });
         builder.on('error', error => {
-          reject(error);
-          // reject(makeError(merge({}, args, {error})));
+          reject(makeError(merge({}, args, {error})));
         });
       });
     };

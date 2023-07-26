@@ -11,11 +11,11 @@ module.exports = ({
   command,
   error,
   errorCode,
-  exitCode,
   short,
   statusCode,
   stdout,
   stderr,
+  exitCode = 1,
 }) => {
   // attempt to discover various codes
   code = (error && error.code) || code || undefined;
@@ -27,7 +27,7 @@ module.exports = ({
   short = short ||
     (error && error.reason) ||
     (error && error.body && error.body.error);
-  const message = [stdout, stderr].filter(Boolean).join('\n') || all;
+  const message = [stdout, stderr].filter(Boolean).join('\n') || all || error;
 
   // repurpose original error if we have one
   if (Object.prototype.toString.call(error) === '[object Error]') {
