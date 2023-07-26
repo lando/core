@@ -1,22 +1,43 @@
 name: service-v4
 
 services:
+  node:
+    type: node:16
+    build_as_root:
+      - echo "bob"
+    run_as_root:
+      - echo "frank"
+
+  web2:
+    api: 4
+    # type: what about webserver-v4? service-v4?
+    image: |
+      FROM nginx:1.17
+      ENV LANDO_RUN 5
+
   web:
     api: 4
     # type: what about webserver-v4? service-v4?
-    image: php:8.2
+    image: |
+      FROM nginx:1.17
+      ENV LANDO_RUN 4
 
     # NOTE: if below is to work we need a image build step to complete first so that
     # the image in docker compose is set to that locally built image
+
     # image: |
     #   DOCKERFILE CONTENT?
-    # image: /path/to/dockerfile
+    # if exists then write the file?
 
+    # image: /path/to/dockerfile
     # # full syntax:
     # image:
-    #   context:
     #   dockerfile:
     #   args:
+
+    # either this is still a string or its an object
+
+
 
     # 1. what does the "core" lando v4 service do?
     # 1. user mapping

@@ -2,8 +2,11 @@
 
 // Modules
 const _ = require('lodash');
+const fs = require('fs');
 const getUser = require('./../../../lib/utils').getUser;
 const path = require('path');
+
+const {nanoid} = require('nanoid');
 
 const getApiVersion = (version = 3) => {
   // return 4 if its 4ish
@@ -127,17 +130,31 @@ exports.parseConfig = (config, app) => _(config)
     userConfRoot: app._config.userConfRoot,
   }))
   // parse the type into stuff that makes sense per api version
-  .map(service => _.merge({}, service, exports.parseType(service)))
+  .map(service => _.merge({}, service, exports.parseImage(service)))
   .value();
 
 /*
  * Extract the type, registry and version from the landofile type value.
  */
-exports.parseType = service => {
-  // in the case that this is a typeless v4 service we should also do nothing becaus the handling is different
-  if (service.api === 4 && service.type === '_lando') return {};
+exports.parseImage = service => {
   // if this is a v3 service then do the "old" type parsing
   if (service.api === 3) return {type: service.type.split(':')[0], version: service.type.split(':')[1]};
+
+  // in the case that this is a typeless v4 service we should also do nothing becaus the handling is different
+  if (service.api === 4 && service.type === '_lando') {
+    // if service.image is dockerfile content then write that content to file and set service.image to path to file?
+    if (typeof service.image === 'string' && service.image.split('\n').length > 1) {
+      const dockerfile = path.join(require('os').tmpdir(), nanoid(), 'Dockerfile');
+      fs.mkdirSync(path.dirname(dockerfile), {recursive: true});
+      fs.writeFileSync(dockerfile, service.image);
+      service.image = dockerfile;
+    }
+
+    // if service.image is a path to a file then set object notation
+    if (typeof service.image === 'string' && fs.existsSync(service.image)) {
+      service.image = {dockerfile: service.image};
+    }
+  }
 
   // if we are here then it is safe to assume normal v4 type parsing
   const type = service.type.split(':')[0];
@@ -166,7 +183,7 @@ exports.runBuild = (app, steps, lockfile, hash = 'YOU SHALL NOT PASS') => {
     // Make sure we don't save a hash if our build fails
     .catch(error => {
       app.addWarning({
-        title: `One of your build steps failed`,
+        title: `One of your v3 build steps failed`,
         detail: [
           'This **MAY** prevent your app from working.',
           'Check for errors above, fix them in your Landofile, and try again by running:',
