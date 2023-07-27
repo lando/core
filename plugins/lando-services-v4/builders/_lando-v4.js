@@ -36,19 +36,21 @@ module.exports = {
       buildContext.name = name;
       buildContext.service = name;
       buildContext.tag = `${product}/${app.name}-${name}-${app.id}`;
-      // @TODO:
-      // buildContext.sources =
+      // buildContext.sources = [path.resolve(__dirname, '..', 'scripts', 'test.sh')];
 
       // if we have an image that is a string then set the base image
       if (typeof image === 'string') buildContext.data.unshift({from: {baseImage: image}});
       // or if we have a path to a dockerfile load its contents
       else if (_.has(image, 'dockerfile')) buildContext.dockerfileInline = fs.readFileSync(image.dockerfile, 'utf8');
 
-      // @TODO: some error if there is no from.baseImage?
-      // just hardcode something here
-      buildContext.data.push({
-        comment: 'do shit', run: ['bash', '-c', 'apt-get update -y && apt-get install openssl -y'],
-      });
+      // POC adding a file to the build context
+      // moveConfig(path.resolve(__dirname, '..', 'scripts'), buildContext.context);
+      // // POC using that file
+      // // just hardcode something here
+      // buildContext.data.push({
+      //   comment: 'copy test.sh', copy: {'test.sh': '/test.sh'},
+      //   comment: 'run test.sh', run: ['bash', '-c', 'chmod +x /test.sh && /test.sh'],
+      // });
 
       // @NOTE:
       // 1. restructure file so it rougly works like
@@ -88,6 +90,7 @@ module.exports = {
         buildContext.dockerfile,
         `${buildContext.dockerfileInline}${generateDockerFileFromArray(buildContext.data)}`,
       );
+      // @TODO: some error if there is no from
 
       // Envvars & Labels
       // @TODO: what should go in each?

@@ -2,7 +2,6 @@
 
 // Modules
 const _ = require('lodash');
-const chalk = require('chalk');
 const utils = require('./lib/utils');
 
 // Build keys
@@ -38,48 +37,28 @@ module.exports = (app, lando) => {
   // Build step locl files
   app.preLockfile = `${app.name}.build.lock`;
   app.postLockfile = `${app.name}.post-build.lock`;
-  app.v4.preLockfile = `${app.name}.v4.build.lock`;
-  app.v4.postLockfile = `${app.name}.v4.build.lock`;
 
   // Init this early on but not before our recipes
   app.events.on('pre-init', () => {
     // add parsed services to app object so we can use them downstream
     app.parsedServices = utils.parseConfig(_.get(app, 'config.services', {}), app);
+    app.parsedV3Services = _(app.parsedServices).filter(service => service.api === 3).value();
 
     // build each service
-    _.forEach(app.parsedServices, service => {
+    _.forEach(app.parsedV3Services, service => {
       // Throw a warning if service is not supported
-      if (_.isEmpty(_.find(lando.factory.get(), {api: service.api, name: service.type}))) {
+      if (_.isEmpty(_.find(lando.factory.get(), {api: 3, name: service.type}))) {
         app.log.warn('%s is not a supported service type.', service.type);
       }
       // Log da things
-      app.log.verbose('building %s service %s', service.type, service.name);
+      app.log.verbose('building v3 %s service %s', service.type, service.name);
       // Build da things
-      // @NOTE: this also gathers app.info and build steps
       const Service = lando.factory.get(service.type, service.api);
-
-      // service v4 also needs to return dockerfile build context stuff so it is different
-      if (service.api === 4) {
-        const {buildContext, compose, info} = new Service(service.name, service);
-        app.addBuildContext(buildContext);
-        app.add(compose);
-        app.info.push(info);
-
-      // v3 stays teh same as it was before
-      } else {
-        const data = new Service(service.name, service, lando.factory);
-        app.add(data);
-        app.info.push(data.info);
-      }
+      const data = new Service(service.name, _.merge({}, service, {_app: app}), lando.factory);
+      // add da data
+      app.add(data);
+      app.info.push(data.info);
     });
-
-    // remove _app from parsed services because its just so gross
-    _.forEach(app.parsedServices, service => delete service._app);
-
-    // and add v3 and v4 services separately
-    const versionGroupedServices = _.groupBy(app.parsedServices, 'api');
-    app.parsedV3Services = _.get(versionGroupedServices, '3', []);
-    app.v4.parsedServices = _.get(versionGroupedServices, '4', []);
   });
 
   // Handle V3 build steps
@@ -116,77 +95,6 @@ module.exports = (app, lando) => {
     app.events.on('post-start', 100, () => {
       const postBuild = utils.filterBuildSteps(buildV3Services, app, postRootSteps, postBuildSteps);
       return utils.runBuild(app, postBuild, app.postLockfile, app.configHash);
-    });
-  });
-
-  // Handle V4 build steps
-  app.events.on('post-init', () => {
-    // get buildable services
-    const buildV4Services = _(app.v4.parsedServices)
-      .filter(service => _.includes(_.get(app, 'opts.services', app.services), service.name))
-      .map(service => service.name)
-      .value();
-
-    // @TODO: build locks and hash for v4?
-    app.events.on('pre-start', () => {
-      return lando.engine.list({project: app.project, all: true}).then(data => {
-        if (_.isEmpty(data)) {
-          lando.cache.remove(app.v4.preLockfile);
-          lando.cache.remove(app.v4.postLockfile);
-          app.log.debug('removed v4 build locks');
-        }
-      });
-    });
-
-    // run v4 build steps if applicable
-    app.events.on('pre-start', 100, async () => {
-      if (!lando.cache.get(app.v4.preLockfile)) {
-        // require our V4 stuff here
-        const DockerEngine = require('./lib/docker-engine');
-        const bengine = new DockerEngine(lando.config.engineConfig, {debug: require('./lib/debug-shim')(lando.log)});
-
-        // filter out any services that dont need to be built
-        const contexts = _(app.v4.buildContexts)
-          .filter(context => _.includes(buildV4Services, context.id))
-          .value();
-        app.log.debug('going to build v4 services', contexts.map(context => context.service));
-
-        // now build an array of promises
-        const buildSteps = contexts.map(async context => {
-          // @TODO: replace entire line so it looks more like docker compose?
-          // @TODO: better ux for building, listr? simple throbber ex?
-          process.stdout.write(`Building v4 image ${context.service} ...\n`);
-          try {
-            const success = await bengine.build(context.dockerfile, context);
-            process.stdout.write(`Building v4 image ${context.service} ... ${chalk.green('done')}\n`);
-            app.log.debug('built image %s successfully', context.service);
-            success.context = context;
-            return success;
-          } catch (e) {
-            e.context = context;
-            return e;
-          }
-        });
-
-        // and then run them in parallel
-        const results = await Promise.all(buildSteps);
-        // get failures and successes
-        const failures = _(results).filter(service => service.exitCode !== 0).value();
-        // write build lock if we have no failures
-        if (_.isEmpty(failures)) lando.cache.set(app.v4.preLockfile, app.configHash, {persist: true});
-
-        // go through failures and add warnings as needed
-        _.forEach(failures, failure => {
-          app.addWarning({
-            title: `Could not build v4 service "${_.get(failure, 'context.service')}"`,
-            detail: [
-              `Failed with "${_.get(failure, 'short')}"`,
-              `Rerun with "lando rebuild -vvv" to see the entire build log and look for errors. When fixed run:`,
-            ],
-            command: 'lando rebuild',
-          }, failure);
-        });
-      }
     });
   });
 
@@ -233,8 +141,6 @@ module.exports = (app, lando) => {
   app.events.on('post-uninstall', () => {
     lando.cache.remove(app.preLockfile);
     lando.cache.remove(app.postLockfile);
-    lando.cache.remove(app.v4.preLockfile);
-    lando.cache.remove(app.v4.postLockfile);
-    app.log.debug('removed build locks');
+    app.log.debug('removed v3 build locks');
   });
 };

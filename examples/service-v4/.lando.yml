@@ -3,8 +3,8 @@ name: service-v4
 services:
   node:
     type: node:16
-    build_as_root:
-      - echo "bob"
+    # build_as_root:
+    #   - fail
     run_as_root:
       - echo "frank"
 
@@ -14,6 +14,14 @@ services:
     image: |
       FROM nginx:1.17
       ENV LANDO_RUN 5
+    install:
+      composer: 1.10.2
+    user: pirog
+    cert: /path/to/cert
+
+    verify-dependecy: openssl
+    addscript: add-cert.sh
+
 
   web:
     api: 4
@@ -21,6 +29,7 @@ services:
     image: |
       FROM nginx:1.17
       ENV LANDO_RUN 4
+      RUN echo "YES" > /usr/share/nginx/html/index.html
 
     # NOTE: if below is to work we need a image build step to complete first so that
     # the image in docker compose is set to that locally built image
