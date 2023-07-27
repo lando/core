@@ -13,14 +13,18 @@ const {generateDockerFileFromArray} = require('dockerfile-generator/lib/dockerGe
 module.exports = {
   api: 4,
   name: '_lando',
+  config: {
+    pirog: 1,
+  },
   parent: '_compose',
-  builder: parent => class LandoLandoV4 extends parent {
-    constructor(id, config, buildContext = {}, ...compose) {
-      // get that app from the config
-      const app = config._app;
-      const product = _.get(app, '_lando.config.product', 'lando');
+  builder: (parent, config) => class LandoLandoV4 extends parent {
+    constructor(id, options, {app, lando} = {}) {
+      // @TODO: merge in default values?
+      super(id, _.merge(config, options));
+
       // and some other generic properties
       const {name, image, type, version} = config;
+
       // ensure we have a build context directory
       const buildContextPath = path.join(app.v4._dir, 'build-contexts', id);
       fs.mkdirSync(buildContextPath, {recursive: true});
@@ -28,20 +32,22 @@ module.exports = {
       // @TODO: some mechanism to parse lando dockerfile instructions into dockerfile-generator ones?
       // @TODO: data should contain the lando format dockerfile metadata?
       // lets start to compute the build context
-      buildContext.context = buildContextPath;
-      buildContext.data = buildContext.data || [];
-      buildContext.dockerfile = path.join(buildContextPath, 'Dockerfile');
-      buildContext.dockerfileInline = '';
-      buildContext.id = id;
-      buildContext.name = name;
-      buildContext.service = name;
-      buildContext.tag = `${product}/${app.name}-${name}-${app.id}`;
+      this.buildContext.context = buildContextPath;
+      this.buildContext.data = this.buildContext.data || [];
+      this.buildContext.dockerfile = path.join(buildContextPath, 'Dockerfile');
+      this.buildContext.dockerfileInline = '';
+      this.buildContext.id = id;
+      this.buildContext.name = name;
+      this.buildContext.service = name;
+      this.buildContext.tag = `${lando.config.product}/${app.name}-${name}-${app.id}`;
       // buildContext.sources = [path.resolve(__dirname, '..', 'scripts', 'test.sh')];
 
       // if we have an image that is a string then set the base image
-      if (typeof image === 'string') buildContext.data.unshift({from: {baseImage: image}});
+      if (typeof image === 'string') this.buildContext.data.unshift({from: {baseImage: image}});
       // or if we have a path to a dockerfile load its contents
-      else if (_.has(image, 'dockerfile')) buildContext.dockerfileInline = fs.readFileSync(image.dockerfile, 'utf8');
+      else if (_.has(image, 'dockerfile')) {
+        this.buildContext.dockerfileInline = fs.readFileSync(image.dockerfile, 'utf8');
+      }
 
       // POC adding a file to the build context
       // moveConfig(path.resolve(__dirname, '..', 'scripts'), buildContext.context);
@@ -71,11 +77,10 @@ module.exports = {
       // 4. docker compose overrides?
 
       // Add some info basics
-      const info = {};
       // info.config = config;
-      info.service = name;
-      info.type = type;
-      info.version = version;
+      this.info.service = name;
+      this.info.type = type;
+      this.info.version = version;
       // info.meUser = meUser;
       // info.hasCerts = ssl;
 
@@ -87,8 +92,8 @@ module.exports = {
       // generate the dockerfile and dump it
       // @TODO: make this a bit prettier?
       fs.writeFileSync(
-        buildContext.dockerfile,
-        `${buildContext.dockerfileInline}${generateDockerFileFromArray(buildContext.data)}`,
+        this.buildContext.dockerfile,
+        `${this.buildContext.dockerfileInline}${generateDockerFileFromArray(this.buildContext.data)}`,
       );
       // @TODO: some error if there is no from
 
@@ -111,18 +116,15 @@ module.exports = {
       const logging = {driver: 'json-file', options: {'max-file': '3', 'max-size': '10m'}};
 
       // basic docker compose file
-      compose.push({
+      this.composeData.push({
         services: _.set({}, name, {
-          image: buildContext.tag,
+          image: this.buildContext.tag,
           environment,
           labels,
           logging,
           ports: ['80'],
         }),
       });
-
-      // Pass it down
-      super(id, info, buildContext, ...compose);
     };
   },
 };

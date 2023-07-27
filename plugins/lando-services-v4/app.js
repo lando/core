@@ -20,33 +20,41 @@ module.exports = (app, lando) => {
   app.v4.buildContexts = [];
   app.v4.preLockfile = `${app.name}.v4.build.lock`;
   app.v4.postLockfile = `${app.name}.v4.build.lock`;
+  app.v4.services = [];
 
   // v4 methods
   // add a v4 build context to the app
   // @NOTE: does the order of these matter eg will there ever be image FROM dependencies among the build contexts here?
+  // @TODO: librarify these
   app.v4.addBuildContext = (data, front = false) => {
     if (front) app.v4.buildContexts.unshift(data);
     else app.v4.buildContexts.push(data);
   };
 
+  // what kinds of app level things do we need?
+  // 1. a way to add
+
   // Init this early on but not before our recipes
   app.events.on('pre-init', () => {
     // add parsed services to app object so we can use them downstream
-    app.v4.parsedServices = _(utils.parseConfig(_.get(app, 'config.services', {}), app))
+    app.v4.parsedConfig = _(utils.parseConfig(_.get(app, 'config.services', {}), app))
       .filter(service => service.api === 4)
       .value();
 
     // build each service
-    _.forEach(app.v4.parsedServices, service => {
+    _.forEach(app.v4.parsedConfig, config => {
       // Throw a warning if service is not supported
-      if (_.isEmpty(_.find(lando.factory.get(), {api: 4, name: service.type}))) {
-        app.log.warn('%s is not a supported v4 service type.', service.type);
+      if (_.isEmpty(_.find(lando.factory.get(), {api: 4, name: config.type}))) {
+        app.log.warn('%s is not a supported v4 service type.', config.type);
       }
+
       // Log da things
-      app.log.verbose('building v4 %s service %s', service.type, service.name);
-      // Build da things
-      const Service = lando.factory.get(service.type, service.api);
-      const {buildContext, compose, info} = new Service(service.name, _.merge({}, service, {_app: app}));
+      app.log.verbose('building v4 %s service %s', config.type, config.name);
+      // retrieve the correct class and instance
+      const Service = lando.factory.get(config.type, config.api);
+      const service = new Service(config.name, config, {app, lando});
+      const {buildContext, compose, info} = service.dump();
+
       // add things
       app.v4.addBuildContext(buildContext);
       app.add(compose);
@@ -57,7 +65,7 @@ module.exports = (app, lando) => {
   // Handle V4 build steps
   app.events.on('post-init', () => {
     // get buildable services
-    const buildV4Services = _(app.v4.parsedServices)
+    const buildV4Services = _(app.v4.parsedConfig)
       .filter(service => _.includes(_.get(app, 'opts.services', app.services), service.name))
       .map(service => service.name)
       .value();

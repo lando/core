@@ -18,6 +18,7 @@ module.exports = {
           LANDO_SERVICE_TYPE: 'service',
         },
       })});
+
       // @TODO: add in any envvars for this?
       // Add in relevant portforward data
       if (options.portforward) {
@@ -42,7 +43,10 @@ module.exports = {
       if (options.healthcheck) options.info.healthcheck = options.healthcheck;
       // Add in creds if we have them
       if (options.creds) options.info.creds = options.creds;
+
       super(id, options, imageFile, ...sources);
     };
+
+    addBuildStep
   },
 };
