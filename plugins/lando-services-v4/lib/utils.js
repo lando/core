@@ -120,10 +120,11 @@ exports.parseConfig = (config, app) => _(config)
   .filter(service => !_.isNil(service.type))
   // Build the config
   .map(service => _.merge({}, service, {
-    data: `data_${service.name}`,
     app: app.name,
-    confDest: path.join(app._config.userConfRoot, 'config', service.type.split(':')[0]),
+    appId: app.id,
+    dir: app.v4._dir,
     home: app._config.home,
+    product: _.get(app, '_lando.config.product', 'lando'),
     project: app.project,
     root: app.root,
     userConfRoot: app._config.userConfRoot,

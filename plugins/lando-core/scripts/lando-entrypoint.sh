@@ -18,7 +18,7 @@ if [ ! -f "/tmp/lando-started" ]; then
   lando_pink      "         ██      ██   ██ ██  ██ ██ ██   ██ ██    ██            "
   lando_pink      "         ███████ ██   ██ ██   ████ ██████   ██████             "
   echo ""
-  lando_blue      "       The best local development tool in the galaxy!          "            
+  lando_blue      "       The best local development tool in the galaxy!          "
   echo ""
   echo ""
   lando_green     "==============================================================="

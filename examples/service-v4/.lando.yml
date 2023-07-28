@@ -10,14 +10,14 @@ services:
 
   web2:
     api: 4
+
     # type: what about webserver-v4? service-v4?
     image: |
       FROM nginx:1.17
-      ENV LANDO_RUN 5
+      ENV LANDO_RUN 6
+      RUN apt-get update -y && apt-get install openssl -y
     install:
       composer: 1.10.2
-    user: pirog
-    cert: /path/to/cert
 
     verify-dependecy: openssl
     addscript: add-cert.sh
@@ -28,8 +28,9 @@ services:
     # type: what about webserver-v4? service-v4?
     image: |
       FROM nginx:1.17
-      ENV LANDO_RUN 4
+      ENV LANDO_RUN 8
       RUN echo "YES" > /usr/share/nginx/html/index.html
+      RUN apt-get update -y && apt-get install openssl -y
 
     # NOTE: if below is to work we need a image build step to complete first so that
     # the image in docker compose is set to that locally built image

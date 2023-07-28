@@ -16,7 +16,7 @@ module.exports = (app, lando) => {
   // Add v4 stuff to the app object
   // v4 props
   app.v4 = {};
-  app.v4._dir = path.join(lando.config.userConfRoot, 'v4', app.id);
+  app.v4._dir = path.join(lando.config.userConfRoot, 'v4', `${app.name}-${app.id}`);
   app.v4.buildContexts = [];
   app.v4.preLockfile = `${app.name}.v4.build.lock`;
   app.v4.postLockfile = `${app.name}.v4.build.lock`;
@@ -48,18 +48,26 @@ module.exports = (app, lando) => {
         app.log.warn('%s is not a supported v4 service type.', config.type);
       }
 
-      // Log da things
-      app.log.verbose('building v4 %s service %s', config.type, config.name);
       // retrieve the correct class and instance
       const Service = lando.factory.get(config.type, config.api);
       const service = new Service(config.name, config, {app, lando});
-      const {buildContext, compose, info} = service.dump();
-
-      // add things
-      app.v4.addBuildContext(buildContext);
-      app.add(compose);
-      app.info.push(info);
+      app.v4.services.push(service);
     });
+
+    // emit an event so other plugins can augment the servies with additonal things before we get their data
+    return app.events.emit('pre-services-generate', app.v4.services).then(services => {
+      _.forEach(app.v4.services, service => {
+        app.v4.addBuildContext(service.generateImageFiles());
+        app.add(service.generateOrchestorFiles());
+        app.info.push(service.info);
+        // Log da things
+        app.log.debug('generated v4 %s service %s', service.type, service.name);
+      });
+    });
+  });
+
+  app.events.on('pre-services-generate', services => {
+    // console.log(services);
   });
 
   // Handle V4 build steps
@@ -92,6 +100,7 @@ module.exports = (app, lando) => {
         const contexts = _(app.v4.buildContexts)
           .filter(context => _.includes(buildV4Services, context.id))
           .value();
+
         app.log.debug('going to build v4 services', contexts.map(context => context.service));
 
         // now build an array of promises
@@ -132,7 +141,6 @@ module.exports = (app, lando) => {
       }
     });
   });
-
 
   // Remove build locks on an uninstall
   app.events.on('post-uninstall', () => {
