@@ -1,0 +1,212 @@
+name: service-v4
+services:
+  web2:
+    image:
+      from: |
+        FROM nginx:1.17
+        ENV LANDO_RUN 6
+        RUN apt-get update -y && apt-get install openssl -y
+      dockerfile:
+      args: weewg, wegweg,
+      build-steps:
+      build-files:
+        - /log.sh
+
+    volumes:
+      - ./:/app
+      - data-voluime:/here
+
+volumes:
+networks:
+
+user:
+
+build-steps.push({
+  efwef
+
+  wefwef
+
+
+
+
+ports:
+
+
+
+
+
+
+
+
+
+services:
+  node:
+    type: node:16
+    # build_as_root:
+    #   - fail
+    run_as_root:
+      - echo "frank"
+
+  web3:
+
+
+  web2:
+    api: 4
+
+    # type: what about webserver-v4? service-v4?
+    image: |
+      FROM nginx:1.17
+      ENV LANDO_RUN 6
+      RUN apt-get update -y && apt-get install openssl -y
+
+    build-files:
+      - source: /path/to/host/file
+        group: system
+        # dest: /etc/lando/namespace/file
+
+      - source: /path/to/host/file
+        group: config
+        dest: /etc/lando/namespace/file
+
+    # define some vague fexible minimal set of steps
+    # figure out how plugins add additional groups?
+    # figure out their definition
+    # figure out how to add docker instructions to them
+    # figure out how to slo in arbitrary ones
+    # what does the lando4 landofile implementation look like
+
+    # support a format like init-INTEGER-USER, @TODO: how would we
+    build-groups:
+      - weight: 100
+        name: 'init'
+        description: 'environment getting'
+        user: root
+        type: image
+
+      - weight: 200
+        name: 'system'
+        description: 'verify/install linux packages?'
+        user: root
+        type: image
+
+      - weight: 300
+        name: 'environment'
+        description: 'set environment, source files, etc'
+        user: root
+        type: image
+
+      - weight: 400
+        name: 'configure'
+        description: 'configure linux packages? certs? php-extensions'
+        user: root
+        type: image
+
+      - weight: 500
+        name: 'user'
+        description: 'user configuration eg mapping, ssh config, keys, auth'
+        user: root
+        type: image
+
+      - weight: 501
+        name: 'build_as_root'
+        user: root
+
+      - weight: 600
+        name: 'app'
+        description: 'global packge deps, nvm, service config files eg solr config, php.ini, stuff that doesnt mutate the actual app files'
+        user: user
+        type: image
+
+      - weight: 700
+        name: 'app'
+        description: 'global packge deps, nvm, service config files eg solr config, php.ini, stuff that doesnt mutate the actual app files'
+        user: user
+        type: app
+
+      - weight: 800
+        name: 'app'
+        description: 'global packge deps, nvm, service config files eg solr config, php.ini, stuff that doesnt mutate the actual app files'
+        user: user
+        type: background
+      # global pacakge dependencies npm -g composer global -> installed as use
+      # global user utility
+      # copy user files?
+      # service config files
+
+      # legacy build groups from v3 at the end?
+    build-steps:
+      # using existing build group
+      - group: init-1-user
+        instructions:
+          - run: wepogjweg
+          - env:
+              key1: value2
+              key2: value2
+
+      - group: init
+        instructions:
+          - run: other tihg
+          - env:
+              key1: value3
+              key2: value3
+
+      # using a new one
+      # no weight = end of the groups?
+      - instructions:
+        - run: other tihg
+        - env:
+            key1: value3
+            key2: value3
+        weight: 100
+
+    # other docker compose stuff?
+    # app-mount: -> mounting the app
+    # data-stores: -> persistent data of various scopes eg service/app/global
+
+    image:
+
+    services:
+      web2:
+        volumes:
+          - ./:/app
+          - data-voluime:/here
+    volumes:
+      data-volume:
+        external: true
+    networks:
+
+  web:
+    api: 4
+    # type: what about webserver-v4? service-v4?
+    image: |
+      FROM nginx:1.17
+      ENV LANDO_RUN 8
+      RUN echo "YES" > /usr/share/nginx/html/index.html
+      RUN apt-get update -y && apt-get install openssl -y
+
+
+
+
+
+    # # other stuff we have
+    # 6. overrides?
+    # 8. locahost assignment
+    # 9. scanner -> healthcheck?
+
+
+
+    #   # Required. See Below
+    #   command: docker-php-entrypoint apache2-foreground
+    #   ports:
+    #     - '80'
+    # we will support the below?
+    # volumes:
+    #   my-volume:
+    # networks:
+    #   my-network:
+
+# @TODO: what about these?
+# env_file:
+#   - environment/moar.env
+# compose:
+#   - docker-compose/moar.yml

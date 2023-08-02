@@ -2,12 +2,9 @@
 
 // Modules
 const _ = require('lodash');
-const fs = require('fs');
 const getUser = require('./../../../lib/utils').getUser;
 const serviceFromContainerName = require('./../../../lib/utils').serviceFromContainerName;
 const path = require('path');
-
-const {nanoid} = require('nanoid');
 
 const getApiVersion = (version = 3) => {
   // return 4 if its 4ish
@@ -113,61 +110,24 @@ exports.parseConfig = (config, app) => _(config)
   .map((service, name) => _.merge({}, service, {name}))
   // ensure api is set to something valid
   .map(service => _.merge({}, service, {api: getApiVersion(service.api)}))
-  // set v4 base type if applicable
-  // @TODO: is lando-v4 a good name?
-  .map(service => _.merge({}, {type: service.api === 4 ? '_lando' : undefined}, service))
   // Filter out any services without a type, this implicitly assumes these
   // services are "managed" by lando eg their type/version details are provided
   // by another service
-  .filter(service => !_.isNil(service.type))
+  .filter(service => _.has(service, 'type'))
   // Build the config
   .map(service => _.merge({}, service, {
-    data: `data_${service.name}`,
+    _app: app,
     app: app.name,
     confDest: path.join(app._config.userConfRoot, 'config', service.type.split(':')[0]),
+    data: `data_${service.name}`,
     home: app._config.home,
     project: app.project,
     root: app.root,
+    type: service.type.split(':')[0],
     userConfRoot: app._config.userConfRoot,
+    version: service.type.split(':')[1],
   }))
-  // parse the type into stuff that makes sense per api version
-  .map(service => _.merge({}, service, exports.parseImage(service)))
   .value();
-
-/*
- * Extract the type, registry and version from the landofile type value.
- */
-exports.parseImage = service => {
-  // if this is a v3 service then do the "old" type parsing
-  if (service.api === 3) return {type: service.type.split(':')[0], version: service.type.split(':')[1]};
-
-  // in the case that this is a typeless v4 service we should also do nothing becaus the handling is different
-  if (service.api === 4 && service.type === '_lando') {
-    // if service.image is dockerfile content then write that content to file and set service.image to path to file?
-    if (typeof service.image === 'string' && service.image.split('\n').length > 1) {
-      const dockerfile = path.join(require('os').tmpdir(), nanoid(), 'Dockerfile');
-      fs.mkdirSync(path.dirname(dockerfile), {recursive: true});
-      fs.writeFileSync(dockerfile, service.image);
-      service.image = dockerfile;
-    }
-
-    // if service.image is a path to a file then set object notation
-    if (typeof service.image === 'string' && fs.existsSync(service.image)) {
-      service.image = {dockerfile: service.image};
-    }
-  }
-
-  // if we are here then it is safe to assume normal v4 type parsing
-  const type = service.type.split(':')[0];
-  // @todo: what should the default value be?
-  const image = service.type.split(':').length > 2 ? service.type.split(':')[1] : undefined;
-  // tag
-  const tag = service.type.split(':').at(-1);
-  // @todo: take tail and clean up the semver verison.
-  const version = service.type.split(':').at(-1);
-
-  return {type, image, tag, version};
-};
 
 /*
  * Run build

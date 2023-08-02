@@ -11,7 +11,7 @@ const utils = require('./lib/utils');
  */
 module.exports = (app, lando) => {
   // add core v4 classes to factory
-  lando.factory.registry.unshift({api: 4, name: '_compose', builder: require('./lib/compose-v4')});
+  lando.factory.registry.unshift({api: 4, name: '_compose', builder: require('./lib/_compose-v4')});
 
   // Add v4 stuff to the app object
   // v4 props
@@ -37,7 +37,7 @@ module.exports = (app, lando) => {
   // Init this early on but not before our recipes
   app.events.on('pre-init', () => {
     // add parsed services to app object so we can use them downstream
-    app.v4.parsedConfig = _(utils.parseConfig(_.get(app, 'config.services', {}), app))
+    app.v4.parsedConfig = _(utils.parseConfig(_.get(app, 'config.services', {})))
       .filter(service => service.api === 4)
       .value();
 
@@ -48,9 +48,14 @@ module.exports = (app, lando) => {
         app.log.warn('%s is not a supported v4 service type.', config.type);
       }
 
+      // add some other important stuff to config
+      config.appRoot = app.root;
+      config.context = path.join(app.v4._dir, 'build-contexts', config.name);
+      config.tag = `${_.get(lando, 'product', 'lando')}/${app.name}-${app.id}-${config.name}`;
+
       // retrieve the correct class and instance
       const Service = lando.factory.get(config.type, config.api);
-      const service = new Service(config.name, config, {app, lando});
+      const service = new Service(config.name, {...config, app, lando});
       app.v4.services.push(service);
     });
 

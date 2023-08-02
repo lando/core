@@ -1,114 +1,80 @@
 name: service-v4
-
 services:
-  node:
-    type: node:16
-    # build_as_root:
-    #   - fail
-    run_as_root:
-      - echo "frank"
+  web1:
+    api: 4
+    image: nginx:1.15
+    environment:
+      HELLO: there
+    ports:
+      - 80
 
   web2:
     api: 4
-
-    # type: what about webserver-v4? service-v4?
     image: |
       FROM nginx:1.17
       ENV LANDO_RUN 6
       RUN apt-get update -y && apt-get install openssl -y
-    install:
-      composer: 1.10.2
+    ports:
+      - 80
 
-    verify-dependecy: openssl
-    addscript: add-cert.sh
-
-
-  web:
+  web3:
     api: 4
-    # type: what about webserver-v4? service-v4?
-    image: |
-      FROM nginx:1.17
-      ENV LANDO_RUN 8
-      RUN echo "YES" > /usr/share/nginx/html/index.html
-      RUN apt-get update -y && apt-get install openssl -y
+    image:
+      dockerfile: |
+        FROM nginx:1.17
+        ENV LANDO_RUN 6
+        RUN apt-get update -y && apt-get install openssl -y
+      args: weewg, wegweg,
+      build-steps:
+      build-files:
+        - /log.sh
+      ports:
+        - 80
 
-    # NOTE: if below is to work we need a image build step to complete first so that
-    # the image in docker compose is set to that locally built image
+  web4:
+    api: 4
+    build:
+      dockerfile: |
+        FROM nginx:1.20
+        ENV LANDO_RUN 6
+        RUN apt-get update -y && apt-get install openssl -y
 
-    # image: |
-    #   DOCKERFILE CONTENT?
-    # if exists then write the file?
+  web5:
+    api: 4
+    ports:
+      - 80
+    build:
+      dockerfile: ./images/Dockerfile
 
-    # image: /path/to/dockerfile
-    # # full syntax:
-    # image:
-    #   dockerfile:
-    #   args:
+    # volumes:
+    #   - ./:/app
+    #   - data-voluime:/here
 
-    # either this is still a string or its an object
+    # app-mount: /app
+    # persistent-data:
+    # environment:
+    #   weoigj
 
-
-
-    # 1. what does the "core" lando v4 service do?
-    # 1. user mapping
-    #    which is host/container perm syncing eg the container should run as the host user and its volumes should be owned by the host user
-    # 2. app-mount
-    # 3?. shared-home or something? universal | app | service | false|disabled|none?\
-    # 4. data-persistance?
 
     # build:
-
-    # spin up two containers php-apache and mariadb
-      # user mapping
-      # mount home/persisiten data
-      # localhost
-
-
-    # 5. dependencies?
-    # 7. build steps
-
-    # # other stuff we have
-    # 6. overrides?
-
-    # 8. locahost assignment
-
-    # 9. scanner -> healthcheck?
-
-    # 2. what goes into the dockerfile and what goes into compose?
-      # self contained portable service vs application
-
-    # dockerfile:
-    #   # aht goes here?
-    #   - run: myscript.sh
-
-    # compose:
+    #   files:
+    #     php=exnteison=stcitp:/place
     #   image: |
-    #     FROM thinweg
-
-    #     wefoiwejg
-
-    #     wegweg
-    #     weg
-    #     weg
-    #     weg
 
 
-    #   # Required. See Below
-    #   command: docker-php-entrypoint apache2-foreground
-    #   ports:
-    #     - '80'
+    #   image:
+    #     - root: stuff
+    #     - me: stuff
+
+    # command:
+    # entrypoint:
 
 
 
-    # we will support the below?
-    # volumes:
-    #   my-volume:
-    # networks:
-    #   my-network:
 
 
-# @TODO: what about these?
-# env_file:
-#   - environment/moar.env
-# compose:
-#   - docker-compose/moar.yml
+volumes:
+  test:
+networks:
+  test:
+
