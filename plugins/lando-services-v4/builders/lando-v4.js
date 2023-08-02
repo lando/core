@@ -1,20 +1,42 @@
 'use strict';
 
-// Modules
-const _ = require('lodash');
-
 /*
  * The lowest level lando service, this is where a lot of the deep magic lives
  */
 module.exports = {
   api: 4,
-  name: '_lando',
+  name: 'lando',
   config: {
     pirog: 1,
   },
   parent: '_compose',
   builder: (parent, config) => class LandoServiceV4 extends parent {
     constructor(id, options, {app, lando} = {}) {
+      // big problems:
+      // 1. load order of docker-compose files? is it the opposite of what we do now?
+      // 2. merging in all image provided data?
+      // 3. top level networks and volumes?
+
+
+      // @NOTE:
+      // its just like v3 except that we are "adding" lando-format docker-compose stuff eg normal docker-compose
+      // stuff except that image is the lando spec
+      // this means that when we add(), add() needs to remove "image" and add to build context somehow?
+      //
+      // so docker compose stuff can override normally but we need to figure out how to merge image stuff?
+
+      // mariadb -> type: mariadb:/my-dockerfile:11
+      // -> load mariadb-11.js and set image: ./my-dpckerfile?
+
+      // we dont set the final docker-compose image until we generate the files? so we ALWAYS remove the image key?
+      // image logic exmaple:
+      // mariadb adds data with an image set, top image data takes the from? everything else is pushed so the top of the
+      // chain adds the last run instructions?
+
+      // how does a plugin ad stuff?
+
+      //
+
       // @TODO: merge in default values?
       super(id, _.merge(config, options));
 
@@ -29,6 +51,9 @@ module.exports = {
         type: type,
         version: version,
       });
+
+      console.log(config);
+
       // info.meUser = meUser;
       // info.hasCerts = ssl;
 
