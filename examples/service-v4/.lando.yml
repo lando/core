@@ -2,49 +2,61 @@ name: service-v4
 services:
   web1:
     api: 4
-    image: nginx:1.15
+    image:
+      dockerfile: |
+       FROM nginx:1.15
+      context:
+        - ./folder
+        - ./folder:thing
+        - file1:/file2
+        - src: file1
+          dest: file3
+        - source: file1
+          destination: file4
+
+
     environment:
       HELLO: there
     ports:
       - 80
 
-  web2:
-    api: 4
-    image: |
-      FROM nginx:1.17
-      ENV LANDO_RUN 6
-      RUN apt-get update -y && apt-get install openssl -y
-    ports:
-      - 80
+  # web2:
+  #   api: 4
+  #   image: |
+  #     FROM nginx:1.17
+  #     ENV LANDO_RUN 6
+  #     RUN apt-get update -y && apt-get install openssl -y
+  #   ports:
+  #     - 80
 
-  web3:
-    api: 4
-    image:
-      dockerfile: |
-        FROM nginx:1.17
-        ENV LANDO_RUN 6
-        RUN apt-get update -y && apt-get install openssl -y
-      args: weewg, wegweg,
-      build-steps:
-      build-files:
-        - /log.sh
-      ports:
-        - 80
+  # web3:
+  #   api: 4
+  #   image:
+  #     dockerfile: |
+  #       FROM nginx:1.17
+  #       ENV LANDO_RUN 6
+  #       RUN apt-get update -y && apt-get install openssl -y
+  #     args: weewg, wegweg,
+  #     build-steps:
+  #     build-files:
+  #       - /log.sh
+  #     ports:
+  #       - 80
 
-  web4:
-    api: 4
-    build:
-      dockerfile: |
-        FROM nginx:1.20
-        ENV LANDO_RUN 6
-        RUN apt-get update -y && apt-get install openssl -y
+  # web4:
+  #   api: 4
+  #   build:
+  #     dockerfile: |
+  #       FROM nginx:1.20
+  #       ENV LANDO_RUN 6
+  #       RUN apt-get update -y && apt-get install openssl -y
 
-  web5:
-    api: 4
-    ports:
-      - 80
-    build:
-      dockerfile: ./images/Dockerfile
+  # web5:
+  #   api: 4
+  #   ports:
+  #     - 80
+  #   build:
+  #     dockerfile: ./images/Dockerfile
 
     # volumes:
     #   - ./:/app

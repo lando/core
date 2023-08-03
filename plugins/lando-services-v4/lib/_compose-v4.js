@@ -14,20 +14,19 @@ class ComposeServiceV4 {
   #init() {
     return {
       compose: [],
-      from: undefined,
-      buildSteps: [],
-      buildFiles: [],
-      buildStages: [],
-      buildGroups: [],
+      groups: [],
+      image: undefined,
+      sources: [],
+      stages: [],
+      steps: [],
     };
   }
 
   constructor(id, {app, appRoot, config, context, lando, name, tag, type} = {}) {
-    // @TODO: a way to add raw compose data for top level stuff, not parsed at all just passed through?
-    // @TODO: revisit names of existing methods?
-    // @TODO: get build files to work, docker-engine needs to support better context options and context depth
-    // @TODO: revisti networks/volumes
     // @TODO: image build steps/stages//groups
+
+    // @TODO: revisti networks/volumes
+    // @TODO: add debugger?
 
     // set top level required stuff
     this.id = id;
@@ -74,11 +73,40 @@ class ComposeServiceV4 {
 
     // at this point the dockerfile should either be a path to a dockerfile or a registry image
     // for the former save the raw dockerfile instructions as a string
-    if (fs.existsSync(data.dockerfile)) this.#data.from = fs.readFileSync(data.dockerfile, 'utf8');
+    if (fs.existsSync(data.dockerfile)) this.#data.image = fs.readFileSync(data.dockerfile, 'utf8');
     // for the latter set the baseImage
-    else this.#data.from = {from: {baseImage: data.dockerfile}};
+    else this.#data.image = {from: {baseImage: data.dockerfile}};
 
-    // @TODO: now we need to parse build steps/stages/files
+    // if we have context info as a string then lets translate into an array
+    if (data.context && typeof data.context === 'string') data.context = [data.context];
+    // if we have an array of context data then lets normalize it
+    if (data.context && data.context.length > 0) {
+      this.#data.sources.push(data.context.map(file => {
+        // file is a string with src par
+        if (typeof file === 'string' && file.split(':').length === 1) file = {src: file, dest: file};
+        // file is a string with src and dest parts
+        if (typeof file === 'string' && file.split(':').length === 2) file = {src: file.split(':')[0], dest: file.split(':')[1]}; // eslint-disable-line max-len
+        // file is an object with src key
+        if (typeof file === 'object' && file.src) file.source = file.src;
+        // file is an object with dest key
+        if (typeof file === 'object' && file.dest) file.destination = file.dest;
+
+        // remove extraneous keys
+        if (typeof file === 'object' && file.src) delete file.src;
+        if (typeof file === 'object' && file.dest) delete file.dest;
+
+        // handle relative source paths
+        if (!path.isAbsolute(file.source)) file.source = path.resolve(this.appRoot, file.source);
+
+        // return normalized data
+        return file;
+      }));
+    }
+  }
+
+  // just pushes the compose data directly into our thing
+  addComposeData(data = {}) {
+    this.#data.compose.push(data);
   }
 
   // lando runs a small superset of docker-compose that augments the image key so it can contain dockerfile data
@@ -93,24 +121,23 @@ class ComposeServiceV4 {
     this.#data.compose.push({services: {[this.id]: compose}});
   }
 
-  getBuildSteps(stage) {
+  getSteps(stage) {
     // @TODO: validate stage?
 
     // if we have a stage then filter by that
-    if (stage) return this.#data.buildSteps.filter(step => step.stage === stage);
+    if (stage) return this.#data.steps.filter(step => step.stage === stage);
     // otherwise return the whole thing
-    return this.#data.buildSteps;
+    return this.#data.steps;
   }
 
   generateImageFiles() {
     // @TODO: sort/filter buildContext.data and return an array of dockerfile instructions?
     // @TODO: run buildContext.data through some helper function that translates into generateDockerFileFromArray format
     // @TODO: method to get build steps of a certain stage?
-    const instructions = this.getBuildSteps('image');
+    const instructions = this.getSteps('image');
 
     // unshift whatever we end up with in #data.from to the front of the instructions
-    instructions.unshift(this.#data.from);
-    console.log(instructions);
+    instructions.unshift(this.#data.image);
 
     // map instructions to dockerfile content
     const content = instructions
@@ -120,19 +147,21 @@ class ComposeServiceV4 {
 
     // write the dockerfile
     fs.writeFileSync(this.dockerfile, content);
+
     // return the build context
     return {
       id: this.id,
       context: this.context,
       dockerfile: this.dockerfile,
-      sources: [],
+      sources: this.#data.sources.flat(Number.POSITIVE_INFINITY).filter(Boolean),
       tag: this.tag,
     };
   }
 
   generateOrchestorFiles() {
     // add the final compose data with the updated image tag
-    this.#data.compose.push({services: {[this.id]: {image: this.tag}}});
+    this.addComposeData({services: {[this.id]: {image: this.tag}}});
+
     // return it all
     return {
       id: this.id,

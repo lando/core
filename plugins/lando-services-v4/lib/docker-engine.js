@@ -37,9 +37,10 @@ class DockerEngine extends Dockerode {
    */
   build(dockerfile,
     {
-      sources,
       tag,
       attach = false,
+      context = path.join(require('os').tmpdir(), nanoid()),
+      sources = [],
     } = {}) {
     // handles the promisification of the merged return
     const promiseHandler = async () => {
@@ -109,14 +110,21 @@ class DockerEngine extends Dockerode {
     const builder = new EventEmitter();
     // extend debugger in appropriate way
     const debug = tag ? this.debug.extend(`build:${tag}`) : this.debug.extend('build');
-    // get a build directory dialed
-    const context = path.join(require('os').tmpdir(), nanoid());
+
+    // ensure context dir exists
     fs.mkdirSync(context, {recursive: true});
 
+    // copy the dockerfile if its different than context/Dockerfile
+    if (dockerfile !== path.join(context, 'Dockerfile')) {
+      fs.copySync(dockerfile, path.join(context, 'Dockerfile'));
+      debug('copied %o into build context %o', dockerfile, context);
+    }
+
     // create the build context
-    for (const source of [dockerfile, sources].flat(Number.POSITIVE_INFINITY).filter(Boolean)) {
-      fs.copySync(source, path.join(context, path.basename(source)));
-      debug('copied %o into build context %o', source, context);
+    // @NOTE: this seems brittle?
+    for (const source of sources) {
+      fs.copySync(source.source, path.join(context, source.destination));
+      debug('copied %o into build context %o', source.source, path.join(context, source.destination));
     }
 
     // call the parent
@@ -134,11 +142,11 @@ class DockerEngine extends Dockerode {
    * @param {*} command
    * @param {*} param1
    */
-  async buildNRun(dockerfile, command, {sources, tag, createOptions = {}, attach = false} = {}) {
+  async buildNRun(dockerfile, command, {sources, tag, context, createOptions = {}, attach = false} = {}) {
     // if we dont have a tag we need to set something
     if (!tag) tag = slugify(nanoid()).toLowerCase();
     // build the image
-    await this.build(dockerfile, {attach, sources, tag});
+    await this.build(dockerfile, {attach, context, sources, tag});
     // run the command
     await this.run(command, {attach, createOptions, tag});
   }

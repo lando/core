@@ -106,17 +106,17 @@ module.exports = (app, lando) => {
           .filter(context => _.includes(buildV4Services, context.id))
           .value();
 
-        app.log.debug('going to build v4 services', contexts.map(context => context.service));
+        app.log.debug('going to build v4 services', contexts.map(context => context.id));
 
         // now build an array of promises
         const buildSteps = contexts.map(async context => {
           // @TODO: replace entire line so it looks more like docker compose?
           // @TODO: better ux for building, listr? simple throbber ex?
-          process.stdout.write(`Building v4 image ${context.service} ...\n`);
+          process.stdout.write(`Building v4 image ${context.id} ...\n`);
           try {
             const success = await bengine.build(context.dockerfile, context);
-            process.stdout.write(`Building v4 image ${context.service} ... ${chalk.green('done')}\n`);
-            app.log.debug('built image %s successfully', context.service);
+            process.stdout.write(`Building v4 image ${context.id} ... ${chalk.green('done')}\n`);
+            app.log.debug('built image %s successfully', context.id);
             success.context = context;
             return success;
           } catch (e) {
@@ -135,7 +135,7 @@ module.exports = (app, lando) => {
         // go through failures and add warnings as needed
         _.forEach(failures, failure => {
           app.addWarning({
-            title: `Could not build v4 service "${_.get(failure, 'context.service')}"`,
+            title: `Could not build v4 service "${_.get(failure, 'context.id')}"`,
             detail: [
               `Failed with "${_.get(failure, 'short')}"`,
               `Rerun with "lando rebuild -vvv" to see the entire build log and look for errors. When fixed run:`,
