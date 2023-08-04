@@ -78,7 +78,6 @@ services:
     # support a format like init-INTEGER-USER, @TODO: how would we
     build-groups:
       - weight: 100
-        name: 'init'
         description: 'environment getting'
         user: root
         type: image
