@@ -12,12 +12,23 @@ services:
           dest: file3
         - source: file1
           destination: file4
+
+      groups:
+        - bob: 99
+        - name: 'configure'
+          description: 'configure linux packages? certs? php-extensions'
+          user: root
+          stage: image
+        - name: 'configure-me-first'
+          description: 'configure linux packages? certs? php-extensions'
+          user: root
+          weight: -100
+
       steps:
        # raw pass in
         - instructions: |
             COPY file4 /file2
             RUN touch /me
-          stage: image
         - instructions:
           - env:
               key1: value3
@@ -26,7 +37,6 @@ services:
           - run:
             - 'stat'
             - '/file2'
-          stage: image
 
         # default stage?
         - instructions: |
@@ -45,6 +55,24 @@ services:
         - instructions: |
              RUN cat /stuff2
           weight: 9999
+
+        - group: bob-4-nginx-before
+          instructions: |
+             RUN env
+        - group: bob-after-3
+          instructions: |
+             RUN env
+
+
+        - group: frank
+          instructions: |
+             RUN env
+        - group: bob
+          instructions: |
+             RUN env
+        - group: configure
+          instructions: |
+             RUN echo "BOB=BOBBED > /etc/environment"
 
         # use existing group
         # - group: default

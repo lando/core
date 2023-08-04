@@ -1,6 +1,8 @@
 'use strict';
 
 const fs = require('fs');
+const groupBy = require('lodash/groupBy');
+const isObject = require('lodash/isPlainObject');
 const os = require('os');
 const merge = require('lodash/merge');
 const path = require('path');
@@ -8,11 +10,17 @@ const path = require('path');
 const {generateDockerFileFromArray} = require('dockerfile-generator/lib/dockerGenerator');
 const {nanoid} = require('nanoid');
 
-// @TODO: adding groups or stages, short form vs long form?
-// @TODO: revisti networks/volumes
-// @TODO: add debugger?
+// @TODO: build steps with user-4 sytnax? test a hyphened group
+// @TODO: build steps via group
+// @TODO: set USER keyword in instructions
+// comments for groups and things?
+
 // @TODO: some mechanism for adding the sources into copy commands?
 // @TODO: allow for add/copy eg url detection?
+
+// @TODO: revisti networks/volumes
+// @TODO: add debugger?
+// @TODO: add stages
 
 class ComposeServiceV4 {
   #data
@@ -31,9 +39,7 @@ class ComposeServiceV4 {
       sources: [],
       stages: {
         default: 'image',
-        exec: 'Commands run on the container in the background after its booted successfully',
         image: 'Instructions to help generate an image',
-        run: 'Commands run against the codebase using the generated image',
       },
       steps: [],
     };
@@ -77,21 +83,10 @@ class ComposeServiceV4 {
     this.setImage(data.dockerfile);
     // if we have context data then lets pass that in as well
     if (data.context) this.addContext(data.context);
-
-
+    // if we have groups data then
+    if (data.groups) this.addGroups(data.groups);
     // handle steps data
-    if (data.steps && data.steps.length > 0) {
-      data.steps.map(step => {
-        // @TODO: do stuff to normalize as needed eg set group/user/subweight
-        // @TODO: try to match the group and set needed weights and stuff
-
-        // make sure step has needed defaults
-        // @TODO: func to generate defaults?
-        step = merge({}, {stage: this.#data.stages.default, weight: 1000}, step);
-
-        this.#data.steps.push(step);
-      });
-    }
+    if (data.steps) this.addSteps(data.steps);
   }
 
   // just pushes the compose data directly into our thing
@@ -111,18 +106,42 @@ class ComposeServiceV4 {
         // file is a string with src and dest parts
         if (typeof file === 'string' && file.split(':').length === 2) file = {src: file.split(':')[0], dest: file.split(':')[1]}; // eslint-disable-line max-len
         // file is an object with src key
-        if (typeof file === 'object' && file.src) file.source = file.src;
+        if (isObject(file) && file.src) file.source = file.src;
         // file is an object with dest key
-        if (typeof file === 'object' && file.dest) file.destination = file.dest;
+        if (isObject(file) && file.dest) file.destination = file.dest;
         // remove extraneous keys
-        if (typeof file === 'object' && file.src) delete file.src;
-        if (typeof file === 'object' && file.dest) delete file.dest;
+        if (isObject(file) && file.src) delete file.src;
+        if (isObject(file) && file.dest) delete file.dest;
         // handle relative source paths
         if (!path.isAbsolute(file.source)) file.source = path.resolve(this.appRoot, file.source);
 
         // return normalized data
         return file;
       }));
+    }
+  }
+
+  // add build groups to the service
+  addGroups(groups) {
+    // start by making groups into an array if we can
+    if (isObject(groups) && !Array.isArray(groups)) groups = [groups];
+
+    // loop through the groups and merge them in
+    if (groups && groups.length > 0) {
+      groups.map(group => {
+        // extrapolate short form first, if one key and it isnt id or name then assume a id weight pair
+        if (Object.keys(group).length === 1 && !group.id && !group.name) {
+          group = {id: Object.keys(group)[0], weight: group[Object.keys(group)[0]]};
+        }
+
+        // merge in
+        this.#data.groups = merge({}, this.#data.groups, {[group.id || group.name]: {
+          description: group.description || `Build group: ${group.id || group.name}`,
+          weight: group.weight || this.#data.groups.default.weight || 1000,
+          stage: group.stage || this.#data.stages.default || 'image',
+          user: group.user || 'root',
+        }});
+      });
     }
   }
 
@@ -138,6 +157,37 @@ class ComposeServiceV4 {
     this.#data.compose.push({services: {[this.id]: compose}});
   }
 
+  addSteps(steps) {
+    // start by making groups into an array if we can
+    if (isObject(steps) && !Array.isArray(steps)) steps = [steps];
+
+    // then loop through and do what we need to do
+    if (steps && steps.length > 0) {
+      steps.map(step => {
+        // handle group name overrides first eg break up into group|user|offset
+        if (step.group && this.matchGroup(step.group) && this.getGroupOverrides(step.group)) {
+          step = merge({}, step, this.getGroupOverrides(step.group));
+        }
+
+        // if no group or a group we cannot match then assume the default group
+        // @TODO: debug in case we could not find the build group?
+        if (!step.group || !this.matchGroup(step.group)) step.group = 'default';
+
+        // we should have stnadardized groups at this point so we can rebase on those things in as well
+        step = merge({}, {stage: this.#data.stages.default, weight: 1000}, this.#data.groups[step.group], step);
+
+        // now lets modify the weight by the offset if we have one
+        if (step.offset && Number(step.offset)) step.weight = step.weight + step.offset;
+
+        // and finally lets rewrite the group for better instruction grouping
+        step.group = `${step.group}-${step.weight}-${step.user}`;
+
+        // push
+        this.#data.steps.push(step);
+      });
+    }
+  }
+
   getSteps(stage) {
     // @TODO: validate stage?
 
@@ -147,26 +197,62 @@ class ComposeServiceV4 {
     return this.#data.steps;
   }
 
-  generateImageFiles() {
-    // @TODO: sort/filter buildContext.data and return an array of dockerfile instructions?
-    // @TODO: run buildContext.data through some helper function that translates into generateDockerFileFromArray format
-    // @TODO: method to get build steps of a certain stage?
-    const instructions = this.getSteps('image')
-      .sort((a, b) => a.weight - b.weight)
-      .map(step => step.instructions);
+  // gets group overrides or returns false if there are none
+  getGroupOverrides(group) {
+    // break the group into parts
+    const parts = group.replace(`${this.matchGroup(group)}`, '').split('-');
+    // there will always be a leading '' element so dump it
+    parts.shift();
 
+    // if we have nothing then lets return false at this point
+    if (parts.length === 0) return false;
+
+    // if not then lets try to parse parts into a step obkect we can merge in
+    const step = {group: this.matchGroup(group), offset: 0};
+
+    // start by trying to grab the first integer number we find and assume this is the offset
+    // @TODO: this means that user overrides MUST be passed in as non-castable strings eg usernames not uids
+    if (parts.find(part => Number(part))) {
+      step.offset = parts.splice(parts.indexOf(parts.find(part => Number(part))), 1)[0] * 1;
+    }
+
+    // now lets see if we can find a weight direction, we really only need to check for before since after is the default
+    if (parts.find(part => part === 'before')) step.offset = step.offset * -1;
+
+    // lets make sure we remove both "before" and "after" cause whatever is left is the user
+    if (parts.indexOf('before') > -1) parts.splice(parts.indexOf('before'), 1);
+    if (parts.indexOf('after') > -1) parts.splice(parts.indexOf('after'), 1);
+    step.user = parts.join('-') || 'root';
+
+    // return
+    return step;
+  }
+
+  generateImageFiles() {
+    // start with instructions that are sorted and grouped
+    const steps = groupBy(this.getSteps('image').sort((a, b) => a.weight - b.weight), 'group');
+
+    // now iterate through and translate into blocks of docker instructions with user and comments set
+    for (const [group, data] of Object.entries(steps)) {
+      // user should be consistent across data so just grab the first one
+      const user = data[0].user;
+      // reset data to array of instructions
+      steps[group] = data
+        .map(data => data.instructions)
+        .map(data => Array.isArray(data) ? generateDockerFileFromArray(data) : data);
+      // prefix user and comment data
+      steps[group].unshift(`USER ${user}\n`);
+      steps[group].unshift(`# ${group}\n`);
+      steps[group] = steps[group].join('');
+    }
+
+    // we should have raw instructions data now
+    const instructions = Object.values(steps);
     // unshift whatever we end up with in #data.from to the front of the instructions
     instructions.unshift(this.#data.image);
-
     // map instructions to dockerfile content
-    const content = instructions
-      .map(partial => typeof partial === 'object' ? generateDockerFileFromArray(partial) : partial)
-      .join('\n');
+    const content = instructions.join('\n');
     // @TODO: generic dockerfile validation/linting/etc?or error
-
-    // console.log(content);
-    // process.exit(1)
-
 
     // write the dockerfile
     fs.writeFileSync(this.dockerfile, content);
@@ -193,6 +279,11 @@ class ComposeServiceV4 {
     };
   }
 
+  // match group, if data starts with one of the groups then return that
+  matchGroup(data) {
+    return Object.keys(this.#data.groups).find(group => data.startsWith(group));
+  }
+
   // sets the image for the service
   setImage(image) {
     // if the data is raw dockerfile instructions then dump it to a file and set to that file
@@ -212,7 +303,7 @@ class ComposeServiceV4 {
     // for the former save the raw dockerfile instructions as a string
     if (fs.existsSync(image)) this.#data.image = fs.readFileSync(image, 'utf8');
     // for the latter set the baseImage
-    else this.#data.image = [{from: {baseImage: image}}];
+    else this.#data.image = generateDockerFileFromArray([{from: {baseImage: image}}]);
   }
 };
 
