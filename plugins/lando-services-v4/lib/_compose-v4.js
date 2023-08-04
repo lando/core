@@ -8,26 +8,38 @@ const path = require('path');
 const {generateDockerFileFromArray} = require('dockerfile-generator/lib/dockerGenerator');
 const {nanoid} = require('nanoid');
 
+// @TODO: adding groups or stages, short form vs long form?
+// @TODO: revisti networks/volumes
+// @TODO: add debugger?
+// @TODO: some mechanism for adding the sources into copy commands?
+// @TODO: allow for add/copy eg url detection?
+
 class ComposeServiceV4 {
   #data
 
   #init() {
     return {
       compose: [],
-      groups: [],
+      groups: {
+        default: {
+          description: 'A default general purpose build group around which other groups can be added',
+          weight: 1000,
+          user: 'root',
+        },
+      },
       image: undefined,
       sources: [],
-      stages: [],
+      stages: {
+        default: 'image',
+        exec: 'Commands run on the container in the background after its booted successfully',
+        image: 'Instructions to help generate an image',
+        run: 'Commands run against the codebase using the generated image',
+      },
       steps: [],
     };
   }
 
   constructor(id, {app, appRoot, config, context, lando, name, tag, type} = {}) {
-    // @TODO: image build steps/stages//groups
-
-    // @TODO: revisti networks/volumes
-    // @TODO: add debugger?
-
     // set top level required stuff
     this.id = id;
     this.config = config;
@@ -38,11 +50,14 @@ class ComposeServiceV4 {
     this.appRoot = appRoot;
     this.tag = tag || nanoid();
 
+    // @TODO: add needed validation for above things?
+
     // makre sure the build context dir exists
     fs.mkdirSync(this.context, {recursive: true});
     // @TODO: error handling on props?
 
     // initialize our private data
+    // @TODO: provide a way to start with a different start state?
     this.#data = this.#init();
 
     // if this is a "_compose" service eg is being called directly and not via inheritance then we can assume
@@ -54,34 +69,43 @@ class ComposeServiceV4 {
   }
 
   // this handles our changes to docker-composes "image" key
+  // @TODO: helper methods to add particular parts of build data eg image, files, steps, groups, etc
   addBuildData(data) {
     // make sure data is in object format if its a string then we assume it sets the "dockerfile" value
     if (typeof data === 'string') data = {dockerfile: data};
+    // now pass the dockerfile stuff into image parsing
+    this.setImage(data.dockerfile);
+    // if we have context data then lets pass that in as well
+    if (data.context) this.addContext(data.context);
 
-    // if the data is raw dockerfile instructions then dump it to a file and set to that file
-    if (data.dockerfile.split('\n').length > 1) {
-      const content = data.dockerfile;
-      data.dockerfile = path.join(require('os').tmpdir(), nanoid(), 'Dockerfile');
-      fs.mkdirSync(path.dirname(data.dockerfile), {recursive: true});
-      fs.writeFileSync(data.dockerfile, content);
+
+    // handle steps data
+    if (data.steps && data.steps.length > 0) {
+      data.steps.map(step => {
+        // @TODO: do stuff to normalize as needed eg set group/user/subweight
+        // @TODO: try to match the group and set needed weights and stuff
+
+        // make sure step has needed defaults
+        // @TODO: func to generate defaults?
+        step = merge({}, {stage: this.#data.stages.default, weight: 1000}, step);
+
+        this.#data.steps.push(step);
+      });
     }
+  }
 
-    // if dockerfile is not an absolute path then test it with the approot as a base
-    if (!path.isAbsolute(data.dockerfile) && fs.existsSync(path.resolve(this.appRoot, data.dockerfile))) {
-      data.dockerfile = path.resolve(this.appRoot, data.dockerfile);
-    }
+  // just pushes the compose data directly into our thing
+  addComposeData(data = {}) {
+    this.#data.compose.push(data);
+  }
 
-    // at this point the dockerfile should either be a path to a dockerfile or a registry image
-    // for the former save the raw dockerfile instructions as a string
-    if (fs.existsSync(data.dockerfile)) this.#data.image = fs.readFileSync(data.dockerfile, 'utf8');
-    // for the latter set the baseImage
-    else this.#data.image = {from: {baseImage: data.dockerfile}};
-
+  // adds files/dirs to the build context
+  addContext(context) {
     // if we have context info as a string then lets translate into an array
-    if (data.context && typeof data.context === 'string') data.context = [data.context];
+    if (context && typeof context === 'string') context = [context];
     // if we have an array of context data then lets normalize it
-    if (data.context && data.context.length > 0) {
-      this.#data.sources.push(data.context.map(file => {
+    if (context && context.length > 0) {
+      this.#data.sources.push(context.map(file => {
         // file is a string with src par
         if (typeof file === 'string' && file.split(':').length === 1) file = {src: file, dest: file};
         // file is a string with src and dest parts
@@ -90,11 +114,9 @@ class ComposeServiceV4 {
         if (typeof file === 'object' && file.src) file.source = file.src;
         // file is an object with dest key
         if (typeof file === 'object' && file.dest) file.destination = file.dest;
-
         // remove extraneous keys
         if (typeof file === 'object' && file.src) delete file.src;
         if (typeof file === 'object' && file.dest) delete file.dest;
-
         // handle relative source paths
         if (!path.isAbsolute(file.source)) file.source = path.resolve(this.appRoot, file.source);
 
@@ -102,11 +124,6 @@ class ComposeServiceV4 {
         return file;
       }));
     }
-  }
-
-  // just pushes the compose data directly into our thing
-  addComposeData(data = {}) {
-    this.#data.compose.push(data);
   }
 
   // lando runs a small superset of docker-compose that augments the image key so it can contain dockerfile data
@@ -134,16 +151,22 @@ class ComposeServiceV4 {
     // @TODO: sort/filter buildContext.data and return an array of dockerfile instructions?
     // @TODO: run buildContext.data through some helper function that translates into generateDockerFileFromArray format
     // @TODO: method to get build steps of a certain stage?
-    const instructions = this.getSteps('image');
+    const instructions = this.getSteps('image')
+      .sort((a, b) => a.weight - b.weight)
+      .map(step => step.instructions);
 
     // unshift whatever we end up with in #data.from to the front of the instructions
     instructions.unshift(this.#data.image);
 
     // map instructions to dockerfile content
     const content = instructions
-      .map(partial => typeof partial === 'object' ? generateDockerFileFromArray([partial]) : partial)
+      .map(partial => typeof partial === 'object' ? generateDockerFileFromArray(partial) : partial)
       .join('\n');
     // @TODO: generic dockerfile validation/linting/etc?or error
+
+    // console.log(content);
+    // process.exit(1)
+
 
     // write the dockerfile
     fs.writeFileSync(this.dockerfile, content);
@@ -168,6 +191,28 @@ class ComposeServiceV4 {
       info: this.info,
       data: this.#data.compose.map(element => merge({}, element, {version: '3.6'})),
     };
+  }
+
+  // sets the image for the service
+  setImage(image) {
+    // if the data is raw dockerfile instructions then dump it to a file and set to that file
+    if (image.split('\n').length > 1) {
+      const content = image;
+      image = path.join(require('os').tmpdir(), nanoid(), 'Dockerfile');
+      fs.mkdirSync(path.dirname(image), {recursive: true});
+      fs.writeFileSync(image, content);
+    }
+
+    // if dockerfile is not an absolute path then test it with the approot as a base
+    if (!path.isAbsolute(image) && fs.existsSync(path.resolve(this.appRoot, image))) {
+      image = path.resolve(this.appRoot, image);
+    }
+
+    // at this point the dockerfile should either be a path to a dockerfile or a registry image
+    // for the former save the raw dockerfile instructions as a string
+    if (fs.existsSync(image)) this.#data.image = fs.readFileSync(image, 'utf8');
+    // for the latter set the baseImage
+    else this.#data.image = [{from: {baseImage: image}}];
   }
 };
 

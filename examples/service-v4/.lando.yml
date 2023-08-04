@@ -3,8 +3,7 @@ services:
   web1:
     api: 4
     image:
-      dockerfile: |
-       FROM nginx:1.15
+      dockerfile: nginx:1.15
       context:
         - ./folder
         - ./folder:thing
@@ -13,6 +12,69 @@ services:
           dest: file3
         - source: file1
           destination: file4
+      steps:
+       # raw pass in
+        - instructions: |
+            COPY file4 /file2
+            RUN touch /me
+          stage: image
+        - instructions:
+          - env:
+              key1: value3
+              key2: value3
+          - run: env
+          - run:
+            - 'stat'
+            - '/file2'
+          stage: image
+
+        # default stage?
+        - instructions: |
+            ENV TEST=3
+            RUN env
+
+        # custom weights
+        - instructions: RUN cat /stuff
+          weight: 1001
+        - instructions: |
+            RUN echo "test" > /stuff
+          weight: 999
+        - instructions: |
+            RUN echo "test" > /stuff2
+          weight: 1
+        - instructions: |
+             RUN cat /stuff2
+          weight: 9999
+
+        # use existing group
+        # - group: default
+        #   instructions: |
+        #     ENV TEST=1
+        # - group: default
+        #   instructions:
+        #     - run: 'env'
+
+
+        # assume default group
+        # - group: default
+        #   instructions: |
+        #     ENV TEST=1
+
+        # - group: init-3-after/before-user
+        #   instructions:
+        #     - run: other tihg
+        #     - env:
+        #         key1: value3
+        #         key2: value3
+
+        # # using a new one
+        # # no weight = end of the groups?
+        # - instructions:
+        #   - run: other tihg
+        #   - env:
+        #       key1: value3
+        #       key2: value3
+        #   weight: 100
 
 
     environment:
