@@ -10,12 +10,10 @@ const path = require('path');
 const {generateDockerFileFromArray} = require('dockerfile-generator/lib/dockerGenerator');
 const {nanoid} = require('nanoid');
 
-// @TODO: revisti networks/volumes
-// @TODO: add stages
-// @TODO: add debugger?
-
 class ComposeServiceV4 {
   #data
+
+  static debug = require('debug')('lando-compose-v4');
 
   #init() {
     return {
@@ -42,22 +40,32 @@ class ComposeServiceV4 {
     };
   }
 
-  constructor(id, {app, appRoot, config, context, lando, name, tag, type} = {}) {
+  constructor(id, {
+    app,
+    lando,
+    appRoot = path.join(os.tmpdir(), nanoid(), id),
+    context = path.join(os.tmpdir(), nanoid(), id),
+    config = {},
+    debug = ComposeServiceV4.debug,
+    name = id,
+    tag = nanoid(),
+    type = '_compose',
+  } = {}) {
     // set top level required stuff
     this.id = id;
     this.config = config;
-    this.context = context || path.join(os.tmpdir(), nanoid(), id);
-    this.dockerfile = path.join(context, 'Dockerfile');
-    this.name = name;
+    this.context = context;
+    this.debug = debug;
+    this.name = name || id;
     this.type = type;
     this.appRoot = appRoot;
-    this.tag = tag || nanoid();
-
+    this.tag = tag;
+    this.dockerfile = path.join(context, 'Dockerfile');
     // @TODO: add needed validation for above things?
+    // @TODO: error handling on props?
 
     // makre sure the build context dir exists
     fs.mkdirSync(this.context, {recursive: true});
-    // @TODO: error handling on props?
 
     // initialize our private data
     // @TODO: provide a way to start with a different start state?
@@ -89,6 +97,7 @@ class ComposeServiceV4 {
   // just pushes the compose data directly into our thing
   addComposeData(data = {}) {
     this.#data.compose.push(data);
+    this.debug('%o added top level compose data %o', this.id, data);
   }
 
   // adds files/dirs to the build context
@@ -150,6 +159,7 @@ class ComposeServiceV4 {
         if (group) this.addSteps({group, instructions: file.instructions.join('\n')});
 
         // return normalized data
+        this.debug('%o added %o to the build context', this.id, file);
         return file;
       }));
     }
@@ -175,6 +185,8 @@ class ComposeServiceV4 {
           stage: group.stage || this.#data.stages.default || 'image',
           user: group.user || 'root',
         }});
+
+        this.debug('%o added build group %o', this.id, group);
       });
     }
   }
@@ -215,6 +227,9 @@ class ComposeServiceV4 {
 
         // and finally lets rewrite the group for better instruction grouping
         step.group = `${step.group}-${step.weight}-${step.user}`;
+
+        // log
+        this.debug('%o added build step %o', this.id, step);
 
         // push
         this.#data.steps.push(step);
@@ -309,7 +324,7 @@ class ComposeServiceV4 {
     return {
       id: this.id,
       info: this.info,
-      data: this.#data.compose.map(element => merge({}, element, {version: '3.6'})),
+      data: this.#data.compose.map(element => merge({}, element)),
     };
   }
 
@@ -338,6 +353,8 @@ class ComposeServiceV4 {
     if (fs.existsSync(image)) this.#data.image = fs.readFileSync(image, 'utf8');
     // for the latter set the baseImage
     else this.#data.image = generateDockerFileFromArray([{from: {baseImage: image}}]);
+    // log
+    this.debug('%o set base image to %o', this.id, this.#data.image);
   }
 };
 

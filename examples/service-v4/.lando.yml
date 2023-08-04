@@ -1,5 +1,17 @@
 name: service-v4
 services:
+  web3:
+    type: php:8.2
+
+  web2:
+    api: 4
+    image:
+      dockerfile: nginx:1.15
+    networks:
+      test:
+    volumes:
+      - test:/test_volume
+
   web1:
     api: 4
     image:
