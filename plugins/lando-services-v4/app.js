@@ -6,6 +6,9 @@ const chalk = require('chalk');
 const path = require('path');
 const utils = require('./lib/utils');
 
+const {dumpComposeData} = require('./../../lib/utils');
+const {nanoid} = require('nanoid');
+
 /*
  * @TODO
  */
@@ -14,15 +17,15 @@ module.exports = (app, lando) => {
   lando.factory.registry.unshift({api: 4, name: '_compose', builder: require('./lib/_compose-v4')});
 
   // Add v4 stuff to the app object
-  // v4 props
   app.v4 = {};
+  app.v4._debugShim = require('./lib/debug-shim')(app.log);
   app.v4._dir = path.join(lando.config.userConfRoot, 'v4', `${app.name}-${app.id}`);
+  app.v4.orchestratorVersion = '3.6';
   app.v4.buildContexts = [];
   app.v4.preLockfile = `${app.name}.v4.build.lock`;
   app.v4.postLockfile = `${app.name}.v4.build.lock`;
   app.v4.services = [];
 
-  // v4 methods
   // add a v4 build context to the app
   // @NOTE: does the order of these matter eg will there ever be image FROM dependencies among the build contexts here?
   // @TODO: librarify these
@@ -30,9 +33,22 @@ module.exports = (app, lando) => {
     if (front) app.v4.buildContexts.unshift(data);
     else app.v4.buildContexts.push(data);
   };
-
-  // what kinds of app level things do we need?
-  // 1. a way to add
+  // front load top level networks
+  app.v4.addNetworks = (data = {}) => {
+    app.add({
+      id: `v4-${nanoid()}`,
+      info: {},
+      data: [{networks: data, version: app.v4.orchestratorVersion}],
+    }, true);
+  };
+  // front load top level volumes
+  app.v4.addVolumes = (data = {}) => {
+    app.add({
+      id: `v4-${nanoid()}`,
+      info: {},
+      data: [{volumes: data, version: app.v4.orchestratorVersion}],
+    }, true);
+  };
 
   // Init this early on but not before our recipes
   app.events.on('pre-init', () => {
@@ -55,7 +71,7 @@ module.exports = (app, lando) => {
 
       // retrieve the correct class and instance
       const Service = lando.factory.get(config.type, config.api);
-      const service = new Service(config.name, {...config, app, lando});
+      const service = new Service(config.name, {...config, debug: app.v4._debugShim, app, lando});
       app.v4.services.push(service);
     });
 
@@ -65,6 +81,14 @@ module.exports = (app, lando) => {
         app.v4.addBuildContext(service.generateImageFiles());
         app.add(service.generateOrchestorFiles());
         app.info.push(service.info);
+
+        // handle top level volumes and networks here
+        if (!_.isEmpty(app.config.volumes)) app.v4.addVolumes(app.config.volumes);
+        if (!_.isEmpty(app.config.networks)) app.v4.addNetworks(app.config.networks);
+
+        // finish with the version, as long as we are mixing streams with v3 this cannot be updated until v3 is
+        app.add({id: 'version', info: {}, data: [{version: app.v4.orchestratorVersion}]}, true);
+
         // Log da things
         app.log.debug('generated v4 %s service %s', service.type, service.name);
       });
@@ -73,6 +97,36 @@ module.exports = (app, lando) => {
 
   app.events.on('pre-services-generate', services => {
     // console.log(services);
+  });
+
+
+  // wipe hardcoded assumptioms from v3 that we want to handle on our own
+  app.events.on('ready', () => {
+    _.forEach(app.v4.services.map(service => service.id), id => {
+      // remove v3 app mount
+      const mounts = _.find(app.composeData, compose => compose.id === 'mounts');
+      mounts.data = mounts.data.map(datum => {
+        if (datum.services && datum.services[id]) datum.services[id] = {volumes: []};
+        return datum;
+      });
+
+      // remove v3 scripts mounts
+      // @TODO: other globals we should blow away?
+      const globals = _.find(app.composeData, compose => compose.id === 'globals');
+      globals.data = globals.data.map(datum => {
+        if (datum.services && datum.services[id]) datum.services[id] = {...datum.services[id], volumes: []};
+        return datum;
+      });
+    });
+
+    // Log
+    app.initialized = false;
+    app.compose = dumpComposeData(app.composeData, app._dir);
+    app.log.verbose('v4 app is ready!');
+    app.log.silly('v4 app has compose files', app.compose);
+    app.log.silly('v4 app has config  ', app.config);
+    app.initialized = true;
+    return app.events.emit('ready-v4');
   });
 
   // Handle V4 build steps
@@ -99,7 +153,7 @@ module.exports = (app, lando) => {
       if (!lando.cache.get(app.v4.preLockfile)) {
         // require our V4 stuff here
         const DockerEngine = require('./lib/docker-engine');
-        const bengine = new DockerEngine(lando.config.engineConfig, {debug: require('./lib/debug-shim')(lando.log)});
+        const bengine = new DockerEngine(lando.config.engineConfig, {debug: app.v4._debugShim});
 
         // filter out any services that dont need to be built
         const contexts = _(app.v4.buildContexts)
