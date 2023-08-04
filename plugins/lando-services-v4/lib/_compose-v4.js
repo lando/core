@@ -10,17 +10,9 @@ const path = require('path');
 const {generateDockerFileFromArray} = require('dockerfile-generator/lib/dockerGenerator');
 const {nanoid} = require('nanoid');
 
-// @TODO: build steps with user-4 sytnax? test a hyphened group
-// @TODO: build steps via group
-// @TODO: set USER keyword in instructions
-// comments for groups and things?
-
-// @TODO: some mechanism for adding the sources into copy commands?
-// @TODO: allow for add/copy eg url detection?
-
 // @TODO: revisti networks/volumes
-// @TODO: add debugger?
 // @TODO: add stages
+// @TODO: add debugger?
 
 class ComposeServiceV4 {
   #data
@@ -29,6 +21,11 @@ class ComposeServiceV4 {
     return {
       compose: [],
       groups: {
+        context: {
+          description: 'A group for adding and copying sources to the image',
+          weight: 0,
+          user: 'root',
+        },
         default: {
           description: 'A default general purpose build group around which other groups can be added',
           weight: 1000,
@@ -95,7 +92,7 @@ class ComposeServiceV4 {
   }
 
   // adds files/dirs to the build context
-  addContext(context) {
+  addContext(context, group = 'context') {
     // if we have context info as a string then lets translate into an array
     if (context && typeof context === 'string') context = [context];
     // if we have an array of context data then lets normalize it
@@ -109,11 +106,48 @@ class ComposeServiceV4 {
         if (isObject(file) && file.src) file.source = file.src;
         // file is an object with dest key
         if (isObject(file) && file.dest) file.destination = file.dest;
-        // remove extraneous keys
-        if (isObject(file) && file.src) delete file.src;
-        if (isObject(file) && file.dest) delete file.dest;
+        // if source is actually a url then lets address that
+        try {
+          file.url = new URL(file.source).href;
+          delete file.source;
+        } catch {}
+        // at this point we need to make sure a desintation is set
+        if (!file.destination && file.source) file.destination = file.source;
+        if (!file.destination && file.url) file.destination = new URL(file.url).pathname;
         // handle relative source paths
-        if (!path.isAbsolute(file.source)) file.source = path.resolve(this.appRoot, file.source);
+        if (file.source && !path.isAbsolute(file.source)) file.source = path.resolve(this.appRoot, file.source);
+
+        // handle permissions
+        if (file.perms) file.permissions = file.perms;
+
+        // handle ownership
+        if (file.user && !file.owner) file.owner = file.user;
+        if (file.user && file.group) file.owner = `${file.user}:${file.group}`;
+
+        // handle instructions
+        if (!file.instructions) {
+          file.instructions = file.url ? ['ADD'] : ['COPY'];
+          if (file.owner) file.instructions.push(`--chown=${file.owner}`);
+          // @TODO: below not possible until we have BuildKit support in docekrode
+          // see: https://github.com/apocas/dockerode/issues/601
+          // if (file.permissions) file.instructions.push(`--chmod=${file.permissions}`);
+          file.instructions.push(file.url || file.destination);
+          file.instructions.push(path.resolve('/', file.destination));
+          file.instructions.push('\n');
+          file.instructions = file.instructions.join(' ');
+        }
+        // ensure instructions are an array
+        if (typeof file.instructions === 'string') file.instructions = [file.instructions];
+
+        // remove extraneous keys
+        if (isObject(file) && file.dest) delete file.dest;
+        if (isObject(file) && file.group) delete file.group;
+        if (isObject(file) && file.perms) delete file.perms;
+        if (isObject(file) && file.src) delete file.src;
+        if (isObject(file) && file.user) delete file.user;
+
+        // should be ready for all the things eg pushing as a build step
+        if (group) this.addSteps({group, instructions: file.instructions.join('\n')});
 
         // return normalized data
         return file;
@@ -262,7 +296,7 @@ class ComposeServiceV4 {
       id: this.id,
       context: this.context,
       dockerfile: this.dockerfile,
-      sources: this.#data.sources.flat(Number.POSITIVE_INFINITY).filter(Boolean),
+      sources: this.#data.sources.flat(Number.POSITIVE_INFINITY).filter(Boolean).filter(source => !source.url),
       tag: this.tag,
     };
   }

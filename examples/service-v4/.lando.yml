@@ -12,6 +12,29 @@ services:
           dest: file3
         - source: file1
           destination: file4
+          instruction: COPY file1 /file-this-4
+
+        - source: file1
+          destination: file4
+          instruction:
+            - COPY file1 /file-this-4
+
+        - source: file1
+          destination: file6
+          owner: nginx:nginx
+          permissions: 777
+
+        - source: file1
+          destination: file7
+          user: nginx
+          group: nginx
+          perms: 777
+
+        - source: ./images/Dockerfile
+
+        - source: https://raw.githubusercontent.com/lando/lando/main/PRIVACY.md
+        - source: https://raw.githubusercontent.com/lando/lando/main/PRIVACY.md
+          dest: /tmp/private.md
 
       groups:
         - bob: 99
