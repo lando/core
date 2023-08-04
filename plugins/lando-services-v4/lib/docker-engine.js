@@ -120,15 +120,16 @@ class DockerEngine extends Dockerode {
       debug('copied %o into build context %o', dockerfile, context);
     }
 
-    // create the build context
-    // @NOTE: this seems brittle?
+    // move sources into the build context @NOTE: this seems brittle?
     for (const source of sources) {
       fs.copySync(source.source, path.join(context, source.destination));
       debug('copied %o into build context %o', source.source, path.join(context, source.destination));
     }
 
     // call the parent
-    super.buildImage({context, src: fs.readdirSync(context)}, {t: tag}, callbackHandler);
+    // @TODO: consider other opts? https://docs.docker.com/engine/api/v1.43/#tag/Image/operation/ImageBuild
+    // args?
+    super.buildImage({context, src: fs.readdirSync(context)}, {forcerm: true, t: tag}, callbackHandler);
     // log
     this.debug('building image %o from %o', tag, context);
     // make this a hybrid async func and return
