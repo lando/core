@@ -72,7 +72,9 @@ module.exports = (app, lando) => {
 
   // Refresh all our certs
   app.events.on('post-init', () => {
-    const buildServices = _.get(app, 'opts.services', app.services);
+    // get actionable v3 services
+    const v4Services = _.get(app, 'v4.services', []).map(service => service.id);
+    const buildServices = _.get(app, 'opts.services', app.services).filter(service => !v4Services.includes(service));
     app.log.verbose('refreshing certificates...', buildServices);
     app.events.on('post-start', 9999, () => lando.Promise.each(buildServices, service => {
       return app.engine.run({
@@ -95,6 +97,11 @@ module.exports = (app, lando) => {
 
   // Run a secondary user perm sweep on services that cannot run as root eg mysql
   app.events.on('post-init', () => {
+    // scope app.nonRoot to v4 services only
+    const v4Services = _.get(app, 'v4.services', []).map(service => service.id);
+    app.nonRoot = _.get(app, 'nonRoot', []).filter(service => !v4Services.includes(service));
+
+    // perm sweep non root if needed
     if (!_.isEmpty(app.nonRoot)) {
       app.log.verbose('perm sweeping flagged non-root containers ...', app.nonRoot);
       app.events.on('post-start', 1, () => lando.Promise.each(app.nonRoot, service => {
