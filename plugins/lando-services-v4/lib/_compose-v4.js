@@ -197,8 +197,36 @@ class ComposeServiceV4 {
     if (data.build && !data.image) data.image = data.build;
     // if data has image data then we first need to send that data elsewhere and remove it from the compose data
     if (data.image) this.addBuildData(data.image);
+
     // ensure we are not passing in the image or build key
     const {build, image, ...compose} = data; // eslint-disable-line
+
+    // handle any appropriate path normalization for volumes
+    // @TODO: do we need to normalize other things?
+    // @NOTE: this normalization ONLY applies here, not in the generic addComposeData
+    if (compose.volumes && Array.isArray(compose.volumes)) {
+      compose.volumes = compose.volumes.map(volume => {
+        // if volume is a one part string then just return so we dont have to handle it downstream
+        if (typeof volume === 'string' && volume.split(':').length === 1) return volume;
+
+        // if volumes is a string with two colon-separated parts then do stuff
+        if (typeof volume === 'string' && volume.split(':').length === 2) {
+          volume = {target: volume.split(':')[1], source: volume.split(':')[0]};
+        }
+
+        // if source is not an absolute path that exists relateive to appRoot then set as bind
+        if (!path.isAbsolute(volume.source) && fs.existsSync(path.join(this.appRoot, volume.source))) {
+          volume.source = path.join(this.appRoot, volume.source);
+        }
+
+        // if target exists then bind otherwise vol
+        volume.type = fs.existsSync(volume.source) ? 'bind' : 'volume';
+
+        // return
+        return volume;
+      });
+    }
+
     // add the data
     this.#data.compose.push({services: {[this.id]: compose}});
   }
