@@ -1,11 +1,19 @@
 name: lando-compose-v4
+tooling:
+  pwd:
+    service: web2
+  pwd2:
+    service: web3
+    cmd: pwd
 services:
-  web3:
+  web1:
     type: php:8.2
 
   web2:
     api: 4
+    primary: true
     image: nginx:1.15
+    working_dir: /tmp
     networks:
       test:
     volumes:
@@ -13,8 +21,23 @@ services:
       - ./:/app2
       - /tmp
 
-  # web1:
+  web3:
+    api: 4
+    primary: true
+    image: nginx:1.15
+    working_dir: /tmp
+    networks:
+      test:
+    volumes:
+      - test:/test_volume
+      - /tmp
+
+  # web3:
   #   api: 4
+  #   primary: true
+
+  #   working_dir: /tmp
+
   #   image:
   #     dockerfile: nginx:1.15
   #     context:
@@ -51,10 +74,12 @@ services:
 
   #     groups:
   #       - bob: 99
+
   #       - name: 'configure'
   #         description: 'configure linux packages? certs? php-extensions'
   #         user: root
   #         stage: image
+
   #       - name: 'configure-me-first'
   #         description: 'configure linux packages? certs? php-extensions'
   #         user: root
@@ -65,6 +90,7 @@ services:
   #       - instructions: |
   #           COPY file4 /file2
   #           RUN touch /me
+
   #       - instructions:
   #         - env:
   #             key1: value3
@@ -95,9 +121,23 @@ services:
   #       - group: bob-4-nginx-before
   #         instructions: |
   #            RUN env
+
   #       - group: bob-after-3
   #         instructions: |
   #            RUN env
+
+  #       - group: bob-nginx-4-after
+  #         instructions: |
+  #            RUN env
+
+  #       - group: bob-nginx-4-after
+  #         instructions: |
+  #            RUN env
+
+  #       - group: bob-3
+  #         instructions: |
+  #            RUN env
+
 
 
   #       - group: frank
@@ -110,19 +150,16 @@ services:
   #         instructions: |
   #            RUN echo "BOB=BOBBED > /etc/environment"
 
-        # use existing group
-        # - group: default
-        #   instructions: |
-        #     ENV TEST=1
-        # - group: default
-        #   instructions:
-        #     - run: 'env'
+  #       - group: default
+  #         instructions: |
+  #           ENV TEST=1
+  #       - group: default
+  #         instructions:
+  #           - run: 'env'
 
-
-        # assume default group
-        # - group: default
-        #   instructions: |
-        #     ENV TEST=1
+  #       - group: default
+  #         instructions: |
+  #           ENV TEST=1
 
         # - group: init-3-after/before-user
         #   instructions:
@@ -131,8 +168,8 @@ services:
         #         key1: value3
         #         key2: value3
 
-        # # using a new one
-        # # no weight = end of the groups?
+        # using a new one
+        # no weight = end of the groups?
         # - instructions:
         #   - run: other tihg
         #   - env:
@@ -146,7 +183,7 @@ services:
     ports:
       - 80
 
-  # web2:
+  # web20:
   #   api: 4
   #   image: |
   #     FROM nginx:1.17
@@ -155,21 +192,8 @@ services:
   #   ports:
   #     - 80
 
-  # web3:
-  #   api: 4
-  #   image:
-  #     dockerfile: |
-  #       FROM nginx:1.17
-  #       ENV LANDO_RUN 6
-  #       RUN apt-get update -y && apt-get install openssl -y
-  #     args: weewg, wegweg,
-  #     build-steps:
-  #     build-files:
-  #       - /log.sh
-  #     ports:
-  #       - 80
 
-  # web4:
+  # web40:
   #   api: 4
   #   build:
   #     dockerfile: |
@@ -177,39 +201,12 @@ services:
   #       ENV LANDO_RUN 6
   #       RUN apt-get update -y && apt-get install openssl -y
 
-  # web5:
+  # web50:
   #   api: 4
   #   ports:
   #     - 80
   #   build:
   #     dockerfile: ./images/Dockerfile
-
-    # volumes:
-    #   - ./:/app
-    #   - data-voluime:/here
-
-    # app-mount: /app
-    # persistent-data:
-    # environment:
-    #   weoigj
-
-
-    # build:
-    #   files:
-    #     php=exnteison=stcitp:/place
-    #   image: |
-
-
-    #   image:
-    #     - root: stuff
-    #     - me: stuff
-
-    # command:
-    # entrypoint:
-
-
-
-
 
 volumes:
   test:

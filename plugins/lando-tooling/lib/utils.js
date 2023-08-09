@@ -10,13 +10,13 @@ const path = require('path');
 /*
  * Helper to map the cwd on the host to the one in the container
  */
-const getContainerPath = appRoot => {
+const getContainerPath = (appRoot, appMount = '/app') => {
   // Break up our app root and cwd so we can get a diff
   const cwd = process.cwd().split(path.sep);
   const dir = _.drop(cwd, appRoot.split(path.sep).length);
   // Add our in-container app root
   // this will always be /app
-  dir.unshift('/app');
+  dir.unshift(appMount);
   // Return the directory
   return dir.join('/');
 };
@@ -170,6 +170,7 @@ exports.parseConfig = (cmd, service, options = {}, answers = {}) => _(cmd)
 exports.toolingDefaults = ({
   name,
   app = {},
+  appMount = '/app',
   cmd = name,
   dir,
   description = `Runs ${name} commands`,
@@ -182,6 +183,7 @@ exports.toolingDefaults = ({
   ({
     name,
     app: app,
+    appMount: appMount,
     cmd: !_.isArray(cmd) ? [cmd] : cmd,
     dir,
     env,

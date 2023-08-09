@@ -27,15 +27,35 @@ const task = {
   },
 };
 
-module.exports = lando => {
+module.exports = (lando, app) => {
   task.run = ({appname = undefined, command = bashme, service = 'appserver', user = null, _app = {}} = {}) => {
     // Try to get our app
     const app = lando.getApp(_app.root, false);
+
     // If we have it then init and DOOOO EEEET
     if (app) {
       return app.init().then(() => {
+        // set additional opt defaults if possible
+        const opts = [undefined, '/app'];
+        // mix any v4 service info on top of app.config.services
+        const services = _(_.get(app, 'config.services', {}))
+          .map((service, id) => _.merge({}, {id}, service))
+          .map(service => _.merge({}, service, _.find(_.get(app, 'v4.services', []), s => s.id === service.id)))
+          .value();
+
+        // attempt to get additional information about the service, this means that service.appMount **should** work
+        // for v3 services if it is set however it is technically unsupported
+        if (_.find(services, s => s.id === service)) {
+          const config = _.find(services, s => s.id === service);
+          // prefer appmount
+          if (config.appMount) opts[1] = config.appMount;
+          // fallback to working dir if available
+          if (!config.appMount && _.has(config, 'config.working_dir')) opts[0] = config.config.working_dir;
+        }
+
+        // continue
         if (_.isNull(user)) user = getUser(service, app.info);
-        return lando.engine.run(utils.buildCommand(app, command, service, user)).catch(error => {
+        return lando.engine.run(utils.buildCommand(app, command, service, user, {}, ...opts)).catch(error => {
           error.hide = true;
           throw error;
         });

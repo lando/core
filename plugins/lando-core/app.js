@@ -72,9 +72,9 @@ module.exports = (app, lando) => {
 
   // Refresh all our certs
   app.events.on('post-init', () => {
-    // get actionable v3 services
-    const v4Services = _.get(app, 'v4.services', []).map(service => service.id);
-    const buildServices = _.get(app, 'opts.services', app.services).filter(service => !v4Services.includes(service));
+    // ensure build services are just v3 services since v4 services use a different build layer
+    const buildServices = _.get(app, 'opts.services', app.services).filter(service => app.servicesList.includes(service)); // eslint-disable-line max-len
+
     app.log.verbose('refreshing certificates...', buildServices);
     app.events.on('post-start', 9999, () => lando.Promise.each(buildServices, service => {
       return app.engine.run({
@@ -97,9 +97,8 @@ module.exports = (app, lando) => {
 
   // Run a secondary user perm sweep on services that cannot run as root eg mysql
   app.events.on('post-init', () => {
-    // scope app.nonRoot to v4 services only
-    const v4Services = _.get(app, 'v4.services', []).map(service => service.id);
-    app.nonRoot = _.get(app, 'nonRoot', []).filter(service => !v4Services.includes(service));
+    // scope app.nonRoot to v4 services only since this is not a workaround that v4 needs
+    app.nonRoot = _.get(app, 'nonRoot', []).filter(service => app.servicesList.includes(service));
 
     // perm sweep non root if needed
     if (!_.isEmpty(app.nonRoot)) {

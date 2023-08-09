@@ -25,6 +25,7 @@ module.exports = (app, lando) => {
   app.v4.preLockfile = `${app.name}.v4.build.lock`;
   app.v4.postLockfile = `${app.name}.v4.build.lock`;
   app.v4.services = [];
+  app.v4.composeCache = `${app.name}.compose.cache`;
 
   // add a v4 build context to the app
   // @NOTE: does the order of these matter eg will there ever be image FROM dependencies among the build contexts here?
@@ -56,6 +57,7 @@ module.exports = (app, lando) => {
     app.v4.parsedConfig = _(utils.parseConfig(_.get(app, 'config.services', {})))
       .filter(service => service.api === 4)
       .value();
+    app.v4.servicesList = app.v4.parsedConfig.map(service => service.name);
 
     // build each service
     _.forEach(app.v4.parsedConfig, config => {
@@ -67,7 +69,7 @@ module.exports = (app, lando) => {
       // add some other important stuff to config
       config.appRoot = app.root;
       config.context = path.join(app.v4._dir, 'build-contexts', config.name);
-      config.tag = `${_.get(lando, 'product', 'lando')}/${app.name}-${app.id}-${config.name}`;
+      config.tag = `${_.get(lando, 'product', 'lando')}/${app.name}-${app.id}-${config.name}:latest`;
 
       // retrieve the correct class and instance
       const Service = lando.factory.get(config.type, config.api);
@@ -99,7 +101,6 @@ module.exports = (app, lando) => {
     // console.log(services);
   });
 
-
   // wipe hardcoded assumptioms from v3 that we want to handle on our own
   app.events.on('ready', () => {
     _.forEach(app.v4.services.map(service => service.id), id => {
@@ -127,6 +128,18 @@ module.exports = (app, lando) => {
     app.log.silly('v4 app has config  ', app.config);
     app.initialized = true;
     return app.events.emit('ready-v4');
+  });
+
+  // Save a compose cache every time the app is ready, we have to duplicate this for v4 because we modify the
+  // composeData after the v3 app.ready event
+  app.events.on('ready-v4', () => {
+    lando.cache.set(app.v4.composeCache, {
+      name: app.name,
+      project: app.project,
+      compose: app.compose,
+      root: app.root,
+      info: app.info,
+    }, {persist: true});
   });
 
   // Handle V4 build steps

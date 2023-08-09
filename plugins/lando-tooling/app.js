@@ -17,6 +17,8 @@ module.exports = (app, lando) => {
       _.forEach(utils.getToolingTasks(app.config.tooling, app), task => {
         app.log.debug('adding app cli task %s', task.name);
         const injectable = _.has(app, 'engine') ? app : lando;
+        task.appMount = '/app2';
+
         app.tasks.push(buildTask(task, injectable));
       });
     }
@@ -25,12 +27,21 @@ module.exports = (app, lando) => {
   // Save a compose cache every time the app is ready, this allows us to
   // run faster tooling commands
   app.events.on('ready', () => {
+    // put together some mount data, this is mostly to accomodate V4 stuff but theoretically woudl work in v3 as well
+    const mounts = _(_.get(app, 'config.services', {}))
+      .map((service, id) => _.merge({}, {id}, service))
+      .map(service => _.merge({}, service, _.find(_.get(app, 'v4.services', []), s => s.id === service.id)))
+      .map(service => ([service.id, service.appMount]))
+      .fromPairs()
+      .value();
+
     lando.cache.set(composeCache, {
       name: app.name,
       project: app.project,
       compose: app.compose,
       root: app.root,
       info: app.info,
+      mounts,
     }, {persist: true});
   });
 

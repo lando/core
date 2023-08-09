@@ -43,6 +43,7 @@ module.exports = (app, lando) => {
     // add parsed services to app object so we can use them downstream
     app.parsedServices = utils.parseConfig(_.get(app, 'config.services', {}), app);
     app.parsedV3Services = _(app.parsedServices).filter(service => service.api === 3).value();
+    app.servicesList = app.parsedV3Services.map(service => service.name);
 
     // build each service
     _.forEach(app.parsedV3Services, service => {
