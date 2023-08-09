@@ -20,7 +20,8 @@ exports.parseConfig = services => _(services)
   .map((service, name) => _.merge({}, {
     name,
     api: getApiVersion(service.api),
-    config: _.omit(service, ['api', 'type']),
+    config: _.omit(service, ['api', 'primary', 'type']),
+    primary: service.primary || false,
   }))
   // ensure api is set to something valid
   .map(service => _.merge({}, service, {api: getApiVersion(service.api)}))

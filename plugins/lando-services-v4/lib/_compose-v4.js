@@ -10,6 +10,22 @@ const path = require('path');
 const {generateDockerFileFromArray} = require('dockerfile-generator/lib/dockerGenerator');
 const {nanoid} = require('nanoid');
 
+// @TODO: should this be a class method of some kind? util? keep here?
+const getMountMatches = (dir, volumes = []) => volumes
+  // filter out non string bind mounts
+  .filter(volume => volume.split(':').length === 2)
+  // parse into object format
+  .map(volume => ({source: volume.split(':')[0], target: volume.split(':')[1]}))
+  // translate relative paths
+  .map(volume => ({
+    source: !path.isAbsolute(volume.source) ? path.resolve(dir, volume.source) : volume.source,
+    target: volume.target,
+  }))
+  // filter sources that dont exist and are not the appRoot
+  .filter(volume => fs.existsSync(volume.source) && volume.source === dir)
+  // map to the target
+  .map(volume => volume.target);
+
 class ComposeServiceV4 {
   #data
 
@@ -42,6 +58,7 @@ class ComposeServiceV4 {
 
   constructor(id, {
     app,
+    appMount,
     lando,
     appRoot = path.join(os.tmpdir(), nanoid(), id),
     context = path.join(os.tmpdir(), nanoid(), id),
@@ -53,12 +70,13 @@ class ComposeServiceV4 {
   } = {}) {
     // set top level required stuff
     this.id = id;
+    this.appMount = appMount;
+    this.appRoot = appRoot;
     this.config = config;
     this.context = context;
     this.debug = debug;
     this.name = name || id;
     this.type = type;
-    this.appRoot = appRoot;
     this.tag = tag;
     this.dockerfile = path.join(context, 'Dockerfile');
     // @TODO: add needed validation for above things?
@@ -74,6 +92,16 @@ class ComposeServiceV4 {
     // if this is a "_compose" service eg is being called directly and not via inheritance then we can assume
     // that config is lando-compose data and can/should be added directly
     if (type === '_compose') this.addServiceData(config);
+
+    // if we do not have an appmount yet and we have volumes information then try to infer it
+    if (!this.appMount && this.config && this.config.volumes && this.config.volumes.length > 0) {
+      // try to get some possible app mounts
+      const appMounts = getMountMatches(this.appRoot, this.config.volumes);
+      // set appmount to the last found appMount
+      this.appMount = appMounts.pop();
+      // debug
+      this.debug('autoset appmount to %o, did not select %o', this.appMount, appMounts);
+    }
 
     // @TODO: how is info handled here?
     this.info = config.info ?? {};

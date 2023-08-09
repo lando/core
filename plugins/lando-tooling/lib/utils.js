@@ -10,13 +10,13 @@ const path = require('path');
 /*
  * Helper to map the cwd on the host to the one in the container
  */
-const getContainerPath = appRoot => {
+const getContainerPath = (appRoot, appMount = '/app') => {
   // Break up our app root and cwd so we can get a diff
   const cwd = process.cwd().split(path.sep);
   const dir = _.drop(cwd, appRoot.split(path.sep).length);
   // Add our in-container app root
   // this will always be /app
-  dir.unshift('/app');
+  dir.unshift(appMount);
   // Return the directory
   return dir.join('/');
 };
@@ -109,7 +109,7 @@ const parseCommand = (cmd, service) => ({
 /*
  * Helper to build commands
  */
-exports.buildCommand = (app, command, service, user, env = {}, dir = undefined) => ({
+exports.buildCommand = (app, command, service, user, env = {}, dir = undefined, appMount = '/app') => ({
   id: `${app.project}_${service}_1`,
   compose: app.compose,
   project: app.project,
@@ -117,7 +117,7 @@ exports.buildCommand = (app, command, service, user, env = {}, dir = undefined) 
   opts: {
     environment: getCliEnvironment(env),
     mode: 'attach',
-    workdir: dir || getContainerPath(app.root),
+    workdir: dir || getContainerPath(app.root, appMount),
     user: (user === null) ? getUser(service, app.info) : user,
     services: _.compact([service]),
     hijack: false,
@@ -167,6 +167,7 @@ exports.parseConfig = (cmd, service, options = {}, answers = {}) => _(cmd)
 exports.toolingDefaults = ({
   name,
   app = {},
+  appMount = '/app',
   cmd = name,
   dir,
   description = `Runs ${name} commands`,
@@ -179,6 +180,7 @@ exports.toolingDefaults = ({
   ({
     name,
     app: app,
+    appMount: appMount,
     cmd: !_.isArray(cmd) ? [cmd] : cmd,
     dir,
     env,
