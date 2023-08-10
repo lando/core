@@ -269,13 +269,12 @@ class ComposeServiceV4 {
     if (steps && steps.length > 0) {
       steps.map(step => {
         // handle group name overrides first eg break up into group|user|offset
-        if (step.group && this.matchGroup(step.group) && this.getGroupOverrides(step.group)) {
+        if (step.group && this.getOverrideGroup(step.group) && this.getGroupOverrides(step.group)) {
           step = merge({}, step, this.getGroupOverrides(step.group));
         }
 
         // if no group or a group we cannot match then assume the default group
-        // @TODO: debug in case we could not find the build group?
-        if (!step.group || !this.matchGroup(step.group)) step.group = 'default';
+        if (!step.group || this.getOverrideGroup(step.group) !== false) step.group = 'default';
 
         // we should have stnadardized groups at this point so we can rebase on those things in as well
         step = merge({}, {stage: this.#data.stages.default, weight: 1000}, this.#data.groups[step.group], step);
@@ -293,46 +292,6 @@ class ComposeServiceV4 {
         this.#data.steps.push(step);
       });
     }
-  }
-
-  getSteps(stage) {
-    // @TODO: validate stage?
-
-    // if we have a stage then filter by that
-    if (stage) return this.#data.steps.filter(step => step.stage === stage);
-    // otherwise return the whole thing
-    return this.#data.steps;
-  }
-
-  // gets group overrides or returns false if there are none
-  getGroupOverrides(group) {
-    // break the group into parts
-    const parts = group.replace(`${this.matchGroup(group)}`, '').split('-');
-    // there will always be a leading '' element so dump it
-    parts.shift();
-
-    // if we have nothing then lets return false at this point
-    if (parts.length === 0) return false;
-
-    // if not then lets try to parse parts into a step obkect we can merge in
-    const step = {group: this.matchGroup(group), offset: 0};
-
-    // start by trying to grab the first integer number we find and assume this is the offset
-    // @TODO: this means that user overrides MUST be passed in as non-castable strings eg usernames not uids
-    if (parts.find(part => Number(part))) {
-      step.offset = parts.splice(parts.indexOf(parts.find(part => Number(part))), 1)[0] * 1;
-    }
-
-    // now lets see if we can find a weight direction, we really only need to check for before since after is the default
-    if (parts.find(part => part === 'before')) step.offset = step.offset * -1;
-
-    // lets make sure we remove both "before" and "after" cause whatever is left is the user
-    if (parts.indexOf('before') > -1) parts.splice(parts.indexOf('before'), 1);
-    if (parts.indexOf('after') > -1) parts.splice(parts.indexOf('after'), 1);
-    step.user = parts.join('-') || 'root';
-
-    // return
-    return step;
   }
 
   generateImageFiles() {
@@ -386,13 +345,56 @@ class ComposeServiceV4 {
     };
   }
 
-  // match group, if data starts with one of the groups then return that
-  // @NOTE: what about cases like system and system-4?
-  // if we have two groups system and system-4 and we pass in system-4 then this should NOT
-  // match system-4 to system
-  // eg if there are any DIRECT matches then return false
-  matchGroup(data) {
-    return Object.keys(this.#data.groups).find(group => data.startsWith(group));
+  getSteps(stage) {
+    // @TODO: validate stage?
+
+    // if we have a stage then filter by that
+    if (stage) return this.#data.steps.filter(step => step.stage === stage);
+    // otherwise return the whole thing
+    return this.#data.steps;
+  }
+
+  // gets group overrides or returns false if there are none
+  getGroupOverrides(group) {
+    // break the group into parts
+    const parts = group.replace(`${this.getOverrideGroup(group)}`, '').split('-');
+    // there will always be a leading '' element so dump it
+    parts.shift();
+
+    // if we have nothing then lets return false at this point
+    if (parts.length === 0) return false;
+
+    // if not then lets try to parse parts into a step obkect we can merge in
+    const step = {group: this.getOverrideGroup(group), offset: 0};
+
+    // start by trying to grab the first integer number we find and assume this is the offset
+    // @TODO: this means that user overrides MUST be passed in as non-castable strings eg usernames not uids
+    if (parts.find(part => Number(part))) {
+      step.offset = parts.splice(parts.indexOf(parts.find(part => Number(part))), 1)[0] * 1;
+    }
+
+    // now lets see if we can find a weight direction, we really only need to check for before since after is the default
+    if (parts.find(part => part === 'before')) step.offset = step.offset * -1;
+
+    // lets make sure we remove both "before" and "after" cause whatever is left is the user
+    if (parts.indexOf('before') > -1) parts.splice(parts.indexOf('before'), 1);
+    if (parts.indexOf('after') > -1) parts.splice(parts.indexOf('after'), 1);
+    step.user = parts.join('-') || 'root';
+
+    // return
+    return step;
+  }
+
+  // returns the group the override is targeting or false if not really an override
+  getOverrideGroup(data) {
+    // first order the groups by longest string and filter out any that dont start with data
+    // this should ensure we end up with an ordered by closest match list
+    const candidates = Object.keys(this.#data.groups)
+      .sort((a, b) => b.length - a.length)
+      .filter(group => data.startsWith(group));
+
+    // if there is a closest match that is not the group itself then its an override otherwise fise
+    return candidates.length > 0 && candidates[0] !== data ? candidates[0] : false;
   }
 
   // sets the image for the service
