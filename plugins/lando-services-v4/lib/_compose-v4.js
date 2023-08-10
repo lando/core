@@ -78,7 +78,7 @@ class ComposeServiceV4 {
     this.name = name || id;
     this.type = type;
     this.tag = tag;
-    this.dockerfile = path.join(context, 'Dockerfile');
+    this.imagefile = path.join(context, 'Imagefile');
     // @TODO: add needed validation for above things?
     // @TODO: error handling on props?
 
@@ -110,10 +110,12 @@ class ComposeServiceV4 {
   // this handles our changes to docker-composes "image" key
   // @TODO: helper methods to add particular parts of build data eg image, files, steps, groups, etc
   addBuildData(data) {
-    // make sure data is in object format if its a string then we assume it sets the "dockerfile" value
-    if (typeof data === 'string') data = {dockerfile: data};
-    // now pass the dockerfile stuff into image parsing
-    this.setImage(data.dockerfile);
+    // make sure data is in object format if its a string then we assume it sets the "imagefile" value
+    if (typeof data === 'string') data = {imagefile: data};
+    // map dockerfile key to image key if it is set and imagefile isnt
+    if (!data.imagefile && data.dockerfile) data.imagefile = data.dockerfile;
+    // now pass the imagefile stuff into image parsing
+    this.setImage(data.imagefile);
     // if we have context data then lets pass that in as well
     if (data.context) this.addContext(data.context);
     // if we have groups data then
@@ -219,7 +221,7 @@ class ComposeServiceV4 {
     }
   }
 
-  // lando runs a small superset of docker-compose that augments the image key so it can contain dockerfile data
+  // lando runs a small superset of docker-compose that augments the image key so it can contain imagefile data
   addServiceData(data = {}) {
     // if we have build data instead of image data then swap the keys
     if (data.build && !data.image) data.image = data.build;
@@ -355,18 +357,18 @@ class ComposeServiceV4 {
     const instructions = Object.values(steps);
     // unshift whatever we end up with in #data.from to the front of the instructions
     instructions.unshift(this.#data.image);
-    // map instructions to dockerfile content
+    // map instructions to imagefile content
     const content = instructions.join('\n');
-    // @TODO: generic dockerfile validation/linting/etc?or error
+    // @TODO: generic imagefile validation/linting/etc?or error
 
-    // write the dockerfile
-    fs.writeFileSync(this.dockerfile, content);
+    // write the imagefile
+    fs.writeFileSync(this.imagefile, content);
 
     // return the build context
     return {
       id: this.id,
       context: this.context,
-      dockerfile: this.dockerfile,
+      imagefile: this.imagefile,
       sources: this.#data.sources.flat(Number.POSITIVE_INFINITY).filter(Boolean).filter(source => !source.url),
       tag: this.tag,
     };
@@ -385,13 +387,17 @@ class ComposeServiceV4 {
   }
 
   // match group, if data starts with one of the groups then return that
+  // @NOTE: what about cases like system and system-4?
+  // if we have two groups system and system-4 and we pass in system-4 then this should NOT
+  // match system-4 to system
+  // eg if there are any DIRECT matches then return false
   matchGroup(data) {
     return Object.keys(this.#data.groups).find(group => data.startsWith(group));
   }
 
   // sets the image for the service
   setImage(image) {
-    // if the data is raw dockerfile instructions then dump it to a file and set to that file
+    // if the data is raw imagefile instructions then dump it to a file and set to that file
     if (image.split('\n').length > 1) {
       const content = image;
       image = path.join(require('os').tmpdir(), nanoid(), 'Dockerfile');
@@ -399,13 +405,13 @@ class ComposeServiceV4 {
       fs.writeFileSync(image, content);
     }
 
-    // if dockerfile is not an absolute path then test it with the approot as a base
+    // if imagefile is not an absolute path then test it with the approot as a base
     if (!path.isAbsolute(image) && fs.existsSync(path.resolve(this.appRoot, image))) {
       image = path.resolve(this.appRoot, image);
     }
 
-    // at this point the dockerfile should either be a path to a dockerfile or a registry image
-    // for the former save the raw dockerfile instructions as a string
+    // at this point the imagefile should either be a path to a imagefile or a registry image
+    // for the former save the raw imagefile instructions as a string
     if (fs.existsSync(image)) this.#data.image = fs.readFileSync(image, 'utf8');
     // for the latter set the baseImage
     else this.#data.image = generateDockerFileFromArray([{from: {baseImage: image}}]);
