@@ -1,5 +1,6 @@
 Basics Example
 ==============
+core/v4/landofile/services.html#lando-compose
 
 This example exists primarily to test the following documentation:
 

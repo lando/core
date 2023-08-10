@@ -181,7 +181,7 @@ module.exports = (app, lando) => {
           // @TODO: better ux for building, listr? simple throbber ex?
           process.stdout.write(`Building v4 image ${context.id} ...\n`);
           try {
-            const success = await bengine.build(context.dockerfile, context);
+            const success = await bengine.build(context.imagefile, context);
             process.stdout.write(`Building v4 image ${context.id} ... ${chalk.green('done')}\n`);
             app.log.debug('built image %s successfully', context.id);
             success.context = context;
