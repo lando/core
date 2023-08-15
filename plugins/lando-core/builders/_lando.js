@@ -156,6 +156,7 @@ module.exports = {
       info.version = version;
       info.meUser = meUser;
       info.hasCerts = ssl;
+      info.api = 3;
 
       // Pass it down
       super(id, info, ...sources);

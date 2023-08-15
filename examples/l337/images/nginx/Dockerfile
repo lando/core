@@ -1,0 +1,3 @@
+FROM nginx:1.19
+
+ENV KIRK SHATNER

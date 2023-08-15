@@ -21,19 +21,11 @@ module.exports = (app, lando) => {
   app.v4._debugShim = require('./lib/debug-shim')(app.log);
   app.v4._dir = path.join(lando.config.userConfRoot, 'v4', `${app.name}-${app.id}`);
   app.v4.orchestratorVersion = '3.6';
-  app.v4.buildContexts = [];
   app.v4.preLockfile = `${app.name}.v4.build.lock`;
   app.v4.postLockfile = `${app.name}.v4.build.lock`;
   app.v4.services = [];
   app.v4.composeCache = `${app.name}.compose.cache`;
 
-  // add a v4 build context to the app
-  // @NOTE: does the order of these matter eg will there ever be image FROM dependencies among the build contexts here?
-  // @TODO: librarify these
-  app.v4.addBuildContext = (data, front = false) => {
-    if (front) app.v4.buildContexts.unshift(data);
-    else app.v4.buildContexts.push(data);
-  };
   // front load top level networks
   app.v4.addNetworks = (data = {}) => {
     app.add({
@@ -51,7 +43,7 @@ module.exports = (app, lando) => {
     }, true);
   };
 
-  // Init this early on but not before our recipes
+  // The v4 version of v3 service loading
   app.events.on('pre-init', () => {
     // add parsed services to app object so we can use them downstream
     app.v4.parsedConfig = _(utils.parseConfig(_.get(app, 'config.services', {})))
@@ -59,7 +51,15 @@ module.exports = (app, lando) => {
       .value();
     app.v4.servicesList = app.v4.parsedConfig.map(service => service.name);
 
-    // build each service
+    // if no service is set as the primary one lets set the first one as primary
+    if (_.find(app.v4.parsedConfig, service => service.primary === true) === undefined) {
+      if (_.has(app, 'v4.parsedConfig[0.name')) {
+        app.v4.parsedConfig[0].primary = true;
+        app.log.debug('could not find a primary v4 service, setting to first service=%s', app.v4.parsedConfig[0].name);
+      }
+    }
+
+    // instantiate each service
     _.forEach(app.v4.parsedConfig, config => {
       // Throw a warning if service is not supported
       if (_.isEmpty(_.find(lando.factory.get(), {api: 4, name: config.type}))) {
@@ -71,29 +71,33 @@ module.exports = (app, lando) => {
       config.context = path.join(app.v4._dir, 'build-contexts', config.name);
       config.tag = `${_.get(lando, 'product', 'lando')}/${app.name}-${app.id}-${config.name}:latest`;
 
-      // retrieve the correct class and instance
+      // retrieve the correct class and mimic-ish v4 patterns to ensure faster loads
       const Service = lando.factory.get(config.type, config.api);
+      Service.bengineConfig = lando.config.engineConfig;
+
+      // instantiate
       const service = new Service(config.name, {...config, debug: app.v4._debugShim, app, lando});
+
+      // push
       app.v4.services.push(service);
+      app.info.push(service.info);
     });
 
     // emit an event so other plugins can augment the servies with additonal things before we get their data
     return app.events.emit('pre-services-generate', app.v4.services).then(services => {
+      // handle top level volumes and networks here
+      if (!_.isEmpty(app.config.volumes)) app.v4.addVolumes(app.config.volumes);
+      if (!_.isEmpty(app.config.networks)) app.v4.addNetworks(app.config.networks);
+
+      // then generate the orchestrator files for each service
       _.forEach(app.v4.services, service => {
-        app.v4.addBuildContext(service.generateImageFiles());
         app.add(service.generateOrchestorFiles());
-        app.info.push(service.info);
-
-        // handle top level volumes and networks here
-        if (!_.isEmpty(app.config.volumes)) app.v4.addVolumes(app.config.volumes);
-        if (!_.isEmpty(app.config.networks)) app.v4.addNetworks(app.config.networks);
-
-        // finish with the version, as long as we are mixing streams with v3 this cannot be updated until v3 is
-        app.add({id: 'version', info: {}, data: [{version: app.v4.orchestratorVersion}]}, true);
-
         // Log da things
         app.log.debug('generated v4 %s service %s', service.type, service.name);
       });
+
+      // finish with the version, as long as we are mixing streams with v3 this cannot be updated until v3 is
+      app.add({id: 'version', info: {}, data: [{version: app.v4.orchestratorVersion}]}, true);
     });
   });
 
@@ -142,6 +146,18 @@ module.exports = (app, lando) => {
     }, {persist: true});
   });
 
+  // we need to temporarily set app.compose to be V3 only and then restore it post-rebuild
+  // i really wish thre was a better way to do this but alas i do not think there is
+  app.events.on('pre-rebuild', 10, () => {
+    // get local services
+    const locals = _.get(app, 'opts.local', []);
+    // get v4 services
+    const v4s = _.get(app, 'v4.servicesList', []);
+    // reset opts.local to only be v3 services
+    app.opts.local = _.difference(locals, v4s);
+  });
+
+
   // Handle V4 build steps
   app.events.on('post-init', () => {
     // get buildable services
@@ -164,45 +180,39 @@ module.exports = (app, lando) => {
     // run v4 build steps if applicable
     app.events.on('pre-start', 100, async () => {
       if (!lando.cache.get(app.v4.preLockfile)) {
-        // require our V4 stuff here
-        const DockerEngine = require('./lib/docker-engine');
-        const bengine = new DockerEngine(lando.config.engineConfig, {debug: app.v4._debugShim});
-
         // filter out any services that dont need to be built
-        const contexts = _(app.v4.buildContexts)
-          .filter(context => _.includes(buildV4Services, context.id))
+        const services = _(app.v4.services)
+          .filter(service => _.includes(buildV4Services, service.id))
           .value();
+        app.log.debug('going to build v4 services', services.map(service => service.id));
 
-        app.log.debug('going to build v4 services', contexts.map(context => context.id));
-
-        // now build an array of promises
-        const buildSteps = contexts.map(async context => {
+        // now build an array of promises with our services
+        const buildSteps = services.map(async service => {
           // @TODO: replace entire line so it looks more like docker compose?
           // @TODO: better ux for building, listr? simple throbber ex?
-          process.stdout.write(`Building v4 image ${context.id} ...\n`);
+          process.stdout.write(`Building v4 image ${service.id} ...\n`);
           try {
-            const success = await bengine.build(context.imagefile, context);
-            process.stdout.write(`Building v4 image ${context.id} ... ${chalk.green('done')}\n`);
-            app.log.debug('built image %s successfully', context.id);
-            success.context = context;
+            const success = await service.buildImage();
+            process.stdout.write(`Building v4 image ${service.id} ... ${chalk.green('done')}\n`);
             return success;
           } catch (e) {
-            e.context = context;
+            process.stdout.write(`Building v4 image ${service.id} ... ${chalk.red('ERROR')}\n`);
             return e;
           }
         });
 
         // and then run them in parallel
         const results = await Promise.all(buildSteps);
+
         // get failures and successes
         const failures = _(results).filter(service => service.exitCode !== 0).value();
         // write build lock if we have no failures
         if (_.isEmpty(failures)) lando.cache.set(app.v4.preLockfile, app.configHash, {persist: true});
 
-        // go through failures and add warnings as needed
+        // go through failures and add warnings as needed, rebase on base image
         _.forEach(failures, failure => {
           app.addWarning({
-            title: `Could not build v4 service "${_.get(failure, 'context.id')}"`,
+            title: `Could not build v4 image "${_.get(failure, 'context.id')}!"`,
             detail: [
               `Failed with "${_.get(failure, 'short')}"`,
               `Rerun with "lando rebuild -vvv" to see the entire build log and look for errors. When fixed run:`,
@@ -210,6 +220,16 @@ module.exports = (app, lando) => {
             command: 'lando rebuild',
           }, failure);
         });
+
+        // refresh docker compose caches to reflect current state
+        app.compose = dumpComposeData(app.composeData, app._dir);
+        lando.cache.set(app.v4.composeCache, {
+          name: app.name,
+          project: app.project,
+          compose: app.compose,
+          root: app.root,
+          info: app.info,
+        }, {persist: true});
       }
     });
   });
