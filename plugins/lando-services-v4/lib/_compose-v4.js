@@ -30,6 +30,12 @@ class ComposeServiceV4 {
   #data
 
   static debug = require('debug')('lando-compose-v4');
+  static bengineConfig = {};
+
+  static getBengine(config = ComposeServiceV4.bengineConfig, {debug = ComposeServiceV4.debug} = {}) {
+    const DockerEngine = require('./docker-engine');
+    return new DockerEngine(config, {debug});
+  }
 
   #init() {
     return {
@@ -64,7 +70,9 @@ class ComposeServiceV4 {
     context = path.join(os.tmpdir(), nanoid(), id),
     config = {},
     debug = ComposeServiceV4.debug,
+    info = {},
     name = id,
+    primary = false,
     tag = nanoid(),
     type = '_compose',
   } = {}) {
@@ -76,8 +84,10 @@ class ComposeServiceV4 {
     this.context = context;
     this.debug = debug;
     this.name = name || id;
+    this.primary = primary;
     this.type = type;
     this.tag = tag;
+
     this.imagefile = path.join(context, 'Imagefile');
     // @TODO: add needed validation for above things?
     // @TODO: error handling on props?
@@ -89,6 +99,9 @@ class ComposeServiceV4 {
     // @TODO: provide a way to start with a different start state?
     this.#data = this.#init();
 
+    // rework info based on whatever is passed in
+    this.info = merge({}, {service: id, api: 4, primary, type: 'l337'}, info);
+
     // if this is a "_compose" service eg is being called directly and not via inheritance then we can assume
     // that config is lando-compose data and can/should be added directly
     if (type === '_compose') this.addServiceData(config);
@@ -99,23 +112,35 @@ class ComposeServiceV4 {
       const appMounts = getMountMatches(this.appRoot, this.config.volumes);
       // set appmount to the last found appMount
       this.appMount = appMounts.pop();
+      this.info.appMount = this.appMount;
       // debug
       this.debug('autoset appmount to %o, did not select %o', this.appMount, appMounts);
     }
+  }
 
-    // @TODO: how is info handled here?
-    this.info = config.info ?? {};
+  // this handles our "changes" to docker-composes "build" key but really it just processes it and passes it through
+  addBuildData(data) {
+    // if data is a string then its the context and it should be
+    if (typeof data === 'string') data = {context: data};
+    // if no context then set to app root
+    if (!data.context) data.context = this.appRoot;
+    // ensure dockerfile is set
+    if (!data.dockerfile) data.dockerfile = 'Dockerfile';
+    // now pass the imagefile stuff into image parsing
+    this.setBaseImage(path.join(data.context, data.dockerfile), data);
+    // make sure we are passing the context over so any copy/add commands succeed
+    if (data.context) this.addContext(data.context);
   }
 
   // this handles our changes to docker-composes "image" key
   // @TODO: helper methods to add particular parts of build data eg image, files, steps, groups, etc
-  addBuildData(data) {
+  addImageData(data) {
     // make sure data is in object format if its a string then we assume it sets the "imagefile" value
     if (typeof data === 'string') data = {imagefile: data};
     // map dockerfile key to image key if it is set and imagefile isnt
     if (!data.imagefile && data.dockerfile) data.imagefile = data.dockerfile;
     // now pass the imagefile stuff into image parsing
-    this.setImage(data.imagefile);
+    this.setBaseImage(data.imagefile);
     // if we have context data then lets pass that in as well
     if (data.context) this.addContext(data.context);
     // if we have groups data then
@@ -172,11 +197,17 @@ class ComposeServiceV4 {
           // if (file.permissions) file.instructions.push(`--chmod=${file.permissions}`);
           file.instructions.push(file.url || file.destination);
           file.instructions.push(path.resolve('/', file.destination));
-          file.instructions.push('\n');
           file.instructions = file.instructions.join(' ');
         }
+
         // ensure instructions are an array
-        if (typeof file.instructions === 'string') file.instructions = [file.instructions];
+        if (typeof file.instructions === 'string') file.instructions = [`${file.instructions}`];
+        // just normalize the usage of newlines
+        file.instructions = file.instructions
+          .map(instruction => instruction.split('\n').filter(part => part && part !== ''))
+          .flat(Number.POSITIVE_INFINITY);
+        // add an empty element so we can newline consistently
+        file.instructions.push('');
 
         // remove extraneous keys
         if (isObject(file) && file.dest) delete file.dest;
@@ -223,12 +254,17 @@ class ComposeServiceV4 {
 
   // lando runs a small superset of docker-compose that augments the image key so it can contain imagefile data
   addServiceData(data = {}) {
-    // if we have build data instead of image data then swap the keys
-    if (data.build && !data.image) data.image = data.build;
-    // if data has image data then we first need to send that data elsewhere and remove it from the compose data
-    if (data.image) this.addBuildData(data.image);
+    // we need to start by hijacking build and image to parse into things that make sense for l337
+    // we allow build to more or less work as is, we modify image for deeper magix
 
-    // ensure we are not passing in the image or build key
+    // if both image and build are set then set the tag to the image
+    if (data.build && data.image) this.tag = data.image;
+    // if build is set then prefer that
+    if (data.build) this.addBuildData(data.build);
+    // otherwise do image
+    else if (data.image) this.addImageData(data.image);
+
+    // ensure we are not passing in build/image as we handle those above
     const {build, image, ...compose} = data; // eslint-disable-line
 
     // handle any appropriate path normalization for volumes
@@ -294,7 +330,38 @@ class ComposeServiceV4 {
     }
   }
 
-  generateImageFiles() {
+  // build the image
+  async buildImage() {
+    // get build func
+    const bengine = ComposeServiceV4.getBengine(ComposeServiceV4.bengineConfig, {debug: this.debug});
+    // separate out imagefile and context
+    const {imagefile, ...context} = this.generateBuildContext();
+
+    try {
+      const success = await bengine.build(imagefile, context);
+
+      // augment the success info
+      success.context = {imagefile, ...context};
+
+      // add the final compose data with the updated image tag on success
+      this.addComposeData({services: {[context.id]: {image: context.tag}}});
+
+      // set the image into the info
+      this.info.image = this.context.tag;
+      this.info.imagefile = imagefile;
+
+      this.debug('built image %o successfully from %o', context.id, imagefile);
+      return success;
+
+    // failure
+    } catch (e) {
+      e.context = {imagefile, ...context};
+      this.debug('image %o build failed with %o', context.id, e);
+      throw e;
+    }
+  }
+
+  generateBuildContext() {
     // start with instructions that are sorted and grouped
     const steps = groupBy(this.getSteps('image').sort((a, b) => a.weight - b.weight), 'group');
 
@@ -334,10 +401,6 @@ class ComposeServiceV4 {
   }
 
   generateOrchestorFiles() {
-    // add the final compose data with the updated image tag
-    this.addComposeData({services: {[this.id]: {image: this.tag}}});
-
-    // return it all
     return {
       id: this.id,
       info: this.info,
@@ -397,12 +460,12 @@ class ComposeServiceV4 {
     return candidates.length > 0 && candidates[0] !== data ? candidates[0] : false;
   }
 
-  // sets the image for the service
-  setImage(image) {
+  // sets the base image for the service
+  setBaseImage(image, buildArgs = {}) {
     // if the data is raw imagefile instructions then dump it to a file and set to that file
     if (image.split('\n').length > 1) {
       const content = image;
-      image = path.join(require('os').tmpdir(), nanoid(), 'Dockerfile');
+      image = path.join(require('os').tmpdir(), nanoid(), 'Imagefile');
       fs.mkdirSync(path.dirname(image), {recursive: true});
       fs.writeFileSync(image, content);
     }
@@ -412,11 +475,24 @@ class ComposeServiceV4 {
       image = path.resolve(this.appRoot, image);
     }
 
-    // at this point the imagefile should either be a path to a imagefile or a registry image
-    // for the former save the raw imagefile instructions as a string
-    if (fs.existsSync(image)) this.#data.image = fs.readFileSync(image, 'utf8');
-    // for the latter set the baseImage
-    else this.#data.image = generateDockerFileFromArray([{from: {baseImage: image}}]);
+    // at this point we have either a dockerfile or a tagged image
+    // do the stuff for a Dockerfile
+    // @NOTE: this can produce a weird fail message if you have a Dockerfile but point to the wrong path and
+    // it assumes its a tagged image
+    if (fs.existsSync(image)) {
+      this.addComposeData({services: {[this.id]: {
+        build: merge({}, buildArgs, {dockerfile: path.basename(image), context: path.dirname(image)}),
+      }}});
+      this.info.imagefile = image;
+      this.#data.image = fs.readFileSync(image, 'utf8');
+
+    // Do the stuff for a tagged image
+    } else {
+      this.addComposeData({services: {[this.id]: {image}}});
+      this.info.image = image;
+      this.#data.image = generateDockerFileFromArray([{from: {baseImage: image}}]);
+    }
+
     // log
     this.debug('%o set base image to %o', this.id, this.#data.image);
   }
