@@ -11,6 +11,7 @@ services:
       dockerfile: Dockerfile
     environment:
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 1
+      BOB: 5
   web:
     api: 4
     image: nginx:1.15
@@ -39,6 +40,7 @@ services:
     image: |
       FROM nginx:1.20
       ENV SPOCK NIMOY
+      ENV TEST THIS
   image-4:
     api: 4
     working_dir: /tmp

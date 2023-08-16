@@ -50,6 +50,7 @@ module.exports = (app, lando) => {
       .filter(service => service.api === 4)
       .value();
     app.v4.servicesList = app.v4.parsedConfig.map(service => service.name);
+    app.v4.cachedInfo = _.get(lando.cache.get(app.v4.composeCache), 'info', []);
 
     // if no service is set as the primary one lets set the first one as primary
     if (_.find(app.v4.parsedConfig, service => service.primary === true) === undefined) {
@@ -66,17 +67,20 @@ module.exports = (app, lando) => {
         app.log.warn('%s is not a supported v4 service type.', config.type);
       }
 
-      // add some other important stuff to config
+      // add some other important stuff we need to inject
       config.appRoot = app.root;
       config.context = path.join(app.v4._dir, 'build-contexts', config.name);
       config.tag = `${_.get(lando, 'product', 'lando')}/${app.name}-${app.id}-${config.name}:latest`;
+      const info = _(_.find(app.v4.cachedInfo, {service: config.name, api: 4}))
+        .pick(['image', 'imagefile', 'lastBuild'])
+        .value();
 
       // retrieve the correct class and mimic-ish v4 patterns to ensure faster loads
       const Service = lando.factory.get(config.type, config.api);
       Service.bengineConfig = lando.config.engineConfig;
 
       // instantiate
-      const service = new Service(config.name, {...config, debug: app.v4._debugShim, app, lando});
+      const service = new Service(config.name, {...config, debug: app.v4._debugShim, info, app, lando});
 
       // push
       app.v4.services.push(service);
@@ -203,7 +207,6 @@ module.exports = (app, lando) => {
 
         // and then run them in parallel
         const results = await Promise.all(buildSteps);
-
         // get failures and successes
         const failures = _(results).filter(service => service.exitCode !== 0).value();
         // write build lock if we have no failures
@@ -221,16 +224,40 @@ module.exports = (app, lando) => {
           }, failure);
         });
 
-        // refresh docker compose caches to reflect current state
-        app.compose = dumpComposeData(app.composeData, app._dir);
-        lando.cache.set(app.v4.composeCache, {
-          name: app.name,
-          project: app.project,
-          compose: app.compose,
-          root: app.root,
-          info: app.info,
-        }, {persist: true});
+        // merge rebuild success results into app.info for downstream usage for api 4 services
+        _.forEach(services, service => {
+          const info = _.find(app.info, {service: service.id, api: 4});
+          if (info) {
+            Object.assign(info, {
+              image: service.info.image,
+              imagefile: service.info.imagefile,
+              lastBuild: [service.info.imagefile, service.info.image].includes(undefined) ? 'failed' : 'succeeded',
+            });
+          }
+        });
       }
+
+      // at this point we should have the tags of successfull images and can iterate and app.add as needed
+      _.forEach(app.info, service => {
+        if (service.api === 4 && service.lastBuild === 'succeeded' && service.image) {
+          app.add({
+            id: service.service,
+            info: {},
+            data: [{services: {[service.service]: {image: service.image}}}],
+          });
+        }
+      });
+
+      // and reset app.compose
+      app.compose = dumpComposeData(app.composeData, app._dir);
+      // and reset the compose cache as well
+      lando.cache.set(app.v4.composeCache, {
+        name: app.name,
+        project: app.project,
+        compose: app.compose,
+        root: app.root,
+        info: app.info,
+      }, {persist: true});
     });
   });
 
