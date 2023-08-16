@@ -120,9 +120,12 @@ class DockerEngine extends Dockerode {
       debug('copied %o into build context %o', dockerfile, context);
     }
 
-    // move sources into the build context @NOTE: this seems brittle?
+    // move other sources into the build context
+    // @NOTE: we filter out Dockerfiles at the root since we dont want sources to potentially overrides that file
     for (const source of sources) {
-      fs.copySync(source.source, path.join(context, source.destination));
+      fs.copySync(source.source, path.join(context, source.destination), {filter: (src, dest) => {
+        return path.join(context, 'Dockerfile') === dest;
+      }});
       debug('copied %o into build context %o', source.source, path.join(context, source.destination));
     }
 

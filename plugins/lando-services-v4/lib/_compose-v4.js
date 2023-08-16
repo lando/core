@@ -26,6 +26,17 @@ const getMountMatches = (dir, volumes = []) => volumes
   // map to the target
   .map(volume => volume.target);
 
+// @TODO: should this be a class method of some kind? util? keep here?
+const hasCopyAdd = (contents = '') => {
+  const matches = contents.split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .map(line => line.split(' ')[0])
+    .map(line => line.toUpperCase())
+    .filter(line => line === 'COPY' || line === 'ADD');
+  return matches.length > 0;
+};
+
 class ComposeServiceV4 {
   #data
 
@@ -54,6 +65,7 @@ class ComposeServiceV4 {
       },
       image: undefined,
       imageInstructions: undefined,
+      imageFileContext: undefined,
       sources: [],
       stages: {
         default: 'image',
@@ -129,8 +141,9 @@ class ComposeServiceV4 {
     if (!data.dockerfile) data.dockerfile = 'Dockerfile';
     // now pass the imagefile stuff into image parsing
     this.setBaseImage(path.join(data.context, data.dockerfile), data);
-    // make sure we are passing the context over so any copy/add commands succeed
-    if (data.context) this.addContext(data.context);
+    // make sure we are adding the dockerfile context directly as a source so COPY/ADD instructions work
+    // @NOTE: we are not adding a "context" because that also injects dockerfile instructions which we might already have
+    this.#data.sources.push(({source: data.context, destination: '.'}));
   }
 
   // this handles our changes to docker-composes "image" key
@@ -142,6 +155,14 @@ class ComposeServiceV4 {
     if (!data.imagefile && data.dockerfile) data.imagefile = data.dockerfile;
     // now pass the imagefile stuff into image parsing
     this.setBaseImage(data.imagefile);
+    // if the imageInstructions include COPY/ADD then make sure we are adding the dockerfile context directly as a
+    // source so those instructions work
+    // @NOTE: we are not adding a "context" because if this passes we have the instructions already and just need to make
+    // sure the files exists
+    // @TODO: move this to a static method?
+    if (hasCopyAdd(this.#data.imageInstructions) && this.#data.imageFileContext) {
+      this.#data.sources.push(({source: this.#data.imageFileContext, destination: '.'}));
+    }
     // if we have context data then lets pass that in as well
     if (data.context) this.addContext(data.context);
     // if we have groups data then
@@ -477,11 +498,13 @@ class ComposeServiceV4 {
       image = path.join(require('os').tmpdir(), nanoid(), 'Imagefile');
       fs.mkdirSync(path.dirname(image), {recursive: true});
       fs.writeFileSync(image, content);
+      this.#data.imageFileContext = this.appRoot;
     }
 
     // if imagefile is not an absolute path then test it with the approot as a base
     if (!path.isAbsolute(image) && fs.existsSync(path.resolve(this.appRoot, image))) {
       image = path.resolve(this.appRoot, image);
+      this.#data.imageFileContext = path.dirname(image);
     }
 
     // at this point we have either a dockerfile or a tagged image, lets set the base first
