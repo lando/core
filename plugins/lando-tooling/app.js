@@ -17,8 +17,6 @@ module.exports = (app, lando) => {
       _.forEach(utils.getToolingTasks(app.config.tooling, app), task => {
         app.log.debug('adding app cli task %s', task.name);
         const injectable = _.has(app, 'engine') ? app : lando;
-        task.appMount = '/app2';
-
         app.tasks.push(buildTask(task, injectable));
       });
     }
