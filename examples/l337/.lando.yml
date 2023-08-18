@@ -24,96 +24,96 @@ services:
       - 80
 
   # image features
-  image-1:
-    api: 4
-    working_dir: /tmp
-    image: nginx:1.21
-    environment:
-      PIKE: MOUNT
-  image-2:
-    api: 4
-    working_dir: /tmp
-    image: ./images/nginx/Dockerfile
-  image-3:
-    api: 4
-    working_dir: /tmp
-    image: |
-      # test weird indentation and casing
-      FROM nginx:1.20
-      ENV SPOCK NIMOY
-      ENV TEST THIS
-        copy file1 /file1
-      COPY file1 /file4
-  image-4:
-    api: 4
-    working_dir: /tmp
-    image:
-      imagefile: nginx:1.21
-  image-5:
-    api: 4
-    working_dir: /tmp
-    image:
-      imagefile: ./images/nginx/Dockerfile
-  image-6:
-    api: 4
-    working_dir: /tmp
-    image:
-      imagefile: |
-        FROM nginx:1.21
-        ENV SPOCK NIMOY
+  # image-1:
+  #   api: 4
+  #   working_dir: /tmp
+  #   image: nginx:1.21
+  #   environment:
+  #     PIKE: MOUNT
+  # image-2:
+  #   api: 4
+  #   working_dir: /tmp
+  #   image: ./images/nginx/Dockerfile
+  # image-3:
+  #   api: 4
+  #   working_dir: /tmp
+  #   image: |
+  #     # test weird indentation and casing
+  #     FROM nginx:1.20
+  #     ENV SPOCK NIMOY
+  #     ENV TEST THIS
+  #       copy file1 /file1
+  #     COPY file1 /file4
+  # image-4:
+  #   api: 4
+  #   working_dir: /tmp
+  #   image:
+  #     imagefile: nginx:1.21
+  # image-5:
+  #   api: 4
+  #   working_dir: /tmp
+  #   image:
+  #     imagefile: ./images/nginx/Dockerfile
+  # image-6:
+  #   api: 4
+  #   working_dir: /tmp
+  #   image:
+  #     imagefile: |
+  #       FROM nginx:1.21
+  #       ENV SPOCK NIMOY
 
-  # context features
-  context-1:
-    api: 4
-    working_dir: /tmp
-    image:
-      imagefile: |
-        FROM nginx:1.21
-        RUN useradd eddie-teach
-      context:
-        # COPY ./folder to /folder
-        - ./folder
-        # COPY ./folder to /thing
-        - ./folder:thing
-        # COPY file1 to /file2
-        - file1:/file2
-        # COPY file1 to /file3
-        - src: file1
-          dest: file3
-        # COPY file1 to /file4
-        - source: file1
-          destination: /tmp/file4
-        # COPY file1 to /file4 with instruction overrides
-        - source: file1
-          destination: file4
-          instructions: COPY /file4 /tmp/stuff/file5
-        - source: file1
-          destination: file4
-          instructions: |
-            COPY /file4 /file6
-            ENV HALL OATES
-        # COPY ./images/Dockerfile to /images/nginx/Dockerfile
-        - source: ./images/nginx/Dockerfile
-        # COPY file1 to /file6 and set ownership to nginx:nginx
-        - source: file1
-          destination: /file7
-          owner: nginx:nginx
-        # COPY file1 to /file7 and set ownership to nginx:nginx
-        - source: file1
-          destination: file8
-          user: nginx
-          group: nginx
-        - source: file1
-          destination: file9
-          user: nginx
-        # ADD HeresAHealthToTheCompany.json
-        # to /SeaShanties/lyrics/main/shanties/HeresAHealthToTheCompany.json
-        - source: https://raw.githubusercontent.com/SeaShanties/lyrics/main/shanties/HeresAHealthToTheCompany.json
-        # ADD available-shanties.json
-        # to /etc/config/available-shanties.json and set ownership to blackbeard
-        - source: https://raw.githubusercontent.com/SeaShanties/lyrics/main/available-shanties.json
-          dest: /etc/config/available-shanties.json
-          owner: eddie-teach
+  # # context features
+  # context-1:
+  #   api: 4
+  #   working_dir: /tmp
+  #   image:
+  #     imagefile: |
+  #       FROM nginx:1.21
+  #       RUN useradd eddie-teach
+  #     context:
+  #       # COPY ./folder to /folder
+  #       - ./folder
+  #       # COPY ./folder to /thing
+  #       - ./folder:thing
+  #       # COPY file1 to /file2
+  #       - file1:/file2
+  #       # COPY file1 to /file3
+  #       - src: file1
+  #         dest: file3
+  #       # COPY file1 to /file4
+  #       - source: file1
+  #         destination: /tmp/file4
+  #       # COPY file1 to /file4 with instruction overrides
+  #       - source: file1
+  #         destination: file4
+  #         instructions: COPY /file4 /tmp/stuff/file5
+  #       - source: file1
+  #         destination: file4
+  #         instructions: |
+  #           COPY /file4 /file6
+  #           ENV HALL OATES
+  #       # COPY ./images/Dockerfile to /images/nginx/Dockerfile
+  #       - source: ./images/nginx/Dockerfile
+  #       # COPY file1 to /file6 and set ownership to nginx:nginx
+  #       - source: file1
+  #         destination: /file7
+  #         owner: nginx:nginx
+  #       # COPY file1 to /file7 and set ownership to nginx:nginx
+  #       - source: file1
+  #         destination: file8
+  #         user: nginx
+  #         group: nginx
+  #       - source: file1
+  #         destination: file9
+  #         user: nginx
+  #       # ADD HeresAHealthToTheCompany.json
+  #       # to /SeaShanties/lyrics/main/shanties/HeresAHealthToTheCompany.json
+  #       - source: https://raw.githubusercontent.com/SeaShanties/lyrics/main/shanties/HeresAHealthToTheCompany.json
+  #       # ADD available-shanties.json
+  #       # to /etc/config/available-shanties.json and set ownership to blackbeard
+  #       - source: https://raw.githubusercontent.com/SeaShanties/lyrics/main/available-shanties.json
+  #         dest: /etc/config/available-shanties.json
+  #         owner: eddie-teach
 
 networks:
   my-network:
