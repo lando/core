@@ -40,6 +40,7 @@ class DockerEngine extends Dockerode {
       tag,
       attach = false,
       context = path.join(require('os').tmpdir(), nanoid()),
+      id = tag,
       sources = [],
     } = {}) {
     // handles the promisification of the merged return
@@ -109,7 +110,7 @@ class DockerEngine extends Dockerode {
     // create an event emitter we can pass into the promisifier
     const builder = new EventEmitter();
     // extend debugger in appropriate way
-    const debug = tag ? this.debug.extend(`build:${tag}`) : this.debug.extend('build');
+    const debug = id ? this.debug.extend(id) : this.debug.extend('docker-engine:build');
 
     // ensure context dir exists
     fs.mkdirSync(context, {recursive: true});
@@ -117,13 +118,14 @@ class DockerEngine extends Dockerode {
     // copy the dockerfile if its different than context/Dockerfile
     if (dockerfile !== path.join(context, 'Dockerfile')) {
       fs.copySync(dockerfile, path.join(context, 'Dockerfile'));
-      debug('copied %o into build context %o', dockerfile, context);
+      debug('copied %o into build context %o', dockerfile, path.join(context, 'Dockerfile'));
     }
 
     // move other sources into the build context
     // @NOTE: we filter out Dockerfiles at the root since we dont want sources to potentially overrides that file
     for (const source of sources) {
       fs.copySync(source.source, path.join(context, source.destination), {filter: (src, dest) => {
+        console.log(src, dest, path.join(context, 'Dockerfile') === dest);
         return path.join(context, 'Dockerfile') === dest;
       }});
       debug('copied %o into build context %o', source.source, path.join(context, source.destination));
