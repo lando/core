@@ -115,25 +115,20 @@ class DockerEngine extends Dockerode {
     // ensure context dir exists
     fs.mkdirSync(context, {recursive: true});
 
-    // copy the dockerfile if its different than context/Dockerfile
-    if (dockerfile !== path.join(context, 'Dockerfile')) {
-      fs.copySync(dockerfile, path.join(context, 'Dockerfile'));
-      debug('copied %o into build context %o', dockerfile, path.join(context, 'Dockerfile'));
-    }
-
     // move other sources into the build context
-    // @NOTE: we filter out Dockerfiles at the root since we dont want sources to potentially overrides that file
     for (const source of sources) {
-      fs.copySync(source.source, path.join(context, source.destination), {filter: (src, dest) => {
-        console.log(src, dest, path.join(context, 'Dockerfile') === dest);
-        return path.join(context, 'Dockerfile') === dest;
-      }});
+      fs.copySync(source.source, path.join(context, source.destination));
       debug('copied %o into build context %o', source.source, path.join(context, source.destination));
     }
 
+    // copy the dockerfile to the correct place
+    // @NOTE: we do this last to ensure we overwrite any dockerfile that may happenstance end up in the build-context
+    // from source above
+    fs.copySync(dockerfile, path.join(context, 'Dockerfile'));
+    debug('copied Imagefile from %o to %o', dockerfile, path.join(context, 'Dockerfile'));
+
     // call the parent
-    // @TODO: consider other opts? https://docs.docker.com/engine/api/v1.43/#tag/Image/operation/ImageBuild
-    // args?
+    // @TODO: consider other opts? https://docs.docker.com/engine/api/v1.43/#tag/Image/operation/ImageBuild args?
     this.debug('building image %o with %o', tag, fs.readdirSync(context));
     super.buildImage({context, src: fs.readdirSync(context)}, {forcerm: true, t: tag}, callbackHandler);
 
