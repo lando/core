@@ -7,7 +7,6 @@ jobs:
   leia-tests:
     runs-on: ${{ matrix.os }}
     env:
-      DEBUG: "${{ runner.debug == '1' && 'lando*' || '0' }}"
       TERM: xterm
     strategy:
       fail-fast: false
@@ -55,6 +54,8 @@ jobs:
 
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v2
+        env:
+          DEBUG: "${{ runner.debug == '1' && 'lando*' || '0' }}"
         with:
           lando-version: ${{ matrix.lando-version }}
           telemetry: false
@@ -70,6 +71,7 @@ jobs:
         uses: lando/run-leia-action@v2
         env:
           LANDO_SCANNER: ${{ matrix.scanner }}
+          DEBUG: "${{ runner.debug == '1' && 'lando*' || '0' }}"
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
           debug: true
