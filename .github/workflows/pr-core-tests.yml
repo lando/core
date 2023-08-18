@@ -7,8 +7,7 @@ jobs:
   leia-tests:
     runs-on: ${{ matrix.os }}
     env:
-      DEBUG: ${{secrets.ACTIONS_RUNNER_DEBUG}}
-      ACTIONS_RUNNER_DEBUG: ${{secrets.ACTIONS_RUNNER_DEBUG}}
+      DEBUG: "${{ runner.debug == '1' && 'lando*' || '0' }}"
       TERM: xterm
     strategy:
       fail-fast: false
