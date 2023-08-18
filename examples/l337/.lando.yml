@@ -42,8 +42,8 @@ services:
       FROM nginx:1.20
       ENV SPOCK NIMOY
       ENV TEST THIS
-        copy file1 /file1
-      COPY file1 /file4
+      #   copy file1 /file1
+      # COPY file1 /file4
   image-4:
     api: 4
     working_dir: /tmp
