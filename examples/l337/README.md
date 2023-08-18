@@ -11,7 +11,7 @@ Start up tests
 ```bash
 # should start successfully
 lando poweroff
-lando start -vvv
+DOCKER_BUILDKIT=0 lando start -vvv
 ```
 
 Verification commands

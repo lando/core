@@ -2,4 +2,4 @@ FROM nginx:1.19
 
 ENV KIRK SHATNER
 
-# COPY file10 /file10
+COPY file10 /file10
