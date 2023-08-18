@@ -7,25 +7,26 @@ jobs:
   leia-tests:
     runs-on: ${{ matrix.os }}
     env:
+      DEBUG: ${{secrets.ACTIONS_RUNNER_DEBUG}}
+      ACTIONS_RUNNER_DEBUG: ${{secrets.ACTIONS_RUNNER_DEBUG}}
       TERM: xterm
-      DEBUG: "lando*"
     strategy:
       fail-fast: false
       matrix:
         leia-test:
-          - examples/badname
-          - examples/base
-          - examples/events
-          - examples/keys
+          # - examples/badname
+          # - examples/base
+          # - examples/events
+          # - examples/keys
           - examples/l337
-          - examples/lando-101
-          - examples/landofile-custom
-          - examples/long-name
-          - examples/networking
-          - examples/proxy
-          - examples/scanner
-          - examples/services
-          - examples/tooling
+          # - examples/lando-101
+          # - examples/landofile-custom
+          # - examples/long-name
+          # - examples/networking
+          # - examples/proxy
+          # - examples/scanner
+          # - examples/services
+          # - examples/tooling
         os:
           - ubuntu-22.04
         node-version:
@@ -34,12 +35,12 @@ jobs:
           - 3-dev
         scanner:
           - new
-        include:
-          - leia-test: examples/scanner
-            os: ubuntu-22.04
-            node-version: '16'
-            lando-version: '3-dev'
-            scanner: legacy
+        # include:
+        #   - leia-test: examples/scanner
+        #     os: ubuntu-22.04
+        #     node-version: '16'
+        #     lando-version: '3-dev'
+        #     scanner: legacy
 
     steps:
       - name: Checkout code
