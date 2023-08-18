@@ -11,7 +11,7 @@ Start up tests
 ```bash
 # should start successfully
 lando poweroff
-lando start
+lando start -vvv
 ```
 
 Verification commands
