@@ -14,11 +14,12 @@ services:
       BOB: 5
   web:
     api: 4
+    primary: true
     image: nginx:1.15
     networks:
       my-network:
     volumes:
-      - ./:/app
+      - ./:/site
       - my-data:/data
     ports:
       - 80

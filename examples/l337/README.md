@@ -23,8 +23,40 @@ Run the following commands to verify things work as expected
 # should destroy successfully
 lando destroy -y
 
+# should have correct info when not built
+lando info -s db | grep api: | grep 4
+lando info -s db | grep type: | grep l337
+lando info -s db | grep lastBuild: | grep never
+lando info -s db | grep imagefile: | grep core/examples/l337/Dockerfile
+lando info -s db | grep image: || echo $? | grep 1
+lando info -s db | grep primary: | grep false
+lando info -s db | grep appMount: || echo $? | grep 1
+lando info -s web | grep api: | grep 4
+lando info -s web | grep type: | grep l337
+lando info -s web | grep lastBuild: | grep never
+lando info -s web | grep image: | grep nginx:
+lando info -s web | grep imagefile: || echo $? | grep 1
+lando info -s web | grep primary: | grep true
+lando info -s web | grep appMount: | grep /site
+
 # should start again successfully
 lando start
+
+# should have correct info when built
+lando info -s db | grep api: | grep 4
+lando info -s db | grep type: | grep l337
+lando info -s db | grep lastBuild: | grep succeeded
+lando info -s db | grep imagefile: | grep core/examples/l337/Dockerfile
+lando info -s db | grep image: | grep lando/l337-ecdebc06d57aaec9162ca6cf282e2e1f0ae27d3b-db:latest
+lando info -s db | grep primary: | grep false
+lando info -s db | grep appMount: || echo $? | grep 1
+lando info -s web | grep api: | grep 4
+lando info -s web | grep type: | grep l337
+lando info -s web | grep lastBuild: | grep never
+lando info -s web | grep image: | grep nginx:
+lando info -s web | grep imagefile: | grep ".lando/v4/l337-ecdebc06d57aaec9162ca6cf282e2e1f0ae27d3b/build-contexts/web/Imagefile"
+lando info -s web | grep primary: | grep true
+lando info -s web | grep appMount: | grep /site
 
 # should stop and start successfully
 lando stop
@@ -46,6 +78,7 @@ docker volume ls | grep l337_my-data
 
 # should allow top level network creation
 docker network ls | grep l337_my-network
+```
 
 # should allow short form registry image
 lando ssh -s image-1 -c "env" | grep NGINX_VERSION | grep 1.21.
@@ -74,7 +107,6 @@ lando ssh -s image-6 -c "env" | grep SPOCK | grep NIMOY
 # should allow interoperability with build and dockerfile
 lando ssh -s image-7 -c "env" | grep NGINX_VERSION | grep 1.21.
 lando ssh -s image-7 -c "env" | grep SPOCK | grep NIMOY
-```
 
 Destroy tests
 -------------
