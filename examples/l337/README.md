@@ -24,8 +24,6 @@ Run the following commands to verify things work as expected
 lando info -s php | grep api | grep 3
 lando info -s web | grep api | grep 4
 lando info -s db | grep api | grep 4
-```
-
 
 # should allow top level volume creation
 docker volume ls | grep l337_my-data
@@ -63,6 +61,7 @@ lando ssh -s image-7 -c "env" | grep SPOCK | grep NIMOY
 
 # shoud rebuild successfully
 lando rebuild -y
+```
 
 Destroy tests
 -------------
