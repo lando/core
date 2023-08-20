@@ -44,7 +44,6 @@ services:
       ENV TEST THIS
         copy file1 /file1
       COPY file1 /file4
-      COPY this that
   image-4:
     api: 4
     working_dir: /tmp
