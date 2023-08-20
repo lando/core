@@ -1,4 +1,12 @@
 name: l337
+tooling:
+  pwd:
+    service: :service
+    options:
+      service:
+        default: web
+        describe: Run pwd in different service
+
 services:
   # basic compose example
   # @NOTE: eventually we will need to install the php plugin for the api 3 version servie to work
