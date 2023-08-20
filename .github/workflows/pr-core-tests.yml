@@ -51,13 +51,13 @@ jobs:
           cache: yarn
       - name: Install Yarn dependencies
         run: yarn install --prefer-offline --frozen-lockfile
-
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v2
         with:
           lando-version: ${{ matrix.lando-version }}
+          config: |
+            plugins.@lando/core=/home/runner/work/core/core
           telemetry: false
-
       - name: Verify Lando works and we are dogfooding this plugin for tests
         run: |
           mkdir -p /home/runner/.lando/plugins/@lando
@@ -71,7 +71,6 @@ jobs:
           LANDO_SCANNER: ${{ matrix.scanner }}
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
-          debug: true
           cleanup-header: "Destroy tests"
           shell: bash
           stdin: true
