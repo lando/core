@@ -43,6 +43,7 @@ lando info -s web | grep appMount: | grep /site
 lando start
 
 # should have correct info when built
+lando info
 lando info -s db | grep api: | grep 4
 lando info -s db | grep type: | grep l337
 lando info -s db | grep lastBuild: | grep succeeded
@@ -67,6 +68,15 @@ lando restart
 
 # should rebuild successfully
 lando rebuild -y
+
+# should lando ssh into the primary service
+fail
+
+# should run tooling commands in tooling.dir then service.appMount then service.working_dir
+fail
+
+# should fail running tooling commands if no dir is specified
+fail
 
 # should run api 3 and 4 services together in peace and security
 lando info -s php | grep api | grep 3
