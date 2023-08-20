@@ -48,14 +48,14 @@ lando info -s db | grep api: | grep 4
 lando info -s db | grep type: | grep l337
 lando info -s db | grep lastBuild: | grep succeeded
 lando info -s db | grep imagefile: | grep core/examples/l337/Dockerfile
-lando info -s db | grep image: | grep lando/l337-ecdebc06d57aaec9162ca6cf282e2e1f0ae27d3b-db:latest
+lando info -s db | grep image: | grep lando/l337-2319fdf2cbc67f0421041eb62480226575dfc358-db:latest
 lando info -s db | grep primary: | grep false
 lando info -s db | grep appMount: || echo $? | grep 1
 lando info -s web | grep api: | grep 4
 lando info -s web | grep type: | grep l337
 lando info -s web | grep lastBuild: | grep succeeded
 lando info -s web | grep image: | grep nginx:
-lando info -s web | grep imagefile: | grep ".lando/v4/l337-ecdebc06d57aaec9162ca6cf282e2e1f0ae27d3b/build-contexts/web/Imagefile"
+lando info -s web | grep imagefile: | grep ".lando/v4/l337-2319fdf2cbc67f0421041eb62480226575dfc358/build-contexts/web/Imagefile"
 lando info -s web | grep primary: | grep true
 lando info -s web | grep appMount: | grep /site
 
