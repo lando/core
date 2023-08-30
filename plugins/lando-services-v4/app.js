@@ -72,7 +72,7 @@ module.exports = (app, lando) => {
       config.context = path.join(app.v4._dir, 'build-contexts', config.name);
       config.tag = `${_.get(lando, 'product', 'lando')}/${app.name}-${app.id}-${config.name}:latest`;
       const info = _(_.find(app.v4.cachedInfo, {service: config.name, api: 4}))
-        .pick(['image', 'imagefile', 'lastBuild'])
+        .pick(['image', 'lastBuild', 'tag'])
         .value();
 
       // retrieve the correct class and mimic-ish v4 patterns to ensure faster loads
@@ -230,8 +230,8 @@ module.exports = (app, lando) => {
           if (info) {
             Object.assign(info, {
               image: service.info.image,
-              imagefile: service.info.imagefile,
-              lastBuild: [service.info.imagefile, service.info.image].includes(undefined) ? 'failed' : 'succeeded',
+              lastBuild: service.info.image === undefined ? 'failed' : 'succeeded',
+              tag: service.tag,
             });
           }
         });
@@ -243,7 +243,7 @@ module.exports = (app, lando) => {
           app.add({
             id: service.service,
             info: {},
-            data: [{services: {[service.service]: {image: service.image}}}],
+            data: [{services: {[service.service]: {image: service.tag}}}],
           });
         }
       });
