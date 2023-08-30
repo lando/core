@@ -4,9 +4,6 @@
 const fs = require('fs-extra');
 const path = require('path');
 const merge = require('lodash/merge');
-const makeError = require('./make-error');
-const makeSuccess = require('./make-success');
-const mergePromise = require('./merge-promise');
 const slugify = require('slugify');
 const stringArgv = require('string-argv').default;
 
@@ -14,6 +11,10 @@ const Dockerode = require('dockerode');
 const {EventEmitter} = require('events');
 const {nanoid} = require('nanoid');
 const {PassThrough} = require('stream');
+
+const makeError = require('../utils/make-error');
+const makeSuccess = require('../utils/make-success');
+const mergePromise = require('../utils/merge-promise');
 
 class DockerEngine extends Dockerode {
   static name = 'docker-engine';

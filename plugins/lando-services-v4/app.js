@@ -4,10 +4,13 @@
 const _ = require('lodash');
 const chalk = require('chalk');
 const path = require('path');
-const utils = require('./lib/utils');
+
+const {nanoid} = require('nanoid');
+
+const getMounts = require('./utils/get-mounts');
+const parseConfig = require('./utils/parse-config');
 
 const {dumpComposeData} = require('./../../lib/utils');
-const {nanoid} = require('nanoid');
 
 /*
  * @TODO
@@ -18,7 +21,7 @@ module.exports = (app, lando) => {
 
   // Add v4 stuff to the app object
   app.v4 = {};
-  app.v4._debugShim = require('./lib/debug-shim')(app.log);
+  app.v4._debugShim = require('./utils/debug-shim')(app.log);
   app.v4._dir = path.join(lando.config.userConfRoot, 'v4', `${app.name}-${app.id}`);
   app.v4.orchestratorVersion = '3.6';
   app.v4.preLockfile = `${app.name}.v4.build.lock`;
@@ -46,7 +49,7 @@ module.exports = (app, lando) => {
   // The v4 version of v3 service loading
   app.events.on('pre-init', () => {
     // add parsed services to app object so we can use them downstream
-    app.v4.parsedConfig = _(utils.parseConfig(_.get(app, 'config.services', {})))
+    app.v4.parsedConfig = _(parseConfig(_.get(app, 'config.services', {})))
       .filter(service => service.api === 4)
       .value();
     app.v4.servicesList = app.v4.parsedConfig.map(service => service.name);
@@ -71,6 +74,7 @@ module.exports = (app, lando) => {
       config.appRoot = app.root;
       config.context = path.join(app.v4._dir, 'build-contexts', config.name);
       config.tag = `${_.get(lando, 'product', 'lando')}/${app.name}-${app.id}-${config.name}:latest`;
+
       const info = _(_.find(app.v4.cachedInfo, {service: config.name, api: 4}))
         .pick(['image', 'lastBuild', 'tag'])
         .value();
@@ -147,6 +151,7 @@ module.exports = (app, lando) => {
       compose: app.compose,
       root: app.root,
       info: app.info,
+      mounts: getMounts(_.get(app, 'v4.services', {})),
     }, {persist: true});
   });
 
@@ -257,6 +262,7 @@ module.exports = (app, lando) => {
         compose: app.compose,
         root: app.root,
         info: app.info,
+        mounts: getMounts(_.get(app, 'v4.services', {})),
       }, {persist: true});
     });
   });

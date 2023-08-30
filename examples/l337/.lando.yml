@@ -4,8 +4,11 @@ tooling:
     service: :service
     options:
       service:
-        default: web
+        default: php
         describe: Run pwd in different service
+  pwd2:
+    service: web
+    cmd: pwd
 
 services:
   # basic compose example
