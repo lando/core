@@ -364,8 +364,8 @@ class ComposeServiceV4 {
       // @NOTE: ideally its sufficient for this to happen ONLY here but in v3 its not
       this.addComposeData({services: {[context.id]: {image: context.tag}}});
       // set the image into the info
-      this.info.image = context.tag;
-      this.info.imagefile = imagefile;
+      this.info.image = imagefile;
+      this.info.tag = context.tag;
 
       this.debug('built image %o successfully from %o', context.id, imagefile);
       return success;
@@ -376,16 +376,8 @@ class ComposeServiceV4 {
       this.debug('image %o build failed with error %o', context.id, e);
       this.debug('image %o build failed, setting it back to use base image', context.id, this.#data.image);
 
-      // reset the info if fallback is dockerfile
-      if (fs.existsSync(this.#data.image)) {
-        this.info.imagefile = this.#data.image;
-        delete this.info.image;
-
-      // reset if its a tagged image
-      } else {
-        this.info.image = this.#data.image;
-        delete this.info.imagefile;
-      }
+      // reset the info
+      this.info.image = this.#data.image;
 
       throw e;
     }
@@ -510,15 +502,10 @@ class ComposeServiceV4 {
     // at this point we have either a dockerfile or a tagged image, lets set the base first
     this.#data.image = image;
 
-    // and then generate the image instructions and info if its a dockerfile
-    if (fs.existsSync(image)) {
-      this.#data.imageInstructions = fs.readFileSync(image, 'utf8');
-      this.info.imagefile = image;
-    // and ditto if its an image tag
-    } else {
-      this.#data.imageInstructions = generateDockerFileFromArray([{from: {baseImage: image}}]);
-      this.info.image = image;
-    }
+    // and then generate the image instructions and set info
+    this.#data.imageInstructions = fs.existsSync(image)
+      ? fs.readFileSync(image, 'utf8') : generateDockerFileFromArray([{from: {baseImage: image}}]);
+    this.info.image = image;
 
     // finally lets reset the relevant build key if applicable
     if (fs.existsSync(image)) {
