@@ -61,6 +61,7 @@ services:
     working_dir: /tmp
     image:
       imagefile: nginx:1.21
+      tag: lando/nginx:powerman-5000
   image-5:
     api: 4
     working_dir: /tmp
