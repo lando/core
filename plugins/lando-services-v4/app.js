@@ -70,11 +70,7 @@ module.exports = (app, lando) => {
         app.log.warn('%s is not a supported v4 service type.', config.type);
       }
 
-      // add some other important stuff we need to inject
-      config.appRoot = app.root;
-      config.context = path.join(app.v4._dir, 'build-contexts', config.name);
-      config.tag = `${_.get(lando, 'product', 'lando')}/${app.name}-${app.id}-${config.name}:latest`;
-
+      // get any cached info so we can set that as a base in the service
       const info = _(_.find(app.v4.cachedInfo, {service: config.name, api: 4}))
         .pick(['image', 'lastBuild', 'tag'])
         .value();
@@ -84,7 +80,18 @@ module.exports = (app, lando) => {
       Service.bengineConfig = lando.config.engineConfig;
 
       // instantiate
-      const service = new Service(config.name, {...config, debug: app.v4._debugShim, info, app, lando});
+      const service = new Service(config.name, {
+        ...{
+          app,
+          appRoot: app.root,
+          context: path.join(app.v4._dir, 'build-contexts', config.name),
+          debug: app.v4._debugShim,
+          info,
+          lando,
+          tag: `${_.get(lando, 'product', 'lando')}/${app.name}-${app.id}-${config.name}:latest`,
+        },
+        ...config,
+      });
 
       // push
       app.v4.services.push(service);

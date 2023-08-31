@@ -169,6 +169,8 @@ class ComposeServiceV4 {
     if (data.groups) this.addGroups(data.groups);
     // handle steps data
     if (data.steps) this.addSteps(data.steps);
+    // if we have a custom tag then set that
+    if (data.tag) this.tag = data.tag;
   }
 
   // just pushes the compose data directly into our thing
