@@ -24,6 +24,7 @@ Run the following commands to validate things are rolling as they should.
 ```bash
 # Should serve from the app root by default
 lando ssh -s defaults -c "curl http://localhost | grep ROOTDIR"
+lando ssh -s defaults-v4 -c "curl http://localhost | grep ROOTDIR"
 ```
 
 Destroy tests

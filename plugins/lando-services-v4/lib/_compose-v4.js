@@ -13,7 +13,7 @@ const {nanoid} = require('nanoid');
 // @TODO: should this be a class method of some kind? util? keep here?
 const getMountMatches = (dir, volumes = []) => volumes
   // filter out non string bind mounts
-  .filter(volume => volume.split(':').length === 2)
+  .filter(volume => volume.split(':').length === 2 || volume.split(':').length === 3)
   // parse into object format
   .map(volume => ({source: volume.split(':')[0], target: volume.split(':')[1]}))
   // translate relative paths
@@ -298,7 +298,16 @@ class ComposeServiceV4 {
 
         // if volumes is a string with two colon-separated parts then do stuff
         if (typeof volume === 'string' && volume.split(':').length === 2) {
-          volume = {target: volume.split(':')[1], source: volume.split(':')[0]};
+          volume = {source: volume.split(':')[0], target: volume.split(':')[1]};
+        }
+
+        // if volumes is a string with three colon-separated parts then do stuff
+        if (typeof volume === 'string' && volume.split(':').length === 3) {
+          volume = {
+            source: volume.split(':')[0],
+            target: volume.split(':')[1],
+            read_only: volume.split(':')[2] === 'ro',
+          };
         }
 
         // if source is not an absolute path that exists relateive to appRoot then set as bind
