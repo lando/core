@@ -4,6 +4,7 @@ Badname Example
 This example exists primarily to test the following:
 
 * [Issue #1767](https://github.com/lando/lando/issues/1767)
+* [V4 Services](https://docs.lando.dev/core/v4/landofile/services.html)
 
 Start up tests
 --------------

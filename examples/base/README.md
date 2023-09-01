@@ -47,24 +47,32 @@ Run the following commands to verify things work as expected
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_log_1
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web_1
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web2_1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web3_1
 
 # Should merge in all Landofiles correctly even if we are down a directory
 cd docker-compose
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_log_1
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web_1
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web2_1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web3_1
 cd ..
 
 # Should load environment files from all Landofiles
 lando ssh -s web -c "env" | grep "MILEY=CYRUS"
 lando ssh -s web -c "env" | grep "TAYLOR=SWIFT"
 lando ssh -s web -c "env" | grep "LOCAL=LANDO"
+lando ssh -s web3 -c "env" | grep "MILEY=CYRUS"
+lando ssh -s web3 -c "env" | grep "TAYLOR=SWIFT"
+lando ssh -s web3 -c "env" | grep "LOCAL=LANDO"
 
 # Should load environment files from all Landofiles if we are down a directory
 cd environment
 lando ssh -s web -c "env" | grep "MILEY=CYRUS"
 lando ssh -s web -c "env" | grep "TAYLOR=SWIFT"
 lando ssh -s web -c "env" | grep "LOCAL=LANDO"
+lando ssh -s web3 -c "env" | grep "MILEY=CYRUS"
+lando ssh -s web3 -c "env" | grep "TAYLOR=SWIFT"
+lando ssh -s web3 -c "env" | grep "LOCAL=LANDO"
 cd ..
 
 # Should return lando help
@@ -75,6 +83,7 @@ lando config --lando | grep verbose
 lando version | grep "v3."
 
 # Should run with specified verbosity
+# @NOTE: for some reason -vvv|DEBUG does not work so omitting
 lando info -v | grep INFO
 lando info -vv | grep VERBOSE
 lando info -vvvv | grep SILLY
@@ -108,6 +117,7 @@ lando info --path "[0]" | grep service | wc -l | grep 1
 lando list | grep landobase_log_1
 lando list | grep landobase_web_1
 lando list | grep landobase_web2_1
+lando list | grep landobase_web3_1
 
 # Should output JSON in lando list without error
 lando list --format json
@@ -121,12 +131,22 @@ lando logs
 # Should return only logs for the specified service
 lando logs -s web2 | grep log_1 || echo $? | grep 1
 lando logs --service web2 | grep log_1 || echo $? | grep 1
+lando logs -s web3 | grep log_1 || echo $? | grep 1
+lando logs --service web3 | grep log_1 || echo $? | grep 1
 
 # Should run a command as the LANDO_WEBROOT_USER by default
 lando ssh -s web2 -c "id | grep \$LANDO_WEBROOT_USER"
+lando ssh -s web3 -c "id | grep \$LANDO_WEBROOT_USER"
 
 # Should run a command as the user specific
 lando ssh -s web2 -u root -c "id | grep root"
+lando ssh -s web3 -u root -c "id | grep root"
+
+# Should run commands from /app for v3 services
+lando ssh -s web2 -u root -c "pwd" | grep /app
+
+# Should run commands from appMount for v4 services
+lando ssh -s web3 -u root -c "pwd" | grep /usr/share/nginx/html
 
 # Should stop the apps containers
 lando stop
@@ -134,7 +154,7 @@ docker ps --filter label=com.docker.compose.project=landobase -q | wc -l | grep 
 
 # Should stop ALL running lando containers
 lando start
-docker ps --filter label=io.lando.container=TRUE -q | wc -l | grep 3
+docker ps --filter label=io.lando.container=TRUE -q | wc -l | grep 4
 lando poweroff
 docker ps --filter label=io.lando.container=TRUE -q | wc -l | grep 0
 
@@ -143,6 +163,7 @@ lando rebuild -y
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_log_1
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web_1
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web2_1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web3_1
 
 # Should only rebuild the specified services
 lando rebuild -y --service web2
@@ -151,12 +172,21 @@ docker ps --latest | grep landobase_web2_1
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_log_1
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web_1
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web2_1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web3_1
+lando rebuild -y --service web3
+lando rebuild -y -s web3
+docker ps --latest | grep landobase_web3_1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase_log_1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web_1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web2_1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web3_1
 
 # Should restart the services without errors
 lando restart
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_log_1
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web_1
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web2_1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web3_1
 
 # Should have non-numeric keys in LANDO_INFO
 lando php info.php
