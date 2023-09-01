@@ -14,17 +14,17 @@ jobs:
         leia-test:
           # - examples/badname
           # - examples/base
-          # - examples/events
-          # - examples/keys
+          - examples/events
+          - examples/keys
           - examples/l337
-          # - examples/lando-101
-          # - examples/landofile-custom
-          # - examples/long-name
-          # - examples/networking
-          # - examples/proxy
-          # - examples/scanner
-          # - examples/services
-          # - examples/tooling
+          - examples/lando-101
+          - examples/landofile-custom
+          - examples/long-name
+          - examples/networking
+          - examples/proxy
+          - examples/scanner
+          - examples/services
+          - examples/tooling
         os:
           - ubuntu-22.04
         node-version:
