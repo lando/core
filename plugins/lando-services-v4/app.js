@@ -17,7 +17,7 @@ const {dumpComposeData} = require('./../../lib/utils');
  */
 module.exports = (app, lando) => {
   // add core v4 classes to factory
-  lando.factory.registry.unshift({api: 4, name: '_compose', builder: require('./lib/_compose-v4')});
+  lando.factory.registry.unshift({api: 4, name: 'l337', builder: require('./lib/l337-v4')});
 
   // Add v4 stuff to the app object
   app.v4 = {};
@@ -57,10 +57,13 @@ module.exports = (app, lando) => {
 
     // if no service is set as the primary one lets set the first one as primary
     if (_.find(app.v4.parsedConfig, service => service.primary === true) === undefined) {
-      if (_.has(app, 'v4.parsedConfig[0.name')) {
-        app.v4.parsedConfig[0].primary = true;
-        app.log.debug('could not find a primary v4 service, setting to first service=%s', app.v4.parsedConfig[0].name);
-      }
+      if (_.has(app, 'v4.parsedConfig[0.name')) app.v4.parsedConfig[0].primary = true;
+    }
+
+    // note the primary service in a more convenient place so we dont have to search for it all the time
+    if (app.v4.servicesList.length > 0) {
+      app.v4.primaryService = _.find(app.v4.parsedConfig, service => service.primary === true);
+      app.log.debug('%s is the primary v4 service', app.v4.primaryService.name);
     }
 
     // instantiate each service
@@ -159,6 +162,9 @@ module.exports = (app, lando) => {
       root: app.root,
       info: app.info,
       mounts: getMounts(_.get(app, 'v4.services', {})),
+      overrides: {
+        tooling: app._coreToolingOverrides,
+      },
     }, {persist: true});
   });
 
@@ -262,6 +268,7 @@ module.exports = (app, lando) => {
 
       // and reset app.compose
       app.compose = dumpComposeData(app.composeData, app._dir);
+
       // and reset the compose cache as well
       lando.cache.set(app.v4.composeCache, {
         name: app.name,
@@ -270,6 +277,9 @@ module.exports = (app, lando) => {
         root: app.root,
         info: app.info,
         mounts: getMounts(_.get(app, 'v4.services', {})),
+        overrides: {
+          tooling: app._coreToolingOverrides,
+        },
       }, {persist: true});
     });
   });

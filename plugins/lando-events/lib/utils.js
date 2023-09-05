@@ -5,16 +5,16 @@ const _ = require('lodash');
 const getUser = require('./../../../lib/utils').getUser;
 
 // Helper to find the default service
-const getDefaultService = data => {
+const getDefaultService = (data = {}, defaultService = 'appserver') => {
   if (_.has(data, 'service')) {
     if (_.startsWith(data.service, ':')) {
       const option = _.trimStart(data.service, ':');
-      return _.get(data, `options.${option}.default`, 'appserver');
+      return _.get(data, `options.${option}.default`, defaultService);
     } else {
       return _.get(data, 'service');
     }
   } else {
-    return 'appserver';
+    return defaultService;
   }
 };
 
@@ -25,8 +25,8 @@ const getCommand = cmd => typeof cmd === 'object' ? cmd[getFirstKey(cmd)] : cmd;
 const getFirstKey = obj => _.first(_.keys(obj));
 
 // Helper to find a service
-const getService = (cmd, data = {}) => {
-  return typeof cmd === 'object' ? getFirstKey(cmd) : getDefaultService(data);
+const getService = (cmd, data = {}, defaultService = 'appserver') => {
+  return typeof cmd === 'object' ? getFirstKey(cmd) : getDefaultService(data, defaultService);
 };
 
 /*
@@ -35,7 +35,7 @@ const getService = (cmd, data = {}) => {
 exports.events2Runz = (cmds, app, data = {}) => _.map(cmds, cmd => {
   // Discover the service
   const command = getCommand(cmd);
-  const service = getService(cmd, data);
+  const service = getService(cmd, data, app._defaultService);
   // Validate the service if we can
   // @NOTE fast engine runs might not have this data yet
   if (app.services && !_.includes(app.services, service)) {

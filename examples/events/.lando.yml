@@ -1,6 +1,12 @@
 name: lando-events
 compose:
   - compose.yml
+services:
+  web4:
+    api: 4
+    image: nginx
+    environment:
+      SERVICE: 'web4'
 events:
   pre-start:
     - mkdir -p /app/test && echo "$(hostname -s)" > /app/test/appserver-pre-start.txt

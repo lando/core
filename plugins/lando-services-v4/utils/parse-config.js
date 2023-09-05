@@ -24,7 +24,7 @@ module.exports = services => _(services)
   // ensure api is set to something valid
   .map(service => _.merge({}, service, {api: getApiVersion(service.api)}))
   // set v4 base type if applicable
-  .map(service => _.merge({}, {type: service.api === 4 ? '_compose' : undefined}, service))
+  .map(service => _.merge({}, {type: service.api === 4 ? 'l337' : undefined}, service))
   // Filter out any services without a type, this implicitly assumes these
   // services are "managed" by lando eg their type/version details are provided
   // by another service
