@@ -9,7 +9,7 @@ module.exports = {
   config: {
     pirog: 1,
   },
-  parent: '_compose',
+  parent: 'l337',
   builder: (parent, config) => class LandoServiceV4 extends parent {
     constructor(id, options, {app, lando} = {}) {
       // big problems:

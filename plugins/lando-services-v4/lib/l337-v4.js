@@ -87,7 +87,7 @@ class ComposeServiceV4 {
     name = id,
     primary = false,
     tag = nanoid(),
-    type = '_compose',
+    type = 'l337',
   } = {}) {
     // set top level required stuff
     this.id = id;
@@ -115,9 +115,9 @@ class ComposeServiceV4 {
     // rework info based on whatever is passed in
     this.info = merge({}, {service: id, api: 4, lastBuild: 'never', primary, type: 'l337'}, info);
 
-    // if this is a "_compose" service eg is being called directly and not via inheritance then we can assume
-    // that config is lando-compose data and can/should be added directly
-    if (type === '_compose') this.addServiceData(config);
+    // if this is a "l337" service eg is being called directly and not via inheritance then we can assume
+    // that config is spec L337 data and can/should be added directly
+    if (type === 'l337') this.addServiceData(config);
 
     // if we do not have an appmount yet and we have volumes information then try to infer it
     if (!this.appMount && this.config && this.config.volumes && this.config.volumes.length > 0) {
