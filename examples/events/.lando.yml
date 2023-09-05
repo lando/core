@@ -7,19 +7,19 @@ services:
     image: |
       FROM nginx:1.22.1
       ENV SERVICE l337
-      # if you are running these tests locally on linux then you **might** need to update the below userid/group
-      RUN usermod -o -u 1001 www-data
 
+      # if you are running these tests locally on linux then you **might** need to update the below userid
+      RUN usermod -o -u 1001 www-data
     volumes:
       - ./:/app
 events:
   pre-start:
     - mkdir -p /app/test && echo "$(hostname -s)" > /app/test/appserver-pre-start.txt
-    - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-pre-start.txt
+    - web: id && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-pre-start.txt
     - l337: id && ls -lsa /app && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/l337-pre-start.txt
   post-start:
-    - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-post-start.txt
-    - l337: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/l337-post-start.txt
+    - web: id && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-post-start.txt
+    - l337: id && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/l337-post-start.txt
   post-thing:
     - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-post-thing.txt
     - env | grep "SERVICE=web"
