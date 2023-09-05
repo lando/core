@@ -47,7 +47,7 @@ lando what-service --service web | grep web | wc -l | grep 2
 # Should use the app default service as the default in multi-service tooling
 lando multi-pass
 
-# Should run on rebuild without failin and trigger pre-rebuild event
+# Should run on rebuild without failing and trigger pre-rebuild event
 lando rebuild -y | grep "ET TU, BRUT"
 lando ssh -s web -c "cat /app/test/web-pre-rebuild.txt | grep rebuilding"
 lando ssh -s l337 -c "cat /app/test/l337-pre-rebuild.txt | grep rebuilding"

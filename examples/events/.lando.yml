@@ -11,39 +11,39 @@ services:
       - ./:/app
 events:
   pre-start:
-    - mkdir -p /app/test && echo "$(hostname -s)" > /app/test/appserver-pre-start.txt
-    - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-pre-start.txt
-    - l337: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/l337-pre-start.txt
-  post-start:
-    - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-post-start.txt
-    - l337: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/l337-post-start.txt
-  post-thing:
-    - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-post-thing.txt
-    - env | grep "SERVICE=web"
-  post-stuff:
-    - l337: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/l337-post-stuff.txt
-    - env | grep "SERVICE=l337"
-  pre-rebuild:
-    - web: mkdir -p /app/test && echo "rebuilding" > /app/test/web-pre-rebuild.txt
-    - l337: mkdir -p /app/test && echo "rebuilding" > /app/test/l337-pre-rebuild.txt
-  post-rebuild:
-    - web: echo "ET TU, BRUT?"
-    - l337: echo "ET TU, BRUT?"
-  post-dynamic:
-    - web: env | grep "SERVICE=web"
-    - l337: env | grep "SERVICE=l337"
-    - web: echo "thing"
-    - echo "$SERVICE"
-    - echo "stuff"
-  post-multi-pass:
-    - env | grep "SERVICE=appserver"
-    - web: env | grep "SERVICE=web"
-    - l337: env | grep "SERVICE=l337"
-  post-what-service:
-    - echo "$SERVICE"
-  pre-destroy:
-    - web: mkdir -p /app/test && touch /app/test/destroy.txt
-    - l337: mkdir -p /app/test && touch /app/test/destroy-l337.txt
+    # - mkdir -p /app/test && echo "$(hostname -s)" > /app/test/appserver-pre-start.txt
+    # - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-pre-start.txt
+    - l337: whoami && ls -lsa /app && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/l337-pre-start.txt
+  # post-start:
+  #   - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-post-start.txt
+  #   - l337: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/l337-post-start.txt
+  # post-thing:
+  #   - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-post-thing.txt
+  #   - env | grep "SERVICE=web"
+  # post-stuff:
+  #   - l337: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/l337-post-stuff.txt
+  #   - env | grep "SERVICE=l337"
+  # pre-rebuild:
+  #   - web: mkdir -p /app/test && echo "rebuilding" > /app/test/web-pre-rebuild.txt
+  #   - l337: mkdir -p /app/test && echo "rebuilding" > /app/test/l337-pre-rebuild.txt
+  # post-rebuild:
+  #   - web: echo "ET TU, BRUT?"
+  #   - l337: echo "ET TU, BRUT?"
+  # post-dynamic:
+  #   - web: env | grep "SERVICE=web"
+  #   - l337: env | grep "SERVICE=l337"
+  #   - web: echo "thing"
+  #   - echo "$SERVICE"
+  #   - echo "stuff"
+  # post-multi-pass:
+  #   - env | grep "SERVICE=appserver"
+  #   - web: env | grep "SERVICE=web"
+  #   - l337: env | grep "SERVICE=l337"
+  # post-what-service:
+  #   - echo "$SERVICE"
+  # pre-destroy:
+  #   - web: mkdir -p /app/test && touch /app/test/destroy.txt
+  #   - l337: mkdir -p /app/test && touch /app/test/destroy-l337.txt
 tooling:
   thing:
     service: web
