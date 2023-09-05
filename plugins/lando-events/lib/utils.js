@@ -41,12 +41,14 @@ exports.events2Runz = (cmds, app, data = {}) => _.map(cmds, cmd => {
   if (app.services && !_.includes(app.services, service)) {
     throw new Error(`This app has no service called ${service}`);
   }
+
   // Add the build command
   return {
     id: `${app.project}_${service}_1`,
     cmd: ['/bin/sh', '-c', _.isArray(command) ? command.join(' ') : command],
     compose: app.compose,
     project: app.project,
+    api: _.includes(_.get(app, 'v4.servicesList', []), service) ? 4 : 3,
     opts: {
       cstdio: ['inherit', 'pipe', 'pipe'],
       mode: 'attach',

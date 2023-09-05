@@ -11,14 +11,17 @@ module.exports = (app, lando) => {
   if (!_.isEmpty(_.get(app, 'config.events', []))) {
     _.forEach(app.config.events, (cmds, name) => {
       app.events.on(name, 9999, data => {
-        // determine the default service
-        // default to appserver if the app has at least one v3 service
-        // default to primary service if app has only v4 services
-        // @NOTE: we have to do this
-
         const eventCommands = utils.events2Runz(cmds, app, data);
+        // add perm sweeping to all v3 services
         if (!_.isEmpty(eventCommands)) {
-          _.forEach(_.uniq(_.map(eventCommands, 'id')), container => {
+          const v3EventCommands = _(eventCommands)
+            .filter(command => command.api === 3)
+            .map('id')
+            .uniq()
+            .value();
+          lando.log.debug('added preemptive perm sweeping to evented v3 services %j', v3EventCommands);
+          _.forEach(v3EventCommands, container => {
+            console.log(container);
             eventCommands.unshift({
               id: container,
               cmd: '/helpers/user-perms.sh --silent',
