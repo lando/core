@@ -48,6 +48,7 @@ exports.events2Runz = (cmds, app, data = {}) => _.map(cmds, cmd => {
     cmd: ['/bin/sh', '-c', _.isArray(command) ? command.join(' ') : command],
     compose: app.compose,
     project: app.project,
+    api: _.includes(_.get(app, 'v4.servicesList', []), service) ? 4 : 3,
     opts: {
       cstdio: ['inherit', 'pipe', 'pipe'],
       mode: 'attach',
