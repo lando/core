@@ -21,7 +21,6 @@ module.exports = (app, lando) => {
             .value();
           lando.log.debug('added preemptive perm sweeping to evented v3 services %j', v3EventCommands);
           _.forEach(v3EventCommands, container => {
-            console.log(container);
             eventCommands.unshift({
               id: container,
               cmd: '/helpers/user-perms.sh --silent',

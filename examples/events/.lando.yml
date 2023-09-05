@@ -2,46 +2,59 @@ name: lando-events
 compose:
   - compose.yml
 services:
-  web4:
+  l337:
     api: 4
     image: |
       FROM nginx:1.22.1
-      ENV SERVICE web4
+      ENV SERVICE l337
     volumes:
       - ./:/app
 events:
   pre-start:
     - mkdir -p /app/test && echo "$(hostname -s)" > /app/test/appserver-pre-start.txt
     - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-pre-start.txt
-    - web4: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web4-pre-start.txt
+    - l337: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/l337-pre-start.txt
   post-start:
     - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-post-start.txt
-    - web4: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web4-post-start.txt
+    - l337: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/l337-post-start.txt
   post-thing:
     - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-post-thing.txt
     - env | grep "SERVICE=web"
   post-stuff:
-    - web4: chown www-data:www-data /app && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web4-post-stuff.txt
-    - env | grep "SERVICE=web4"
+    - l337: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/l337-post-stuff.txt
+    - env | grep "SERVICE=l337"
   pre-rebuild:
     - web: mkdir -p /app/test && echo "rebuilding" > /app/test/web-pre-rebuild.txt
-    - web4: mkdir -p /app/test && echo "rebuilding" > /app/test/web4-pre-rebuild.txt
+    - l337: mkdir -p /app/test && echo "rebuilding" > /app/test/l337-pre-rebuild.txt
   post-rebuild:
     - web: echo "ET TU, BRUT?"
-    - web4: echo "ET TU, BRUT?"
+    - l337: echo "ET TU, BRUT?"
   post-dynamic:
-    - env | grep "SERVICE=web"
-    - echo "thing"
+    - web: env | grep "SERVICE=web"
+    - l337: env | grep "SERVICE=l337"
+    - web: echo "thing"
+    - echo "$SERVICE"
+    - echo "stuff"
+  post-multi-pass:
+    - env | grep "SERVICE=appserver"
+    - web: env | grep "SERVICE=web"
+    - l337: env | grep "SERVICE=l337"
+  post-what-service:
+    - echo "$SERVICE"
   pre-destroy:
     - web: mkdir -p /app/test && touch /app/test/destroy.txt
-    - web4: mkdir -p /app/test && touch /app/test/destroy-web.txt
+    - l337: mkdir -p /app/test && touch /app/test/destroy-l337.txt
 tooling:
   thing:
     service: web
     cmd: echo "THINGS"
   stuff:
-    service: web4
+    service: l337
     cmd: echo "STUFF"
+  multi-pass:
+    cmd:
+      - web: echo "KORBEN"
+      - l337: echo "DALLAS"
   dynamic:
     cmd: env
     service: :host
@@ -50,4 +63,13 @@ tooling:
         default: web
         alias:
           - h
+        describe: Run a different service
+  what-service:
+    cmd: echo "$SERVICE"
+    service: :service
+    options:
+      service:
+        default: l337
+        alias:
+          - s
         describe: Run a different service
