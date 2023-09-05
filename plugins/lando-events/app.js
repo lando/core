@@ -37,13 +37,16 @@ module.exports = (app, lando) => {
         }
         const injectable = _.has(app, 'engine') ? app : lando;
         return injectable.engine.run(eventCommands).catch(err => {
+          const command = _.tail(name.split('-')).join('-');
           if (app.addWarning) {
             app.addWarning({
-              title: `One of your events failed`,
+              title: `The ${name} event has command(s) that failed!`,
               detail: [
+                `Event failed with: "${_.get(err, 'message')}"`,
                 'This **MAY** prevent your app from working.',
                 'Check for errors above, fix them in your Landofile, and run the command again:',
               ],
+              command: `lando ${command}`,
             }, err);
           } else {
             lando.exitCode = 12;

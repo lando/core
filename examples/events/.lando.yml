@@ -4,31 +4,44 @@ compose:
 services:
   web4:
     api: 4
-    image: nginx
-    environment:
-      SERVICE: 'web4'
+    image: |
+      FROM nginx:1.22.1
+      ENV SERVICE web4
+    volumes:
+      - ./:/app
 events:
   pre-start:
     - mkdir -p /app/test && echo "$(hostname -s)" > /app/test/appserver-pre-start.txt
     - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-pre-start.txt
+    - web4: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web4-pre-start.txt
   post-start:
     - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-post-start.txt
+    - web4: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web4-post-start.txt
   post-thing:
     - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-post-thing.txt
     - env | grep "SERVICE=web"
+  post-stuff:
+    - web4: chown www-data:www-data /app && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web4-post-stuff.txt
+    - env | grep "SERVICE=web4"
   pre-rebuild:
     - web: mkdir -p /app/test && echo "rebuilding" > /app/test/web-pre-rebuild.txt
+    - web4: mkdir -p /app/test && echo "rebuilding" > /app/test/web4-pre-rebuild.txt
   post-rebuild:
     - web: echo "ET TU, BRUT?"
+    - web4: echo "ET TU, BRUT?"
   post-dynamic:
-    - web: env | grep "SERVICE=web"
+    - env | grep "SERVICE=web"
     - echo "thing"
   pre-destroy:
     - web: mkdir -p /app/test && touch /app/test/destroy.txt
+    - web4: mkdir -p /app/test && touch /app/test/destroy-web.txt
 tooling:
   thing:
     service: web
     cmd: echo "THINGS"
+  stuff:
+    service: web4
+    cmd: echo "STUFF"
   dynamic:
     cmd: env
     service: :host
