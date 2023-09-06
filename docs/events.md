@@ -53,11 +53,13 @@ Specifically, you need to hook into an event where the service you are running t
 
 It's fairly straightforward to add events to your [Landofile](./index.md) using the `events` top level config.
 
-Note that due to the nature of events (e.g. automating steps that the _user_ usually runs), all commands are run as "you" and do not have `sudo` or `root` access.
+Note that due to the nature of events eg automating steps that the _user_ usually runs, all commands are run as "you" and do not have `sudo` or `root` access. In Lando 4 this will likely change.
+
+Also note that some events are "silly" eg you will find it difficult to use the `post-destroy` event.
 
 ### Default commands
 
-By default, event commands will run on the `appserver` service which **may not exist** if you are not using one of Lando's [recipes](./recipes.md) as a starting point for your Landofile.
+If you do not specify a [service](#service-commands) then the command will run on the [default service](./services.md#default-service). Generally this will be the `appserver` service.
 
 ```yaml
 events:
@@ -95,11 +97,13 @@ tooling:
         describe: Run a different service
 ```
 
-In the above scenario, `some-command` will run on `web2` by default.
+In the above `lando dynamic` scenario, `some-command` will run on `web2` by default. However if you run `lando dynamic --host web` then `some-command` will run on `web`.
 
 ### Service commands
 
-While the defaults above are good to know, we *highly recommend* you just explicitly define which commands should run on which services by keying the command with a service as shown below:
+:::tip Make it explicit!
+While the defaults above are good to know, we *highly recommend* you just explicitly define which commands should run on which services by keying the command with a service as shown below.
+:::
 
 ```yaml
 events:

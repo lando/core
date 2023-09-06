@@ -70,6 +70,15 @@ The following services are currently supported. Please check out each one to lea
 *   ### [tomcat](https://docs.lando.dev/tomcat/)
 *   ### [varnish](https://docs.lando.dev/varnish/)
 
+## Default service
+
+Some other Lando plugins, such as the one that powers [events](./events.md) will assume a _default_ service in some scenarios although it is not clear how this is set or determined. So, this is how that is determined
+
+1. If there is a service called `appserver`, as is the case in most recipes, then that will be the default service.
+2. If there is _not_ a service called appserver, then the first service listed in your `.lando.yml` will be the default service.
+
+In Lando 4 you can choose the default service, now called the `primary` service by setting `primary: true` in that service.
+
 ## Build Steps
 
 One of the great features of Lando is its ability to destroy a single planet...  we mean add additional dependencies or build steps to your service without the hassle of having to build or manage your own Dockerfiles.
