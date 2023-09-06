@@ -3,7 +3,7 @@ Custom Landofile Name Example
 
 This example exists primarily to test the issue:
 
-* <https://github.com/lando/lando/issues/1919>
+* [Issue #1919](https://github.com/lando/lando/issues/1919)
 
 Start up tests
 --------------
@@ -27,6 +27,9 @@ Run the following commands to verify things work as expected
 lando node --version
 lando npm --version
 lando yarn --version
+lando node2 --version
+lando npm2 --version
+lando yarn2 --version
 ```
 
 Destroy tests
