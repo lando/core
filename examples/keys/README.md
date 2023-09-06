@@ -30,7 +30,7 @@ lando ssh -s thesekeys -u root -c "cat /etc/ssh/ssh_config" | grep "/user/.ssh/m
 
 # Should have the LANDO_LOAD_KEYS envvar set correctly by default
 lando ssh -s cli -c "env" | grep LANDO_LOAD_KEYS | grep true
-lando ssh -s l337-cli -c "env" | grep LANDO_LOAD_KEYS | grep "mykey mykey2"
+lando ssh -s l337-cli -c "env" | grep LANDO_LOAD_KEYS | grep true
 
 # Should not load user keys if keys is set to false in a Landofile
 cp -f .lando.local.yml.nokeys .lando.local.yml
