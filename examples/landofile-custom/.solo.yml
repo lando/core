@@ -3,3 +3,4 @@ tooling:
     service: node
   npm2:
     service: node2
+    cmd: npm

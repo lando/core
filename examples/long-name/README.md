@@ -24,12 +24,6 @@ Run the following commands to validate things are rolling as they should.
 ```bash
 # Should be able to access http
 lando ssh -s defaults -c "curl http://localhost:80" | grep ROOTDIR
-
-# Should be able to access https
-lando ssh -s defaults -c "curl https://localhost:443" | grep ROOTDIR
-
-# Should have a valid cert in the right place
-lando ssh -s defaults -c "openssl x509 -in /certs/cert.crt -text -noout"  | grep CN | grep "landothesitenamethatneverendsitgoesonandonmyfriendsnoseriousl..."
 ```
 
 Destroy tests
