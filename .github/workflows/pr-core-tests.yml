@@ -20,7 +20,7 @@ jobs:
           - examples/lando-101
           - examples/landofile-custom
           - examples/long-name
-          # - examples/networking
+          - examples/networking
           # - examples/proxy
           # - examples/scanner
           # - examples/services
