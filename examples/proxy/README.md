@@ -33,6 +33,7 @@ curl -s -o /dev/null -I -w "%{http_code}" http://web3.lndo.site | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://lando-proxy.lndo.site | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://sub.lando-proxy.lndo.site | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://another-way-to-eighty.lndo.site | grep 200
+curl -s -o /dev/null -I -w "%{http_code}" http://l337.lndo.site | grep 200
 
 # Should also work over https if ssl is true and we have certs
 curl -s -o /dev/null -Ik -w "%{http_code}" https://web3.lndo.site | grep 200
@@ -43,24 +44,31 @@ curl -s -o /dev/null -I -w "%{http_code}" http://another-way-to-eighty.lndo.site
 curl -s -o /dev/null -I -w "%{http_code}" http://web3.lndo.site | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://lets.combine.really.lndo.site/everything/for-real | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://lets.combine.things.lndo.site/everything/for-real | grep 200
+curl -s -o /dev/null -I -w "%{http_code}" http://l337.lndo.site | grep 200
+lando ssh -s php -u root -c "curl -s -o /dev/null -I -w \"%{http_code}\" http://web3:8080" | grep 200
+lando ssh -s php -u root -c "curl -s -o /dev/null -I -w \"%{http_code}\" http://l337:8888" | grep 200
 
 # Should handle wildcard entries
 curl -s -o /dev/null -I -w "%{http_code}" http://thiscouldbeanything-lando-proxy.lndo.site | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://wild.socouldthis.lando-proxy.lndo.site | grep 200
+curl -s -o /dev/null -I -w "%{http_code}" http://give.me.lots.lndo.site/more/subs | grep 200
 
 # Should handle object proxy format
 curl -s -o /dev/null -I -w "%{http_code}" http://web5.lndo.site | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://object-format.lndo.site | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://object-format.lndo.site/test | grep 200
+curl -s -o /dev/null -I -w "%{http_code}" http://headers.l337.lndo.site | grep 200
 
 # Should handle sites in subdirectories
 curl -s -o /dev/null -I -w "%{http_code}" http://lando-proxy.lndo.site/api | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://lets.see.what.happens.in.a.lndo.site/subdir | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://or.in.a.deeper.lndo.site/subdirectory/tree/ | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://lets.combine.really.lndo.site/everything/for-real | grep 200
+curl -s -o /dev/null -I -w "%{http_code}" http://give.me.lots.lndo.site/more/subs | grep 200
 
 # Should load in custom middleware if specified
 curl http://object-format.lndo.site | grep X-Lando-Test | grep on
+curl -I http://headers.l337.lndo.site | grep X-Lando-Test | grep on
 curl -k https://object-format.lndo.site | grep X-Lando-Test | grep on
 curl -k https://object-format.lndo.site | grep X-Lando-Test-Ssl | grep on
 
