@@ -15,7 +15,7 @@ jobs:
           - examples/badname
           - examples/base
           - examples/events
-          # - examples/keys
+          - examples/keys
           # - examples/l337
           # - examples/lando-101
           # - examples/landofile-custom
