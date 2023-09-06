@@ -21,7 +21,7 @@ cd lamp && lando start
 # Should init and start a lemp recipe
 rm -rf lemp && mkdir -p lemp
 cp -rf index.php lemp/index.php
-cp -rf apache.conf lamp/apache.conf
+cp -rf apache.conf lemp/apache.conf
 cp -rf nginx.conf lemp/nginx.conf
 cp -rf .lando.lemp.yml lemp/.lando.yml
 cd lemp && lando start
