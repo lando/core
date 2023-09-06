@@ -40,7 +40,8 @@ proxy:
 
 services:
   web3:
-    type: compose
+    api: 3
+    type: lando
     ssl: true
     sslExpose: false
     services:
@@ -52,7 +53,8 @@ services:
         - "8080"
       user: root
   php:
-    type: compose
+    api: 3
+    type: lando
     ssl: true
     sslExpose: false
     services:

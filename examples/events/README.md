@@ -4,7 +4,6 @@ Events Example
 This example exists primarily to test the following documentation:
 
 * [Events](http://docs.devwithlando.io/config/events.html)
-* [Lando 4 l337 service](https://docs.lando.dev/core/v4/landofile/services.html#l-337-service)
 
 See the [Landofiles](http://docs.devwithlando.io/config/lando.html) in this directory for the exact magicks.
 
