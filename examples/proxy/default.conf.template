@@ -1,0 +1,19 @@
+server {
+    listen       ${NGINX_PORT};
+    listen  [::]:${NGINX_PORT};
+    server_name  ${NGINX_SERVER_NAME};
+
+    #access_log  /var/log/nginx/host.access.log  main;
+
+    location / {
+        root   ${NGINX_WEBROOT};
+        index  index.html index.htm;
+    }
+
+    # redirect server error pages to the static page /50x.html
+    #
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+}
