@@ -4,7 +4,6 @@ Keys Example
 This example exists primarily to test the following documentation:
 
 * [SSH Keys](https://docs.devwithlando.io/config/ssh.html)
-* [Lando 4 l337 service](https://docs.lando.dev/core/v4/landofile/services.html#l-337-service)
 
 See the [Landofiles](http://docs.devwithlando.io/config/lando.html) in this directory for the exact magicks.
 
@@ -31,6 +30,7 @@ lando ssh -s thesekeys -u root -c "cat /etc/ssh/ssh_config" | grep "/user/.ssh/m
 
 # Should have the LANDO_LOAD_KEYS envvar set correctly by default
 lando ssh -s cli -c "env" | grep LANDO_LOAD_KEYS | grep true
+lando ssh -s l337-cli -c "env" | grep LANDO_LOAD_KEYS | grep "mykey mykey2"
 
 # Should not load user keys if keys is set to false in a Landofile
 cp -f .lando.local.yml.nokeys .lando.local.yml

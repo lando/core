@@ -11,6 +11,13 @@ services:
     build_as_root:
       - apt-get -y update && apt-get -yq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install openssh-client
       - yes y | ssh-keygen -t rsa -N '' -C 'BADBADKEY' -f /lando/keys/badbadkey
+  l337-cli:
+    api: 4
+    image: php:8.2-cli
+    command: sleep infinity
+    volumes:
+      - ./:/app
+
   cli2:
     api: 3
     type: lando
