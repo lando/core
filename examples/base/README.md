@@ -7,7 +7,6 @@ This example exists primarily to test the following documentation:
 
 * [Landofiles](http://docs.lando.dev/config/lando.html)
 * [Environment](http://docs.lando.dev/config/env.html)
-* [Lando 4 l337 service](https://docs.lando.dev/core/v4/landofile/services.html#l-337-service)
 
 **CLI**
 

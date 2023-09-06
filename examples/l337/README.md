@@ -3,7 +3,7 @@ L337 Example
 
 This example exists primarily to test the v3 runtime implementation of following documentation:
 
-[Lando Docker Compose 3 Engineering Terminology](core/v4/landofile/services.html#l337-service)
+* [Lando 4 l337 service](https://docs.lando.dev/core/v4/landofile/services.html#l-337-service)
 
 Start up tests
 --------------
