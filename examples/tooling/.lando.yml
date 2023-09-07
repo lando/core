@@ -6,7 +6,17 @@ events:
     - node: whoami | grep node
 services:
   node:
-    type: node:14
+    api: 3
+    type: lando
+    meUser: node
+    services:
+      image: node:16
+      command: docker-entrypoint.sh sleep infinity
+      environment:
+        LANDO_WEBROOT_USER: 'node'
+        LANDO_WEBROOT_GROUP: 'node'
+        LANDO_WEBROOT_UID: '1000'
+        LANDO_WEBROOT_GID: '1000'
 tooling:
   php:
     service: php
