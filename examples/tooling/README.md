@@ -84,7 +84,7 @@ lando workdir | grep /tmp
 
 # Should not track host if working dir is used
 cd folder
-lando workdir | grep "/tmp/"
+lando workdir | grep "/tmp"
 lando workdir | grep /tmp/folder || echo "$?" | grep 1
 
 # Should use and track appMount by default
