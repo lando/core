@@ -88,6 +88,10 @@ class ComposeServiceV4 {
     primary = false,
     tag = nanoid(),
     type = 'l337',
+    legacy = {
+      moreHttpPorts = [],
+      sport = '443',
+    } = {},
   } = {}) {
     // set top level required stuff
     this.id = id;
@@ -118,6 +122,16 @@ class ComposeServiceV4 {
     // if this is a "l337" service eg is being called directly and not via inheritance then we can assume
     // that config is spec L337 data and can/should be added directly
     if (type === 'l337') this.addServiceData(config);
+
+    // handle legacy and deprecated moreHttpPorts and sport settings but only if we are using l337 directly because
+    // in lando-v4 and above services we have a new way to handle this
+    if (type === 'l337') {
+      this.addComposeData({services: {[this.id]: {labels: {
+        'io.lando.http-ports': ['80', '443'].concat(legacy.moreHttpPorts).join(','),
+        'io.lando.https-ports': ['443'].concat([legacy.sport]).join(','),
+        },
+      }}});
+    }
 
     // if we do not have an appmount yet and we have volumes information then try to infer it
     if (!this.appMount && this.config && this.config.volumes && this.config.volumes.length > 0) {
