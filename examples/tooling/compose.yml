@@ -4,9 +4,13 @@ services:
     image: httpd
     ports:
       - "80"
+    environment:
+      SERVICE: web
   web2:
     image: nginx
     ports:
       - "80"
   php:
     image: php:7.1-fpm-alpine
+    environment:
+      SERVICE: php
