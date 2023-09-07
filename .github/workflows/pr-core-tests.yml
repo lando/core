@@ -33,12 +33,12 @@ jobs:
           - 3-dev
         scanner:
           - new
-        # include:
-        #   - leia-test: examples/scanner
-        #     os: ubuntu-22.04
-        #     node-version: '16'
-        #     lando-version: '3-dev'
-        #     scanner: legacy
+        include:
+          - leia-test: examples/scanner
+            os: ubuntu-22.04
+            node-version: '16'
+            lando-version: '3-dev'
+            scanner: legacy
 
     steps:
       - name: Checkout code
