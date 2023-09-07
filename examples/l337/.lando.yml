@@ -11,11 +11,6 @@ tooling:
     cmd: pwd
 
 services:
-  # basic compose example
-  # @NOTE: eventually we will need to install the php plugin for the api 3 version servie to work
-  php:
-    api: 3
-    type: php:7.4
   db:
     api: 4
     build:
