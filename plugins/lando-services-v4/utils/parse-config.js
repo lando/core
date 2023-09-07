@@ -18,8 +18,9 @@ module.exports = services => _(services)
   .map((service, name) => _.merge({}, {
     name,
     api: getApiVersion(service.api),
-    config: _.omit(service, ['api', 'moreHttpPorts', 'primary', 'scanner', 'sport', 'type']),
+    config: _.omit(service, ['api', 'meUser', 'moreHttpPorts', 'primary', 'scanner', 'sport', 'type']),
     legacy: {
+      meUser: service.meUser || 'www-data',
       moreHttpPorts: service.moreHttpPorts || [],
       sport: service.sport || '443',
     },

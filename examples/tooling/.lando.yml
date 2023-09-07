@@ -17,6 +17,14 @@ services:
         LANDO_WEBROOT_GROUP: 'node'
         LANDO_WEBROOT_UID: '1000'
         LANDO_WEBROOT_GID: '1000'
+  l337-node:
+    api: 4
+    image: node:16
+    command: sleep infinity
+    meUser: node
+    volumes:
+      - "./:/app"
+
 tooling:
   php:
     service: php
@@ -30,7 +38,13 @@ tooling:
     service: php
     cmd: id
   nodeme:
-    service: node
+    service: :service
+    options:
+      service:
+        default: node
+        alias:
+          - s
+        describe: Run a different service
     cmd: whoami
   stillme:
     cmd:

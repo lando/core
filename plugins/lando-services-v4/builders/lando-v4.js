@@ -52,8 +52,6 @@ module.exports = {
         version: version,
       });
 
-      console.log(config);
-
       // info.meUser = meUser;
       // info.hasCerts = ssl;
 
