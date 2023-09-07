@@ -23,7 +23,7 @@ jobs:
           - examples/networking
           - examples/proxy
           - examples/scanner
-          # - examples/services
+          - examples/services
           # - examples/tooling
         os:
           - ubuntu-22.04
