@@ -24,7 +24,7 @@ jobs:
           - examples/proxy
           - examples/scanner
           - examples/services
-          # - examples/tooling
+          - examples/tooling
         os:
           - ubuntu-22.04
         node-version:
