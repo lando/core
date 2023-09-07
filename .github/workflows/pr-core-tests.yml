@@ -22,7 +22,7 @@ jobs:
           - examples/long-name
           - examples/networking
           - examples/proxy
-          # - examples/scanner
+          - examples/scanner
           # - examples/services
           # - examples/tooling
         os:

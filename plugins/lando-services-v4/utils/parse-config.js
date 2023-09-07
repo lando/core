@@ -14,12 +14,17 @@ const getApiVersion = (version = 3) => {
 
 // adds required methods to ensure the lando v3 debugger can be injected into v4 things
 module.exports = services => _(services)
-  // Arrayify
+  // Arrayify and strip v3-isms out of the config
   .map((service, name) => _.merge({}, {
     name,
     api: getApiVersion(service.api),
-    config: _.omit(service, ['api', 'primary', 'type']),
+    config: _.omit(service, ['api', 'moreHttpPorts', 'primary', 'scanner', 'sport', 'type']),
+    legacy: {
+      moreHttpPorts: service.moreHttpPorts || [],
+      sport: service.sport || '443',
+    },
     primary: service.primary || false,
+    scanner: service.scanner || false,
   }))
   // ensure api is set to something valid
   .map(service => _.merge({}, service, {api: getApiVersion(service.api)}))
