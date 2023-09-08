@@ -66,7 +66,6 @@ lando info -s db | grep lastBuild: | grep succeeded
 lando info -s db | grep tag: | grep "lando/l337\-" | grep "\-db:latest"
 lando info -s web | grep lastBuild: | grep succeeded
 lando info -s web | grep tag: | grep "lando/l337\-" | grep "\-web:latest"
-
 lando info -s image-1 | grep tag: | grep "lando/l337\-" | grep "\-image-1:latest"
 lando info -s image-1 | grep lastBuild: | grep succeeded
 lando info -s image-2 | grep tag: | grep "lando/l337\-" | grep "\-image-2:latest"
@@ -87,11 +86,11 @@ lando env | grep SERVICE | grep web
 # should allow legacy meUser to work like it does for v3
 lando whoami | grep nginx
 
-# should automatically set appMount if appRoot is volume mounted
-lando pwd | grep /site
-
 # should allow legacy moreHttpPorts to work like it does for v3
 docker inspect l337_web_1 | grep io.lando.http-ports | grep "80,443,8888"
+
+# should automatically set appMount if appRoot is volume mounted
+lando pwd | grep /site
 
 # should allow top level volume creation
 docker volume ls | grep l337_my-data
