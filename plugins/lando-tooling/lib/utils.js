@@ -10,7 +10,9 @@ const path = require('path');
 /*
  * Helper to map the cwd on the host to the one in the container
  */
-const getContainerPath = (appRoot, appMount = '/app') => {
+const getContainerPath = (appRoot, appMount = undefined) => {
+  // if appmount is undefined then dont even try
+  if (appMount === undefined) return undefined;
   // Break up our app root and cwd so we can get a diff
   const cwd = process.cwd().split(path.sep);
   const dir = _.drop(cwd, appRoot.split(path.sep).length);
@@ -30,11 +32,14 @@ const getExecOpts = (docker, datum) => {
   if (process.stdin.isTTY) exec.push('--tty');
   // Should only set interactive in node mode
   if (process.lando === 'node') exec.push('--interactive');
-  // Add user and workdir
+  // add workdir if we can
+  if (datum.opts.workdir) {
+    exec.push('--workdir');
+    exec.push(datum.opts.workdir);
+  }
+  // Add user
   exec.push('--user');
   exec.push(datum.opts.user);
-  exec.push('--workdir');
-  exec.push(datum.opts.workdir);
   // Add envvvars
   _.forEach(datum.opts.environment, (value, key) => {
     exec.push('--env');
@@ -170,7 +175,7 @@ exports.parseConfig = (cmd, service, options = {}, answers = {}) => _(cmd)
 exports.toolingDefaults = ({
   name,
   app = {},
-  appMount = '/app',
+  appMount,
   cmd = name,
   dir,
   description = `Runs ${name} commands`,

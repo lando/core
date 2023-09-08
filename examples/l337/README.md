@@ -42,6 +42,19 @@ lando info -s web | grep appMount: | grep /site
 # should start again successfully
 lando start
 
+# should stop and start successfully
+lando stop
+lando start
+
+# should restart successfully
+lando restart
+
+# should rebuild successfully
+lando rebuild -y
+
+
+
+
 # should have correct info when built
 lando info
 lando info -s db | grep api: | grep 4
@@ -59,15 +72,9 @@ lando info -s web | grep -z imagefile: | grep .lando/v4/l337-2319fdf2cbc67f04210
 lando info -s web | grep primary: | grep true
 lando info -s web | grep appMount: | grep /site
 
-# should stop and start successfully
-lando stop
-lando start
 
-# should restart successfully
-lando restart
 
-# should rebuild successfully
-lando rebuild -y
+
 
 # should be able to ssh into a service without -s arg
 lando ssh -c "true"

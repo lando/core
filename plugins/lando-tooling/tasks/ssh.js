@@ -36,7 +36,7 @@ module.exports = (lando, app) => {
     if (app) {
       return app.init().then(() => {
         // set additional opt defaults if possible
-        const opts = [undefined, '/app'];
+        const opts = [undefined, undefined];
         // mix any v4 service info on top of app.config.services
         const services = _(_.get(app, 'config.services', {}))
           .map((service, id) => _.merge({}, {id}, service))
