@@ -63,21 +63,21 @@ lando rebuild -y
 
 # should have the correct info when built
 lando info -s db | grep lastBuild: | grep succeeded
-lando info -s db | grep tag: | grep "lando/l337\-" | grep "\-db:latest"
 lando info -s web | grep lastBuild: | grep succeeded
+lando info -s image-1 | grep lastBuild: | grep succeeded
+lando info -s image-2 | grep lastBuild: | grep succeeded
+lando info -s image-3 | grep lastBuild: | grep succeeded
+lando info -s image-4 | grep lastBuild: | grep succeeded
+lando info -s image-5 | grep lastBuild: | grep succeeded
+lando info -s image-6 | grep lastBuild: | grep succeeded
+lando info -s db | grep tag: | grep "lando/l337\-" | grep "\-db:latest"
 lando info -s web | grep tag: | grep "lando/l337\-" | grep "\-web:latest"
 lando info -s image-1 | grep tag: | grep "lando/l337\-" | grep "\-image-1:latest"
-lando info -s image-1 | grep lastBuild: | grep succeeded
 lando info -s image-2 | grep tag: | grep "lando/l337\-" | grep "\-image-2:latest"
-lando info -s image-2 | grep lastBuild: | grep succeeded
 lando info -s image-3 | grep tag: | grep "lando/l337\-" | grep "\-image-3:latest"
-lando info -s image-3 | grep lastBuild: | grep succeeded
-lando info -s image-4 | grep tag: | grep "lando/l337\-" | grep "\-image-4:latest"
-lando info -s image-4 | grep lastBuild: | grep succeeded
+lando info -s image-4 | grep tag: | grep "lando/nginx:powerman-5000"
 lando info -s image-5 | grep tag: | grep "lando/l337\-" | grep "\-image-5:latest"
-lando info -s image-5 | grep lastBuild: | grep succeeded
 lando info -s image-6 | grep tag: | grep "lando/l337\-" | grep "\-image-6:latest"
-lando info -s image-6 | grep lastBuild: | grep succeeded
 
 # should use web as the primary service for tooling and events
 lando ssh -c "env" | grep SERVICE | grep web
