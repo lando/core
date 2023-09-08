@@ -32,6 +32,7 @@ services:
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 1
       BOB: 5
     scanner: false
+    working_dir: "/tmp"
   web:
     api: 4
     primary: true
@@ -45,6 +46,7 @@ services:
     volumes:
       - "./:/site"
       - "my-data:/data"
+      - "./file1:/file-ro:ro"
     ports:
       - 8888
     moreHttpPorts:
@@ -53,7 +55,7 @@ services:
   # image features
   image-1:
     api: 4
-    image: "nginx:1.21"
+    image: "nginx:1.21.6"
   image-2:
     api: 4
     image: "./images/nginx/Dockerfile"
@@ -63,25 +65,23 @@ services:
       # also test weird indentation and casing
       FROM nginx:1.20
         copy file1 /file1
-
-  # image-4:
-  #   api: 4
-  #   working_dir: "/tmp"
-  #   image:
-  #     imagefile: "nginx:1.21"
-  #     tag: "lando/nginx:powerman-5000"
-  # image-5:
-  #   api: 4
-  #   working_dir: "/tmp"
-  #   image:
-  #     dockerfile: "./images/nginx/Dockerfile"
-  # image-6:
-  #   api: 4
-  #   working_dir: "/tmp"
-  #   image:
-  #     imagefile: |
-  #       FROM nginx:1.21
-  #       ENV SPOCK NIMOY
+      ENV SERVICE image-3
+  image-4:
+    api: 4
+    image:
+      imagefile: "nginx:1.21.5"
+      tag: "lando/nginx:powerman-5000"
+  image-5:
+    api: 4
+    image:
+      dockerfile: "./images/nginx/Dockerfile2"
+  image-6:
+    api: 4
+    image:
+      imagefile: |
+        FROM nginx:1.21.6
+        ENV SERVICE image-6
+        WORKDIR /usr/share/nginx/html
 
   # # context features
   # context-1:

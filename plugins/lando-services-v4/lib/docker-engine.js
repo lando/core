@@ -130,7 +130,7 @@ class DockerEngine extends Dockerode {
 
     // call the parent
     // @TODO: consider other opts? https://docs.docker.com/engine/api/v1.43/#tag/Image/operation/ImageBuild args?
-    this.debug('building image %o with %o', tag, fs.readdirSync(context));
+    this.debug('building image %o from %o', tag, context);
     super.buildImage({context, src: fs.readdirSync(context)}, {forcerm: true, t: tag}, callbackHandler);
 
     // make this a hybrid async func and return
