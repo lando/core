@@ -94,6 +94,9 @@ lando pwd --service l337-node | grep /app
 cd folder && lando pwd --service l337-node | grep /app/folder && cd ..
 lando pwd --service l337-php | grep /web
 cd folder && lando pwd --service l337-php | grep /web/folder && cd ..
+lando pwd --service web | grep /app
+cd folder && lando pwd --service web | grep /app/folder && cd ..
+
 
 # Should use working_dir if no app mount for v4 services
 lando pwd --service l337-slim | grep /tmp
