@@ -35,8 +35,10 @@ module.exports = (lando, app) => {
     // If we have it then init and DOOOO EEEET
     if (app) {
       return app.init().then(() => {
+        // get the service api if possible
+        const api = _.get(_.find(app.info, {service}), 'api', 3);
         // set additional opt defaults if possible
-        const opts = [undefined, undefined];
+        const opts = [undefined, api === 4 ? undefined : '/app'];
         // mix any v4 service info on top of app.config.services
         const services = _(_.get(app, 'config.services', {}))
           .map((service, id) => _.merge({}, {id}, service))
@@ -52,6 +54,7 @@ module.exports = (lando, app) => {
           // fallback to working dir if available
           if (!config.appMount && _.has(config, 'config.working_dir')) opts[0] = config.config.working_dir;
         }
+
 
         // continue
         if (_.isNull(user)) user = getUser(service, app.info);
