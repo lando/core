@@ -38,8 +38,8 @@ lando info -s web | grep lastBuild: | grep never
 lando info -s web | grep -z image: | grep Imagefile
 lando info -s web | grep primary: | grep true
 lando info -s web | grep appMount: | grep /site
-lando info -s db | grep user: | grep nginx
-lando info -s db | grep hostnames: | grep db.l337.internal
+lando info -s web | grep user: | grep nginx
+lando info -s web | grep hostnames: | grep db.l337.internal
 cat $(lando info -s web --path "[0].image" --format json | tr -d '"') | grep ENV | grep SERVICE | grep web
 
 # should start again successfully
@@ -61,7 +61,7 @@ lando info -s web | grep lastBuild: | grep succeeded
 
 # should use web as the primary service for tooling and events
 lando ssh -c "env" | grep SERVICE | grep web
-lando | grep SERVICE | grep web
+lando env | grep SERVICE | grep web
 
 # should allow legacy meUser to work like it does for v3
 lando whoami | grep nginx

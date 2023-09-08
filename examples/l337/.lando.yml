@@ -50,27 +50,20 @@ services:
     moreHttpPorts:
       - 8888
 
-  # # image features
-  # image-1:
-  #   api: 4
-  #   working_dir: "/tmp"
-  #   image: "nginx:1.21"
-  #   environment:
-  #     PIKE: "MOUNT"
-  # image-2:
-  #   api: 4
-  #   working_dir: "/tmp"
-  #   image: "./images/nginx/Dockerfile"
-  # image-3:
-  #   api: 4
-  #   working_dir: "/tmp"
-  #   image: |
-  #     # test weird indentation and casing
-  #     FROM nginx:1.20
-  #     ENV SPOCK NIMOY
-  #     ENV TEST THIS
-  #       copy file1 /file1
-  #     COPY file1 /file4
+  # image features
+  image-1:
+    api: 4
+    image: "nginx:1.21"
+  image-2:
+    api: 4
+    image: "./images/nginx/Dockerfile"
+  image-3:
+    api: 4
+    image: |
+      # also test weird indentation and casing
+      FROM nginx:1.20
+        copy file1 /file1
+
   # image-4:
   #   api: 4
   #   working_dir: "/tmp"
