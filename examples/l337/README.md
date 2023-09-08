@@ -27,17 +27,20 @@ lando destroy -y
 lando info -s db | grep api: | grep 4
 lando info -s db | grep type: | grep l337
 lando info -s db | grep lastBuild: | grep never
-lando info -s db | grep -z imagefile: | grep core/examples/l337/Dockerfile
-lando info -s db | grep image: || echo $? | grep 1
+lando info -s db | grep -z image: | grep core/examples/l337/Dockerfile
 lando info -s db | grep primary: | grep false
-lando info -s db | grep appMount: || echo $? | grep 1
+lando info -s db | grep user: | grep www-data
+lando info -s db | grep hostnames: | grep db.l337.internal
+cat $(lando info -s db --path "[0].image" --format json | tr -d '"') | grep "ENV SERVICE=db"
 lando info -s web | grep api: | grep 4
 lando info -s web | grep type: | grep l337
 lando info -s web | grep lastBuild: | grep never
-lando info -s web | grep image: | grep nginx:
-lando info -s web | grep imagefile: || echo $? | grep 1
+lando info -s web | grep -z image: | grep Imagefile
 lando info -s web | grep primary: | grep true
 lando info -s web | grep appMount: | grep /site
+lando info -s db | grep user: | grep nginx
+lando info -s db | grep hostnames: | grep db.l337.internal
+cat $(lando info -s web --path "[0].image" --format json | tr -d '"') | grep ENV | grep SERVICE | grep web
 
 # should start again successfully
 lando start
@@ -52,43 +55,22 @@ lando restart
 # should rebuild successfully
 lando rebuild -y
 
-
-
-
-# should have correct info when built
-lando info
-lando info -s db | grep api: | grep 4
-lando info -s db | grep type: | grep l337
+# should have the correct info when built
 lando info -s db | grep lastBuild: | grep succeeded
-lando info -s db | grep imagefile: | grep core/examples/l337/Dockerfile
-lando info -s db | grep -z image: | grep lando/l337-2319fdf2cbc67f0421041eb62480226575dfc358-db:latest
-lando info -s db | grep primary: | grep false
-lando info -s db | grep appMount: || echo $? | grep 1
-lando info -s web | grep api: | grep 4
-lando info -s web | grep type: | grep l337
 lando info -s web | grep lastBuild: | grep succeeded
-lando info -s web | grep image: | grep nginx:
-lando info -s web | grep -z imagefile: | grep .lando/v4/l337-2319fdf2cbc67f0421041eb62480226575dfc358/build-contexts/web/Imagefile
-lando info -s web | grep primary: | grep true
-lando info -s web | grep appMount: | grep /site
 
+# should use web as the primary service for tooling and events
+lando ssh -c "env" | grep SERVICE | grep web
+lando | grep SERVICE | grep web
 
+# should allow legacy meUser to work like it does for v3
+lando whoami | grep nginx
 
+# should automatically set appMount if appRoot is volume mounted
+lando pwd | grep /site
 
-
-# should be able to ssh into a service without -s arg
-lando ssh -c "true"
-
-# should run tooling commands in tooling.dir then service.appMount then service.working_dir
-true
-
-# should fail running tooling commands if no dir is specified
-true
-
-# should run api 3 and 4 services together in peace and security
-lando info -s php | grep api | grep 3
-lando info -s web | grep api | grep 4
-lando info -s db | grep api | grep 4
+# should allow legacy moreHttpPorts to work like it does for v3
+docker inspect l337_web_1 | grep io.lando.http-ports | grep "80,443,8888"
 
 # should allow top level volume creation
 docker volume ls | grep l337_my-data

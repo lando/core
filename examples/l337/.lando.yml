@@ -1,14 +1,27 @@
 name: "l337"
+events:
+  post-start:
+    - env | grep SERVICE | grep web
+    - whoami | grep nginx
 tooling:
   pwd:
     service: ":service"
     options:
       service:
         default: "web"
-        describe: "Run pwd in different service"
-  pwd2:
-    service: php
-    cmd: "pwd"
+        describe: "Runs in this service"
+  env:
+    service: ":service"
+    options:
+      service:
+        default: "web"
+        describe: "Runs in this service"
+  whoami:
+    service: ":service"
+    options:
+      service:
+        default: "web"
+        describe: "Runs in this service"
 
 services:
   db:
@@ -18,18 +31,14 @@ services:
     environment:
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 1
       BOB: 5
-
-  php:
-    api: 3
-    type: php:8.2
-    via: cli
-
+    scanner: false
   web:
     api: 4
     primary: true
     image: |
       FROM nginx:1.22.1
       COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+      ENV SERVICE web
     meUser: nginx
     networks:
       my-network:
