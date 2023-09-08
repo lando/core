@@ -39,7 +39,7 @@ lando info -s web | grep -z image: | grep Imagefile
 lando info -s web | grep primary: | grep true
 lando info -s web | grep appMount: | grep /site
 lando info -s web | grep user: | grep nginx
-lando info -s web | grep hostnames: | grep db.l337.internal
+lando info -s web | grep hostnames: | grep web.l337.internal
 cat $(lando info -s web --path "[0].image" --format json | tr -d '"') | grep ENV | grep SERVICE | grep web
 
 # should start again successfully
