@@ -10,6 +10,13 @@ tooling:
       service:
         default: "web"
         describe: "Runs in this service"
+  groups:
+    cmd: cat /tmp/groups
+    service: ":service"
+    options:
+      service:
+        default: "groups-1"
+        describe: "Runs in this service"
   pwd:
     service: ":service"
     options:
@@ -136,6 +143,101 @@ services:
         - source: "https://raw.githubusercontent.com/SeaShanties/lyrics/main/available-shanties.json"
           dest: "/etc/config/available-shanties.json"
           owner: "eddie-teach"
+
+  # group example
+  groups-1:
+    api: 4
+    image:
+      imagefile: "nginx:1.21.5"
+      context:
+        # COPY ./folder to /folder
+        - "./folder"
+        # COPY ./folder to /thing
+        - "./folder:thing"
+        # COPY file1 to /file2
+        - "file1:/file2"
+        # COPY file1 to /file3
+        - src: "file1"
+          dest: "file3"
+        # COPY file1 to /file4
+        - source: "file1"
+          destination: "/tmp/file4"
+        # COPY file1 to /file4 with instruction overrides
+        - source: "file1"
+          destination: "file4"
+          instructions: "COPY /file4 /tmp/stuff/file5"
+        - source: "file1"
+          destination: "file4"
+          instructions: |
+            COPY /file4 /file6
+            ENV HALL OATES
+      groups:
+        # adds a group to potentially conflict with an override
+        - name: "system-4"
+          description: "Test group override syntax"
+          weight: -100000
+          user: "root"
+        # adds a root user group called "system" that runs first
+        - name: "system"
+          description: "Install system packages and stuff"
+          weight: -10000
+          user: "root"
+        # adds a nginx user group called "user" that runs last
+        - name: "user"
+          description: "Allows for user run commands after other groups"
+          weight: 10000
+          user: "nginx"
+        # adds a group called "val-jean" with weight "24601"
+        # uses root user by default
+        - val-jean: 24601
+      steps:
+        # direct group usage
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "val-jean"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "user"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "default"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "context"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "system"
+        - instructions: |
+            RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+            RUN chmod 777 /tmp/groups
+          group: "system-4"
+        # override group usage
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "system-2"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "system-3-after"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "system-nginx-after-4"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "system-5-after-nginx"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "system-10-before-nginx"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "val-jean-2"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "val-jean-3-after"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "val-jean-nginx-after-4"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "val-jean-5-after-nginx"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "val-jean-10-before-nginx"
+        - instructions: |
+            RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+            USER root
+          group: "val-jean-100-after"
+        # other cases
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          weight: -99999999
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: user
+          weight: 10
 
 networks:
   my-network:
