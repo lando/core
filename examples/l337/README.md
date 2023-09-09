@@ -157,6 +157,50 @@ lando stat /SeaShanties/lyrics/main/shanties/HeresAHealthToTheCompany.json
 lando stat /etc/config/available-shanties.json
 lando stat -c "%U:%G" /etc/config/available-shanties.json | grep eddie-teach:eddie-teach
 lando env --service context-1 | grep HALL | grep OATES
+
+# should order build steps correctly
+lando groups | sed -n '1p' | grep root-default--99999999-root-root
+lando groups | sed -n '2p' | grep root-system-4--100000-root-root
+lando groups | sed -n '3p' | grep nginx-system--10010-nginx-nginx
+lando groups | sed -n '4p' | grep root-system--10000-root-root
+lando groups | sed -n '5p' | grep root-system--9998-root-root
+lando groups | sed -n '6p' | grep root-system--9997-root-root
+lando groups | sed -n '7p' | grep nginx-system--9996-nginx-nginx
+lando groups | sed -n '8p' | grep nginx-system--9995-nginx-nginx
+lando groups | sed -n '9p' | grep root-context-0-root-root
+lando groups | sed -n '10p' | grep nginx-user-10-nginx-nginx
+lando groups | sed -n '11p' | grep root-default-1000-root-root
+lando groups | sed -n '12p' | grep root-default-1000-root-root
+lando groups | sed -n '13p' | grep nginx-user-10000-nginx-nginx
+lando groups | sed -n '14p' | grep nginx-val-jean-24591-nginx-nginx
+lando groups | sed -n '15p' | grep root-val-jean-24601-root-root
+lando groups | sed -n '16p' | grep root-val-jean-24603-root-root
+lando groups | sed -n '17p' | grep root-val-jean-24604-root-root
+lando groups | sed -n '18p' | grep nginx-val-jean-24605-nginx-nginx
+lando groups | sed -n '19p' | grep nginx-val-jean-24606-nginx-nginx
+lando groups | sed -n '20p' | grep root-val-jean-24701-root-root
+
+# should run build steps as the correct user
+lando groups | sed -n '1p' | grep root-default--99999999-root-root
+lando groups | sed -n '2p' | grep root-system-4--100000-root-root
+lando groups | sed -n '3p' | grep nginx-system--10010-nginx-nginx
+lando groups | sed -n '4p' | grep root-system--10000-root-root
+lando groups | sed -n '5p' | grep root-system--9998-root-root
+lando groups | sed -n '6p' | grep root-system--9997-root-root
+lando groups | sed -n '7p' | grep nginx-system--9996-nginx-nginx
+lando groups | sed -n '8p' | grep nginx-system--9995-nginx-nginx
+lando groups | sed -n '9p' | grep root-context-0-root-root
+lando groups | sed -n '10p' | grep nginx-user-10-nginx-nginx
+lando groups | sed -n '11p' | grep root-default-1000-root-root
+lando groups | sed -n '12p' | grep root-default-1000-root-root
+lando groups | sed -n '13p' | grep nginx-user-10000-nginx-nginx
+lando groups | sed -n '14p' | grep nginx-val-jean-24591-nginx-nginx
+lando groups | sed -n '15p' | grep root-val-jean-24601-root-root
+lando groups | sed -n '16p' | grep root-val-jean-24603-root-root
+lando groups | sed -n '17p' | grep root-val-jean-24604-root-root
+lando groups | sed -n '18p' | grep nginx-val-jean-24605-nginx-nginx
+lando groups | sed -n '19p' | grep nginx-val-jean-24606-nginx-nginx
+lando groups | sed -n '20p' | grep root-val-jean-24701-root-root
 ```
 
 Destroy tests

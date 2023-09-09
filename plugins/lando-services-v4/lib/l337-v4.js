@@ -244,12 +244,6 @@ class ComposeServiceV4 {
 
         // ensure instructions are an array
         if (typeof file.instructions === 'string') file.instructions = [`${file.instructions}`];
-        // just normalize the usage of newlines
-        file.instructions = file.instructions
-          .map(instruction => instruction.split('\n').filter(part => part && part !== ''))
-          .flat(Number.POSITIVE_INFINITY);
-        // add an empty element so we can newline consistently
-        file.instructions.push('');
 
         // remove extraneous keys
         if (isObject(file) && file.dest) delete file.dest;
@@ -356,22 +350,16 @@ class ComposeServiceV4 {
         if (step.group && this.getOverrideGroup(step.group) && this.getGroupOverrides(step.group)) {
           step = merge({}, step, this.getGroupOverrides(step.group));
         }
-
         // if no group or a group we cannot match then assume the default group
         if (!step.group || this.getOverrideGroup(step.group) !== false) step.group = 'default';
-
         // we should have stnadardized groups at this point so we can rebase on those things in as well
         step = merge({}, {stage: this.#data.stages.default, weight: 1000}, this.#data.groups[step.group], step);
-
         // now lets modify the weight by the offset if we have one
         if (step.offset && Number(step.offset)) step.weight = step.weight + step.offset;
-
         // and finally lets rewrite the group for better instruction grouping
         step.group = `${step.group}-${step.weight}-${step.user}`;
-
         // log
         this.debug('%o added build step %o', this.id, step);
-
         // push
         this.#data.steps.push(step);
       });
@@ -424,10 +412,19 @@ class ComposeServiceV4 {
       steps[group] = data
         .map(data => data.instructions)
         .map(data => Array.isArray(data) ? generateDockerFileFromArray(data) : data);
-      // prefix user and comment data
-      steps[group].unshift(`USER ${user}\n`);
-      steps[group].unshift(`# ${group}\n`);
-      steps[group] = steps[group].join('');
+
+      // attempt to normalize newling usage mostly for aesthetic considerations
+      steps[group] = steps[group]
+        .map(instructions => instructions.split('\n').filter(instruction => instruction && instruction !== ''))
+        .flat(Number.POSITIVE_INFINITY);
+      steps[group].push('');
+
+      // prefix user and comment data and some helpful envvars
+      steps[group].unshift(`USER ${user}`);
+      steps[group].unshift(`ENV LANDO_IMAGE_GROUP ${group}`);
+      steps[group].unshift(`ENV LANDO_IMAGE_USER ${user}`);
+      steps[group].unshift(`# group: ${group}`);
+      steps[group] = steps[group].join('\n');
     }
 
     // we should have raw instructions data now
@@ -461,8 +458,6 @@ class ComposeServiceV4 {
   }
 
   getSteps(stage) {
-    // @TODO: validate stage?
-
     // if we have a stage then filter by that
     if (stage) return this.#data.steps.filter(step => step.stage === stage);
     // otherwise return the whole thing
