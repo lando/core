@@ -132,6 +132,31 @@ lando ssh --service image-6 -c "pwd" | grep /usr/share/nginx/html
 # should correctly mount read-only volumes
 lando ssh -c "test -r /file-ro"
 lando ssh -c "test -w /file-ro" || echo $? | grep 1
+
+# should handle all context options correctly
+lando stat /folder
+lando stat /folder/stuff
+lando stat /folder/more-stuff
+lando stat /thing
+lando stat /thing/stuff
+lando stat /thing/more-stuff
+lando stat /file2
+lando stat /file3
+lando stat /tmp/file4
+lando stat /file4 || echo $? | grep 1
+lando stat /tmp/stuff/file5
+lando stat /file6
+lando stat /images/nginx/Dockerfile
+lando stat /file7
+lando stat -c "%U:%G" /file7 | grep nginx:nginx
+lando stat /file8
+lando stat -c "%U:%G" /file8 | grep nginx:dialout
+lando stat /file9
+lando stat -c "%U:%G" /file9 | grep nginx:nginx
+lando stat /SeaShanties/lyrics/main/shanties/HeresAHealthToTheCompany.json
+lando stat /etc/config/available-shanties.json
+lando stat -c "%U:%G" /etc/config/available-shanties.json | grep eddie-teach:eddie-teach
+lando env --service context-1 | grep HALL | grep OATES
 ```
 
 Destroy tests

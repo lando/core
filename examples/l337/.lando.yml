@@ -4,18 +4,20 @@ events:
     - env | grep SERVICE | grep web
     - whoami | grep nginx
 tooling:
-  pwd:
-    service: ":service"
-    options:
-      service:
-        default: "web"
-        describe: "Runs in this service"
   env:
     service: ":service"
     options:
       service:
         default: "web"
         describe: "Runs in this service"
+  pwd:
+    service: ":service"
+    options:
+      service:
+        default: "web"
+        describe: "Runs in this service"
+  stat:
+    service: "context-1"
   whoami:
     service: ":service"
     options:
@@ -83,58 +85,57 @@ services:
         ENV SERVICE image-6
         WORKDIR /usr/share/nginx/html
 
-  # # context features
-  # context-1:
-  #   api: 4
-  #   working_dir: "/tmp"
-  #   image:
-  #     imagefile: |
-  #       FROM nginx:1.21
-  #       RUN useradd eddie-teach
-  #     context:
-  #       # COPY ./folder to /folder
-  #       - "./folder"
-  #       # COPY ./folder to /thing
-  #       - "./folder:thing"
-  #       # COPY file1 to /file2
-  #       - "file1:/file2"
-  #       # COPY file1 to /file3
-  #       - src: "file1"
-  #         dest: "file3"
-  #       # COPY file1 to /file4
-  #       - source: "file1"
-  #         destination: "/tmp/file4"
-  #       # COPY file1 to /file4 with instruction overrides
-  #       - source: "file1"
-  #         destination: "file4"
-  #         instructions: "COPY /file4 /tmp/stuff/file5"
-  #       - source: "file1"
-  #         destination: "file4"
-  #         instructions: |
-  #           COPY /file4 /file6
-  #           ENV HALL OATES
-  #       # COPY ./images/Dockerfile to /images/nginx/Dockerfile
-  #       - source: "./images/nginx/Dockerfile"
-  #       # COPY file1 to /file6 and set ownership to nginx:nginx
-  #       - source: "file1"
-  #         destination: "/file7"
-  #         owner: "nginx:nginx"
-  #       # COPY file1 to /file7 and set ownership to nginx:nginx
-  #       - source: "file1"
-  #         destination: "file8"
-  #         user: "nginx"
-  #         group: "nginx"
-  #       - source: "file1"
-  #         destination: "file9"
-  #         user: "nginx"
-  #       # ADD HeresAHealthToTheCompany.json
-  #       # to /SeaShanties/lyrics/main/shanties/HeresAHealthToTheCompany.json
-  #       - source: "https://raw.githubusercontent.com/SeaShanties/lyrics/main/shanties/HeresAHealthToTheCompany.json"
-  #       # ADD available-shanties.json
-  #       # to /etc/config/available-shanties.json and set ownership to blackbeard
-  #       - source: "https://raw.githubusercontent.com/SeaShanties/lyrics/main/available-shanties.json"
-  #         dest: "/etc/config/available-shanties.json"
-  #         owner: "eddie-teach"
+  # context features
+  context-1:
+    api: 4
+    image:
+      imagefile: |
+        FROM nginx:1.21.6
+        RUN useradd eddie-teach
+      context:
+        # COPY ./folder to /folder
+        - "./folder"
+        # COPY ./folder to /thing
+        - "./folder:thing"
+        # COPY file1 to /file2
+        - "file1:/file2"
+        # COPY file1 to /file3
+        - src: "file1"
+          dest: "file3"
+        # COPY file1 to /file4
+        - source: "file1"
+          destination: "/tmp/file4"
+        # COPY file1 to /file4 with instruction overrides
+        - source: "file1"
+          destination: "file4"
+          instructions: "COPY /file4 /tmp/stuff/file5"
+        - source: "file1"
+          destination: "file4"
+          instructions: |
+            COPY /file4 /file6
+            ENV HALL OATES
+        # COPY ./images/Dockerfile to /images/nginx/Dockerfile
+        - source: "./images/nginx/Dockerfile"
+        # COPY file1 to /file6 and set ownership to nginx:nginx
+        - source: "file1"
+          destination: "/file7"
+          owner: "nginx:nginx"
+        # COPY file1 to /file7 and set ownership to nginx:nginx
+        - source: "file1"
+          destination: "file8"
+          user: "nginx"
+          group: "dialout"
+        - source: "file1"
+          destination: "file9"
+          user: "nginx"
+        # ADD HeresAHealthToTheCompany.json
+        # to /SeaShanties/lyrics/main/shanties/HeresAHealthToTheCompany.json
+        - source: "https://raw.githubusercontent.com/SeaShanties/lyrics/main/shanties/HeresAHealthToTheCompany.json"
+        # ADD available-shanties.json
+        # to /etc/config/available-shanties.json and set ownership to blackbeard
+        - source: "https://raw.githubusercontent.com/SeaShanties/lyrics/main/available-shanties.json"
+          dest: "/etc/config/available-shanties.json"
+          owner: "eddie-teach"
 
 networks:
   my-network:
