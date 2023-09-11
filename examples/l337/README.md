@@ -201,6 +201,19 @@ lando groups | sed -n '17p' | grep root-val-jean-24604-root-root
 lando groups | sed -n '18p' | grep nginx-val-jean-24605-nginx-nginx
 lando groups | sed -n '19p' | grep nginx-val-jean-24606-nginx-nginx
 lando groups | sed -n '20p' | grep root-val-jean-24701-root-root
+
+# Should run steps in all allowed formats
+lando env --service steps-1 | grep VIBES | grep RISING
+lando env --service steps-1 | grep KIRK | grep wesley
+lando env --service steps-1 | grep SPOCK | grep peck
+
+# Should run unknown groups as the default group
+lando ssh --service steps-1 -c "cat /tmp/val-jean-group" | grep default-1000-root
+
+# Should order detached groups by weight
+lando ssh --service steps-1 -c "cat /stuff" | sed -n '1p' | grep first
+lando ssh --service steps-1 -c "cat /stuff" | sed -n '2p' | grep middle
+lando ssh --service steps-1 -c "cat /stuff" | sed -n '3p' | grep last
 ```
 
 Destroy tests
