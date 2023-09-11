@@ -238,6 +238,37 @@ services:
         - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
           group: user
           weight: 10
+  steps-1:
+    api: 4
+    image:
+      imagefile: "nginx:1.21.5"
+      steps:
+        # insert string instructions into the default group
+        - instructions: RUN echo "$LANDO_IMAGE_GROUP" > /tmp/val-jean-group
+          group: "val-jean-2"
+        - instructions: |
+            ENV VIBES RISING
+            COPY my-script.sh /runme.sh
+            RUN chmod +x /runme.sh
+            RUN /runme.sh
+        # insert array format instructions into the default group
+        # See: https://www.npmjs.com/package/dockerfile-generator for syntax
+        - instructions:
+          - env:
+              KIRK: "wesley"
+              SPOCK: "peck"
+          - run: "env"
+          - run:
+            - "stat"
+            - "/tmp"
+        # insert group detached, one-off, singleton, instructions
+        # at arbitrary weight
+        - instructions: RUN echo "last" >> /stuff
+          weight: 1001
+        - instructions: RUN echo "middle" >> /stuff
+          weight: 999
+        - instructions: RUN echo "first" >> /stuff
+          weight: 1
 
 networks:
   my-network:

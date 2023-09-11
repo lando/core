@@ -27,13 +27,13 @@ const getMountMatches = (dir, volumes = []) => volumes
   .map(volume => volume.target);
 
 // @TODO: should this be a class method of some kind? util? keep here?
-const hasCopyAdd = (contents = '') => {
+const hasInstructions = (contents = '', instructions = ['COPY', 'ADD']) => {
   const matches = contents.split('\n')
     .map(line => line.trim())
     .filter(line => line.length > 0)
     .map(line => line.split(' ')[0])
     .map(line => line.toUpperCase())
-    .filter(line => line === 'COPY' || line === 'ADD');
+    .filter(line => instructions.includes(line));
   return matches.length > 0;
 };
 
@@ -83,9 +83,11 @@ class ComposeServiceV4 {
     context = path.join(os.tmpdir(), nanoid(), id),
     config = {},
     debug = ComposeServiceV4.debug,
+    groups = {},
     info = {},
     name = id,
     primary = false,
+    stages = {},
     tag = nanoid(),
     type = 'l337',
     legacy = {
@@ -114,8 +116,7 @@ class ComposeServiceV4 {
     fs.mkdirSync(this.context, {recursive: true});
 
     // initialize our private data
-    // @TODO: provide a way to start with a different start state?
-    this.#data = this.#init();
+    this.#data = merge(this.#init(), {groups}, {stages});
 
     // rework info based on whatever is passed in
     this.info = merge({}, {service: id, api: 4, lastBuild: 'never', primary, type: 'l337'}, info);
@@ -178,7 +179,7 @@ class ComposeServiceV4 {
     // @NOTE: we are not adding a "context" because if this passes we have the instructions already and just need to make
     // sure the files exists
     // @TODO: move this to a static method?
-    if (hasCopyAdd(this.#data.imageInstructions) && this.#data.imageFileContext) {
+    if (hasInstructions(this.#data.imageInstructions, ['COPY', 'ADD']) && this.#data.imageFileContext) {
       this.#data.sources.push(({source: this.#data.imageFileContext, destination: '.'}));
     }
     // if we have context data then lets pass that in as well
@@ -253,7 +254,7 @@ class ComposeServiceV4 {
         if (isObject(file) && file.user) delete file.user;
 
         // should be ready for all the things eg pushing as a build step
-        if (group) this.addSteps({group, instructions: file.instructions.join('\n')});
+        if (group) this.addSteps({group, instructions: file.instructions.join('\n'), contexted: true});
 
         // return normalized data
         this.debug('%o added %o to the build context', this.id, file);
@@ -350,10 +351,23 @@ class ComposeServiceV4 {
         if (step.group && this.getOverrideGroup(step.group) && this.getGroupOverrides(step.group)) {
           step = merge({}, step, this.getGroupOverrides(step.group));
         }
-        // if no group or a group we cannot match then assume the default group
-        if (!step.group || this.getOverrideGroup(step.group) !== false) step.group = 'default';
-        // we should have stnadardized groups at this point so we can rebase on those things in as well
-        step = merge({}, {stage: this.#data.stages.default, weight: 1000}, this.#data.groups[step.group], step);
+
+        // if no group at this point assume default group
+        if (!step.group) step.group = 'default';
+        // at this point group should be defined and override syntax broken apart, if the step uses an unknown group
+        // then log and set it to the default group
+        if (this.#data.groups[step.group] === undefined) {
+          this.debug('%o does not reference a defined group, using %o group instead', step.group, 'default');
+          step.group = 'default';
+        }
+
+        // we should have stnadardized groups at this point so we can rebase on defaults as
+        step = merge({},
+          {stage: this.#data.stages.default},
+          {weight: this.#data.groups.default.weight, user: this.#data.groups.default.user},
+          this.#data.groups[step.group],
+          step,
+        );
         // now lets modify the weight by the offset if we have one
         if (step.offset && Number(step.offset)) step.weight = step.weight + step.offset;
         // and finally lets rewrite the group for better instruction grouping
@@ -408,22 +422,35 @@ class ComposeServiceV4 {
     for (const [group, data] of Object.entries(steps)) {
       // user should be consistent across data so just grab the first one
       const user = data[0].user;
+
       // reset data to array of instructions
       steps[group] = data
         .map(data => data.instructions)
         .map(data => Array.isArray(data) ? generateDockerFileFromArray(data) : data);
 
+      // if we have any rogue uncontexted COPY/ instructions then we need to add appropriate sources to make sure
+      // it all works seemlessly
+      if (steps[group]
+        .map((step, index) => ({index, step, contexted: data[index].contexted === true}))
+        .filter(step => hasInstructions(step.step, ['COPY', 'ADD']))
+        .map(step => step.contexted)
+        .reduce((contexted, step) => contexted || !step, false)) {
+          this.#data.sources.push(({source: this.#data.imageFileContext || this.appRoot, destination: '.'}));
+        }
+
       // attempt to normalize newling usage mostly for aesthetic considerations
       steps[group] = steps[group]
         .map(instructions => instructions.split('\n').filter(instruction => instruction && instruction !== ''))
         .flat(Number.POSITIVE_INFINITY);
-      steps[group].push('');
 
       // prefix user and comment data and some helpful envvars
       steps[group].unshift(`USER ${user}`);
       steps[group].unshift(`ENV LANDO_IMAGE_GROUP ${group}`);
       steps[group].unshift(`ENV LANDO_IMAGE_USER ${user}`);
       steps[group].unshift(`# group: ${group}`);
+      // and add a newline for readability
+      steps[group].push('');
+      // and then finally put it all together
       steps[group] = steps[group].join('\n');
     }
 
