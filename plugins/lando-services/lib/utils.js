@@ -39,7 +39,6 @@ exports.getInstallCommands = (deps, pkger, prefix = []) => _(deps)
  * Filter and map build steps
  */
 exports.filterBuildSteps = (services, app, rootSteps = [], buildSteps= [], prestart = false) => {
-  
   // Start collecting them
   const build = [];
   // Go through each service
