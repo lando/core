@@ -110,9 +110,9 @@ const parseCommand = (cmd, service) => ({
  * Helper to build commands
  */
 exports.buildCommand = (app, command, service, user, env = {}, dir = undefined) => {
-  const separator = app._config.composeSeparator;
+  
   return {
-    id: `${app.project}${separator}${service}${separator}1`,
+    id: `${app.project}-${service}-1`,
     compose: app.compose,
     project: app.project,
     cmd: command,

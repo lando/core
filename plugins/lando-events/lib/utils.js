@@ -41,10 +41,9 @@ exports.events2Runz = (cmds, app, data = {}) => _.map(cmds, cmd => {
   if (app.services && !_.includes(app.services, service)) {
     throw new Error(`This app has no service called ${service}`);
   }
-  const separator = app._config.composeSeparator;
   // Add the build command
   return {
-    id: `${app.project}${separator}${service}${separator}1`,
+    id: `${app.project}-${service}-1`,
     cmd: ['/bin/sh', '-c', _.isArray(command) ? command.join(' ') : command],
     compose: app.compose,
     project: app.project,
