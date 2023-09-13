@@ -43,15 +43,15 @@ Run the following commands to verify things work as expected
 
 ```bash
 # Should merge in all Landofiles correctly
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_log_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web2_1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase-log-1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase-web-1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase-web2-1
 
 # Should merge in all Landofiles correctly even if we are down a directory
 cd docker-compose
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_log_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web2_1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase-log-1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase-web-1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase-web2-1
 cd ..
 
 # Should load environment files from all Landofiles
@@ -104,9 +104,9 @@ lando info --format json
 lando info --path "[0]" | grep service | wc -l | grep 1
 
 # Should list this apps containers
-lando list | grep landobase_log_1
-lando list | grep landobase_web_1
-lando list | grep landobase_web2_1
+lando list | grep landobase-log-1
+lando list | grep landobase-web-1
+lando list | grep landobase-web2-1
 
 # Should output JSON in lando list without error
 lando list --format json
@@ -139,23 +139,23 @@ docker ps --filter label=io.lando.container=TRUE -q | wc -l | grep 0
 
 # Should rebuild the services without errors
 lando rebuild -y
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_log_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web2_1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase-log-1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase-web-1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase-web2-1
 
 # Should only rebuild the specified services
 lando rebuild -y --service web2
 lando rebuild -y -s web2
-docker ps --latest | grep landobase_web2_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_log_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web2_1
+docker ps --latest | grep landobase-web2-1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase-log-1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase-web-1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase-web2-1
 
 # Should restart the services without errors
 lando restart
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_log_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web2_1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase-log-1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase-web-1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase-web2-1
 
 # Should have non-numeric keys in LANDO_INFO
 lando php info.php
