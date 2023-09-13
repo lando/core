@@ -52,7 +52,6 @@ const updateBuiltAgainst = (app, version = 'unknown') => {
 };
 
 module.exports = (app, lando) => {
-  const separator = lando.config.composeSeparator;
   // Add localhost info to our containers if they are up
   _.forEach(['post-init', 'post-start'], event => {
     app.events.on(event, () => {
@@ -78,7 +77,7 @@ module.exports = (app, lando) => {
     app.log.verbose('refreshing certificates...', buildServices);
     app.events.on('post-start', 9999, () => lando.Promise.each(buildServices, service => {
       return app.engine.run({
-        id: `${app.project}${separator}${service}${separator}1`,
+        id: `${app.project}-${service}-1`,
         cmd: 'mkdir -p /certs && /helpers/refresh-certs.sh > /certs/refresh.log',
         compose: app.compose,
         project: app.project,
@@ -105,7 +104,7 @@ module.exports = (app, lando) => {
       app.log.verbose('perm sweeping flagged non-root containers ...', app.nonRoot);
       app.events.on('post-start', 1, () => lando.Promise.each(app.nonRoot, service => {
         return app.engine.run({
-          id: `${app.project}${separator}${service}${separator}1`,
+          id: `${app.project}-${service}-1`,
           cmd: '/helpers/user-perms.sh --silent',
           compose: app.compose,
           project: app.project,
@@ -182,7 +181,7 @@ module.exports = (app, lando) => {
     // Map to a retry of the healthcheck command
     .map(info => lando.Promise.retry(() => {
       return app.engine.run({
-        id: `${app.project}${separator}${info.service}${separator}1`,
+        id: `${app.project}-${info.service}-1`,
         cmd: info.healthcheck,
         compose: app.compose,
         project: app.project,

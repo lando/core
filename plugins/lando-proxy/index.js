@@ -51,8 +51,7 @@ module.exports = lando => {
   });
 
   lando.events.on('post-bootstrap-engine', () => {
-    const separator = lando.config.composeSeparator;
-    lando.config.proxyContainer = `${lando.config.proxyName}${separator}proxy${separator}1`;
+    lando.config.proxyContainer = `${lando.config.proxyName}-proxy-1`;
   });
 
   // Return config defaults to rebase

@@ -3,7 +3,6 @@
 // Modules
 const _ = require('lodash');
 const getUser = require('./../../../lib/utils').getUser;
-const serviceFromContainerName = require('./../../../lib/utils').serviceFromContainerName;
 const path = require('path');
 
 const getApiVersion = (version = 3) => {
@@ -49,7 +48,7 @@ exports.getInstallCommands = (deps, pkger, prefix = []) => _(deps)
  * Filter and map build steps
  */
 exports.filterBuildSteps = (services, app, rootSteps = [], buildSteps= [], prestart = false) => {
-  const separator = app._config.composeSeparator;
+  
   // Start collecting them
   const build = [];
   // Go through each service
@@ -60,7 +59,7 @@ exports.filterBuildSteps = (services, app, rootSteps = [], buildSteps= [], prest
       if (!_.isEmpty(_.get(app, `config.services.${service}.${section}`, []))) {
         // Run each command
         _.forEach(app.config.services[service][section], cmd => {
-          const container = `${app.project}${separator}${service}${separator}1`;
+          const container = `${app.project}-${service}-1`;
           build.push({
             id: container,
             cmd: ['/bin/sh', '-c', _.isArray(cmd) ? cmd.join(' ') : cmd],
@@ -90,7 +89,7 @@ exports.filterBuildSteps = (services, app, rootSteps = [], buildSteps= [], prest
           mode: 'attach',
           prestart,
           user: 'root',
-          services: [serviceFromContainerName(app, container)],
+          services: [container.split('-')[1]],
         },
       });
     });
