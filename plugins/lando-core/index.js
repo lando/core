@@ -2,6 +2,8 @@
 
 // Modules
 const _ = require('lodash');
+const axios = require('axios');
+const env = require('./../../lib/env');
 const ip = require('ip');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
@@ -40,6 +42,33 @@ const uc = (uid, gid, username) => ({
 });
 
 /*
+ * Helper to get docker compose v1 download url
+ */
+const getComposeDownloadUrl = (version = '1.29.2') => {
+  switch (process.platform) {
+    case 'darwin':
+      return `https://github.com/docker/compose/releases/download/${version}/docker-compose-Darwin-x86_64`;
+    case 'linux':
+      return `https://github.com/docker/compose/releases/download/${version}/docker-compose-Linux-x86_64`;
+    case 'win32':
+      return `https://github.com/docker/compose/releases/download/${version}/docker-compose-Windows-x86_64.exe`;
+  }
+};
+
+/*
+ * Helper to get docker compose v1 download destination
+ */
+const getComposeDownloadDest = base => {
+  switch (process.platform) {
+    case 'linux':
+    case 'darwin':
+      return path.join(base, 'docker-compose');
+    case 'win32':
+      return path.join(base, 'docker-compose.exe');
+  }
+};
+
+/*
  * Helper to get ca run object
  */
 const getCaRunner = (project, files) => ({
@@ -62,8 +91,47 @@ module.exports = lando => {
   const caKey = path.join(caDir, `${caDomain}.key`);
   const caProject = `landocasetupkenobi38ahsoka${lando.config.instance}`;
   const sshDir = path.join(lando.config.home, '.ssh');
+  const binDir = path.join(lando.config.userConfRoot, 'bin');
+
   // Ensure some dirs exist before we start
-  _.forEach([caDir, sshDir], dir => mkdirp.sync(dir));
+  _.forEach([binDir, caDir, sshDir], dir => mkdirp.sync(dir));
+
+  // Ensure we have docker-compose v1 available
+  lando.events.on('post-bootstrap-engine', () => {
+    if (lando.config.composeBin === false) {
+      // get needed things
+      const url = getComposeDownloadUrl();
+      const dest = getComposeDownloadDest(path.join(lando.config.userConfRoot, 'bin'));
+      lando.log.debug('could not detect docker-compose v1, downloading from %s to %s...', url, dest);
+
+      // download docker-compose v1
+      return axios({method: 'get', url, responseType: 'stream'})
+      // stream it into a file and reset the config
+      .then(response => {
+        const writer = fs.createWriteStream(dest);
+        response.data.pipe(writer);
+        // wait for the stream to finish
+        return new Promise((resolve, reject) => {
+          let error = null;
+          writer.on('error', err => {
+            error = err;
+            writer.close();
+            reject(err);
+          });
+          writer.on('close', () => {
+            if (!error) resolve(true);
+          });
+        });
+      })
+      // ensure file is executable and we update the composeBin
+      .then(() => {
+        lando.config.composeBin = env.getComposeExecutable(lando.config);
+        lando.utils.makeExecutable([path.basename(lando.config.composeBin)], path.dirname(lando.config.composeBin));
+        lando.engine.composeInstalled = fs.existsSync(lando.config.composeBin);
+        lando.log.debug('docker-compose v1 downloaded to %s', lando.config.composeBin);
+      });
+    }
+  });
 
   // Make sure we have a host-exposed root ca if we don't already
   // NOTE: we don't run this on the caProject otherwise infinite loop happens!

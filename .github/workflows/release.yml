@@ -35,6 +35,10 @@ jobs:
         run: yarn lint
       - name: Run unit tests
         run: yarn test:unit
+      - name: Prepare Release
+        uses: lando/prepare-release-action@v2
+        with:
+          lando-plugin: true
 
       # Deploy
       - name: Publish to npm
