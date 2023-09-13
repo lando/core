@@ -71,10 +71,10 @@ describe('env', () => {
   describe('#getComposeExecutable', () => {
     it('should return the correct lando-provided path on win32', () => {
       setPlatform('win32');
-      filesystem({'C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker-compose-v1.exe': 'CODEZ'});
+      filesystem({'C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker-compose.exe': 'CODEZ'});
       process.env.ProgramW6432 = 'C:\\Program Files';
       const composeExecutable = env.getComposeExecutable();
-      const value = path.win32.join(env.getDockerBinPath(), 'docker-compose-v1.exe');
+      const value = path.win32.join(env.getDockerBinPath(), 'docker-compose.exe');
       expect(composeExecutable).to.equal(value);
       resetPlatform();
       delete process.env.ProgramW6432;
@@ -91,11 +91,11 @@ describe('env', () => {
 
     it('should return the correct lando-provided path on darwin', () => {
       setPlatform('darwin');
-      filesystem({'/Applications/Docker.app/Contents/Resources/bin/docker-compose-v1/docker-compose': 'CODEZ'});
+      filesystem({'/Applications/Docker.app/Contents/Resources/bin/docker-compose/docker-compose': 'CODEZ'});
       const composeExecutable = env.getComposeExecutable();
       expect(composeExecutable)
         .to
-        .equal('/Applications/Docker.app/Contents/Resources/bin/docker-compose-v1/docker-compose');
+        .equal('/Applications/Docker.app/Contents/Resources/bin/docker-compose/docker-compose');
       filesystem.restore();
       resetPlatform();
     });
