@@ -11,7 +11,6 @@ services:
         - ./:/usr/share/nginx/html:ro
 
   defaults-v4:
-    type: lando
     api: 4
     image: nginx:1.22.1
     ports:
