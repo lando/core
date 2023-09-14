@@ -42,29 +42,30 @@ const uc = (uid, gid, username) => ({
 });
 
 /*
- * Helper to get docker compose v1 download url
+ * Helper to get docker compose v2 download url
  */
-const getComposeDownloadUrl = (version = '1.29.2') => {
+const getComposeDownloadUrl = (version = 'v2.21.0') => {
+  const arch = (process.arch === 'arm64') ? 'aarch64' : 'x86_64';
   switch (process.platform) {
     case 'darwin':
-      return `https://github.com/docker/compose/releases/download/${version}/docker-compose-Darwin-x86_64`;
+      return `https://github.com/docker/compose/releases/download/${version}/docker-compose-darwin-${arch}`;
     case 'linux':
-      return `https://github.com/docker/compose/releases/download/${version}/docker-compose-Linux-x86_64`;
+      return `https://github.com/docker/compose/releases/download/${version}/docker-compose-linux-${arch}`;
     case 'win32':
-      return `https://github.com/docker/compose/releases/download/${version}/docker-compose-Windows-x86_64.exe`;
+      return `https://github.com/docker/compose/releases/download/${version}/docker-compose-windows-${arch}.exe`;
   }
 };
 
 /*
- * Helper to get docker compose v1 download destination
+ * Helper to get docker compose v2 download destination
  */
 const getComposeDownloadDest = base => {
   switch (process.platform) {
     case 'linux':
     case 'darwin':
-      return path.join(base, 'docker-compose');
+      return path.join(base, 'docker-compose-v2');
     case 'win32':
-      return path.join(base, 'docker-compose.exe');
+      return path.join(base, 'docker-compose-v2.exe');
   }
 };
 
@@ -96,15 +97,15 @@ module.exports = lando => {
   // Ensure some dirs exist before we start
   _.forEach([binDir, caDir, sshDir], dir => mkdirp.sync(dir));
 
-  // Ensure we have docker-compose v1 available
+  // Ensure we have docker-compose v2 available
   lando.events.on('post-bootstrap-engine', () => {
     if (lando.config.composeBin === false) {
       // get needed things
       const url = getComposeDownloadUrl();
       const dest = getComposeDownloadDest(path.join(lando.config.userConfRoot, 'bin'));
-      lando.log.debug('could not detect docker-compose v1, downloading from %s to %s...', url, dest);
+      lando.log.debug('could not detect docker-compose v2, downloading from %s to %s...', url, dest);
 
-      // download docker-compose v1
+      // download docker-compose v2
       return axios({method: 'get', url, responseType: 'stream'})
       // stream it into a file and reset the config
       .then(response => {
@@ -128,7 +129,7 @@ module.exports = lando => {
         lando.config.composeBin = env.getComposeExecutable(lando.config);
         lando.utils.makeExecutable([path.basename(lando.config.composeBin)], path.dirname(lando.config.composeBin));
         lando.engine.composeInstalled = fs.existsSync(lando.config.composeBin);
-        lando.log.debug('docker-compose v1 downloaded to %s', lando.config.composeBin);
+        lando.log.debug('docker-compose v2 downloaded to %s', lando.config.composeBin);
       });
     }
   });
