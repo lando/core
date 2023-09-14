@@ -10,40 +10,17 @@ const path = require('path');
 const {generateDockerFileFromArray} = require('dockerfile-generator/lib/dockerGenerator');
 const {nanoid} = require('nanoid');
 
-// @TODO: should this be a class method of some kind? util? keep here?
-const getMountMatches = (dir, volumes = []) => volumes
-  // filter out non string bind mounts
-  .filter(volume => volume.split(':').length === 2 || volume.split(':').length === 3)
-  // parse into object format
-  .map(volume => ({source: volume.split(':')[0], target: volume.split(':')[1]}))
-  // translate relative paths
-  .map(volume => ({
-    source: !path.isAbsolute(volume.source) ? path.resolve(dir, volume.source) : volume.source,
-    target: volume.target,
-  }))
-  // filter sources that dont exist and are not the appRoot
-  .filter(volume => fs.existsSync(volume.source) && volume.source === dir)
-  // map to the target
-  .map(volume => volume.target);
+// @TODO: should these be methods as well? static or otherwise?
+const getMountMatches = require('../utils/get-mount-matches');
+const hasInstructions = require('../utils/has-instructions');
 
-// @TODO: should this be a class method of some kind? util? keep here?
-const hasInstructions = (contents = '', instructions = ['COPY', 'ADD']) => {
-  const matches = contents.split('\n')
-    .map(line => line.trim())
-    .filter(line => line.length > 0)
-    .map(line => line.split(' ')[0])
-    .map(line => line.toUpperCase())
-    .filter(line => instructions.includes(line));
-  return matches.length > 0;
-};
-
-class ComposeServiceV4 {
+class L337ServiceV4 {
   #data
 
-  static debug = require('debug')('lando-compose-v4');
+  static debug = require('debug')('l337-service-v4');
   static bengineConfig = {};
 
-  static getBengine(config = ComposeServiceV4.bengineConfig, {debug = ComposeServiceV4.debug} = {}) {
+  static getBengine(config = L337ServiceV4.bengineConfig, {debug = L337ServiceV4.debug} = {}) {
     const DockerEngine = require('./docker-engine');
     return new DockerEngine(config, {debug});
   }
@@ -79,7 +56,7 @@ class ComposeServiceV4 {
     appRoot = path.join(os.tmpdir(), nanoid(), id),
     context = path.join(os.tmpdir(), nanoid(), id),
     config = {},
-    debug = ComposeServiceV4.debug,
+    debug = L337ServiceV4.debug,
     groups = {},
     info = {},
     name = id,
@@ -120,7 +97,7 @@ class ComposeServiceV4 {
     // add in the l337 spec config
     this.addServiceData(config);
 
-    // handle legacy and deprecated settings in lando-v4 and above services s
+    // handle legacy and deprecated settings in lando-v4 and above services
     this.addComposeData({services: {[this.id]: {labels: {
       'io.lando.http-ports': ['80', '443'].concat(legacy.moreHttpPorts).join(','),
       'io.lando.https-ports': ['443'].concat([legacy.sport]).join(','),
@@ -377,7 +354,7 @@ class ComposeServiceV4 {
   // build the image
   async buildImage() {
     // get build func
-    const bengine = ComposeServiceV4.getBengine(ComposeServiceV4.bengineConfig, {debug: this.debug});
+    const bengine = L337ServiceV4.getBengine(L337ServiceV4.bengineConfig, {debug: this.debug});
     // separate out imagefile and context
     const {imagefile, ...context} = this.generateBuildContext();
 
@@ -576,4 +553,4 @@ class ComposeServiceV4 {
   }
 };
 
-module.exports = ComposeServiceV4;
+module.exports = L337ServiceV4;

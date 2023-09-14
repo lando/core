@@ -5,46 +5,35 @@ services:
     type: lando
 
     # image should map directly to image.imagefile
-    image: nginx
-    # should we
-    command: sleep infinity
+    image: |
+      FROM nginx:1.22.1
 
     # appmount
     # support appMount but prefer app-mount
     # project-mount: /project how does this work?
-
     # easy setting, volume mount ./:/app
 
     # short forms:
-    app-mount: /app
-    app-mount: bind:/app
-    app-mount: copy:/app
-    app-mount: false|disabled|off|0
+    app-mount: /usr/share/nginx/html
 
-    # build.app consequences
-    app-mount: false -> build.app is not run at all
-    app-mount: bind -> build.app is run with docker run
+    # app-mount: /app:copy
+    # app-mount: /app:bind
 
-    app-mount: copy -> build.app is run as part of image build
-
-    app-mount:
-      type: bind
-      destination: /app
-      excludes: -> named volumes
-    app-mount:
-      type: copy
-      destination: /app
-      includes: -> bind mounts
+    # app-mount: false|disabled|off|0
+    # # build.app consequences
+    # app-mount: false -> build.app is not run at all
+    # app-mount: bind -> build.app is run with docker run
+    # app-mount: copy -> build.app is run as part of image build
+    # app-mount:
+    #   type: bind
+    #   target: /app
+    #   excludes: -> named volumes
+    # app-mount:
+    #   type: copy
+    #   destination: /app
+    #   includes: -> bind mounts
     # note: what about something like excludes in v3?
-
-
-    # # parent?
-    # parent:
-    # -> object vs array of objects
-    # -> this goes into the constructor of the parent?
-    #   image:
-    #     steps:
-    #     groups:
+    # set workingDir in info, not appmount?
 
     # # storage key
     # # for persistent data shared across: global | app | service
@@ -52,10 +41,8 @@ services:
     # # networks? do we need this?
     # networks:
 
-
-
     # # user
-    user: pirog
+    # user: nginx
 
     # # ports
     # # how do we handle localhost assignment? scanner? etc?
