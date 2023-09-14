@@ -29,7 +29,7 @@ module.exports = (app, lando) => {
               opts: {
                 mode: 'attach',
                 user: 'root',
-                services: [container.split('-')[1]],
+                services: [container.split('_')[1]],
               },
             });
           });
