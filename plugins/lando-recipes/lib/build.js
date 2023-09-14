@@ -55,7 +55,7 @@ exports.runDefaults = (lando, options) => {
   const project = `${lando.config.product}init` + utils.dockerComposify(options.name);
   // Return
   return {
-    id: `${project}-init-1`,
+    id: `${project}_init_1`,
     project,
     user: 'www-data',
     compose: initFiles,
