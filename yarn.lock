@@ -2097,12 +2097,29 @@ docker-modem@^1.0.8:
     readable-stream "~1.0.26-4"
     split-ca "^1.0.0"
 
+dockerfile-ast@0.6.1:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/dockerfile-ast/-/dockerfile-ast-0.6.1.tgz#1dc1a8c751b677c6582547bc1834b05b333ff5f4"
+  integrity sha512-m3rH2qHHU2pSTCppXgJT+1KLxhvkdROOxVPof5Yz4IPGSw6K+x0B0/RFdYgXN5zsIUTlbOSRyfDCv3/uVhnNmg==
+  dependencies:
+    vscode-languageserver-textdocument "^1.0.8"
+    vscode-languageserver-types "^3.17.3"
+
 dockerfile-generator@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/dockerfile-generator/-/dockerfile-generator-5.0.0.tgz#47c7693feb1370a10b700850dd85a3b4531ac408"
   integrity sha512-a9c4YdWv39C/wL99GUEHFCvUt1H7oqWqqDPpd1qlx0Y4KutPlO5f23TmHYXlT9x0mBun+TeMlBZhxiG8wLH10g==
   dependencies:
     jsonschema "^1.4.0"
+
+dockerfile-utils@^0.15.0:
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/dockerfile-utils/-/dockerfile-utils-0.15.0.tgz#e4f73488a358330f00c3d3909243fb9cb9c92bc7"
+  integrity sha512-hV2OExB797C3/GlOloywmMZzu3MPmzMziGuCaPWh/m9qHgTyfN4+EI3b6xhHDXy78PU0GqwvHnZVX7wfpqOCkg==
+  dependencies:
+    dockerfile-ast "0.6.1"
+    vscode-languageserver-textdocument "^1.0.8"
+    vscode-languageserver-types "^3.17.3"
 
 dockerode@^2.4.2:
   version "2.5.8"
@@ -4871,6 +4888,16 @@ vite@~3.1.8:
     rollup "~2.78.0"
   optionalDependencies:
     fsevents "~2.3.2"
+
+vscode-languageserver-textdocument@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/vscode-languageserver-textdocument/-/vscode-languageserver-textdocument-1.0.8.tgz#9eae94509cbd945ea44bca8dcfe4bb0c15bb3ac0"
+  integrity sha512-1bonkGqQs5/fxGT5UchTgjGVnfysL0O8v1AYMBjqTbWQTFn721zaPGDYFkOKtfDgFiSgXM3KwaG3FMGfW4Ed9Q==
+
+vscode-languageserver-types@^3.17.3:
+  version "3.17.3"
+  resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.17.3.tgz#72d05e47b73be93acb84d6e311b5786390f13f64"
+  integrity sha512-SYU4z1dL0PyIMd4Vj8YOqFvHu7Hz/enbWtpfnVbJHU4Nd1YNYx8u0ennumc6h48GQNeOLxmwySmnADouT/AuZA==
 
 vue-demi@*:
   version "0.13.11"

@@ -85,16 +85,14 @@ module.exports = (app, lando) => {
       // instantiate
       const service = new Service(config.name, {
         ...{
-          app,
           appRoot: app.root,
           context: path.join(app.v4._dir, 'build-contexts', config.name),
           debug: app.v4._debugShim,
           info,
-          lando,
           tag: `${_.get(lando, 'product', 'lando')}/${app.name}-${app.id}-${config.name}:latest`,
         },
         ...config,
-      });
+      }, app, lando);
 
       // push
       app.v4.services.push(service);

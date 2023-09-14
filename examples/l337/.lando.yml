@@ -53,9 +53,9 @@ services:
     networks:
       my-network:
     volumes:
-      - "./:/site"
       - "my-data:/data"
       - "./file1:/file-ro:ro"
+      - "./:/site"
     ports:
       - 8888
     moreHttpPorts:
