@@ -1,6 +1,16 @@
-## v3.18.0 - [September 4, 2023](https://github.com/lando/core/releases/tag/3.18.0)
+## v3.18.0 - [September 21, 2023](https://github.com/lando/core/releases/tag/3.20.0)
 
+### New Features
 
+* Added support for Docker Compose V2 which is now the default orchestrator
+* Added a `composeVersion` option to the global config. See [this]() for more info
+* Added a generic Lando 3 `lando` service into core. See [this]() for more info
+
+### Bug Fixes
+
+* Fixed bug where `lando ssh --help` was incorrectly listing `appserver` as the default `service` in some situations
+* Fixed bug where dynamic tooling events were not setting the service with an option correctly
+* Fixed bug where `proxy` service was wiping out `app.compose`
 
 ## v3.17.2 - [June 20, 2023](https://github.com/lando/core/releases/tag/3.17.2)
 
