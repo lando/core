@@ -11,6 +11,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        docker-compose-version:
+          - "1.29.1"
+          - "2.21.0"
+        lando-version:
+          - 3-dev
         leia-test:
           - examples/badname
           - examples/base
@@ -25,19 +30,17 @@ jobs:
           - examples/scanner
           - examples/services
           - examples/tooling
+        node-version:
+          - "16"
         os:
           - ubuntu-22.04
-        node-version:
-          - '16'
-        lando-version:
-          - 3-dev
         scanner:
           - new
         include:
           - leia-test: examples/scanner
             os: ubuntu-22.04
-            node-version: '16'
-            lando-version: '3-dev'
+            node-version: "16"
+            lando-version: 3-dev
             scanner: legacy
 
     steps:
@@ -57,6 +60,7 @@ jobs:
           lando-version: ${{ matrix.lando-version }}
           config: |
             plugins.@lando/core=/home/runner/work/core/core
+            composeVersion=${{ matrix.docker-compose-version }}
           telemetry: false
       - name: Verify Lando works and we are dogfooding this plugin for tests
         run: |
