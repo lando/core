@@ -12,36 +12,36 @@ jobs:
       fail-fast: false
       matrix:
         docker-compose-version:
-          # - "1.29.1"
+          - "1.29.1"
           - "2.21.0"
         lando-version:
           - 3-dev
         leia-test:
-          # - examples/badname
-          # - examples/base
-          # - examples/events
-          # - examples/keys
-          # - examples/l337
-          # - examples/lando-101
-          # - examples/landofile-custom
-          # - examples/long-name
+          - examples/badname
+          - examples/base
+          - examples/events
+          - examples/keys
+          - examples/l337
+          - examples/lando-101
+          - examples/landofile-custom
+          - examples/long-name
           - examples/networking
-          # - examples/proxy
-          # - examples/scanner
+          - examples/proxy
+          - examples/scanner
           - examples/services
-          # - examples/tooling
+          - examples/tooling
         node-version:
           - "16"
         os:
           - ubuntu-22.04
         scanner:
           - new
-        # include:
-        #   - leia-test: examples/scanner
-        #     os: ubuntu-22.04
-        #     node-version: "16"
-        #     lando-version: 3-dev
-        #     scanner: legacy
+        include:
+          - leia-test: examples/scanner
+            os: ubuntu-22.04
+            node-version: "16"
+            lando-version: 3-dev
+            scanner: legacy
 
     steps:
       - name: Checkout code
