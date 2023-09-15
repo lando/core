@@ -82,7 +82,10 @@ describe('config', () => {
   describe('#defaults', () => {
     it('should return a properly structured default config object', () => {
       const defaults = config.defaults();
-      expect(_.hasIn(defaults, 'composeBin')).to.equal(true);
+      expect(!_.hasIn(defaults, 'composeBin')).to.equal(true);
+      expect(_.hasIn(defaults, 'composeVersion')).to.equal(true);
+      expect(_.hasIn(defaults, 'composeCompatibility')).to.equal(true);
+      expect(_.get(defaults, 'configSources')).to.be.an('array');
       expect(_.hasIn(defaults, 'dockerBin')).to.equal(true);
       expect(_.hasIn(defaults, 'dockerBinDir')).to.equal(true);
       expect(_.hasIn(defaults, 'env')).to.equal(true);

@@ -91,11 +91,11 @@ describe('env', () => {
 
     it('should return the correct lando-provided path on darwin', () => {
       setPlatform('darwin');
-      filesystem({'/Applications/Docker.app/Contents/Resources/bin/docker-compose/docker-compose': 'CODEZ'});
+      filesystem({'/Applications/Docker.app/Contents/Resources/bin/docker-compose': 'CODEZ'});
       const composeExecutable = env.getComposeExecutable();
       expect(composeExecutable)
         .to
-        .equal('/Applications/Docker.app/Contents/Resources/bin/docker-compose/docker-compose');
+        .equal('/Applications/Docker.app/Contents/Resources/bin/docker-compose');
       filesystem.restore();
       resetPlatform();
     });
