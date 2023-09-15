@@ -1,8 +1,6 @@
 name: lando-services
 events:
   pre-start:
-    - vim --version || sleep 5 && true
-    - vim --version
     - cat /build_as_root_internal.txt | grep root
     - cat /var/www/build.txt | grep www-data
     - cat /var/www/build_internal.txt | grep www-data
@@ -10,6 +8,7 @@ events:
     - cat /run_as_root_internal.txt || echo "$?" | grep 1
     - cat /var/www/run.txt || echo "$?" | grep 1
     - cat /var/www/run_internal.txt || echo "$?" | grep 1
+    - vim --version
   post-start:
     - cat /run_as_root_internal.txt | grep root
     - cat /var/www/run_internal.txt | grep www-data
