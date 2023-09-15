@@ -1,5 +1,8 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
+
 // checks to see if dir is being mounted
 module.exports = (dir, volumes = []) => volumes
   // filter out non string bind mounts
