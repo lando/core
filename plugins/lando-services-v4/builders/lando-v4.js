@@ -57,8 +57,6 @@ module.exports = {
       // appmount must be an absolute path
 
       // if we have a string appmount then standardize it into object format
-
-
       // 3. app-mount
       // 4. ports?
       // 5. groups/stages

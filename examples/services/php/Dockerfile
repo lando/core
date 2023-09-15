@@ -1,3 +1,3 @@
-FROM php:7.1-fpm-alpine
+FROM php:8.2-fpm-alpine
 
 ENV CUSTOM PIROG
