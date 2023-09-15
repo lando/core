@@ -1,6 +1,7 @@
 name: lando-services
 events:
   pre-start:
+    - vim --version || sleep 5 && true
     - vim --version
     - cat /build_as_root_internal.txt | grep root
     - cat /var/www/build.txt | grep www-data
