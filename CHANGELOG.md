@@ -3,14 +3,24 @@
 ### New Features
 
 * Added support for Docker Compose V2 which is now the default orchestrator
-* Added a `composeVersion` option to the global config. See [this]() for more info
+* Added a `composeVersion` option to the global config. [Read more]().
 * Added a generic Lando 3 `lando` service into core. See [this]() for more info
+* Bumped support of Docker Desktop to `4.23.x`
+* Bumped support of Docker Engine to `24.x`
 
 ### Bug Fixes
 
 * Fixed bug where `lando ssh --help` was incorrectly listing `appserver` as the default `service` in some situations
 * Fixed bug where dynamic tooling events were not setting the service with an option correctly
 * Fixed bug where `proxy` service was wiping out `app.compose`
+
+### DEPRECATIONS
+
+* `composeBin` is now discouraged in the global config in favor of `composeVersion`. [Read more]()
+
+### Internal
+
+* `config.yml` from `@lando/core` is now loaded after the `config.yml` from `@lando/cli`
 
 ## v3.17.2 - [June 20, 2023](https://github.com/lando/core/releases/tag/3.17.2)
 
