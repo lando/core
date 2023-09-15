@@ -31,7 +31,7 @@ services:
     run_internal:
       - echo "$(id)" > /var/www/run_internal.txt
     build_as_root:
-      - apk update && apk add vim
+      - apt-get -y update && apt-get -y install vim
     build:
       - echo "$(id)" > /var/www/build.txt
     run_as_root:
