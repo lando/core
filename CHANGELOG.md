@@ -5,8 +5,10 @@
 * Added support for Docker Compose V2 which is now the default orchestrator
 * Added a `composeVersion` option to the global config. [Read more]().
 * Added a generic Lando 3 `lando` service into core. See [this]() for more info
-* Bumped support of Docker Desktop to `4.23.x`
-* Bumped support of Docker Engine to `24.x`
+* Bumped support of Docker Compose to `1.x.x || 2.x.x`
+* Bumped support of Docker Desktop to `>=4.0.0 <4.24`
+* Bumped support of Docker Engine to `>=18 <25`
+* Dropped support for Docker Desktop `<4.0.0`
 
 ### Bug Fixes
 
@@ -16,7 +18,10 @@
 
 ### DEPRECATIONS
 
-* `composeBin` is now discouraged in the global config in favor of `composeVersion`. [Read more]()
+#### Global Config
+
+  * `composeBin` is now discouraged in favor of `composeVersion`. [Read more]()
+  * `max` and `min` in `dockerSupportedVersions` are now discouraged in favor of `satisfies`.
 
 ### Internal
 
