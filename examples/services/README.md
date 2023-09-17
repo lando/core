@@ -56,6 +56,9 @@ lando ssh -s nginx -c "date" | grep -E "EST|EDT"
 # https://github.com/lando/lando/issues/2102
 cd php
 lando ssh -s appserver -c "true"
+
+# Should have passed the healthcheck and created the healthfile
+lando ssh -s appserver -c "cat /healthfile" | grep -w XXXXX
 ```
 
 Destroy tests
