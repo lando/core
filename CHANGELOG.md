@@ -15,6 +15,7 @@
 * Fixed bug where `lando ssh --help` was incorrectly listing `appserver` as the default `service` in some situations
 * Fixed bug where dynamic tooling events were not setting the service with an option correctly
 * Fixed bug where `proxy` service was wiping out `app.compose`
+* Fixed deprecated usage of `network.external.name` on `lando_proxyedge`
 
 ### DEPRECATIONS
 

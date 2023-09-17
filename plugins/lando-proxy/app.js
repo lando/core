@@ -171,7 +171,7 @@ module.exports = (app, lando) => {
               `${lando.config.userConfRoot}/scripts/proxy-certs.sh:/scripts/100-proxy-certs`,
             ],
           }),
-          networks: {'lando_proxyedge': {external: {name: lando.config.proxyNet}}},
+          networks: {'lando_proxyedge': {name: lando.config.proxyNet, external: true}},
           volumes: _.set({}, proxyVolume, {external: true}),
         };
       })
