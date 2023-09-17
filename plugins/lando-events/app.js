@@ -14,22 +14,22 @@ module.exports = (app, lando) => {
         const eventCommands = utils.events2Runz(cmds, app, data);
         // add perm sweeping to all v3 services
         if (!_.isEmpty(eventCommands)) {
-          const v3EventCommands = _(eventCommands)
+          const permsweepers = _(eventCommands)
             .filter(command => command.api === 3)
-            .map('id')
-            .uniq()
+            .map(command => ({id: command.id, services: _.get(command, 'opts.services', [])}))
+            .uniqBy('id')
             .value();
-          lando.log.debug('added preemptive perm sweeping to evented v3 services %j', v3EventCommands);
-          _.forEach(v3EventCommands, container => {
+          lando.log.debug('added preemptive perm sweeping to evented v3 services %j', permsweepers.map(s => s.id));
+          _.forEach(permsweepers, ({id, services}) => {
             eventCommands.unshift({
-              id: container,
+              id,
               cmd: '/helpers/user-perms.sh --silent',
               compose: app.compose,
               project: app.project,
               opts: {
                 mode: 'attach',
                 user: 'root',
-                services: [container.split('_')[1]],
+                services,
               },
             });
           });

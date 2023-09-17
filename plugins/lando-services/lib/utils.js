@@ -58,9 +58,8 @@ exports.filterBuildSteps = (services, app, rootSteps = [], buildSteps= [], prest
       if (!_.isEmpty(_.get(app, `config.services.${service}.${section}`, []))) {
         // Run each command
         _.forEach(app.config.services[service][section], cmd => {
-          const container = `${app.project}_${service}_1`;
           build.push({
-            id: container,
+            id: app.containers[service],
             cmd: ['/bin/sh', '-c', _.isArray(cmd) ? cmd.join(' ') : cmd],
             compose: app.compose,
             project: app.project,
@@ -78,9 +77,13 @@ exports.filterBuildSteps = (services, app, rootSteps = [], buildSteps= [], prest
   });
   // Let's silent run user-perm stuff and add a "last" flag
   if (!_.isEmpty(build)) {
-    _.forEach(_.uniq(_.map(build, 'id')), container => {
+    const permsweepers = _(build)
+      .map(command => ({id: command.id, services: _.get(command, 'opts.services', [])}))
+      .uniqBy('id')
+      .value();
+    _.forEach(permsweepers, ({id, services}) => {
       build.unshift({
-        id: container,
+        id,
         cmd: '/helpers/user-perms.sh --silent',
         compose: app.compose,
         project: app.project,
@@ -88,7 +91,7 @@ exports.filterBuildSteps = (services, app, rootSteps = [], buildSteps= [], prest
           mode: 'attach',
           prestart,
           user: 'root',
-          services: [container.split('_')[1]],
+          services,
         },
       });
     });

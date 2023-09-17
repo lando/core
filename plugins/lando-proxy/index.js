@@ -37,7 +37,8 @@ module.exports = lando => {
   lando.events.on('post-bootstrap-config', ({config}) => {
     lando.log.verbose('building proxy config...');
     // Set some non dependent things
-    config.proxyContainer = `${lando.config.proxyName}_proxy_1`;
+    const separator = lando.config.composeSeparator;
+    config.proxyContainer = `${lando.config.proxyName}${separator}proxy${separator}1`;
     config.proxyCurrentPorts = {http: config.proxyHttpPort, https: config.proxyHttpsPort};
     config.proxyDir = path.join(lando.config.userConfRoot, 'proxy');
     config.proxyHttpPorts = _.flatten([config.proxyHttpPort, config.proxyHttpFallbacks]);

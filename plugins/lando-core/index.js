@@ -81,8 +81,8 @@ const getComposeDownloadDest = (base, version = '2.21.0') => {
 /*
  * Helper to get ca run object
  */
-const getCaRunner = (project, files) => ({
-  id: [project, 'ca', '1'].join('_'),
+const getCaRunner = (project, files, separator = '_') => ({
+  id: [project, 'ca', '1'].join(separator),
   compose: files,
   project: project,
   cmd: '/setup-ca.sh',
@@ -166,7 +166,7 @@ module.exports = lando => {
       const caData = new LandoCa(lando.config.userConfRoot, env, labels);
       const caFiles = lando.utils.dumpComposeData(caData, caDir);
       lando.log.debug('setting up Lando Local CA at %s', caCert);
-      return lando.engine.run(getCaRunner(caProject, caFiles));
+      return lando.engine.run(getCaRunner(caProject, caFiles, lando.config.composeSeparator));
     }
   });
 
