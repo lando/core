@@ -8,7 +8,6 @@ const utils = require('./lib/utils');
 module.exports = (app, lando) => {
   // Compose cache key
   const composeCache = `${app.name}.compose.cache`;
-
   // If we have an app with a tooling section let's do this
   app.events.on('post-init', () => {
     if (!_.isEmpty(_.get(app, 'config.tooling', {}))) {
@@ -39,6 +38,7 @@ module.exports = (app, lando) => {
       name: app.name,
       project: app.project,
       compose: app.compose,
+      containers: app.containers,
       root: app.root,
       info: app.info,
       overrides: {

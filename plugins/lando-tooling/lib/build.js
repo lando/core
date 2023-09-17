@@ -8,16 +8,6 @@ const utils = require('./utils');
  * Helper to build tasks from metadata
  */
 module.exports = (config, injected) => {
-  // this should be set regardless of what is injected?
-  const separator = injected.engine.separator;
-  // config.app does not have containers then we need to add them
-  if (!_.has(config, 'app.containers')) {
-    config.app.containers = _(config.app.info)
-    .map(service => ([service.service, `${config.app.project}${separator}${service.service}${separator}1`]))
-    .fromPairs()
-    .value();
-  }
-
   // Get our defaults and such
   const {name, app, appMount, cmd, describe, dir, env, options, service, stdio, user} = utils.toolingDefaults(config);
   // Handle dynamic services and passthrough options right away
