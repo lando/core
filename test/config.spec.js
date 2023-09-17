@@ -84,8 +84,8 @@ describe('config', () => {
       const defaults = config.defaults();
       expect(!_.hasIn(defaults, 'composeBin')).to.equal(true);
       expect(_.hasIn(defaults, 'composeVersion')).to.equal(true);
-      expect(_.hasIn(defaults, 'composeCompatibility')).to.equal(true);
-      expect(_.get(defaults, 'configSources')).to.be.an('array');
+      expect(_.hasIn(defaults, 'composeSeparator')).to.equal(true);
+      expect(_.hasIn(defaults, 'configSources')).to.be.equal(true);
       expect(_.hasIn(defaults, 'dockerBin')).to.equal(true);
       expect(_.hasIn(defaults, 'dockerBinDir')).to.equal(true);
       expect(_.hasIn(defaults, 'env')).to.equal(true);
@@ -100,6 +100,8 @@ describe('config', () => {
       expect(_.hasIn(defaults, 'plugins')).to.equal(true);
       expect(_.hasIn(defaults, 'process')).to.equal(true);
       expect(_.hasIn(defaults, 'userConfRoot')).to.equal(true);
+      expect(_.get(defaults, 'composeSeparator')).to.equal('_');
+      expect(_.get(defaults, 'configSources')).to.be.an('array');
     });
 
     it('should mirror process.env', () => {
