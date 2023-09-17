@@ -35,10 +35,23 @@ Run the following commands to verify things work as expected
 ```bash
 # Should have the correct entries in /certs/cert.ext
 cd lamp
-lando ssh -s appserver -c "cat /certs/cert.ext | grep lndo.site"
-lando ssh -s appserver -c "cat /certs/cert.ext | grep landolamp.internal"
-lando ssh -s appserver -c "cat /certs/cert.ext | grep appserver"
-lando ssh -s appserver -c "cat /certs/cert.ext | grep localhost"
+lando ssh -s appserver -c "cat /certs/cert.ext" | grep DNS.1 | grep -w appserver.landolamp.internal
+lando ssh -s appserver -c "cat /certs/cert.ext" | grep DNS.2 | grep -w appserver
+lando ssh -s appserver -c "cat /certs/cert.ext" | grep DNS.3 | grep -w localhost
+lando ssh -s appserver -c "cat /certs/cert.ext" | grep lando-lamp.lndo.site
+cd .. && cd lemp
+lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.1 | grep -w placeholder.landolemp.internal
+lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.2 | grep -w placeholder
+lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.3 | grep -w localhost
+lando ssh -s placeholder -c "cat /certs/cert.ext" | grep placeholder.lando-lemp.lndo.site
+
+# Should be able to self connect
+cd lamp
+lando ssh -s appserver -c "curl http://localhost"
+lando ssh -s appserver -c "curl https://localhost"
+cd .. && cd lemp
+lando ssh -s placeholder -c "curl http://localhost"
+lando ssh -s placeholder -c "curl https://localhost"
 
 # Should be able to curl lemp from lamp at proxy addresses and internal hostnames
 cd lamp
