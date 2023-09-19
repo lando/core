@@ -11,7 +11,7 @@ main () {
   # append an X to the healthfile
   echo -n "X" >> $healthfile
   # run our "healthcheck"
-  cat $healthfile | grep -w "XXXXX"
+  cat $healthfile | grep -w "XXXXX" && rm -rf $healthfile
 }
 
 main

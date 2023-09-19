@@ -80,5 +80,20 @@ module.exports = async (app, lando) => {
 
     // combine our checks into app.checks
     app.checks = [...app.checks, ...checks].filter(Boolean);
+
+    // if we have the CLI then add some listr tasks
+    if (_.has(lando, 'cli.listrTasks')) {
+      lando.cli.listrTasks['post-start-scan'] = _(app.checks)
+        .filter(checks => checks.type === 'url-scan')
+        .groupBy('service')
+        .map((tasks, name) => ({
+          title: lando.cli.chalk.cyan(`${_.upperCase(name)} URLS`),
+          task: (ctx, task) => {
+            const subtasks = _(tasks).map(subtask => require('./utils/checks-to-listr')(subtask)).value();
+            return task.newListr(subtasks, {concurrent: true, exitOnError: false});
+          },
+        }))
+        .value();
+    }
   });
 };

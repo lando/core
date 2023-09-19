@@ -19,9 +19,9 @@ module.exports = lando => {
         string: true,
       },
     }),
-    run: options => {
+    run: async options => {
       // List all the apps
-      return lando.engine.list(options)
+      await lando.engine.list(options)
       // Map each app to a summary and print results
       .then(containers => console.log(lando.cli.formatData(
         _(containers)

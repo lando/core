@@ -5,10 +5,10 @@ module.exports = lando => {
     command: 'poweroff',
     level: 'engine',
     describe: 'Spins down all lando related containers',
-    run: () => {
+    run: async () => {
       console.log(lando.cli.makeArt('poweroff', {phase: 'pre'}));
       // Get all our containers
-      return lando.engine.list()
+      await lando.engine.list()
       // SHUT IT ALL DOWN
       .each(container => console.log('Bye bye %s ... ', container.name))
       .delay(200)
