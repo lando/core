@@ -10,7 +10,7 @@
 
 * Updated `@lando/core` to [`v3.22.0-beta.6`](https://github.com/lando/core/releases/tag/v3.22.0-beta.6)
 
-### Bug Fixes
+### Fixes
 
 * Fixed bug causing recipe builder `tasks` to not persist across rebuilds
 
@@ -248,6 +248,10 @@ Note that you will need to replace the above with a link for your OS and ARCH an
 * Removed `dayjs` dependency
 * Removed `github` dependency
 * Removed `mkdirp` dependency
+
+### Internal
+
+* `config.yml` from `@lando/core` is now loaded after the `config.yml` from `@lando/cli`. [See example]().
 
 ### DEPRECATIONS
 
