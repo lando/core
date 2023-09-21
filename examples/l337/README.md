@@ -20,12 +20,6 @@ Verification commands
 Run the following commands to verify things work as expected
 
 ```bash
-# should automatically set appMount if appRoot is volume mounted
-lando pwd
-lando pwd | grep /site
-```
-<!--
-```bash
 # should destroy successfully
 lando destroy -y
 
@@ -220,7 +214,7 @@ lando ssh --service steps-1 -c "cat /tmp/val-jean-group" | grep default-1000-roo
 lando ssh --service steps-1 -c "cat /stuff" | sed -n '1p' | grep first
 lando ssh --service steps-1 -c "cat /stuff" | sed -n '2p' | grep middle
 lando ssh --service steps-1 -c "cat /stuff" | sed -n '3p' | grep last
-``` -->
+```
 
 Destroy tests
 -------------
