@@ -1,8 +1,10 @@
 #!/bin/bash
 set -eo pipefail
 
+rm -rf /healthy
+
 main () {
-  local healthfile=/healthfile
+  local healthfile=/tmp/healthfile
 
   # if healthcheck file does not exist then create it
   if [ ! -f $healthfile ]; then
@@ -15,3 +17,5 @@ main () {
 }
 
 main
+
+touch /healthy
