@@ -34,7 +34,7 @@ services:
     healthcheck:
       command: mysql -uroot --silent --execute "SHOW DATABASES;"
       user: mysql
-      retry: 1
+      retry: 10
       delay: 1000
     services:
       image: mariadb:10.4
