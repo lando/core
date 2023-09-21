@@ -1,4 +1,4 @@
-## v3.18.0 - [September 21, 2023](https://github.com/lando/core/releases/tag/3.20.0)
+## v3.20.0 - [September 22, 2023](https://github.com/lando/core/releases/tag/3.20.0)
 
 ### New Features
 
@@ -11,12 +11,16 @@
 * Bumped support of Docker Engine to `>=18 <25`
 * Dropped support for Docker Desktop `<4.0.0`
 
-### Bug Fixes
+### Fixes
 
 * Fixed bug where `lando ssh --help` was incorrectly listing `appserver` as the default `service` in some situations
 * Fixed bug where dynamic tooling events were not setting the service with an option correctly
 * Fixed bug where `proxy` service was wiping out `app.compose`
 * Fixed deprecated usage of `network.external.name` on `lando_proxyedge`
+
+### Internal
+
+* `config.yml` from `@lando/core` is now loaded after the `config.yml` from `@lando/cli`. [See example]().
 
 ### DEPRECATIONS
 
@@ -24,10 +28,6 @@
 
   * `composeBin` is now discouraged in favor of `composeVersion`. [Read more]().
   * `max` and `min` in `dockerSupportedVersions` are now discouraged in favor of `satisfies`. [See example]().
-
-### Internal
-
-* `config.yml` from `@lando/core` is now loaded after the `config.yml` from `@lando/cli`. [See example]().
 
 ## v3.17.2 - [June 20, 2023](https://github.com/lando/core/releases/tag/3.17.2)
 
