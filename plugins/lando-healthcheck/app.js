@@ -117,27 +117,29 @@ module.exports = async (app, lando) => {
       app.checks.push({
         type: 'healthcheck-listr2',
         test: async (tasks, options) => {
-          console.log(lando.cli.chalk.blue(`[+] Healthcheckin' ${tasks.length}/${tasks.length}`));
-          const {errors} = await lando.cli.runTaskList(tasks, options);
+          if (tasks && tasks.length > 0) {
+            console.log(lando.cli.chalk.blue(`[+] Healthchecking ${tasks.length}/${tasks.length}`));
+            const {errors} = await lando.cli.runTaskList(tasks, options);
 
-          // if we have errors lets add relevant warnings
-          if (errors && errors.length > 0) {
-            _.forEach(errors, error => {
-              // set the service info to unhealthy
-              const service = _.find(app.info, {service: error.service});
-              service.healthy = false;
-              // parse the message
-              const message = _.trim(_.get(error, 'message', 'UNKNOWN ERROR'));
-              // add the warning
-              app.addWarning({
-                title: `The service "${error.service}" failed its healthcheck`,
-                detail: [
-                  `Failed with "${message}"`,
-                  'This may be ok but we recommend you run the command below to investigate:',
-                ],
-                command: `lando logs -s ${error.service}`,
-              }, error);
-            });
+            // if we have errors lets add relevant warnings
+            if (errors && errors.length > 0) {
+              _.forEach(errors, error => {
+                // set the service info to unhealthy
+                const service = _.find(app.info, {service: error.service});
+                service.healthy = false;
+                // parse the message
+                const message = _.trim(_.get(error, 'message', 'UNKNOWN ERROR'));
+                // add the warning
+                app.addWarning({
+                  title: `The service "${error.service}" failed its healthcheck`,
+                  detail: [
+                    `Failed with "${message}"`,
+                    'This may be ok but we recommend you run the command below to investigate:',
+                  ],
+                  command: `lando logs -s ${error.service}`,
+                }, error);
+              });
+            }
           }
         },
         args: [tasks, {

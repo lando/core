@@ -14,12 +14,15 @@ jobs:
         docker-compose-version:
           - "1.29.1"
           - "2.21.0"
+        healthcheck:
+          - new
         lando-version:
           - 3-dev
         leia-test:
           - examples/badname
           - examples/base
           - examples/events
+          - examples/healthcheck
           - examples/keys
           - examples/l337
           - examples/lando-101
@@ -37,11 +40,20 @@ jobs:
         scanner:
           - new
         include:
-          - leia-test: examples/scanner
-            os: ubuntu-22.04
+          - docker-compose-version: "2.21.0"
+            healthcheck: new
             node-version: "16"
             lando-version: 3-dev
+            leia-test: examples/scanner
+            os: ubuntu-22.04
             scanner: legacy
+          - docker-compose-version: "2.21.0"
+            healthcheck: legacy
+            node-version: "16"
+            lando-version: 3-dev
+            leia-test: examples/healthcheck
+            os: ubuntu-22.04
+            scanner: new
 
     steps:
       - name: Checkout code
@@ -73,6 +85,7 @@ jobs:
         uses: lando/run-leia-action@v2
         env:
           LANDO_SCANNER: ${{ matrix.scanner }}
+          LANDO_HEALTHCHECK: ${{ matrix.new }}
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"
