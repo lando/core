@@ -117,7 +117,7 @@ class L337ServiceV4 {
         this.info.appMount = this.appMount;
       }
       // debug
-      this.debug('autoset appmount to %o, did not select %o', this.appMount, appMounts);
+      this.debug('%o autoset appmount to %o, did not select %o', this.id, this.appMount, appMounts);
     }
   }
 
