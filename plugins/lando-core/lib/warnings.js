@@ -29,12 +29,6 @@ exports.serviceNotRunningWarning = service => ({
   command: `lando logs -s ${service}`,
 });
 
-exports.serviceUnhealthyWarning = service => ({
-  title: `The service "${service}" failed its healthcheck`,
-  detail: ['This may be ok but we recommend you run the command below to investigate:'],
-  command: `lando logs -s ${service}`,
-});
-
 exports.unsupportedVersionWarning = ({name, version, wants, link}) => ({
   title: `Using an unsupported version of DOCKER ${_.upperCase(name)}`,
   detail: [

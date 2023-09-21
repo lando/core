@@ -28,31 +28,32 @@ module.exports = lando => {
       // Rebuild the app
       if (app) {
         // If user has given us options then set those
-        if (!_.isEmpty(options.service)) {
-          app.opts = _.merge({}, app.opts, {services: options.service});
-        }
+        if (!_.isEmpty(options.service)) app.opts = _.merge({}, app.opts, {services: options.service});
 
         // rebuild hero
         console.log(lando.cli.makeArt('appRebuild', {name: app.name, phase: 'pre'}));
 
-        // Normal bootup
+        // rebuild
         await app.rebuild();
-
-        // @TODO: healthcheck?
-
-        // print table and determine scanner func
+        // determine legacy settings
+        const legacyHealthCheck = _.get(lando, 'config.healthcheck', true) === 'legacy';
         const legacyScanner = _.get(lando, 'config.scanner', true) === 'legacy';
+        // get type and phase
         const type = !_.isEmpty(app.warnings) ? 'report' : 'post';
         const phase = legacyScanner ? `${type}_legacy` : type;
+        // get listr tasks
+        const scans = _.find(app.checks, {type: 'url-scan-listr2'});
+        const healthchecks = _.find(app.checks, {type: 'healthcheck-listr2'});
+
+        // if we are not in legacy healthcheck mode then run the healthchecks
+        if (!legacyHealthCheck && healthchecks) await healthchecks.test(...healthchecks.args);
+
+        // rebuold tables
         console.log(lando.cli.makeArt('appRebuild', {name: app.name, phase, warnings: app.warnings}));
         console.log(lando.cli.formatData(utils.startTable(app, {legacyScanner}), {format: 'table'}, {border: false}));
 
-        if (!legacyScanner) {
-          // if verbose or debug mode is on then use the verbose renderer
-          const renderer = options.debug || options.verbose > 0 ? 'verbose' : lando.cli.getRenderer();
-          // run the listr
-          await lando.cli.processTasks(lando.cli.listrTasks['post-start-scan'], renderer);
-        }
+        // if we are not in legacy scanner mode then run the scans
+        if (!legacyScanner && scans) await scans.test(...scans.args);
       }
     },
   };

@@ -38,13 +38,9 @@ services:
       - echo "$(id)" > /run_as_root.txt
     run:
       - echo "$(id)" > /var/www/run.txt
-    healthcheck: healthcheck
     overrides:
       build: ./php
       image: pirog/php:7.1-fpm-custom
-      volumes:
-        - "./healthcheck.sh:/usr/local/bin/healthcheck"
-
   nginx:
     api: 3
     type: lando

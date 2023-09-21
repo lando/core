@@ -10,11 +10,10 @@ module.exports = ({
   service,
   test = () => {},
   skip = false,
-  delay = 1000,
   retry = 10,
 } = {}) => ({
   title: chalk.grey(title || `${type} ${args[0]}`),
-  retry: retry,
+  retry,
   task: (ctx, task) => {
     // if skip then we are done
     if (skip === true) {
@@ -37,7 +36,7 @@ module.exports = ({
         task.title = `${chalk[color](title)} ${chalk.dim(rm)}${chalk.dim(code)}${chalk.dim(message)}`;
 
         // delay and backoff for UX purposes\
-        return require('delay')(delay + (100 * count)).then(() => {
+        return require('delay')(3000 + (100 * count)).then(() => {
           throw error;
         });
       });
