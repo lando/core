@@ -22,8 +22,9 @@ Verification commands
 Run the following commands to validate things are rolling as they should.
 
 ```bash
-# Should have passed the healthcheck and created the healthfile
-lando ssh -s appserver -c "cat /healthfile" | grep -w XXXXX
+# Should have passed all the healthchecks
+lando ssh -s appserver -c "stat /healthy"
+lando ssh -s database -c "mysql -uroot --silent --execute \"SHOW DATABASES;\""
 ```
 
 Destroy tests
