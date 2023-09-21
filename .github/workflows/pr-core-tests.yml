@@ -12,28 +12,28 @@ jobs:
       fail-fast: false
       matrix:
         docker-compose-version:
-          # - "1.29.1"
+          - "1.29.1"
           - "2.21.0"
         healthcheck:
           - new
         lando-version:
           - 3-dev
         leia-test:
-          # - examples/badname
-          # - examples/base
-          # - examples/events
-          # - examples/healthcheck
-          # - examples/keys
+          - examples/badname
+          - examples/base
+          - examples/events
+          - examples/healthcheck
+          - examples/keys
           - examples/l337
-          # - examples/lando-101
-          # - examples/landofile-custom
-          # - examples/long-name
-          # - examples/networking
-          # - examples/no-services
-          # - examples/proxy
-          # - examples/scanner
-          # - examples/services
-          # - examples/tooling
+          - examples/lando-101
+          - examples/landofile-custom
+          - examples/long-name
+          - examples/networking
+          - examples/no-services
+          - examples/proxy
+          - examples/scanner
+          - examples/services
+          - examples/tooling
         node-version:
           - "16"
         os:
