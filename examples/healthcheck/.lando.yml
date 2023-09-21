@@ -32,8 +32,7 @@ services:
     api: 3
     type: lando
     healthcheck:
-      # command: mysql -uroot --silent --execute "SHOW DATABASES;"
-      command: fail
+      command: mysql -uroot --silent --execute "SHOW DATABASES;"
       user: mysql
       retry: 1
       delay: 1000
