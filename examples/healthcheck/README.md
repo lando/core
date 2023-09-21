@@ -1,9 +1,9 @@
-Scanner Example
-===============
+Healthcheck Example
+===================
 
 This example exists primarily to test the following documentation:
 
-* [Scanning](https://docs.lando.dev/core/v3/scanner.html)
+* [Healthcheck](https://docs.lando.dev/core/v3/healthcheck.html)
 
 Start up tests
 --------------
@@ -22,12 +22,8 @@ Verification commands
 Run the following commands to validate things are rolling as they should.
 
 ```bash
-# Should set 80,443 in io.lando.http-ports label by default
-docker inspect landoscanner_scanme_1 | grep io.lando.http-ports | grep "80,443"
-
-# Should add an extra port to io.lando.http-ports if specified
-docker inspect landoscanner_moreports_1 | grep io.lando.http-ports | grep "80,443,8888"
-docker inspect landoscanner_l337_1 | grep io.lando.http-ports | grep "80,443,8888"
+# Should have passed the healthcheck and created the healthfile
+lando ssh -s appserver -c "cat /healthfile" | grep -w XXXXX
 ```
 
 Destroy tests
