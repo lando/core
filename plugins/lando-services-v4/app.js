@@ -122,7 +122,7 @@ module.exports = (app, lando) => {
   });
 
   // wipe hardcoded assumptioms from v3 that we want to handle on our own
-  app.events.on('ready', () => {
+  app.events.on('ready', 6, () => {
     _.forEach(app.v4.services.map(service => service.id), id => {
       // remove v3 app mount
       const mounts = _.find(app.composeData, compose => compose.id === 'mounts');

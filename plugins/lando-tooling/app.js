@@ -5,8 +5,6 @@ const _ = require('lodash');
 const buildTask = require('./lib/build');
 const utils = require('./lib/utils');
 
-const getMounts = require('./../lando-services-v4/utils/get-mounts');
-
 module.exports = (app, lando) => {
   // Compose cache key
   const composeCache = `${app.name}.compose.cache`;
@@ -43,7 +41,6 @@ module.exports = (app, lando) => {
       containers: app.containers,
       root: app.root,
       info: app.info,
-      mounts: getMounts(_.get(app, 'v4.services', {})),
       overrides: {
         tooling: app._coreToolingOverrides,
       },

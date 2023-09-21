@@ -28,6 +28,8 @@ services:
       - ./:/var/www/html
     links:
       - appserver
+    depends_on:
+      - appserver
   appserver:
     api: 4
     image: php:8.2-fpm
