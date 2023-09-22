@@ -45,11 +45,13 @@ lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.2 | grep -w placeho
 lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.3 | grep -w localhost
 lando ssh -s placeholder -c "cat /certs/cert.ext" | grep placeholder.lando-lemp.lndo.site
 
-# Should be able to self connect
+# Should be able to self connect from lamp
 cd lamp
 lando ssh -s appserver -c "curl http://localhost"
 lando ssh -s appserver -c "curl https://localhost"
-cd .. && cd lemp
+
+# Should be able to self connect from lemp
+cd lemp
 lando ssh -s placeholder -c "curl http://localhost"
 lando ssh -s placeholder -c "curl https://localhost"
 

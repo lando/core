@@ -9,6 +9,7 @@ services:
     api: 3
     type: lando
     ssl: true
+    healthcheck: curl -I https://localhost
     services:
       image: php:8.2-apache
       command: docker-php-entrypoint apache2-foreground
@@ -16,6 +17,7 @@ services:
         - ./apache.conf:/etc/apache2/sites-enabled/000-default.conf
       ports:
         - 80
+        - 443
   appserver_nginx:
     api: 4
     image:
