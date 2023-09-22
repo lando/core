@@ -30,16 +30,22 @@ module.exports = ({
       .catch(error => {
         // assess retry situation
         const {count} = task.isRetrying();
-        const color = count === retry ? 'red' : 'grey';
-        const rm = count > 0 && count < retry ? `${count}/${retry} ` : '';
+        // get error code and retry ratio
         const code = `[${error.lando.code}]`;
-        const message = count === retry ? ` - ${_.upperCase(error.message)}` : '';
-        task.title = `${chalk[color](title)} ${chalk.dim(rm)}${chalk.dim(code)}${chalk.dim(message)}`;
+        const rm = count > 0 && count < retry ? `${count}/${retry} ` : '';
 
-        // delay and backoff for UX purposes\
-        return require('delay')(delay + (100 * count)).then(() => {
+        // if this is our final retry then fail and bail
+        if (count === retry) {
+          task.title = `${chalk.red(title)} ${chalk.dim(code)} ${chalk.dim(_.upperCase(error.message))}`;
           throw error;
-        });
+
+        // otherwise proceed with retrying
+        } else {
+          task.title = `${chalk.grey(title)} ${chalk.dim(rm)}${chalk.dim(code)}`;
+          return require('delay')(delay + (100 * count)).then(() => {
+            throw error;
+          });
+        }
       });
     }
   },
