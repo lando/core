@@ -38,10 +38,11 @@ module.exports = (app, lando) => {
         return injectable.engine.run(eventCommands).catch(err => {
           const command = _.tail(name.split('-')).join('-');
           if (app.addWarning) {
+            const message = _.trim(_.get(err, 'message'));
             app.addWarning({
               title: `The ${name} event has command(s) that failed!`,
               detail: [
-                `Event failed with: "${_.get(err, 'message')}"`,
+                `Event failed with: "${message}"`,
                 'This **MAY** prevent your app from working.',
                 'Check for errors above, fix them in your Landofile, and run the command again:',
               ],

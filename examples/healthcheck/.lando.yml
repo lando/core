@@ -1,4 +1,7 @@
 name: lando-healthcheck
+events:
+  post-start:
+    - database: mysql -uroot --silent --execute "SHOW DATABASES;"
 services:
   appserver:
     api: 3
