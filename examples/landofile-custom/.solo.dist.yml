@@ -1,7 +1,20 @@
 name: solo-base
 services:
   node:
-    type: node:14
+    api: 3
+    type: lando
+    services:
+      image: node:16
+      command: docker-entrypoint.sh sleep infinity
+  node2:
+    api: 4
+    image: node:14
+    command: sleep infinity
+    volumes:
+      - ./:/app
 tooling:
   node:
     service: node
+  node2:
+    service: node2
+    cmd: node

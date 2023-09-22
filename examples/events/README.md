@@ -28,14 +28,28 @@ lando ssh -s appserver -c "cat /app/test/appserver-pre-start.txt | grep \$(hostn
 # Should run events on the specified service
 lando ssh -s web -c "cat /app/test/web-pre-start.txt | grep \$(hostname -s)"
 lando ssh -s web -c "cat /app/test/web-post-start.txt | grep \$(hostname -s)"
+lando ssh -s l337 -c "cat /app/test/l337-pre-start.txt | grep \$(hostname -s)"
+lando ssh -s l337 -c "cat /app/test/l337-post-start.txt | grep \$(hostname -s)"
 
-# Should run on tooling commands as well
+# Should run tooling command events using the tooling command service as the default
 lando thing
 lando ssh -s web -c "cat /app/test/web-post-thing.txt | grep \$(hostname -s)"
+lando stuff
+lando ssh -s l337 -c "cat /app/test/l337-post-stuff.txt | grep \$(hostname -s)"
 
-# Should run on rebuild without failin and trigger pre-rebuild event
+# Should run dynamic tooling command events using argv if set or option default otherwise
+lando dynamic
+lando dynamic --host l337
+lando what-service | grep l337 | wc -l | grep 2
+lando what-service --service web | grep web | wc -l | grep 2
+
+# Should use the app default service as the default in multi-service tooling
+lando multi-pass
+
+# Should run on rebuild without failing and trigger pre-rebuild event
 lando rebuild -y | grep "ET TU, BRUT"
 lando ssh -s web -c "cat /app/test/web-pre-rebuild.txt | grep rebuilding"
+lando ssh -s l337 -c "cat /app/test/l337-pre-rebuild.txt | grep rebuilding"
 ```
 
 Destroy tests
@@ -48,4 +62,5 @@ lando poweroff
 
 # Should trigger pre-destroy event
 stat test/destroy.txt
+stat test/destroy-l337.txt
 ```

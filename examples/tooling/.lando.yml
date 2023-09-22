@@ -4,31 +4,89 @@ compose:
 events:
   post-start:
     - node: whoami | grep node
+    - echo "$PRIMARY_SERVICE" | grep yes
 services:
   node:
-    type: node:14
+    api: 3
+    type: lando
+    meUser: node
+    services:
+      image: node:16
+      command: docker-entrypoint.sh sleep infinity
+      environment:
+        PRIMARY_SERVICE: yes
+        LANDO_WEBROOT_USER: 'node'
+        LANDO_WEBROOT_GROUP: 'node'
+        LANDO_WEBROOT_UID: '1000'
+        LANDO_WEBROOT_GID: '1000'
+  l337-node:
+    api: 4
+    image: node:16
+    command: sleep infinity
+    meUser: node
+    volumes:
+      - "./:/app"
+    environment:
+      SERVICE: l337-node
+  l337-php:
+    api: 4
+    image: php:7.1-fpm-alpine
+    volumes:
+      - "./:/web"
+  l337-slim:
+    api: 4
+    command: sleep infinity
+    image: alpine:3.18.3
+    meUser: root
+    working_dir: /tmp
+
 tooling:
   php:
     service: php
     description: Run php commands
     cmd: php
   iamroot:
-    service: php
     cmd: echo "$HOME" && echo "$(id)" > /whoami
     user: root
+    service: :service
+    options:
+      service:
+        default: php
+        alias:
+          - s
+        describe: Runs in this service
   whoami:
-    service: php
-    cmd: id
-  nodeme:
-    service: node
     cmd: whoami
+    service: :service
+    options:
+      service:
+        default: php
+        alias:
+          - s
+        describe: Runs in this service
+  nodeme:
+    cmd: whoami
+    service: :service
+    options:
+      service:
+        default: node
+        alias:
+          - s
+        describe: Runs in this service
   stillme:
     cmd:
-      - node: whoami
+      - node: whoami | grep node
+      - l337-node: whoami | grep node
   notme:
-    service: node
     cmd: whoami
+    service: :service
     user: www-data
+    options:
+      service:
+        default: node
+        alias:
+          - s
+        describe: Runs in this service
   pipesandstuff:
     service: node
     cmd:
@@ -40,11 +98,22 @@ tooling:
       - php -v
       - php -m
     description: Run all the tests
+  test2:
+    service: l337-php
+    cmd:
+      - php -v
+      - php -m
+    description: Run all the tests 2
   word:
-    service: web
+    service: :service
     cmd: /app/word.sh
     level: app
     options:
+      service:
+        default: web
+        alias:
+          - s
+        describe: Runs in this service
       word:
         passthrough: true
         alias:
@@ -63,12 +132,13 @@ tooling:
         default: web
         alias:
           - s
-        describe: Run a different service
+        describe: Runs in this service
   env:
     cmd:
-      - php: env
-      - web: env
-    description: Print environment variables for a few things
+      - php: env | grep SERVICE | grep php
+      - web: env | grep SERVICE | grep web
+      - l337-node: env | grep SERVICE | grep l337-node
+    description: Print service names for php, web, l337-node
   busted:
     service: web
     cmd: i-do-not-exist
@@ -92,3 +162,12 @@ tooling:
     cmd: pwd
     service: web
     dir: /tmp
+  pwd:
+    cmd: pwd
+    service: :service
+    options:
+      service:
+        default: web
+        alias:
+          - s
+        describe: Runs in this service

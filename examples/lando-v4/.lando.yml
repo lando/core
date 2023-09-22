@@ -1,0 +1,124 @@
+name: "lando-v4"
+services:
+  debian:
+    api: 4
+    type: lando
+
+    # image should map directly to image.imagefile
+    image: |
+      FROM nginx:1.22.1
+
+    # appmount
+    # support appMount but prefer app-mount
+    # project-mount: /project how does this work?
+    # easy setting, volume mount ./:/app
+
+    # short forms:
+    app-mount: /usr/share/nginx/html
+
+    # app-mount: /app:copy
+    # app-mount: /app:bind
+
+    # app-mount: false|disabled|off|0
+    # # build.app consequences
+    # app-mount: false -> build.app is not run at all
+    # app-mount: bind -> build.app is run with docker run
+    # app-mount: copy -> build.app is run as part of image build
+    # app-mount:
+    #   type: bind
+    #   target: /app
+    #   excludes: -> named volumes
+    # app-mount:
+    #   type: copy
+    #   destination: /app
+    #   includes: -> bind mounts
+    # note: what about something like excludes in v3?
+    # set workingDir in info, not appmount?
+
+    # # storage key
+    # # for persistent data shared across: global | app | service
+    # storage:
+    # # networks? do we need this?
+    # networks:
+
+    # # user
+    # user: nginx
+
+    # # ports
+    # # how do we handle localhost assignment? scanner? etc?
+    # # wanted to not use docker autoport assignment?
+    # # go back to docker functionality?
+    # ports:
+    # - "http:8888"
+
+    # # healthcheck?
+    # healthcheck:
+
+    # # certs
+    # # services need to get proxy settings
+    # # what are teh settings here?
+    # certs:
+    # ssh-keys:
+
+    # # build steps
+    # # backwards compatibilt with lando 3
+    # # build_as_root:
+
+    # this is the main setting
+    # build:
+    #   image: apt-get whatever
+    #   image: |
+    #     source this
+    #     echo "$THING"
+    #   image:
+    #      - root: source this
+    #      - user: echo "$THING"
+    #      - nginx:
+    #   image:
+    #      - root: |
+    #         source this
+    #         echo "$THING"
+    #      - |
+    #       source this
+    #       echo "$THING"
+    #   image:
+    #     root:
+    #     nginx:
+
+    #   app:
+    #   -> this uses some pre-defined userspace build group runs as user
+    #   -> docker run --rm IMAGE command
+
+    #   background-execs:
+    #   -> this uses some pre-defined userspace build group runs as root?
+    #   -> docker exec service command
+
+    # # some handling of "boot"
+    # # lash.d? boot.d?
+    # # shell selection?
+    # boot:
+
+    # # config files
+    # config-files:
+    #   "/etc/msqyl/conf.d/my.cnf":
+    #     data:
+    #       innodb_buffer_pool_size: 128M
+    #     # preset
+    #     format: mysql
+    #     # defined
+    #     format:
+    #       separator: '='
+    #       ending: ';'
+    #       object-depth:
+    #   "/etc/msqyl/conf.d/my.cnf":
+    #     data: mysq.cnf
+    #     format: raw
+    #   "/etc/msqyl/conf.d/my.cnf": mysql.cnf
+
+    # # overrides
+    # # need a new name for this?
+    # # is raw compose data for this services that gets applied after everything else
+    # # TODO: do we want to keep image?
+    # l337:
+    # compose:
+    # overrides:

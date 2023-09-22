@@ -1,3 +1,6 @@
 tooling:
   yarn:
     service: node
+  yarn2:
+    service: node2
+    cmd: yarn

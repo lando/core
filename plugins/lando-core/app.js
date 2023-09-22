@@ -71,11 +71,13 @@ module.exports = (app, lando) => {
 
   // Refresh all our certs
   app.events.on('post-init', () => {
-    const buildServices = _.get(app, 'opts.services', app.services);
+    // ensure build services are just v3 services since v4 services use a different build layer
+    const buildServices = _.get(app, 'opts.services', app.services).filter(service => app.servicesList.includes(service)); // eslint-disable-line max-len
+
     app.log.verbose('refreshing certificates...', buildServices);
     app.events.on('post-start', 9999, () => lando.Promise.each(buildServices, service => {
       return app.engine.run({
-        id: `${app.project}_${service}_1`,
+        id: app.containers[service],
         cmd: 'mkdir -p /certs && /helpers/refresh-certs.sh > /certs/refresh.log',
         compose: app.compose,
         project: app.project,
@@ -94,11 +96,15 @@ module.exports = (app, lando) => {
 
   // Run a secondary user perm sweep on services that cannot run as root eg mysql
   app.events.on('post-init', () => {
+    // scope app.nonRoot to v3 services only since this is not a workaround that v4 needs
+    app.nonRoot = _.get(app, 'nonRoot', []).filter(service => app.servicesList.includes(service));
+
+    // perm sweep non root if needed
     if (!_.isEmpty(app.nonRoot)) {
       app.log.verbose('perm sweeping flagged non-root containers ...', app.nonRoot);
       app.events.on('post-start', 1, () => lando.Promise.each(app.nonRoot, service => {
         return app.engine.run({
-          id: `${app.project}_${service}_1`,
+          id: app.containers[service],
           cmd: '/helpers/user-perms.sh --silent',
           compose: app.compose,
           project: app.project,
@@ -166,39 +172,6 @@ module.exports = (app, lando) => {
     });
   });
 
- // Add some logic that extends start until healthchecked containers report as healthy
-  app.events.on('post-start', 1, () => lando.engine.list({project: app.project})
-    // Filter out containers without a healthcheck
-    .filter(container => _.has(_.find(app.info, {service: container.service}), 'healthcheck'))
-    // Map to info
-    .map(container => _.find(app.info, {service: container.service}))
-    // Map to a retry of the healthcheck command
-    .map(info => lando.Promise.retry(() => {
-      return app.engine.run({
-        id: `${app.project}_${info.service}_1`,
-        cmd: info.healthcheck,
-        compose: app.compose,
-        project: app.project,
-        opts: {
-          user: 'root',
-          cstdio: 'pipe',
-          silent: true,
-          noTTY: true,
-          services: [info.service],
-        },
-      })
-      .catch(err => {
-        console.log('Waiting until %s service is ready...', info.service);
-        app.log.debug('running healthcheck %s for %s...', info.healthcheck, info.service);
-        // app.log.silly(err);
-        return Promise.reject(info.service);
-      });
-    }, {max: 25, backoff: 1000})
-    .catch(service => {
-      info.healthy = false;
-      app.addWarning(warnings.serviceUnhealthyWarning(service), Error(`${service} reported as unhealthy.`));
-    })));
-
   // If the app already is installed but we can't determine the builtAgainst, then set it to something bogus
   app.events.on('pre-start', () => {
     if (!_.has(app.meta, 'builtAgainst')) {
@@ -227,6 +200,83 @@ module.exports = (app, lando) => {
     });
   });
 
+  // Reset app info on a stop, this helps prevent wrong/duplicate information being reported on a restart
+  app.events.on('post-stop', () => lando.utils.getInfoDefaults(app));
+
+  // Otherwise set on rebuilds
+  // NOTE: We set this pre-rebuild because post-rebuild runs after post-start because you would need to
+  // do two rebuilds to remove the warning since appWarning is already set by the time we get here.
+  // Running pre-rebuild ensures the warning goes away but concedes a possible warning tradeoff between
+  // this and a build step failure
+  app.events.on('pre-rebuild', () => {
+    lando.cache.set(app.metaCache, updateBuiltAgainst(app, app._config.version), {persist: true});
+  });
+
+  // Remove meta cache on destroy
+  app.events.on('post-destroy', () => {
+    app.log.debug('removing metadata cache...');
+    lando.cache.remove(app.metaCache);
+  });
+
+  // LEGACY healthchecks
+  // Add some logic that extends start until healthchecked containers report as healthy
+  if (_.get(lando, 'config.healthcheck', true) === 'legacy') {
+    app.events.on('post-start', 2, async () => {
+      // get our healthchecks
+      const healthchecks = _.get(app, 'checks', []).filter(check => check.type === 'healthcheck');
+      // map into promises
+      const promises = healthchecks.map(async healthcheck => {
+        // the runner command
+        const runner = async (command, container, {service, user = 'root'} = {}) => {
+          try {
+            await app.engine.run({
+              id: container,
+              cmd: command,
+              compose: app.compose,
+              project: app.project,
+              opts: {
+                user,
+                cstdio: 'pipe',
+                silent: true,
+                noTTY: true,
+                services: [service],
+              },
+            });
+          } catch (error) {
+            console.log('Waiting until %s service is ready...', service);
+            app.log.debug('running healthcheck %s for %s...', command, service);
+            throw error;
+          }
+        };
+
+        // wrap in a promise
+        try {
+          const options = {max: healthcheck.retry, backoff: healthcheck.delay};
+          await lando.Promise.retry(async () => await runner(...healthcheck.args), options);
+        } catch (error) {
+          // set the service info as unhealthy if we get here
+          const service = _.find(app.info, {service: healthcheck.service});
+          service.healthy = false;
+          // parse the message
+          const message = _.trim(_.get(error, 'message', 'UNKNOWN ERROR'));
+          // add the warning
+          app.addWarning({
+              title: `The service "${service.service}" failed its healthcheck`,
+              detail: [
+                `Failed with "${message}"`,
+                'This may be ok but we recommend you run the command below to investigate:',
+              ],
+              command: `lando logs -s ${service.service}`,
+            },
+            Error(`${service.service} reported as unhealthy.`,
+          ));
+        }
+      });
+
+      await Promise.all(promises);
+    });
+  }
+
   // LEGACY URL Scanner urls
   if (_.get(lando, 'config.scanner', true) === 'legacy') {
     app.events.on('post-start', 10, () => {
@@ -247,24 +297,6 @@ module.exports = (app, lando) => {
       });
     });
   };
-
-  // Reset app info on a stop, this helps prevent wrong/duplicate information being reported on a restart
-  app.events.on('post-stop', () => lando.utils.getInfoDefaults(app));
-
-  // Otherwise set on rebuilds
-  // NOTE: We set this pre-rebuild because post-rebuild runs after post-start because you would need to
-  // do two rebuilds to remove the warning since appWarning is already set by the time we get here.
-  // Running pre-rebuild ensures the warning goes away but concedes a possible warning tradeoff between
-  // this and a build step failure
-  app.events.on('pre-rebuild', () => {
-    lando.cache.set(app.metaCache, updateBuiltAgainst(app, app._config.version), {persist: true});
-  });
-
-  // Remove meta cache on destroy
-  app.events.on('post-destroy', () => {
-    app.log.debug('removing metadata cache...');
-    lando.cache.remove(app.metaCache);
-  });
 
   // REturn defualts
   return {

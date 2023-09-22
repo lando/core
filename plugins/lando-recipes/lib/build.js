@@ -53,9 +53,10 @@ exports.runDefaults = (lando, options) => {
   const initFiles = lando.utils.dumpComposeData(initData, initDir);
   // Start to build out some propz and shiz
   const project = `${lando.config.product}init` + utils.dockerComposify(options.name);
+  const separator = lando.config.orchestratorSeparator;
   // Return
   return {
-    id: `${project}_init_1`,
+    id: [`${project}${separator}init${separator}1`],
     project,
     user: 'www-data',
     compose: initFiles,

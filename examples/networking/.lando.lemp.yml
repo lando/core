@@ -1,0 +1,47 @@
+name: lando-lemp
+proxy:
+  appserver_nginx:
+    - lando-lemp.lndo.site
+  placeholder:
+    - placeholder.lando-lemp.lndo.site
+services:
+  placeholder:
+    api: 3
+    type: lando
+    ssl: true
+    services:
+      image: php:8.2-apache
+      command: docker-php-entrypoint apache2-foreground
+      volumes:
+        - ./apache.conf:/etc/apache2/sites-enabled/000-default.conf
+      ports:
+        - 80
+  appserver_nginx:
+    api: 4
+    image:
+      imagefile: nginx:1.22.1
+      context:
+        - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 80
+    volumes:
+      - ./:/var/www/html
+    links:
+      - appserver
+    depends_on:
+      - appserver
+  appserver:
+    api: 4
+    image: php:8.2-fpm
+    volumes:
+      - ./:/var/www/html
+  database:
+    api: 4
+    image: mariadb:10.4
+    environment:
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: da
+      MARIADB_MYSQL_LOCALHOST_USER: da
+      MARIADB_DATABASE: test
+      MARIADB_USER: test
+      MARIADB_PASSWORD: test
+      MARIADB_AUTO_UPGRADE: da

@@ -40,49 +40,61 @@ module.exports = (app, lando) => {
 
   // Init this early on but not before our recipes
   app.events.on('pre-init', () => {
-    // @TODO sexier _() implementation?
-    const services = utils.parseConfig(_.get(app, 'config.services', {}), app);
-    _.forEach(services, service => {
+    // add parsed services to app object so we can use them downstream
+    app.parsedServices = utils.parseConfig(_.get(app, 'config.services', {}), app);
+    app.parsedV3Services = _(app.parsedServices).filter(service => service.api === 3).value();
+    app.servicesList = app.parsedV3Services.map(service => service.name);
+
+    // build each service
+    _.forEach(app.parsedV3Services, service => {
       // Throw a warning if service is not supported
-      if (_.isEmpty(_.find(lando.factory.get(), {name: service.type}))) {
+      if (_.isEmpty(_.find(lando.factory.get(), {api: 3, name: service.type}))) {
         app.log.warn('%s is not a supported service type.', service.type);
       }
       // Log da things
-      app.log.verbose('building %s service %s', service.type, service.name);
+      app.log.verbose('building v3 %s service %s', service.type, service.name);
       // Build da things
-      // @NOTE: this also gathers app.info and build steps
-      // @TODO: ?
-      const Service = lando.factory.get(service.type);
-
-      const data = new Service(service.name, service, lando.factory);
+      const Service = lando.factory.get(service.type, service.api);
+      const data = new Service(service.name, _.merge({}, service, {_app: app}), lando.factory);
+      // add da data
       app.add(data);
       app.info.push(data.info);
     });
   });
 
-  // Handle build steps
-  // Go through each service and run additional build commands as needed
+  // Handle V3 build steps
   app.events.on('post-init', () => {
     // Add in build hashes
     app.meta.lastPreBuildHash = _.trim(lando.cache.get(app.preLockfile));
     app.meta.lastPostBuildHash = _.trim(lando.cache.get(app.postLockfile));
-    // Make sure containers for this app exist; if they don't and we have build locks, we need to kill them
+
+    // get v3 buildable services
     const buildServices = _.get(app, 'opts.services', app.services);
+    const buildV3Services = _(app.parsedV3Services)
+      .filter(service => _.includes(buildServices, service.name))
+      .map(service => service.name)
+      .value();
+    app.log.debug('going to build v3 services if applicable', buildV3Services);
+
+    // Make sure containers for this app exist; if they don't and we have build locks, we need to kill them
+    // @NOTE: this is need to make sure containers rebuild on a lando rebuild, its also for general cleanliness
     app.events.on('pre-start', () => {
       return lando.engine.list({project: app.project, all: true}).then(data => {
         if (_.isEmpty(data)) {
           lando.cache.remove(app.preLockfile);
           lando.cache.remove(app.postLockfile);
+          app.log.debug('removed v3 build locks');
         }
       });
     });
+
     // Queue up both legacy and new build steps
     app.events.on('pre-start', 100, () => {
-      const preBuild = utils.filterBuildSteps(buildServices, app, preRootSteps, preBuildSteps, true);
+      const preBuild = utils.filterBuildSteps(buildV3Services, app, preRootSteps, preBuildSteps, true);
       return utils.runBuild(app, preBuild, app.preLockfile, app.configHash);
     });
     app.events.on('post-start', 100, () => {
-      const postBuild = utils.filterBuildSteps(buildServices, app, postRootSteps, postBuildSteps);
+      const postBuild = utils.filterBuildSteps(buildV3Services, app, postRootSteps, postBuildSteps);
       return utils.runBuild(app, postBuild, app.postLockfile, app.configHash);
     });
   });
@@ -112,7 +124,10 @@ module.exports = (app, lando) => {
     app.log.verbose('determining pullable services...');
     // Determine local vs pullable services
     const whereats = _(_.get(app, 'config.services', {}))
-      .map((data, service) => ({service, isLocal: _.has(data, 'overrides.build') || _.has(data, 'services.build')}))
+      .map((data, service) => ({
+        service,
+        isLocal: _.has(data, 'overrides.build') || _.has(data, 'services.build') || _.get(data, 'api', 3) === 4,
+      }))
       .value();
 
     // Set local and pullys for downstream concerns
@@ -127,5 +142,6 @@ module.exports = (app, lando) => {
   app.events.on('post-uninstall', () => {
     lando.cache.remove(app.preLockfile);
     lando.cache.remove(app.postLockfile);
+    app.log.debug('removed v3 build locks');
   });
 };

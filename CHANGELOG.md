@@ -1,3 +1,35 @@
+## v3.20.0 - [September 22, 2023](https://github.com/lando/core/releases/tag/3.20.0)
+
+### New Features
+
+* Added support for Docker Compose V2 which is now the default orchestrator. [Read more](https://docs.lando.dev/core/v3/orchestrator.html).
+* Added an `orchestratorVersion` option to the global config. [Read more](https://docs.lando.dev/core/v3/orchestrator.html).
+* Added `healthcheck` support to all Lando 3 services. [Read more](https://docs.lando.dev/core/v3/healthcheck.html).
+* Added a generic Lando 3 `lando` service into core. See [Read more](https://docs.lando.dev/core/v3/services.html#lando-service).
+* Bumped support of Docker Compose to `1.x.x || 2.x.x`
+* Bumped support of Docker Desktop to `>=4.0.0 <4.24`
+* Bumped support of Docker Engine to `>=18 <25`
+* Dropped support for Docker Desktop `<4.0.0`
+
+### Fixes
+
+* Fixed bug where `lando ssh --help` was incorrectly listing `appserver` as the default `service` in some situations
+* Fixed bug where `cli` was needlessly printing `usermod: no changes` [#152](https://github.com/lando/cli/pull/152)
+* Fixed bug where dynamic tooling events were not setting the service with an option correctly
+* Fixed bug where `proxy` service was wiping out `app.compose`
+* Fixed deprecated usage of `network.external.name` on `lando_proxyedge`
+
+### Internal
+
+* `config.yml` from `@lando/core` is now loaded after the `config.yml` from `@lando/cli`
+
+### DEPRECATIONS
+
+#### Global Config
+
+  * `composeBin` is now discouraged in favor of `orchestratorVersion`. [Read more](https://docs.lando.dev/core/v3/orchestrator.html).
+  * `max` and `min` in `dockerSupportedVersions` are now discouraged in favor of `satisfies`. [See example](https://github.com/lando/core/blob/main/config.yml).
+
 ## v3.17.2 - [June 20, 2023](https://github.com/lando/core/releases/tag/3.17.2)
 
 * Fixed busted cutover to new release process take 2

@@ -8,7 +8,6 @@ const utils = require('./lib/utils');
 module.exports = (app, lando) => {
   // Compose cache key
   const composeCache = `${app.name}.compose.cache`;
-
   // If we have an app with a tooling section let's do this
   app.events.on('post-init', () => {
     if (!_.isEmpty(_.get(app, 'config.tooling', {}))) {
@@ -22,15 +21,29 @@ module.exports = (app, lando) => {
     }
   });
 
+  // ensure we override the ssh tooling command with a good default
+  app.events.on('ready', 1, () => {
+    if (_.find(lando.tasks, {command: 'ssh'})) {
+      const sshTask = _.cloneDeep(_.find(lando.tasks, {command: 'ssh'}));
+      _.set(sshTask, 'options.service.default', app._defaultService);
+      app._coreToolingOverrides.push(sshTask);
+    }
+  });
+
+
   // Save a compose cache every time the app is ready, this allows us to
-  // run faster tooling commands
+  // run faster tooling commands and set better per-app defaults
   app.events.on('ready', () => {
     lando.cache.set(composeCache, {
       name: app.name,
       project: app.project,
       compose: app.compose,
+      containers: app.containers,
       root: app.root,
       info: app.info,
+      overrides: {
+        tooling: app._coreToolingOverrides,
+      },
     }, {persist: true});
   });
 

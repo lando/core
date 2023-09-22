@@ -6,21 +6,20 @@ mode: cli
 
 dockerSupportedVersions:
   compose:
-    min: "1.23.0"
-    max: "1.30.0"
+    satisfies: "1.x.x || 2.x.x"
     link:
       linux: https://docs.docker.com/compose/install/#install-compose-on-linux-systems
+      darwin: https://docs.docker.com/desktop/install/mac-install/
+      win32: https://docs.docker.com/desktop/install/windows-install/
   desktop:
-    min: "2.1.0.0"
-    max: "4.16.99"
+    satisfies: ">=4.0.0 <4.24"
     link:
-      darwin: https://docs.docker.com/docker-for-mac/release-notes/
-      win32: https://docs.docker.com/docker-for-windows/release-notes/
+      darwin: https://docs.docker.com/desktop/install/mac-install/
+      win32: https://docs.docker.com/desktop/install/windows-install/
   engine:
-    min: "18.09.3"
-    max: "20.10.99"
+    satisfies: ">=18 <25"
     link:
-      linux: https://docs.docker.com/engine/install/
+      linux: https://docs.docker.com/engine/install/debian/#install-using-the-convenience-script
 
 landoFile: .lando.yml
 stats:

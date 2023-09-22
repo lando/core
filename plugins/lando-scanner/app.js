@@ -60,9 +60,9 @@ module.exports = async (app, lando) => {
       .flatMap(service => _(service.urls)
         .map(url => ({
           type: 'url-scan',
-          events: ['start', 'restart', 'rebuild'],
           test: scan,
           service: service.service,
+          delay: _.get(app, `config.services.${service.service}.scanner.delay`, 1000),
           retry: _.get(app, `config.services.${service.service}.scanner.retry`, 25),
           skip: _.get(app, `config.services.${service.service}.scanner`) === false || _.includes(url, '*'),
           title: url,
@@ -80,5 +80,31 @@ module.exports = async (app, lando) => {
 
     // combine our checks into app.checks
     app.checks = [...app.checks, ...checks].filter(Boolean);
+
+    // if we have the CLI then add more checks but as listr tasks
+    if (_.has(lando, 'cli') && lando.cli.runTaskList) {
+      const tasks = _(app.checks)
+        .filter(checks => checks.type === 'url-scan')
+        .groupBy('service')
+        .map((tasks, name) => ({
+          title: lando.cli.chalk.cyan(`${_.upperCase(name)} URLS`),
+          task: (ctx, task) => {
+            const subtasks = _(tasks).map(subtask => require('./utils/checks-to-listr')(subtask)).value();
+            return task.newListr(subtasks, {concurrent: true, exitOnError: false});
+          },
+        }))
+        .value();
+
+      // add our listr2 check tasklist
+      app.checks.push({
+        type: 'url-scan-listr2',
+        test: lando.cli.runTaskList.bind(lando.cli),
+        args: [tasks, {
+          debugRendererOptions: {log: app.log.info},
+          renderer: 'lando',
+          rendererOptions: {level: 1},
+        }],
+      });
+    }
   });
 };

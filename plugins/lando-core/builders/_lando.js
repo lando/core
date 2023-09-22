@@ -15,11 +15,12 @@ const utils = require('../lib/utils');
 module.exports = {
   name: '_lando',
   parent: '_compose',
-  builder: parent => class LandoCompose extends parent {
+  builder: parent => class LandoLando extends parent {
     constructor(
       id,
       {
         name,
+        healthcheck,
         type,
         userConfRoot,
         version,
@@ -156,6 +157,10 @@ module.exports = {
       info.version = version;
       info.meUser = meUser;
       info.hasCerts = ssl;
+      info.api = 3;
+
+      // Add the healthcheck if it exists
+      if (healthcheck) info.healthcheck = healthcheck;
 
       // Pass it down
       super(id, info, ...sources);

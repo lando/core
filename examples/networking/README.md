@@ -12,15 +12,18 @@ Start up tests
 
 ```bash
 # Should init and start a lamp recipe
-rm -rf lamp
-lando init --source cwd --recipe lamp --name lando-lamp --webroot . --dest lamp
+rm -rf lamp && mkdir -p lamp
 cp -rf index.php lamp/index.php
+cp -rf apache.conf lamp/apache.conf
+cp -rf .lando.lamp.yml lamp/.lando.yml
 cd lamp && lando start
 
 # Should init and start a lemp recipe
-rm -rf lemp
-lando init --source cwd --recipe lemp --name lando-lemp --webroot . --dest lemp
+rm -rf lemp && mkdir -p lemp
 cp -rf index.php lemp/index.php
+cp -rf apache.conf lemp/apache.conf
+cp -rf nginx.conf lemp/nginx.conf
+cp -rf .lando.lemp.yml lemp/.lando.yml
 cd lemp && lando start
 ```
 
@@ -32,20 +35,41 @@ Run the following commands to verify things work as expected
 ```bash
 # Should have the correct entries in /certs/cert.ext
 cd lamp
-lando ssh -s appserver -c "cat /certs/cert.ext | grep lndo.site"
-lando ssh -s appserver -c "cat /certs/cert.ext | grep landolamp.internal"
-lando ssh -s appserver -c "cat /certs/cert.ext | grep appserver"
-lando ssh -s appserver -c "cat /certs/cert.ext | grep localhost"
+lando ssh -s appserver -c "cat /certs/cert.ext" | grep DNS.1 | grep -w appserver.landolamp.internal
+lando ssh -s appserver -c "cat /certs/cert.ext" | grep DNS.2 | grep -w appserver
+lando ssh -s appserver -c "cat /certs/cert.ext" | grep DNS.3 | grep -w localhost
+lando ssh -s appserver -c "cat /certs/cert.ext" | grep lando-lamp.lndo.site
+cd .. && cd lemp
+lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.1 | grep -w placeholder.landolemp.internal
+lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.2 | grep -w placeholder
+lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.3 | grep -w localhost
+lando ssh -s placeholder -c "cat /certs/cert.ext" | grep placeholder.lando-lemp.lndo.site
 
-# Should be able to curl lemp from lamp at proxy addresses and internal hostname
+# Should be able to self connect
 cd lamp
-lando ssh -s appserver -c "curl https://lando-lemp.lndo.site"
-lando ssh -s appserver -c "curl https://appserver_nginx.landolemp.internal"
+lando ssh -s appserver -c "curl http://localhost"
+lando ssh -s appserver -c "curl https://localhost"
+cd .. && cd lemp
+lando ssh -s placeholder -c "curl http://localhost"
+lando ssh -s placeholder -c "curl https://localhost"
+
+# Should be able to curl lemp from lamp at proxy addresses and internal hostnames
+cd lamp
+lando ssh -s appserver -c "curl http://lando-lemp.lndo.site"
+lando ssh -s appserver -c "curl http://appserver_nginx.landolemp.internal"
+# lando ssh -s appserver -c "curl https://lando-lemp.lndo.site"
+# lando ssh -s appserver -c "curl https://appserver_nginx.landolemp.internal"
+lando ssh -s appserver -c "curl https://placeholder.lando-lemp.lndo.site"
+lando ssh -s appserver -c "curl https://placeholder.landolemp.internal"
 
 # Should be able to curl lamp from lemp at proxy addresses and internal hostname
 cd lemp
-lando ssh -s appserver -c "curl https://lando-lamp.lndo.site"
-lando ssh -s appserver -c "curl https://appserver.landolamp.internal"
+lando ssh -s appserver -c "curl http://lando-lamp.lndo.site"
+lando ssh -s appserver -c "curl http://appserver.landolamp.internal"
+# lando ssh -s appserver -c "curl https://lando-lamp.lndo.site"
+# lando ssh -s appserver -c "curl https://appserver.landolamp.internal"
+lando ssh -s placeholder -c "curl https://lando-lamp.lndo.site"
+lando ssh -s placeholder -c "curl https://appserver.landolamp.internal"
 
 # Should even be able to connect to a database in a different app
 cd lamp

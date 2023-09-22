@@ -29,21 +29,30 @@ lando php -r "phpinfo();"
 
 # Should run as meUser by default
 lando whoami | grep www-data
+lando whoami --service l337-php | grep www-data
 lando nodeme | grep node
-lando stillme | grep node
+lando nodeme --service l337-node | grep node
+lando stillme | grep node | wc -l | grep 2
 
 # Should run as the specified user
 lando iamroot
 lando ssh -s php -c "cat /whoami | grep root"
+lando iamroot --service l337-php
+lando ssh -s l337-php -c "cat /whoami | grep root"
 lando notme | grep www-data
+lando notme --service l337-node | grep www-data
 
 # Should be able to run multiple commands on one service
 lando test
+lando test2
 
 # Should be able to define and pass down options to a script
 lando word --word bird | grep "bird is the word"
 lando word -w gird | grep "gird is the word"
 lando word --word "this is actually a phrase" | grep "this is actually a phrase"
+lando word --service l337-node --word bird | grep "bird is the word"
+lando word --service l337-node -w gird | grep "gird is the word"
+lando word --service l337-node --word "this is actually a phrase" | grep "this is actually a phrase"
 
 # Should be able to run multiple commands on multiple services
 lando env
@@ -72,6 +81,43 @@ lando oneliner | grep HOLLA
 
 # Should be able to set the working directory
 lando workdir | grep /tmp
+
+# Should not track host if working dir is used
+cd folder
+lando workdir | grep "/tmp"
+lando workdir | grep /tmp/folder || echo "$?" | grep 1
+
+# Should use /app as the default appMount for v3 services
+lando ssh --service web -c "pwd" | grep /app
+lando ssh --service web2 -c "pwd" | grep /app
+lando ssh --service php -c "pwd" | grep /app
+lando ssh --service node -c "pwd" | grep /app
+
+# Should use and track appMount by default
+lando pwd | grep /app
+cd folder && lando pwd | grep /app/folder && cd ..
+lando ssh -c "pwd" | grep /app
+cd folder && lando ssh -c "pwd" | grep /app/folder && cd ..
+lando pwd --service l337-node | grep /app
+cd folder && lando pwd --service l337-node | grep /app/folder && cd ..
+lando ssh --service l337-node -c "pwd" | grep /app
+cd folder && lando ssh --service l337-node -c "pwd" | grep /app/folder && cd ..
+lando pwd --service l337-php | grep /web
+cd folder && lando pwd --service l337-php | grep /web/folder && cd ..
+lando ssh --service l337-php -c "pwd" | grep /web
+cd folder && lando ssh --service l337-php -c "pwd" | grep /web/folder && cd ..
+lando pwd --service web | grep /app
+cd folder && lando pwd --service web | grep /app/folder && cd ..
+lando ssh --service web -c "pwd" | grep /app
+cd folder && lando ssh --service web -c "pwd" | grep /app/folder && cd ..
+
+# Should use working_dir if no app mount for v4 services
+lando pwd --service l337-slim | grep /tmp
+
+# Should use first lando 3 service as default if no appserver
+lando ssh -c "env" | grep PRIMARY_SERVICE | grep yes
+
+
 ```
 
 Destroy tests

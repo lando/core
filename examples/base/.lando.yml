@@ -10,3 +10,11 @@ pluginDirs:
   - plugins
 plugins:
   "@lando/base-test-plugin-2": ./test-plugin-2
+services:
+  web3:
+    api: 4
+    image: nginx
+    ports:
+      - '80'
+    volumes:
+    - ./:/usr/share/nginx/html

@@ -1,0 +1,6 @@
+FROM nginx:1.19
+
+ENV KIRK SHATNER
+ENV SERVICE image-2
+
+COPY file10 /file10

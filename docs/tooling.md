@@ -162,11 +162,11 @@ tooling:
 
 ### Current working directory
 
-By default Lando will run your tooling command in the container equivalent of the directory you are in on your host.
+By default Lando will run your tooling command in the container equivalent of the directory you are in on your host. See [this for more details](#directory-mapping).
 
 You can change this behavior by specifiying an absolute path to run your command. Note that if you want to run a command from your project root you should use `/app` as the starting point.
 
-As an example if you wanted to install `node` dependencies from `path/to/theme` relative to you project root you would use the below.
+As an example if you wanted to install `node` dependencies from `path/to/theme` relative to you project root you would use the below. Note that once you set `dir` Lando will no longer track the host dir you are in eg all invocations of the command will run in `dir` and `dir` alone.
 
 ```yaml
 tooling:
@@ -302,8 +302,9 @@ lando ssh -c "pwd"
 cd web
 lando ssh -c "pwd"
 # /app/web
-
 ```
+
+Note that if you set `dir` option in your tooling command `pwd` will **ONLY** ever return `dir`.
 
 ## Tool Discovery
 

@@ -24,6 +24,19 @@ proxy:
     - web4.lndo.site:8080
     - hostname: web5.lndo.site
       port: 8080
+  l337:
+    - "give.me.*.lndo.site:8888/more/subs"
+    - "*.wild.l337.lndo.site:8888"
+    - www.l337.lndo.site:8888
+    - hostname: l337.lndo.site
+      port: 8888
+    - hostname: headers.l337.lndo.site
+      port: 8888
+      middlewares:
+        - name: test
+          key: headers.customresponseheaders.X-Lando-Test
+          value: on
+
   php:
     - hostname: object-format.lndo.site
       port: 80
@@ -39,8 +52,33 @@ proxy:
       port: 80
 
 services:
+  l337:
+    api: 4
+    image: nginx:1.22.1
+    volumes:
+      - "./:/app"
+      - "./default.conf.template:/etc/nginx/templates/default.conf.template"
+    ports:
+      - "8888"
+    environment:
+      NGINX_PORT: "8888"
+      NGINX_WEBROOT: "/app"
+      NGINX_SERVER_NAME: "l337"
+  php:
+    api: 3
+    type: lando
+    ssl: true
+    sslExpose: false
+    services:
+      image: php:7.4-apache
+      command: docker-php-entrypoint apache2-foreground
+      volumes:
+        - "./web:/var/www/html"
+      ports:
+        - "80"
   web3:
-    type: compose
+    api: 3
+    type: lando
     ssl: true
     sslExpose: false
     services:
@@ -51,14 +89,3 @@ services:
       ports:
         - "8080"
       user: root
-  php:
-    type: compose
-    ssl: true
-    sslExpose: false
-    services:
-      image: php:7.4-apache
-      command: docker-php-entrypoint apache2-foreground
-      volumes:
-        - "./web:/var/www/html"
-      ports:
-        - "80"

@@ -1,22 +1,44 @@
 'use strict';
 
+const _ = require('lodash');
+
 module.exports = lando => {
   return {
     command: 'poweroff',
     level: 'engine',
     describe: 'Spins down all lando related containers',
-    run: () => {
+    run: async () => {
       console.log(lando.cli.makeArt('poweroff', {phase: 'pre'}));
       // Get all our containers
-      return lando.engine.list()
+      const containers = await lando.engine.list();
+
       // SHUT IT ALL DOWN
-      .each(container => console.log('Bye bye %s ... ', container.name))
-      .delay(200)
-      .map(container => lando.engine.stop({id: container.id}))
+      if (containers.length > 0) {
+        const mtl = _.max(containers.map(containers => containers.name.length));
+        const getSpacer = size => _.range(size).map(size => '').join(' ');
+
+        console.log(lando.cli.chalk.blue(`[+] Stopping ${containers.length}/${containers.length}`));
+        const tasks = containers.map(container => ({
+          title: `Container ${container.name}${getSpacer(mtl - container.name.length + 3)}`,
+          task: async (ctx, task) => {
+            const prefix = `Container ${container.name}${getSpacer(mtl - container.name.length + 3)}`;
+            task.title = `${prefix}${lando.cli.chalk.green('Stopping')}`;
+            await lando.engine.stop({id: container.id});
+            task.title = `${prefix}${lando.cli.chalk.green('Stopped')}`;
+          },
+        }));
+
+        await lando.cli.runTaskList(tasks, {
+          debugRendererOptions: {log: lando.log.info},
+          renderer: 'lando',
+          rendererOptions: {level: 0.5},
+        });
+      }
+
       // Emit poweroff
-      .then(() => lando.events.emit('poweroff'))
+      await lando.events.emit('poweroff');
       // Finish up
-      .then(() => console.log(lando.cli.makeArt('poweroff', {phase: 'post'})));
+      console.log(lando.cli.makeArt('poweroff', {phase: 'post'}));
     },
   };
 };

@@ -42,37 +42,47 @@ const uc = (uid, gid, username) => ({
 });
 
 /*
- * Helper to get docker compose v1 download url
+ * Helper to get docker compose v2 download url
  */
-const getComposeDownloadUrl = (version = '1.29.2') => {
-  switch (process.platform) {
-    case 'darwin':
+const getComposeDownloadUrl = (version = '2.21.0') => {
+  const mv = version.split('.')[0];
+  const arch = process.arch === 'arm64' ? 'aarch64' : 'x86_64';
+  const toggle = `${process.platform}-${mv}`;
+
+  switch (toggle) {
+    case 'darwin-2':
+      return `https://github.com/docker/compose/releases/download/v${version}/docker-compose-darwin-${arch}`;
+    case 'linux-2':
+      return `https://github.com/docker/compose/releases/download/v${version}/docker-compose-linux-${arch}`;
+    case 'win32-2':
+      return `https://github.com/docker/compose/releases/download/v${version}/docker-compose-windows-${arch}.exe`;
+    case 'darwin-1':
       return `https://github.com/docker/compose/releases/download/${version}/docker-compose-Darwin-x86_64`;
-    case 'linux':
+    case 'linux-1':
       return `https://github.com/docker/compose/releases/download/${version}/docker-compose-Linux-x86_64`;
-    case 'win32':
+    case 'win32-1':
       return `https://github.com/docker/compose/releases/download/${version}/docker-compose-Windows-x86_64.exe`;
   }
 };
 
 /*
- * Helper to get docker compose v1 download destination
+ * Helper to get docker compose v2 download destination
  */
-const getComposeDownloadDest = base => {
+const getComposeDownloadDest = (base, version = '2.21.0') => {
   switch (process.platform) {
     case 'linux':
     case 'darwin':
-      return path.join(base, 'docker-compose');
+      return path.join(base, `docker-compose-v${version}`);
     case 'win32':
-      return path.join(base, 'docker-compose.exe');
+      return path.join(base, `docker-compose-v${version}`);
   }
 };
 
 /*
  * Helper to get ca run object
  */
-const getCaRunner = (project, files) => ({
-  id: [project, 'ca', '1'].join('_'),
+const getCaRunner = (project, files, separator = '_') => ({
+  id: [project, 'ca', '1'].join(separator),
   compose: files,
   project: project,
   cmd: '/setup-ca.sh',
@@ -96,16 +106,18 @@ module.exports = lando => {
   // Ensure some dirs exist before we start
   _.forEach([binDir, caDir, sshDir], dir => mkdirp.sync(dir));
 
-  // Ensure we have docker-compose v1 available
-  lando.events.on('post-bootstrap-engine', () => {
-    if (lando.config.composeBin === false) {
-      // get needed things
-      const url = getComposeDownloadUrl();
-      const dest = getComposeDownloadDest(path.join(lando.config.userConfRoot, 'bin'));
-      lando.log.debug('could not detect docker-compose v1, downloading from %s to %s...', url, dest);
-
-      // download docker-compose v1
-      return axios({method: 'get', url, responseType: 'stream'})
+  // Ensure we download docker-compose if needed
+  lando.events.on('pre-bootstrap-engine', 1, () => {
+    // get stuff from config
+    const {orchestratorBin, orchestratorVersion, userConfRoot} = lando.config;
+    const dest = getComposeDownloadDest(path.join(userConfRoot, 'bin'), orchestratorVersion);
+    // if we dont have a orchestratorBin or havent downloaded orchestratorVersion yet
+    if (!!!orchestratorBin && typeof orchestratorVersion === 'string' && !fs.existsSync(dest)) {
+      // log
+      lando.log.debug('could not detect docker-compose v%s!');
+      lando.log.debug('downloading %s to %s...', getComposeDownloadUrl(orchestratorVersion), dest);
+      // download docker-compose
+      return axios({method: 'get', url: getComposeDownloadUrl(orchestratorVersion), responseType: 'stream'})
       // stream it into a file and reset the config
       .then(response => {
         const writer = fs.createWriteStream(dest);
@@ -123,14 +135,25 @@ module.exports = lando => {
           });
         });
       })
-      // ensure file is executable and we update the composeBin
+      // success
       .then(() => {
-        lando.config.composeBin = env.getComposeExecutable(lando.config);
-        lando.utils.makeExecutable([path.basename(lando.config.composeBin)], path.dirname(lando.config.composeBin));
-        lando.engine.composeInstalled = fs.existsSync(lando.config.composeBin);
-        lando.log.debug('docker-compose v1 downloaded to %s', lando.config.composeBin);
+        const {makeExecutable} = require('../../lib/utils');
+        makeExecutable([path.basename(dest)], path.dirname(dest));
+        lando.log.debug('docker-compose v%s downloaded to %s', orchestratorVersion, dest);
+      })
+      // if download fails for whatever reason then log it and indicate
+      .catch(error => {
+        lando.log.debug('could not download docker-compose v%s: %s', orchestratorVersion, error.message);
+        lando.log.silly('%j', error);
+        lando.log.debug('will attempt to use a system-installed version of docker-compose');
       });
     }
+  });
+
+  // at this point we should be able to set orchestratorBin if it hasnt been set already
+  lando.events.on('pre-bootstrap-engine', 2, () => {
+    if (!!!lando.config.orchestratorBin) lando.config.orchestratorBin = env.getComposeExecutable(lando.config);
+    lando.log.debug('using docker-compose %s', lando.config.orchestratorBin);
   });
 
   // Make sure we have a host-exposed root ca if we don't already
@@ -143,7 +166,7 @@ module.exports = lando => {
       const caData = new LandoCa(lando.config.userConfRoot, env, labels);
       const caFiles = lando.utils.dumpComposeData(caData, caDir);
       lando.log.debug('setting up Lando Local CA at %s', caCert);
-      return lando.engine.run(getCaRunner(caProject, caFiles));
+      return lando.engine.run(getCaRunner(caProject, caFiles, lando.config.orchestratorSeparator));
     }
   });
 

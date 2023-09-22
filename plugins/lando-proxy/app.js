@@ -171,7 +171,7 @@ module.exports = (app, lando) => {
               `${lando.config.userConfRoot}/scripts/proxy-certs.sh:/scripts/100-proxy-certs`,
             ],
           }),
-          networks: {'lando_proxyedge': {external: {name: lando.config.proxyNet}}},
+          networks: {'lando_proxyedge': {name: lando.config.proxyNet, external: true}},
           volumes: _.set({}, proxyVolume, {external: true}),
         };
       })
@@ -180,10 +180,9 @@ module.exports = (app, lando) => {
       // @NOTE: we can't add this in the normal way since this happens AFTER our app
       // has been initialized
       .then(result => {
-        const proxyData = new app.ComposeService('proxy', {}, ...result);
-        const proxyFiles = lando.utils.dumpComposeData(proxyData, app._dir);
-        app.compose = app.compose.concat(proxyFiles);
-        app.log.debug('app has proxy compose files', proxyFiles);
+        app.add(new app.ComposeService('proxy', {}, ...result));
+        app.compose = lando.utils.dumpComposeData(app.composeData, app._dir);
+        app.log.debug('app now has proxy compose files', app.compose);
       })
 
       // Warn the user if this fails

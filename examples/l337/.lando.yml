@@ -1,0 +1,276 @@
+name: "l337"
+events:
+  post-start:
+    - env | grep SERVICE | grep web
+    - whoami | grep nginx
+tooling:
+  env:
+    service: ":service"
+    options:
+      service:
+        default: "web"
+        describe: "Runs in this service"
+  groups:
+    cmd: cat /tmp/groups
+    service: ":service"
+    options:
+      service:
+        default: "groups-1"
+        describe: "Runs in this service"
+  pwd:
+    service: ":service"
+    options:
+      service:
+        default: "web"
+        describe: "Runs in this service"
+  stat:
+    service: "context-1"
+  whoami:
+    service: ":service"
+    options:
+      service:
+        default: "web"
+        describe: "Runs in this service"
+
+services:
+  db:
+    api: 4
+    build:
+      dockerfile: "Dockerfile"
+    environment:
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 1
+      BOB: 5
+    scanner: false
+    working_dir: "/tmp"
+  web:
+    api: 4
+    primary: true
+    image: |
+      FROM nginx:1.22.1
+      COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+      ENV SERVICE web
+    meUser: nginx
+    networks:
+      my-network:
+    volumes:
+      - "my-data:/data"
+      - "./file1:/file-ro:ro"
+      - "./:/site"
+    ports:
+      - 8888
+    moreHttpPorts:
+      - 8888
+
+  # image features
+  image-1:
+    api: 4
+    image: "nginx:1.21.6"
+  image-2:
+    api: 4
+    image: "./images/nginx/Dockerfile"
+  image-3:
+    api: 4
+    image: |
+      # also test weird indentation and casing
+      FROM nginx:1.20
+        copy file1 /file1
+      ENV SERVICE image-3
+  image-4:
+    api: 4
+    image:
+      imagefile: "nginx:1.21.5"
+      tag: "lando/nginx:powerman-5000"
+  image-5:
+    api: 4
+    image:
+      dockerfile: "./images/nginx/Dockerfile2"
+  image-6:
+    api: 4
+    image:
+      imagefile: |
+        FROM nginx:1.21.6
+        ENV SERVICE image-6
+        WORKDIR /usr/share/nginx/html
+
+  # context features
+  context-1:
+    api: 4
+    image:
+      imagefile: |
+        FROM nginx:1.21.6
+        RUN useradd eddie-teach
+      context:
+        # COPY ./folder to /folder
+        - "./folder"
+        # COPY ./folder to /thing
+        - "./folder:thing"
+        # COPY file1 to /file2
+        - "file1:/file2"
+        # COPY file1 to /file3
+        - src: "file1"
+          dest: "file3"
+        # COPY file1 to /file4
+        - source: "file1"
+          destination: "/tmp/file4"
+        # COPY file1 to /file4 with instruction overrides
+        - source: "file1"
+          destination: "file4"
+          instructions: "COPY /file4 /tmp/stuff/file5"
+        - source: "file1"
+          destination: "file4"
+          instructions: |
+            COPY /file4 /file6
+            ENV HALL OATES
+        # COPY ./images/Dockerfile to /images/nginx/Dockerfile
+        - source: "./images/nginx/Dockerfile"
+        # COPY file1 to /file6 and set ownership to nginx:nginx
+        - source: "file1"
+          destination: "/file7"
+          owner: "nginx:nginx"
+        # COPY file1 to /file7 and set ownership to nginx:nginx
+        - source: "file1"
+          destination: "file8"
+          user: "nginx"
+          group: "dialout"
+        - source: "file1"
+          destination: "file9"
+          user: "nginx"
+        # ADD HeresAHealthToTheCompany.json
+        # to /SeaShanties/lyrics/main/shanties/HeresAHealthToTheCompany.json
+        - source: "https://raw.githubusercontent.com/SeaShanties/lyrics/main/shanties/HeresAHealthToTheCompany.json"
+        # ADD available-shanties.json
+        # to /etc/config/available-shanties.json and set ownership to blackbeard
+        - source: "https://raw.githubusercontent.com/SeaShanties/lyrics/main/available-shanties.json"
+          dest: "/etc/config/available-shanties.json"
+          owner: "eddie-teach"
+
+  # group example
+  groups-1:
+    api: 4
+    image:
+      imagefile: "nginx:1.21.5"
+      context:
+        # COPY ./folder to /folder
+        - "./folder"
+        # COPY ./folder to /thing
+        - "./folder:thing"
+        # COPY file1 to /file2
+        - "file1:/file2"
+        # COPY file1 to /file3
+        - src: "file1"
+          dest: "file3"
+        # COPY file1 to /file4
+        - source: "file1"
+          destination: "/tmp/file4"
+        # COPY file1 to /file4 with instruction overrides
+        - source: "file1"
+          destination: "file4"
+          instructions: "COPY /file4 /tmp/stuff/file5"
+        - source: "file1"
+          destination: "file4"
+          instructions: |
+            COPY /file4 /file6
+            ENV HALL OATES
+      groups:
+        # adds a group to potentially conflict with an override
+        - name: "system-4"
+          description: "Test group override syntax"
+          weight: -100000
+          user: "root"
+        # adds a root user group called "system" that runs first
+        - name: "system"
+          description: "Install system packages and stuff"
+          weight: -10000
+          user: "root"
+        # adds a nginx user group called "user" that runs last
+        - name: "user"
+          description: "Allows for user run commands after other groups"
+          weight: 10000
+          user: "nginx"
+        # adds a group called "val-jean" with weight "24601"
+        # uses root user by default
+        - val-jean: 24601
+      steps:
+        # direct group usage
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "val-jean"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "user"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "default"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "context"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "system"
+        - instructions: |
+            RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+            RUN chmod 777 /tmp/groups
+          group: "system-4"
+        # override group usage
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "system-2"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "system-3-after"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "system-nginx-after-4"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "system-5-after-nginx"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "system-10-before-nginx"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "val-jean-2"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "val-jean-3-after"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "val-jean-nginx-after-4"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "val-jean-5-after-nginx"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "val-jean-10-before-nginx"
+        - instructions: |
+            RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+            USER root
+          group: "val-jean-100-after"
+        # other cases
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          weight: -99999999
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: user
+          weight: 10
+  steps-1:
+    api: 4
+    image:
+      imagefile: "nginx:1.21.5"
+      steps:
+        # insert string instructions into the default group
+        - instructions: RUN echo "$LANDO_IMAGE_GROUP" > /tmp/val-jean-group
+          group: "val-jean-2"
+        - instructions: |
+            ENV VIBES RISING
+            COPY my-script.sh /runme.sh
+            RUN chmod +x /runme.sh
+            RUN /runme.sh
+        # insert array format instructions into the default group
+        # See: https://www.npmjs.com/package/dockerfile-generator for syntax
+        - instructions:
+          - env:
+              KIRK: "wesley"
+              SPOCK: "peck"
+          - run: "env"
+          - run:
+            - "stat"
+            - "/tmp"
+        # insert group detached, one-off, singleton, instructions
+        # at arbitrary weight
+        - instructions: RUN echo "last" >> /stuff
+          weight: 1001
+        - instructions: RUN echo "middle" >> /stuff
+          weight: 999
+        - instructions: RUN echo "first" >> /stuff
+          weight: 1
+
+networks:
+  my-network:
+volumes:
+  my-data:

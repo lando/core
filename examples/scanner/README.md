@@ -3,7 +3,7 @@ Scanner Example
 
 This example exists primarily to test the following documentation:
 
-* [Service Scanning](http://docs.devwithlando.io/config/services.html#build-steps)
+* [Scanning](https://docs.lando.dev/core/v3/scanner.html)
 
 Start up tests
 --------------
@@ -27,6 +27,7 @@ docker inspect landoscanner_scanme_1 | grep io.lando.http-ports | grep "80,443"
 
 # Should add an extra port to io.lando.http-ports if specified
 docker inspect landoscanner_moreports_1 | grep io.lando.http-ports | grep "80,443,8888"
+docker inspect landoscanner_l337_1 | grep io.lando.http-ports | grep "80,443,8888"
 ```
 
 Destroy tests
