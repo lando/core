@@ -144,9 +144,9 @@ module.exports = async (app, lando) => {
         },
         args: [tasks, {
           ctx: {errors: []},
+          debugRendererOptions: {log: app.log.debug},
           renderer: 'lando',
           rendererOptions: {level: 0.5},
-          rendererDebugOptions: {log: app.log.debug},
         }],
       });
     }

@@ -100,9 +100,9 @@ module.exports = async (app, lando) => {
         type: 'url-scan-listr2',
         test: lando.cli.runTaskList.bind(lando.cli),
         args: [tasks, {
+          debugRendererOptions: {log: app.log.debug},
           renderer: 'lando',
           rendererOptions: {level: 1},
-          rendererDebugOptions: {log: app.log.debug},
         }],
       });
     }
