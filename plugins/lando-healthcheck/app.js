@@ -39,8 +39,21 @@ module.exports = async (app, lando) => {
 
   // Add URL scan checks
   app.events.on('post-start', 1, () => {
-    // construct our healthcheck array
-    const healthchecks = _(_.get(app, 'parsedV3Services', []))
+    // start by getting "legacy" healthchecks that are expressed in lando.info via the _service builder
+    const legacyHealthchecks = _(_.get(app, 'info', []))
+      .filter(info => _.has(info, 'healthcheck'))
+      .filter(info => info.api === 3)
+      .map(info => ({
+        container: app.containers[info.service],
+        name: info.service,
+        service: info.service,
+        ...require('./utils/normalize-healthcheck')(info.healthcheck),
+      }))
+      .value();
+
+    // now get "new" healthchecks
+    // @NOTE: v4 healthchecks will be different? or not?
+    const newHealthchecks = _(_.get(app, 'parsedV3Services', []))
       .filter(service => _.has(service, 'healthcheck'))
       .map(service => ({
         container: app.containers[service.name],
@@ -48,6 +61,12 @@ module.exports = async (app, lando) => {
         service: service.name,
         ...require('./utils/normalize-healthcheck')(service.healthcheck),
       }))
+      .value();
+
+    // now combine the two but give priority to the new one
+    const healthchecks = _(newHealthchecks.concat(legacyHealthchecks))
+      .groupBy('container')
+      .map(checks => checks[0])
       .value();
 
     // put into checks format
@@ -108,6 +127,10 @@ module.exports = async (app, lando) => {
             }
 
             throw error;
+
+          // finally add a slight delay to help post-start events run without failure
+          } finally {
+            await require('delay')(1000);
           }
         },
       }))
