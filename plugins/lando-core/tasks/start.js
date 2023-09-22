@@ -15,21 +15,24 @@ module.exports = lando => {
       if (app) {
         console.log(lando.cli.makeArt('appStart', {name: app.name, phase: 'pre'}));
 
+        // in order to preserve runtim consistency with older healthchecks this all needs to run in the same
+        // post-start event
+        if (_.get(lando, 'config.healthcheck', true) !== 'legacy') {
+          app.events.on('post-start', 2, async () => {
+            const healthchecks = _.find(app.checks, {type: 'healthcheck-listr2'});
+            if (healthchecks) await healthchecks.test(...healthchecks.args);
+          });
+        }
+
         // Normal bootup
         try {
           await app.start();
           // determine legacy settings
-          const legacyHealthCheck = _.get(lando, 'config.healthcheck', true) === 'legacy';
           const legacyScanner = _.get(lando, 'config.scanner', true) === 'legacy';
-          // get type and phase
+          // get scanner stuff
           const type = !_.isEmpty(app.warnings) ? 'report' : 'post';
           const phase = legacyScanner ? `${type}_legacy` : type;
-          // get listr tasks
           const scans = _.find(app.checks, {type: 'url-scan-listr2'});
-          const healthchecks = _.find(app.checks, {type: 'healthcheck-listr2'});
-
-          // if we are not in legacy healthcheck mode then run the healthchecks
-          if (!legacyHealthCheck && healthchecks) await healthchecks.test(...healthchecks.args);
 
           // print post start table
           console.log(lando.cli.makeArt('appStart', {name: app.name, phase, warnings: app.warnings}));

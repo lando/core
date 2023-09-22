@@ -30,23 +30,26 @@ module.exports = lando => {
         // If user has given us options then set those
         if (!_.isEmpty(options.service)) app.opts = _.merge({}, app.opts, {services: options.service});
 
+        // in order to preserve runtim consistency with older healthchecks this all needs to run in the same
+        // post-start event
+        if (_.get(lando, 'config.healthcheck', true) !== 'legacy') {
+          app.events.on('post-start', 2, async () => {
+            const healthchecks = _.find(app.checks, {type: 'healthcheck-listr2'});
+            if (healthchecks) await healthchecks.test(...healthchecks.args);
+          });
+        }
+
         // rebuild hero
         console.log(lando.cli.makeArt('appRebuild', {name: app.name, phase: 'pre'}));
 
         // rebuild
         await app.rebuild();
         // determine legacy settings
-        const legacyHealthCheck = _.get(lando, 'config.healthcheck', true) === 'legacy';
         const legacyScanner = _.get(lando, 'config.scanner', true) === 'legacy';
-        // get type and phase
+        // get scanner stuff
         const type = !_.isEmpty(app.warnings) ? 'report' : 'post';
         const phase = legacyScanner ? `${type}_legacy` : type;
-        // get listr tasks
         const scans = _.find(app.checks, {type: 'url-scan-listr2'});
-        const healthchecks = _.find(app.checks, {type: 'healthcheck-listr2'});
-
-        // if we are not in legacy healthcheck mode then run the healthchecks
-        if (!legacyHealthCheck && healthchecks) await healthchecks.test(...healthchecks.args);
 
         // rebuold tables
         console.log(lando.cli.makeArt('appRebuild', {name: app.name, phase, warnings: app.warnings}));
@@ -54,6 +57,9 @@ module.exports = lando => {
 
         // if we are not in legacy scanner mode then run the scans
         if (!legacyScanner && scans) await scans.test(...scans.args);
+
+        // aesthetics, consistency
+        console.log('');
       }
     },
   };
