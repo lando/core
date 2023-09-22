@@ -30,6 +30,7 @@ jobs:
           - examples/long-name
           - examples/networking
           - examples/no-services
+          - examples/orchestrator
           - examples/proxy
           - examples/scanner
           - examples/services
@@ -73,7 +74,7 @@ jobs:
           lando-version: ${{ matrix.lando-version }}
           config: |
             plugins.@lando/core=/home/runner/work/core/core
-            composeVersion=${{ matrix.docker-compose-version }}
+            orchestratorVersion=${{ matrix.docker-compose-version }}
           telemetry: false
       - name: Verify Lando works and we are dogfooding this plugin for tests
         run: |

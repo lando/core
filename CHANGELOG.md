@@ -251,7 +251,7 @@ Note that you will need to replace the above with a link for your OS and ARCH an
 
 ### Internal
 
-* `config.yml` from `@lando/core` is now loaded after the `config.yml` from `@lando/cli`. [See example]().
+* `config.yml` from `@lando/core` is now loaded after the `config.yml` from `@lando/cli`
 
 ### DEPRECATIONS
 
