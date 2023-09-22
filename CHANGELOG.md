@@ -2,10 +2,10 @@
 
 ### New Features
 
-* Added support for Docker Compose V2 which is now the default orchestrator. [Read more]().
-* Added a `composeVersion` option to the global config. [Read more]().
-* Added `healthcheck` support to all Lando 3 services. [Read more]().
-* Added a generic Lando 3 `lando` service into core. See [Read more]().
+* Added support for Docker Compose V2 which is now the default orchestrator. [Read more](https://docs.lando.dev/core/v3/orchestrator.html).
+* Added an `orchestratorVersion` option to the global config. [Read more](https://docs.lando.dev/core/v3/orchestrator.html).
+* Added `healthcheck` support to all Lando 3 services. [Read more](https://docs.lando.dev/core/v3/healthcheck.html).
+* Added a generic Lando 3 `lando` service into core. See [Read more](https://docs.lando.dev/core/v3/services.html#lando-service).
 * Bumped support of Docker Compose to `1.x.x || 2.x.x`
 * Bumped support of Docker Desktop to `>=4.0.0 <4.24`
 * Bumped support of Docker Engine to `>=18 <25`
@@ -21,14 +21,14 @@
 
 ### Internal
 
-* `config.yml` from `@lando/core` is now loaded after the `config.yml` from `@lando/cli`. [See example]().
+* `config.yml` from `@lando/core` is now loaded after the `config.yml` from `@lando/cli`
 
 ### DEPRECATIONS
 
 #### Global Config
 
-  * `composeBin` is now discouraged in favor of `composeVersion`. [Read more]().
-  * `max` and `min` in `dockerSupportedVersions` are now discouraged in favor of `satisfies`. [See example]().
+  * `composeBin` is now discouraged in favor of `orchestratorVersion`. [Read more](https://docs.lando.dev/core/v3/orchestrator.html).
+  * `max` and `min` in `dockerSupportedVersions` are now discouraged in favor of `satisfies`. [See example](https://github.com/lando/core/blob/main/config.yml).
 
 ## v3.17.2 - [June 20, 2023](https://github.com/lando/core/releases/tag/3.17.2)
 

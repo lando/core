@@ -1,0 +1,8 @@
+name: lando-orchestrator
+services:
+  appserver:
+    api: 3
+    type: lando
+    services:
+      image: php:8.2-fpm
+      command: docker-php-entrypoint sleep infinity

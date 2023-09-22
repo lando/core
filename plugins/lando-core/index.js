@@ -109,15 +109,15 @@ module.exports = lando => {
   // Ensure we download docker-compose if needed
   lando.events.on('pre-bootstrap-engine', 1, () => {
     // get stuff from config
-    const {composeBin, composeVersion, userConfRoot} = lando.config;
-    const dest = getComposeDownloadDest(path.join(userConfRoot, 'bin'), composeVersion);
-    // if we dont have a composeBin or havent downloaded composeVersion yet
-    if (!!!composeBin && typeof composeVersion === 'string' && !fs.existsSync(dest)) {
+    const {orchestratorBin, orchestratorVersion, userConfRoot} = lando.config;
+    const dest = getComposeDownloadDest(path.join(userConfRoot, 'bin'), orchestratorVersion);
+    // if we dont have a orchestratorBin or havent downloaded orchestratorVersion yet
+    if (!!!orchestratorBin && typeof orchestratorVersion === 'string' && !fs.existsSync(dest)) {
       // log
       lando.log.debug('could not detect docker-compose v%s!');
-      lando.log.debug('downloading %s to %s...', getComposeDownloadUrl(composeVersion), dest);
+      lando.log.debug('downloading %s to %s...', getComposeDownloadUrl(orchestratorVersion), dest);
       // download docker-compose
-      return axios({method: 'get', url: getComposeDownloadUrl(composeVersion), responseType: 'stream'})
+      return axios({method: 'get', url: getComposeDownloadUrl(orchestratorVersion), responseType: 'stream'})
       // stream it into a file and reset the config
       .then(response => {
         const writer = fs.createWriteStream(dest);
@@ -139,21 +139,21 @@ module.exports = lando => {
       .then(() => {
         const {makeExecutable} = require('../../lib/utils');
         makeExecutable([path.basename(dest)], path.dirname(dest));
-        lando.log.debug('docker-compose v%s downloaded to %s', composeVersion, dest);
+        lando.log.debug('docker-compose v%s downloaded to %s', orchestratorVersion, dest);
       })
       // if download fails for whatever reason then log it and indicate
       .catch(error => {
-        lando.log.debug('could not download docker-compose v%s: %s', composeVersion, error.message);
+        lando.log.debug('could not download docker-compose v%s: %s', orchestratorVersion, error.message);
         lando.log.silly('%j', error);
         lando.log.debug('will attempt to use a system-installed version of docker-compose');
       });
     }
   });
 
-  // at this point we should be able to set composeBin if it hasnt been set already
+  // at this point we should be able to set orchestratorBin if it hasnt been set already
   lando.events.on('pre-bootstrap-engine', 2, () => {
-    if (!!!lando.config.composeBin) lando.config.composeBin = env.getComposeExecutable(lando.config);
-    lando.log.debug('using docker-compose %s', lando.config.composeBin);
+    if (!!!lando.config.orchestratorBin) lando.config.orchestratorBin = env.getComposeExecutable(lando.config);
+    lando.log.debug('using docker-compose %s', lando.config.orchestratorBin);
   });
 
   // Make sure we have a host-exposed root ca if we don't already
@@ -166,7 +166,7 @@ module.exports = lando => {
       const caData = new LandoCa(lando.config.userConfRoot, env, labels);
       const caFiles = lando.utils.dumpComposeData(caData, caDir);
       lando.log.debug('setting up Lando Local CA at %s', caCert);
-      return lando.engine.run(getCaRunner(caProject, caFiles, lando.config.composeSeparator));
+      return lando.engine.run(getCaRunner(caProject, caFiles, lando.config.orchestratorSeparator));
     }
   });
 
