@@ -72,7 +72,9 @@ module.exports = (app, lando) => {
   // Refresh all our certs
   app.events.on('post-init', () => {
     // ensure build services are just v3 services since v4 services use a different build layer
-    const buildServices = _.get(app, 'opts.services', app.services).filter(service => app.servicesList.includes(service)); // eslint-disable-line max-len
+    const buildServices = _.get(app, 'opts.services', app.services)
+      .filter(service => app.servicesList
+      .includes(service));
 
     app.log.verbose('refreshing certificates...', buildServices);
     app.events.on('post-start', 9999, () => lando.Promise.each(buildServices, service => {
