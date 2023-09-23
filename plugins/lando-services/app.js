@@ -60,6 +60,26 @@ module.exports = (app, lando) => {
       app.add(data);
       app.info.push(data.info);
     });
+
+    // we need to add any "managed" services stealth added by service builders
+    const managed = _(app.info)
+      .filter(service => service.managed && service.api === 3)
+      .filter(service => !_.includes(app.servicesList, service.service))
+      .map(service => _.merge({}, service, {
+        _app: app,
+        app: app.name,
+        name: service.service,
+        home: lando.config.home,
+        project: app.project,
+        userConfRoot: lando.config.userConfRoot,
+      }))
+      .value();
+
+
+    // add to our lists
+    app.parsedServices = app.parsedServices.concat(managed);
+    app.parsedV3Services = app.parsedV3Services.concat(managed);
+    app.servicesList = app.servicesList.concat(managed.map(service => service.name));
   });
 
   // Handle V3 build steps
