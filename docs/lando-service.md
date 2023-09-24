@@ -1,9 +1,9 @@
 ---
-title: Scanner
-description: Configure Lando 3 service URL scanning
+title: Lando 3 Service
+description: Lando services are a curated set of Docker containers like php, apache, node, mysql that are stupid easy to use but also as configurable as any other Docker image.
 ---
 
-# Scanner
+# Lando Service
 
 Lando will automatically try to real-time scan all `localhost` and `proxy` URLs _as_ your app starts up. We do this to:
 
