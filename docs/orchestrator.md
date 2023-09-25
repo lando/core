@@ -17,7 +17,6 @@ If you would like to use a specific version of the Docker Compose CLI you can se
 Note that we have not tested every version combination so if you change the version from the default your mileage my vary.
 :::
 
-
 **config.yml**
 
 ```yaml

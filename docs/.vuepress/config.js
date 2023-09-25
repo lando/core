@@ -63,7 +63,6 @@ export default defineUserConfig({
           '/global.html',
           '/env.html',
           '/experimental.html',
-          '/networking.html',
           '/orchestrator.html',
           '/performance.html',
           '/plugins.html',
@@ -78,6 +77,7 @@ export default defineUserConfig({
         collapsible: true,
         children: [
           '/healthcheck.html',
+          '/networking.html',
           '/scanner.html',
         ],
       },

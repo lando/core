@@ -474,10 +474,9 @@
     mocha "^5.2.0"
     object-hash "^2.2.0"
 
-"@lando/vuepress-theme-default-plus@^1.0.0-beta.47":
+"@lando/vuepress-theme-default-plus@lando/vuepress-theme-default-plus#62abc63":
   version "1.0.0-beta.47"
-  resolved "https://registry.yarnpkg.com/@lando/vuepress-theme-default-plus/-/vuepress-theme-default-plus-1.0.0-beta.47.tgz#dfd6f906a1ef33aff529b827e2c7140652cabe2f"
-  integrity sha512-wyvQBur25qcFUaWjQzmd7ePoKWi0Y5FrCe3xIzGnMAtaVh47HOViiDJAwOIrJCyQBMBakbv3SwLu7JRSeVlNtQ==
+  resolved "https://codeload.github.com/lando/vuepress-theme-default-plus/tar.gz/62abc63d9002972cbbc651a32d7671c6490c0751"
   dependencies:
     "@octokit/core" "^3.5.1"
     "@octokit/plugin-paginate-rest" "^2.17.0"
@@ -512,9 +511,9 @@
     vue "^3.2.20"
     vue-router "^4.0.12"
 
-"@lando/vuepress-theme-default-plus@lando/vuepress-theme-default-plus#62abc63":
+"@lando/vuepress-theme-default-plus@lando/vuepress-theme-default-plus#681b46e":
   version "1.0.0-beta.47"
-  resolved "https://codeload.github.com/lando/vuepress-theme-default-plus/tar.gz/62abc63d9002972cbbc651a32d7671c6490c0751"
+  resolved "https://codeload.github.com/lando/vuepress-theme-default-plus/tar.gz/681b46ece6a9dddb090b5a663786c69a8ac681ba"
   dependencies:
     "@octokit/core" "^3.5.1"
     "@octokit/plugin-paginate-rest" "^2.17.0"

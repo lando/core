@@ -11,10 +11,6 @@ While this is not essential for every `service` it is useful in cases where you 
 
 A good example is a `post-start` event that sanitizes a database. If you do not wait for the database to be ready then that `post-start` event _may_ fail if it loses the "did I run before the database is ready race"?
 
-::: tip Introduced in Lando 3.20.0
-Note that this functionality was introduced in Lando 3.20.0 so you may need to udpate!
-:::
-
 ## Command
 
 To add a `healthcheck` to a service you must specific a `command` which can be done a few ways:
