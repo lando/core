@@ -96,6 +96,10 @@ lando ssh --service node -c "pwd" | grep /app
 # Should use and track appMount by default
 lando pwd | grep /app
 cd folder && lando pwd | grep /app/folder && cd ..
+lando pwd-app | grep /app
+cd folder && lando pwd-app | grep /app/folder && cd ..
+lando pwd-app --service l337-node | grep /app
+cd folder && lando pwd-app --service l337-node | grep /app/folder && cd ..
 lando ssh -c "pwd" | grep /app
 cd folder && lando ssh -c "pwd" | grep /app/folder && cd ..
 lando pwd --service l337-node | grep /app
@@ -110,6 +114,7 @@ lando pwd --service web | grep /app
 cd folder && lando pwd --service web | grep /app/folder && cd ..
 lando ssh --service web -c "pwd" | grep /app
 cd folder && lando ssh --service web -c "pwd" | grep /app/folder && cd ..
+
 
 # Should use working_dir if no app mount for v4 services
 lando pwd --service l337-slim | grep /tmp

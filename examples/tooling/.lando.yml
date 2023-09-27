@@ -171,3 +171,12 @@ tooling:
         alias:
           - s
         describe: Runs in this service
+  'pwd-app [file]':
+    cmd: pwd
+    service: :container
+    options:
+      container:
+        default: node
+        alias:
+          - s
+        describe: Runs in this service
