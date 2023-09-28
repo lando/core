@@ -60,6 +60,7 @@ lando word-engine "this is actually a phrase" | grep "this is actually a phrase"
 lando word-engine --service l337-node bird | grep "bird is the word"
 lando word-engine --service l337-node gird | grep "gird is the word"
 lando word-engine --service l337-node "this is actually a phrase" | grep "this is actually a phrase"
+lando lonely-bird
 
 # Should be able to run multiple commands on multiple services
 lando env

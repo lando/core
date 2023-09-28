@@ -134,6 +134,9 @@ tooling:
         alias:
           - s
         describe: Runs in this service
+  lonely-bird:
+    service: web
+    cmd: /app/word.sh
   dynamic:
     cmd: env
     service: :service
