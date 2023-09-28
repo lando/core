@@ -77,7 +77,7 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.0",
     "@lando/leia": "^1.0.0-beta.1",
-    "@lando/vuepress-theme-default-plus": "lando/vuepress-theme-default-plus#681b46e",
+    "@lando/vuepress-theme-default-plus": "1.0.0-beta.49",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "chai-events": "^0.0.1",
