@@ -1,3 +1,9 @@
+## v3.20.1 - [September 27, 2023](https://github.com/lando/core/releases/tag/3.20.1)
+
+### Fixes
+
+* Fixed bug where `tooling` commands using `app` bootstrap would use `/` instead of `appMount`
+
 ## v3.20.0 - [September 22, 2023](https://github.com/lando/core/releases/tag/3.20.0)
 
 ### New Features
