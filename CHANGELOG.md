@@ -11,7 +11,7 @@
 * Added support for Docker Compose V2 which is now the default orchestrator. [Read more](https://docs.lando.dev/core/v3/orchestrator.html).
 * Added an `orchestratorVersion` option to the global config. [Read more](https://docs.lando.dev/core/v3/orchestrator.html).
 * Added `healthcheck` support to all Lando 3 services. [Read more](https://docs.lando.dev/core/v3/healthcheck.html).
-* Added a generic Lando 3 `lando` service into core. See [Read more](https://docs.lando.dev/core/v3/services.html#lando-service).
+* Added a generic Lando 3 `lando` service into core. See [Read more](https://docs.lando.dev/core/v3/lando-service.html).
 * Bumped support of Docker Compose to `1.x.x || 2.x.x`
 * Bumped support of Docker Desktop to `>=4.0.0 <4.24`
 * Bumped support of Docker Engine to `>=18 <25`

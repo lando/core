@@ -1,6 +1,6 @@
 ---
 title: Scanner
-description: Lando services are a curated set of Docker containers like php, apache, node, mysql that are stupid easy to use but also as configurable as any other Docker image.
+description: Configure Lando 3 service URL scanning
 ---
 
 # Scanner
