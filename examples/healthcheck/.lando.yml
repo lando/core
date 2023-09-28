@@ -1,7 +1,7 @@
 name: lando-healthcheck
 events:
   post-start:
-    - database: mysql -uroot --silent --execute "SHOW DATABASES;"
+    - database1: mysql -uroot --silent --execute "SHOW DATABASES;"
 services:
   appserver:
     api: 3
@@ -31,11 +31,34 @@ services:
         THING: STUFF
       volumes:
         - "./test.txt:/var/www/test.txt"
-  database:
+  database1:
     api: 3
     type: lando
     healthcheck:
       command: mysql -uroot --silent --execute "SHOW DATABASES;"
+      user: mysql
+      retry: 10
+      delay: 1000
+    services:
+      image: mariadb:10.4
+      command: docker-entrypoint.sh mysqld
+      environment:
+        MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: da
+        MARIADB_MYSQL_LOCALHOST_USER: da
+        MARIADB_DATABASE: test
+        MARIADB_USER: test
+        MARIADB_PASSWORD: test
+        MARIADB_AUTO_UPGRADE: da
+  database2:
+    api: 3
+    type: lando
+    healthcheck:
+      command:
+        - mysql
+        - -uroot
+        - --silent
+        - --execute
+        - SHOW DATABASES;
       user: mysql
       retry: 10
       delay: 1000

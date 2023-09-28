@@ -24,7 +24,8 @@ Run the following commands to validate things are rolling as they should.
 ```bash
 # Should have passed all the healthchecks
 lando ssh -s appserver -c "stat /healthy"
-lando ssh -s database -c "mysql -uroot --silent --execute \"SHOW DATABASES;\""
+lando ssh -s database1 -c "mysql -uroot --silent --execute \"SHOW DATABASES;\""
+lando ssh -s database2 -c "mysql -uroot --silent --execute \"SHOW DATABASES;\""
 ```
 
 Destroy tests

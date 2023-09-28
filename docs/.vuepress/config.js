@@ -27,26 +27,50 @@ export default defineUserConfig({
     },
     sidebar: [
       {
-        text: 'Core Config',
-        collapsible: false,
+        text: 'Landofile',
+        collapsible: true,
         children: [
-          '/index.html',
-          '/recipes.html',
+          {
+            text: 'Basics',
+            link: '/index.html',
+          },
           '/services.html',
+          '/recipes.html',
           '/tooling.html',
           '/proxy.html',
-          '/env.html',
           '/events.html',
+        ],
+      },
+      {
+        text: 'Configuration',
+        collapsible: true,
+        children: [
+          '/global.html',
+          '/env.html',
           '/experimental.html',
-          '/networking.html',
+          '/orchestrator.html',
           '/performance.html',
           '/plugins.html',
           '/releases.html',
-          '/scanner.html',
           '/ssh.html',
           '/security.html',
           '/files.html',
-          '/global.html',
+        ],
+      },
+      {
+        text: 'Plugins',
+        collapsible: true,
+        children: [
+          '/healthcheck.html',
+          '/networking.html',
+          '/scanner.html',
+        ],
+      },
+      {
+        text: 'Services',
+        collapsible: true,
+        children: [
+          '/lando-service.html',
         ],
       },
     ],
