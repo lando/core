@@ -134,6 +134,16 @@ tooling:
         alias:
           - s
         describe: Runs in this service
+      random:
+        passthrough: true
+        alias:
+          - w
+        describe: Random number
+        interactive:
+          type: input
+          message: What is the random number?
+          default: 7
+          weight: 600
   lonely-bird:
     service: web
     cmd: /app/word.sh

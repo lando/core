@@ -7,6 +7,13 @@ WORD="bird"
 # TODO: compress the mostly duplicate code below?
 while (( "$#" )); do
   case "$1" in
+    --random|--random=*)
+      if [ "${1##--random=}" != "$1" ]; then
+        shift
+      else
+        shift 2
+      fi
+      ;;
     --surprise)
       echo "MUHAHAH! You've found a non explicitly declared option for this script which is going to give you an error!"
       exit 666
