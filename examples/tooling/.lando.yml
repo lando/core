@@ -124,6 +124,16 @@ tooling:
           message: What is the word?
           default: bird
           weight: 600
+  word-engine [word]:
+    service: :service
+    cmd: /app/word-engine.sh
+    level: engine
+    options:
+      service:
+        default: web
+        alias:
+          - s
+        describe: Runs in this service
   dynamic:
     cmd: env
     service: :service

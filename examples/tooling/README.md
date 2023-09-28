@@ -46,13 +46,20 @@ lando notme --service l337-node | grep www-data
 lando test
 lando test2
 
-# Should be able to define and pass down options to a script
+# Should be able to define and pass down options and args to a script
 lando word --word bird | grep "bird is the word"
 lando word -w gird | grep "gird is the word"
 lando word --word "this is actually a phrase" | grep "this is actually a phrase"
 lando word --service l337-node --word bird | grep "bird is the word"
 lando word --service l337-node -w gird | grep "gird is the word"
 lando word --service l337-node --word "this is actually a phrase" | grep "this is actually a phrase"
+lando word-engine | grep "bird is the word"
+lando word-engine bird | grep "bird is the word"
+lando word-engine gird | grep "gird is the word"
+lando word-engine "this is actually a phrase" | grep "this is actually a phrase"
+lando word-engine --service l337-node bird | grep "bird is the word"
+lando word-engine --service l337-node gird | grep "gird is the word"
+lando word-engine --service l337-node "this is actually a phrase" | grep "this is actually a phrase"
 
 # Should be able to run multiple commands on multiple services
 lando env
