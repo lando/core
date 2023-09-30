@@ -125,14 +125,19 @@ module.exports = lando => {
         lando.log.debug('downloading %s to %s...', getComposeDownloadUrl(orchestratorVersion), dest);
         const filesize = _.get(response, 'headers.content-length', 60000000);
         const writer = fs.createWriteStream(tmpDest);
+        let counter = 0;
         response.data.pipe(writer);
         response.data.on('data', () => {
-          const completion = Math.round((writer.bytesWritten / filesize) * 100);
-          if (process.stdout.isTTY()) {
-            process.stdout.write(`Could not detect docker-compose! Downloading it... (${completion}%)`);
-            process.stdout.cursorTo(0);
-          } else {
-            lando.log.debug(`downloading %s to %s... (%s%)`, getComposeDownloadUrl(orchestratorVersion), dest, completion); // eslint-disable-line max-len
+          // only update a reasonanle amount of bytes
+          if (writer.bytesWritten / 2500000 > counter) {
+            const completion = Math.round((writer.bytesWritten / filesize) * 100);
+            if (process.stdout.isTTY) {
+              process.stdout.write(`Could not detect docker-compose! Downloading it... (${completion}%)`);
+              process.stdout.cursorTo(0);
+            } else {
+              lando.log.debug(`downloading %s to %s... (%s%)`, getComposeDownloadUrl(orchestratorVersion), dest, completion); // eslint-disable-line max-len
+            }
+            counter++;
           }
         });
 
