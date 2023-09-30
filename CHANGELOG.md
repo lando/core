@@ -3,6 +3,8 @@
 ### Fixes
 
 * Fixed regression which broke disabling `tooling` commands [#62](https://github.com/lando/core/issues/62)
+* Improved `docker-compose` auto-download so it is more transparent [#63](https://github.com/lando/core/issues/63)
+* Improved `docker-compose` download verification [#63](https://github.com/lando/core/issues/63)
 
 ## v3.20.1 - [September 27, 2023](https://github.com/lando/core/releases/tag/3.20.1)
 
