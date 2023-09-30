@@ -203,3 +203,5 @@ tooling:
         alias:
           - s
         describe: Runs in this service
+  bad-tool: disabled
+  naughty-tool: false
