@@ -7,7 +7,10 @@ const env = require('./../../lib/env');
 const ip = require('ip');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
+const os = require('os');
 const path = require('path');
+
+const {nanoid} = require('nanoid');
 
 // Default env values
 const defaults = {
@@ -45,7 +48,7 @@ const uc = (uid, gid, username) => ({
  * Helper to get docker compose v2 download url
  */
 const getComposeDownloadUrl = (version = '2.21.0') => {
-  const mv = version.split('.')[0];
+  const mv = version.split('.')[0] > 1 ? '2' : '1';
   const arch = process.arch === 'arm64' ? 'aarch64' : 'x86_64';
   const toggle = `${process.platform}-${mv}`;
 
@@ -113,15 +116,22 @@ module.exports = lando => {
     const dest = getComposeDownloadDest(path.join(userConfRoot, 'bin'), orchestratorVersion);
     // if we dont have a orchestratorBin or havent downloaded orchestratorVersion yet
     if (!!!orchestratorBin && typeof orchestratorVersion === 'string' && !fs.existsSync(dest)) {
-      // log
-      lando.log.debug('could not detect docker-compose v%s!');
+      lando.log.debug('could not detect docker-compose v%s!', orchestratorVersion);
       lando.log.debug('downloading %s to %s...', getComposeDownloadUrl(orchestratorVersion), dest);
+      const tmpDest = path.join(os.tmpdir(), nanoid());
       // download docker-compose
       return axios({method: 'get', url: getComposeDownloadUrl(orchestratorVersion), responseType: 'stream'})
       // stream it into a file and reset the config
       .then(response => {
-        const writer = fs.createWriteStream(dest);
+        const filesize = _.get(response, 'headers.content-length', 60000000);
+        const writer = fs.createWriteStream(tmpDest);
         response.data.pipe(writer);
+        response.data.on('data', () => {
+          const completion = Math.round((writer.bytesWritten / filesize) * 100);
+          process.stdout.write(`Could not detect docker-compose! Downloading it... (${completion}%)`);
+          process.stdout.cursorTo(0);
+        });
+
         // wait for the stream to finish
         return new Promise((resolve, reject) => {
           let error = null;
@@ -135,17 +145,38 @@ module.exports = lando => {
           });
         });
       })
-      // success
-      .then(() => {
+      // download success, trust but verify
+      .then(async () => {
         const {makeExecutable} = require('../../lib/utils');
-        makeExecutable([path.basename(dest)], path.dirname(dest));
-        lando.log.debug('docker-compose v%s downloaded to %s', orchestratorVersion, dest);
+        const {spawnSync} = require('child_process');
+        makeExecutable([path.basename(tmpDest)], path.dirname(tmpDest));
+        // see if the thing we downloaded is good
+        const {status, stdout, stderr} = spawnSync(tmpDest, ['--version2']);
+        if (status === 0) {
+          lando.log.debug('%s returned %s', tmpDest, _.trim(stdout.toString()));
+          fs.copyFileSync(tmpDest, dest);
+          lando.log.debug('docker-compose v%s downloaded to %s', orchestratorVersion, dest);
+        // something aint right bob
+        } else {
+          lando.log.debug('verify docker-compose v%s failed, error: ', orchestratorVersion, _.trim(stderr.toString()));
+        }
       })
+
       // if download fails for whatever reason then log it and indicate
       .catch(error => {
         lando.log.debug('could not download docker-compose v%s: %s', orchestratorVersion, error.message);
         lando.log.silly('%j', error);
-        lando.log.debug('will attempt to use a system-installed version of docker-compose');
+      })
+
+      // do a final check to log our sitaution
+      .finally(() => {
+        if (fs.existsSync(dest)) {
+          lando.log.debug('using docker-compose %s located at %s', orchestratorVersion, dest);
+        } else {
+          lando.log.debug(
+            'docker-compose setup failed! will attempt to use a system-installed version of docker-compose.',
+          );
+        }
       });
     }
   });
