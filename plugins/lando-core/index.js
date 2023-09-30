@@ -117,19 +117,23 @@ module.exports = lando => {
     // if we dont have a orchestratorBin or havent downloaded orchestratorVersion yet
     if (!!!orchestratorBin && typeof orchestratorVersion === 'string' && !fs.existsSync(dest)) {
       lando.log.debug('could not detect docker-compose v%s!', orchestratorVersion);
-      lando.log.debug('downloading %s to %s...', getComposeDownloadUrl(orchestratorVersion), dest);
       const tmpDest = path.join(os.tmpdir(), nanoid());
       // download docker-compose
       return axios({method: 'get', url: getComposeDownloadUrl(orchestratorVersion), responseType: 'stream'})
       // stream it into a file and reset the config
       .then(response => {
+        lando.log.debug('downloading %s to %s...', getComposeDownloadUrl(orchestratorVersion), dest);
         const filesize = _.get(response, 'headers.content-length', 60000000);
         const writer = fs.createWriteStream(tmpDest);
         response.data.pipe(writer);
         response.data.on('data', () => {
           const completion = Math.round((writer.bytesWritten / filesize) * 100);
-          process.stdout.write(`Could not detect docker-compose! Downloading it... (${completion}%)`);
-          process.stdout.cursorTo(0);
+          if (process.stdout.isTTY()) {
+            process.stdout.write(`Could not detect docker-compose! Downloading it... (${completion}%)`);
+            process.stdout.cursorTo(0);
+          } else {
+            lando.log.debug(`downloading %s to %s... (%s%)`, getComposeDownloadUrl(orchestratorVersion), dest, completion); // eslint-disable-line max-len
+          }
         });
 
         // wait for the stream to finish
