@@ -125,6 +125,7 @@ module.exports = lando => {
         lando.log.debug('downloading %s to %s...', getComposeDownloadUrl(orchestratorVersion), dest);
         const filesize = _.get(response, 'headers.content-length', 60000000);
         const writer = fs.createWriteStream(tmpDest);
+        const v = orchestratorVersion;
         let counter = 0;
         response.data.pipe(writer);
         response.data.on('data', () => {
@@ -132,10 +133,10 @@ module.exports = lando => {
           if (writer.bytesWritten / 2500000 > counter) {
             const completion = Math.round((writer.bytesWritten / filesize) * 100);
             if (process.stdout.isTTY) {
-              process.stdout.write(`Could not detect docker-compose! Downloading it... (${completion}%)`);
+              process.stdout.write(`Could not detect docker-compose v${v}! Downloading it... (${completion}%)`);
               process.stdout.cursorTo(0);
             } else {
-              lando.log.debug(`downloading %s to %s... (%s%)`, getComposeDownloadUrl(orchestratorVersion), dest, completion); // eslint-disable-line max-len
+              lando.log.debug(`downloading %s to %s... (%s%)`, getComposeDownloadUrl(v), dest, completion);
             }
             counter++;
           }
@@ -160,7 +161,7 @@ module.exports = lando => {
         const {spawnSync} = require('child_process');
         makeExecutable([path.basename(tmpDest)], path.dirname(tmpDest));
         // see if the thing we downloaded is good
-        const {status, stdout, stderr} = spawnSync(tmpDest, ['--version2']);
+        const {status, stdout, stderr} = spawnSync(tmpDest, ['--version']);
         if (status === 0) {
           lando.log.debug('%s returned %s', tmpDest, _.trim(stdout.toString()));
           fs.copyFileSync(tmpDest, dest);
