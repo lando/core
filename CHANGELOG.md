@@ -1,3 +1,9 @@
+## v3.20.2 - [September 30, 2023](https://github.com/lando/core/releases/tag/3.20.2)
+
+### Fixes
+
+* Fixed regression which broke disabling `tooling` commands [#62](https://github.com/lando/core/issues/62)
+
 ## v3.20.1 - [September 27, 2023](https://github.com/lando/core/releases/tag/3.20.1)
 
 ### Fixes
