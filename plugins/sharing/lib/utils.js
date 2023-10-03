@@ -3,7 +3,7 @@
 // Modules
 const _ = require('lodash');
 const path = require('path');
-const toObject = require('./../../../lib/utils').toObject;
+const toObject = require('../../../lib/utils').toObject;
 
 // Helper to get named volume
 const getNamedVolumeName = exclude => 'exclude_' + path

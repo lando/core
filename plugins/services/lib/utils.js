@@ -2,7 +2,7 @@
 
 // Modules
 const _ = require('lodash');
-const getUser = require('./../../../lib/utils').getUser;
+const getUser = require('../../../lib/utils').getUser;
 const path = require('path');
 
 const getApiVersion = (version = 3) => {

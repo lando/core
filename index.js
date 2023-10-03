@@ -3,7 +3,6 @@
 // Modules
 const _ = require('lodash');
 const axios = require('axios');
-const env = require('./../../lib/env');
 const ip = require('ip');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
@@ -11,6 +10,9 @@ const os = require('os');
 const path = require('path');
 
 const {nanoid} = require('nanoid');
+
+const env = require('./lib/env');
+
 
 // Default env values
 const defaults = {

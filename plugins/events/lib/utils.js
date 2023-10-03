@@ -2,7 +2,7 @@
 
 // Modules
 const _ = require('lodash');
-const getUser = require('./../../../lib/utils').getUser;
+const getUser = require('../../../lib/utils').getUser;
 
 // Helper to find the default service
 const getDefaultService = (data = {}, defaultService = 'appserver') => {

@@ -13,7 +13,7 @@ const path = require('path');
 chai.should();
 
 // Get env module to test
-const utils = require('./../lib/utils');
+const utils = require('../lib/utils');
 
 // This is the file we are testing
 describe('lando-services.utils', () => {

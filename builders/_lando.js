@@ -5,8 +5,7 @@ const _ = require('lodash');
 const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
-// @TODO: not the best to reach back this far
-const moveConfig = require('../../../lib/utils').moveConfig;
+
 const utils = require('../lib/utils');
 
 /*
@@ -71,7 +70,7 @@ module.exports = {
       // Move our config into the userconfroot if we have some
       // NOTE: we need to do this because on macOS and Windows not all host files
       // are shared into the docker vm
-      if (fs.existsSync(confSrc)) moveConfig(confSrc, confDest);
+      if (fs.existsSync(confSrc)) utils.moveConfig(confSrc, confDest);
 
       // Get some basic locations
       const scriptsDir = path.join(userConfRoot, 'scripts');

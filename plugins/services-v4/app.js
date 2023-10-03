@@ -10,7 +10,7 @@ const {nanoid} = require('nanoid');
 const getMounts = require('./utils/get-mounts');
 const parseConfig = require('./utils/parse-config');
 
-const {dumpComposeData} = require('./../../lib/utils');
+const {dumpComposeData} = require('../../lib/utils');
 
 /*
  * @TODO

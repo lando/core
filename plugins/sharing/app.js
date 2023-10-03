@@ -3,7 +3,7 @@
 // Modules
 const _ = require('lodash');
 const path = require('path');
-const toObject = require('./../../lib/utils').toObject;
+const toObject = require('../../lib/utils').toObject;
 const utils = require('./lib/utils');
 
 // Helper to get excludes
