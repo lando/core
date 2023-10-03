@@ -77,7 +77,7 @@ const getComposeDownloadDest = (base, version = '2.21.0') => {
     case 'darwin':
       return path.join(base, `docker-compose-v${version}`);
     case 'win32':
-      return path.join(base, `docker-compose-v${version}`);
+      return path.join(base, `docker-compose-v${version}.exe`);
   }
 };
 
@@ -117,7 +117,8 @@ module.exports = lando => {
     // if we dont have a orchestratorBin or havent downloaded orchestratorVersion yet
     if (!!!orchestratorBin && typeof orchestratorVersion === 'string' && !fs.existsSync(dest)) {
       lando.log.debug('could not detect docker-compose v%s!', orchestratorVersion);
-      const tmpDest = path.join(os.tmpdir(), nanoid());
+      let tmpDest = path.join(os.tmpdir(), nanoid());
+      tmpDest = process.platform === 'win32' ? `${tmpDest}.exe` : tmpDest
       // download docker-compose
       return axios({method: 'get', url: getComposeDownloadUrl(orchestratorVersion), responseType: 'stream'})
       // stream it into a file and reset the config
