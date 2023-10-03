@@ -159,7 +159,7 @@ module.exports = lando => {
       })
       // download success, trust but verify
       .then(async () => {
-        const {makeExecutable} = require('../../lib/utils');
+        const {makeExecutable} = require('./lib/utils');
         const {spawnSync} = require('child_process');
         makeExecutable([path.basename(tmpDest)], path.dirname(tmpDest));
         // see if the thing we downloaded is good
