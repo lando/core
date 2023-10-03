@@ -118,7 +118,7 @@ module.exports = lando => {
     if (!!!orchestratorBin && typeof orchestratorVersion === 'string' && !fs.existsSync(dest)) {
       lando.log.debug('could not detect docker-compose v%s!', orchestratorVersion);
       let tmpDest = path.join(os.tmpdir(), nanoid());
-      tmpDest = process.platform === 'win32' ? `${tmpDest}.exe` : tmpDest
+      tmpDest = process.platform === 'win32' ? `${tmpDest}.exe` : tmpDest;
       // download docker-compose
       return axios({method: 'get', url: getComposeDownloadUrl(orchestratorVersion), responseType: 'stream'})
       // stream it into a file and reset the config
