@@ -23,6 +23,7 @@ jobs:
           - examples/base
           - examples/events
           - examples/healthcheck
+          - examples/init-remote
           - examples/keys
           - examples/l337
           - examples/lando-101
