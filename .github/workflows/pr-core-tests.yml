@@ -8,6 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       TERM: xterm
+      GITHUB_PAT: ${{ secrets.PIROG_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
@@ -23,6 +24,7 @@ jobs:
           - examples/base
           - examples/events
           - examples/healthcheck
+          - examples/init-github
           - examples/init-remote
           - examples/keys
           - examples/l337

@@ -3,13 +3,12 @@
 // Modules
 const _ = require('lodash');
 const fs = require('fs');
-const GitHubApi = require('github');
 const os = require('os');
 const path = require('path');
-const Promise = require('./../../../lib/promise');
+
+const {Octokit} = require('@octokit/rest');
 
 // Github
-const github = new GitHubApi({Promise: Promise});
 const githubTokenCache = 'github.tokens';
 const gitHubLandoKey = 'github.lando.id_rsa';
 const gitHubLandoKeyComment = 'lando@' + os.hostname();
@@ -22,24 +21,6 @@ const sortTokens = (...sources) => _(_.flatten([...sources]))
   .map(tokens => _.last(tokens))
   .value();
 
-// Heloer to throw an error
-const throwError = err => `${err.code} ${err.status} ${err.message}`;
-
-// Helper to retrieve all github repoz
-const getAllRepos = (resolve, reject, slugs = []) => (err, res) => {
-  // resolve([{name: 'seseg'}])
-  if (err) reject(err);
-  // Add previous data to current
-  slugs = slugs.concat(_.map(res.data, site => ({name: site.full_name, value: site.ssh_url})));
-  // IF we have more pages lets add them
-  if (github.hasNextPage(res)) {
-    return github.getNextPage(res, getAllRepos(resolve, reject, slugs));
-  // Return if we are done
-  } else {
-    resolve(_.sortBy(slugs, 'name'));
-  }
-};
-
 // Helper to get github tokens
 const getTokens = tokens => _(tokens)
   .map(token => ({name: token.user, value: token.token}))
@@ -49,31 +30,31 @@ const getTokens = tokens => _(tokens)
 const parseTokens = tokens => _.flatten([getTokens(tokens), [{name: 'add or refresh a token', value: 'more'}]]);
 
 // Helper to post a github ssh key
-const postKey = (keyDir, token) => {
-  // Auth
-  github.authenticate({type: 'token', token});
-  // Post key
-  return github.users.createKey({
-    title: 'lando',
+const postKey = (keyDir, token, id) => {
+  const octokit = new Octokit({auth: token});
+  return octokit.users.createPublicSshKeyForAuthenticatedUser({
+    title: id,
     key: _.trim(fs.readFileSync(path.join(keyDir, `${gitHubLandoKey}.pub`), 'utf8')),
   })
-  // Catch key already in use error
-  .catch(err => {
-    const message = JSON.parse(err.message);
-    // Report error for everything else
-    if (_.has(message.errors, '[0].message') && message.errors[0].message !== 'key is already in use') {
-      throw Error(throwError(err));
+  .catch(gerror => {
+    // we can ignore 422 - key is already in use errors
+    if (gerror.status === 422 && _.get(gerror, 'response.data.errors[0].message') === 'key is already in use') {
+      return Promise.resolve();
     }
+
+    // otherwise return original error
+    const error = new Error(`Could not post key! [${gerror.status}] ${gerror.message}`);
+    error.code = gerror.status;
+    error.stack = JSON.stringify(gerror);
+    return Promise.reject(error);
   });
 };
 
 // Helper to set caches
 const setCaches = (options, lando) => {
-  // Get the github user
-  github.authenticate({type: 'token', token: options['github-auth']});
-  return github.users.get({})
+  const octokit = new Octokit({auth: options['github-auth']});
+  return octokit.rest.users.getAuthenticated()
   .then(user => {
-    // Reset this apps metacache
     const metaData = lando.cache.get(`${options.name}.meta.cache`) || {};
     lando.cache.set(`${options.name}.meta.cache`, _.merge({}, metaData, {email: user.data.email}), {persist: true});
     // Reset github tokens
@@ -90,14 +71,17 @@ const showTokenList = (source, tokens = []) => !_.isEmpty(tokens) && source === 
 const showTokenEntry = (source, answer, tkez = []) => ((_.isEmpty(tkez) || answer === 'more')) && source === 'github';
 
 // Helper to get list of github projects
-const getRepos = (answers, Promise) => {
+const getRepos = answers => {
   // Log
   console.log('Getting your GitHub repos... this may take a moment if you have a lot');
-  return new Promise((resolve, reject) => {
-    // Authenticate
-    github.authenticate({type: 'token', token: answers['github-auth']});
-    // Get all our slguzz
-    github.repos.getAll({affliation: 'owner,collaborator', per_page: 100}, getAllRepos(resolve, reject));
+  const octokit = new Octokit({auth: answers['github-auth']});
+  return octokit.paginate('GET /user/repos', {affliation: 'owner,collaborator,organization_member', per_page: 100})
+  .then(results => results.map(result => ({name: result.full_name, value: result.ssh_url})))
+  .catch(gerror => {
+    const error = new Error(`Could not get sites! [${gerror.status}] ${gerror.message}`);
+    error.code = gerror.status;
+    error.stack = JSON.stringify(gerror);
+    return Promise.reject(error);
   });
 };
 
@@ -106,7 +90,7 @@ const getAutoCompleteRepos = (answers, Promise, input = null) => {
   if (!_.isEmpty(gitHubRepos)) {
     return Promise.resolve(gitHubRepos).filter(site => _.startsWith(site.name, input));
   } else {
-    return getRepos(answers, Promise).then(sites => {
+    return getRepos(answers).then(sites => {
       gitHubRepos = sites;
       return gitHubRepos;
     });
@@ -152,11 +136,21 @@ module.exports = {
           weight: 130,
         },
       },
+      'github-key-name': {
+        describe: 'A hidden field mostly for easy testing and key removal',
+        string: true,
+        hidden: true,
+        default: 'Landokey',
+      },
     }),
     build: (options, lando) => ([
       {name: 'generate-key', cmd: `/helpers/generate-key.sh ${gitHubLandoKey} ${gitHubLandoKeyComment}`},
       {name: 'post-key', func: (options, lando) => {
-        return postKey(path.join(lando.config.userConfRoot, 'keys'), options['github-auth']);
+        return postKey(
+          path.join(lando.config.userConfRoot, 'keys'),
+          options['github-auth'],
+          options['github-key-name'],
+        );
       }},
       {name: 'reload-keys', cmd: '/helpers/load-keys.sh --silent', user: 'root'},
       {name: 'wait-for-user', cmd: `/helpers/wait-for-user.sh www-data ${lando.config.uid}`},
