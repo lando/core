@@ -2,10 +2,10 @@
 
 // Modules
 const _ = require('lodash');
-const LandoLaemp = require('./../laemp/builder.js');
+const LandoLaemp = require('../laemp.js');
 const semver = require('semver');
-const utils = require('./../../lib/utils');
-const warnings = require('./../../lib/warnings');
+const utils = require('../lib/utils.js');
+const warnings = require('../lib/warnings.js');
 
 // "Constants"
 const DRUSH8 = '8.4.8';
