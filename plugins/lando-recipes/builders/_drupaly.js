@@ -2,7 +2,7 @@
 
 // Modules
 const _ = require('lodash');
-const LandoLaemp = require('../laemp.js');
+const LandoLaemp = require('./laemp.js');
 const semver = require('semver');
 const utils = require('../lib/utils.js');
 const warnings = require('../lib/warnings.js');
