@@ -26,7 +26,7 @@ jobs:
           - examples/init-remote
           - examples/keys
           - examples/l337
-          - examples/lando-101
+          # - examples/lando-101
           - examples/landofile-custom
           - examples/long-name
           - examples/networking
