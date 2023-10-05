@@ -73,25 +73,29 @@ module.exports = lando => {
 
       // Compile and dump the yaml
       .then((config = {}) => {
-        // Where are we going?
-        const dest = path.join(options.destination, '.lando.yml');
-        const landoFile = getYaml(dest, options, lando);
+        // if config is false then it means we want to skip landofile mutation
+        if (config !== false) {
+          // Where are we going?
+          const dest = path.join(options.destination, '.lando.yml');
+          const landoFile = getYaml(dest, options, lando);
 
-        // Get a lower level config if needed, merge in current recipe config
-        if (options.full) {
-          const Recipe = lando.factory.get(options.recipe);
-          const recipeConfig = _.merge({}, landoFile, {app: landoFile.name, _app: {_config: lando.config}});
-          _.merge(landoFile, new Recipe(landoFile.name, recipeConfig).config);
+          // Get a lower level config if needed, merge in current recipe config
+          if (options.full) {
+            const Recipe = lando.factory.get(options.recipe);
+            const recipeConfig = _.merge({}, landoFile, {app: landoFile.name, _app: {_config: lando.config}});
+            _.merge(landoFile, new Recipe(landoFile.name, recipeConfig).config);
+          }
+
+          // Merge in any additional configuration options specified
+          _.forEach(options.option, option => {
+            const key = _.first(option.split('='));
+            _.set(landoFile, `config.${key}`, _.last(option.split('=')));
+          });
+
+          // Merge and dump the config file
+          lando.yaml.dump(dest, _.merge(landoFile, config));
         }
 
-        // Merge in any additional configuration options specified
-        _.forEach(options.option, option => {
-          const key = _.first(option.split('='));
-          _.set(landoFile, `config.${key}`, _.last(option.split('=')));
-        });
-
-        // Merge and dump the config file
-        lando.yaml.dump(dest, _.merge(landoFile, config));
         // Show it
         showInit(lando, options);
       })

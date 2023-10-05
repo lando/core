@@ -3,7 +3,7 @@
 // Modules
 const _ = require('lodash');
 const fs = require('fs');
-const utils = require('./../../lib/utils');
+const utils = require('../lib/utils');
 
 // Tooling defaults
 const toolingDefaults = {
