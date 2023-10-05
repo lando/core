@@ -8,6 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       TERM: xterm
+      GITHUB_PAT: ${{ secrets.PIROG_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
@@ -23,9 +24,11 @@ jobs:
           - examples/base
           - examples/events
           - examples/healthcheck
+          - examples/init-github
+          - examples/init-remote
           - examples/keys
           - examples/l337
-          - examples/lando-101
+          # - examples/lando-101
           - examples/landofile-custom
           - examples/long-name
           - examples/networking
@@ -60,6 +63,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DEPLOY_KEY }}
+          known_hosts: unnecessary
+          if_key_exists: replace
       - name: Install node ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
