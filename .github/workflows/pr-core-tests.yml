@@ -53,7 +53,6 @@ jobs:
             leia-test: examples/scanner
             os: ubuntu-22.04
             scanner: legacy
-            shell: bash
           # run legacy healthchecks on dc2
           - docker-compose-version: "2.21.0"
             healthcheck: legacy
@@ -62,7 +61,6 @@ jobs:
             leia-test: examples/healthcheck
             os: ubuntu-22.04
             scanner: new
-            shell: bash
 
     steps:
       - name: Checkout code
