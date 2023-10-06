@@ -41,6 +41,8 @@ exports.events2Runz = (cmds, app, data = {}) => _.map(cmds, cmd => {
   // Discover the service
   const command = getCommand(cmd);
   const service = getService(cmd, data, app._defaultService);
+  // compute stdio based on compose major version
+  const cstdio = _.get(app, '_config.orchestratorMV', 2) ? 'inherit' : ['inherit', 'pipe', 'pipe'];
 
   // try to get a list of v4 services a few ways, we have to look at different places because the event could
   // run at various points in the bootstrap
@@ -62,7 +64,7 @@ exports.events2Runz = (cmds, app, data = {}) => _.map(cmds, cmd => {
     project: app.project,
     api: _.includes(v4s, service) ? 4 : 3,
     opts: {
-      cstdio: ['inherit', 'pipe', 'pipe'],
+      cstdio,
       mode: 'attach',
       user: getUser(service, app.info),
       services: [service],

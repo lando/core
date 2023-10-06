@@ -46,6 +46,7 @@ jobs:
         scanner:
           - new
         include:
+          # run legacy scanner checks on dc2
           - docker-compose-version: "2.21.0"
             healthcheck: new
             node-version: "16"
@@ -53,6 +54,7 @@ jobs:
             leia-test: examples/scanner
             os: ubuntu-22.04
             scanner: legacy
+          # run legacy healthchecks on dc2
           - docker-compose-version: "2.21.0"
             healthcheck: legacy
             node-version: "16"

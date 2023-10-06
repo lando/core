@@ -48,6 +48,8 @@ exports.getInstallCommands = (deps, pkger, prefix = []) => _(deps)
  * Filter and map build steps
  */
 exports.filterBuildSteps = (services, app, rootSteps = [], buildSteps= [], prestart = false) => {
+  // compute stdid based on compose major version
+  const cstdio = _.get(app, '_config.orchestratorMV', 2) ? 'inherit' : ['inherit', 'pipe', 'pipe'];
   // Start collecting them
   const build = [];
   // Go through each service
@@ -65,7 +67,7 @@ exports.filterBuildSteps = (services, app, rootSteps = [], buildSteps= [], prest
             project: app.project,
             opts: {
               mode: 'attach',
-              cstdio: ['inherit', 'pipe', 'pipe'],
+              cstdio,
               prestart,
               user: (_.includes(rootSteps, section)) ? 'root' : getUser(service, app.info),
               services: [service],
