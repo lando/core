@@ -47,6 +47,7 @@ jobs:
         scanner:
           - new
         include:
+          # run legacy scanner checks on dc2
           - docker-compose-version: "2.21.0"
             healthcheck: new
             node-version: "16"
@@ -55,6 +56,7 @@ jobs:
             os: ubuntu-22.04
             scanner: legacy
             shell: bash
+          # run legacy healthchecks on dc2
           - docker-compose-version: "2.21.0"
             healthcheck: legacy
             node-version: "16"
@@ -63,6 +65,7 @@ jobs:
             os: ubuntu-22.04
             scanner: new
             shell: bash
+          # run services example with a tty
           - docker-compose-version: "2.21.0"
             healthcheck: new
             node-version: "16"
@@ -71,6 +74,16 @@ jobs:
             os: ubuntu-22.04
             scanner: new
             shell: script -q -e -c "bash {0}"
+          - docker-compose-version: "1.29.1"
+            healthcheck: new
+            node-version: "16"
+            lando-version: 3-dev
+            leia-test: examples/services
+            os: ubuntu-22.04
+            scanner: new
+            shell: script -q -e -c "bash {0}"
+
+        # exclude the bash based services example because we know these will fail
         exclude:
           - docker-compose-version: "2.21.0"
             healthcheck: new
@@ -80,7 +93,14 @@ jobs:
             os: ubuntu-22.04
             scanner: new
             shell: bash
-
+          - docker-compose-version: "1.29.1"
+            healthcheck: new
+            node-version: "16"
+            lando-version: 3-dev
+            leia-test: examples/services
+            os: ubuntu-22.04
+            scanner: new
+            shell: bash
 
     steps:
       - name: Checkout code
