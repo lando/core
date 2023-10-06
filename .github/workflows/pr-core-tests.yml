@@ -9,7 +9,7 @@ jobs:
     env:
       TERM: xterm
       GITHUB_PAT: ${{ secrets.PIROG_TOKEN }}
-      GITHUB_KEY_NAME: "${{ matrix.docker-compose-version }}$GITHUB_SHA"
+      GITHUB_KEY_NAME: "${{ github.sha }}${{ matrix.docker-compose-version }}"
     strategy:
       fail-fast: false
       matrix:
