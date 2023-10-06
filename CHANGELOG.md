@@ -1,3 +1,9 @@
+## v3.20.4 - [October 6, 2023](https://github.com/lando/core/releases/tag/3.20.4)
+
+### Fixes
+
+* Fixed borked path leading to `Cannot find module './laemp.js'`
+
 ## v3.20.3 - [October 6, 2023](https://github.com/lando/core/releases/tag/3.20.3)
 
 ### Fixes
