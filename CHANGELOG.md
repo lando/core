@@ -2,6 +2,7 @@
 
 ### Fixes
 
+* Fixed `Inappropriate ioctl for device` errors for interactive build steps and events when using `docker-compose` 2 [#70](https://github.com/lando/core/issues/70)
 * Fixed race condition in some init `sources` causing command to run before user was properly setup
 * Fixed `docker-compose` continually autodownloading on Windows [#67](https://github.com/lando/core/issues/67)
 
