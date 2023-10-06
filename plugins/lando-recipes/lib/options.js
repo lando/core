@@ -48,15 +48,6 @@ const defaultOpts = {
   },
 };
 
-// Helper to get source option conflicts
-/*
-const getConflicts = (name, all, lando) => _(all)
-  .filter(one => _.has(one, 'options'))
-  .flatMap(one => _.keys(one.options(lando)))
-  .thru(options => _.difference(options, _.keys(_.find(all, {name}).options(lando))))
-  .value();
-*/
-
 // Name Opts
 const nameOpts = {
   describe: 'The name of the app',

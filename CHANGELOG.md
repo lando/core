@@ -1,3 +1,17 @@
+## v3.20.3 - [October 6, 2023](https://github.com/lando/core/releases/tag/3.20.3)
+
+### Fixes
+
+* Fixed race condition in some init `sources` causing command to run before user was properly setup
+
+### Internal
+
+* Added `inits` directory to list of plugin autoloaders
+* Added `none` recipe for testing purposes
+* Moved `_lamp` and `_drupaly` recipes into `builders` folder
+* Set `inits` directory as the preferred `init` source
+* Switched `github` init `source` to use `@octokit/rest`
+
 ## v3.20.2 - [September 30, 2023](https://github.com/lando/core/releases/tag/3.20.2)
 
 ### Fixes
