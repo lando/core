@@ -15,7 +15,9 @@ events:
     - cat /run_as_root.txt | grep root
     - cat /var/www/run.txt | grep www-data
     - /bin/sh -c 'echo "$LANDO_APP_PROJECT" | grep landoservices'
-    - bash /app/post-start.bash
+    # uncomment below to test out https://github.com/lando/core/issues/70
+    # this is commented out by default because of https://github.com/actions/runner/issues/241
+    # - bash /app/post-start.bash
 services:
   appserver:
     api: 3
@@ -33,7 +35,9 @@ services:
       - echo "$(id)" > /var/www/run_internal.txt
     build_as_root:
       - apt-get -y update && apt-get -y install vim
-      - bash /app/build_as_root.bash
+      # uncomment below to test out https://github.com/lando/core/issues/70
+      # this is commented out by default because of https://github.com/actions/runner/issues/241
+      # - bash /app/build_as_root.bash
     build:
       - echo "$(id)" > /var/www/build.txt
     run_as_root:

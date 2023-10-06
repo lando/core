@@ -15,8 +15,6 @@ jobs:
         docker-compose-version:
           - "1.29.1"
           - "2.21.0"
-        shell:
-          - bash
         healthcheck:
           - new
         lando-version:
@@ -65,42 +63,6 @@ jobs:
             os: ubuntu-22.04
             scanner: new
             shell: bash
-          # run services example with a tty
-          - docker-compose-version: "2.21.0"
-            healthcheck: new
-            node-version: "16"
-            lando-version: 3-dev
-            leia-test: examples/services
-            os: ubuntu-22.04
-            scanner: new
-            shell: script -q -e -c "bash {0}"
-          - docker-compose-version: "1.29.1"
-            healthcheck: new
-            node-version: "16"
-            lando-version: 3-dev
-            leia-test: examples/services
-            os: ubuntu-22.04
-            scanner: new
-            shell: script -q -e -c "bash {0}"
-
-        # exclude the bash based services example because we know these will fail
-        exclude:
-          - docker-compose-version: "2.21.0"
-            healthcheck: new
-            node-version: "16"
-            lando-version: 3-dev
-            leia-test: examples/services
-            os: ubuntu-22.04
-            scanner: new
-            shell: bash
-          - docker-compose-version: "1.29.1"
-            healthcheck: new
-            node-version: "16"
-            lando-version: 3-dev
-            leia-test: examples/services
-            os: ubuntu-22.04
-            scanner: new
-            shell: bash
 
     steps:
       - name: Checkout code
@@ -142,5 +104,5 @@ jobs:
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"
-          shell: ${{ matrix.shell }}
+          shell: bash
           stdin: true
