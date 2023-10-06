@@ -13,7 +13,7 @@ Run the following commands to get up and running with this example.
 ```bash
 # Should clone code down from GitHub
 mkdir -p github && cd github
-lando init --source github --recipe none --github-auth="$GITHUB_PAT" --github-repo="git@github.com:lando/lando.git" --github-key-name="$GITHUB_SHA" --yes
+lando init --source github --recipe none --github-auth="$GITHUB_PAT" --github-repo="git@github.com:lando/lando.git" --github-key-name="$GITHUB_KEY_NAME" --yes
 ```
 
 Verification commands
@@ -31,7 +31,7 @@ Destroy tests
 
 ```bash
 # Should remove key
-docker run --rm -v "$(pwd)":/data -w /data badouralix/curl-jq:alpine sh -c "/data/remove-key.sh $GITHUB_PAT $GITHUB_SHA"
+docker run --rm -v "$(pwd)":/data -w /data badouralix/curl-jq:alpine sh -c "/data/remove-key.sh $GITHUB_PAT $GITHUB_KEY_NAME"
 
 # Should remove initialized code
 rm -rf github

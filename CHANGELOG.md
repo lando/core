@@ -3,6 +3,7 @@
 ### Fixes
 
 * Fixed race condition in some init `sources` causing command to run before user was properly setup
+* Fixed `docker-compose` continually autodownloading on Windows [#67](https://github.com/lando/core/issues/67)
 
 ### Internal
 
