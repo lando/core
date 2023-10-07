@@ -30,12 +30,13 @@ module.exports = {
         string: true,
       },
     }),
-    build: options => {
-      return [{
+    build: (options, lando) => ([
+      {name: 'wait-for-user', cmd: `/helpers/wait-for-user.sh www-data ${lando.config.uid}`},
+      {
         name: 'get-asset',
         cmd: `/helpers/get-remote-url.sh ${options['remote-url']} "${options['remote-options']}"`,
         remove: true,
-      }];
-    },
+      },
+    ]),
   }],
 };

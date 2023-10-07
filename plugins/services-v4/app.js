@@ -16,9 +16,6 @@ const {dumpComposeData} = require('../../lib/utils');
  * @TODO
  */
 module.exports = (app, lando) => {
-  // add core v4 classes to factory
-  lando.factory.registry.unshift({api: 4, name: 'l337', builder: require('./lib/l337-v4')});
-
   // Add v4 stuff to the app object
   app.v4 = {};
   app.v4._debugShim = require('./utils/debug-shim')(app.log);

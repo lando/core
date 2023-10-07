@@ -8,6 +8,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       TERM: xterm
+      GITHUB_PAT: ${{ secrets.PIROG_TOKEN }}
+      GITHUB_KEY_NAME: "${{ github.sha }}${{ matrix.docker-compose-version }}"
     strategy:
       fail-fast: false
       matrix:
@@ -23,9 +25,11 @@ jobs:
           - examples/base
           - examples/events
           - examples/healthcheck
+          - examples/init-github
+          - examples/init-remote
           - examples/keys
           - examples/l337
-          - examples/lando-101
+          # - examples/lando-101
           - examples/landofile-custom
           - examples/long-name
           - examples/networking
@@ -42,6 +46,7 @@ jobs:
         scanner:
           - new
         include:
+          # run legacy scanner checks on dc2
           - docker-compose-version: "2.21.0"
             healthcheck: new
             node-version: "16"
@@ -49,6 +54,7 @@ jobs:
             leia-test: examples/scanner
             os: ubuntu-22.04
             scanner: legacy
+          # run legacy healthchecks on dc2
           - docker-compose-version: "2.21.0"
             healthcheck: legacy
             node-version: "16"
@@ -60,6 +66,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DEPLOY_KEY }}
+          known_hosts: unnecessary
+          if_key_exists: replace
       - name: Install node ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:

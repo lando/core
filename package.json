@@ -1,7 +1,7 @@
 {
   "name": "@lando/core",
   "description": "The libraries that power all of Lando.",
-  "version": "3.20.2",
+  "version": "3.20.4",
   "author": "Mike Pirog @pirog",
   "license": "GPL-3.0",
   "repository": "lando/core",
@@ -42,6 +42,7 @@
     "test": "yarn lint && yarn test:unit"
   },
   "dependencies": {
+    "@octokit/rest": "^19",
     "axios": "0.21.4",
     "bluebird": "^3.4.1",
     "clean-stacktrace": "^1.1.0",
@@ -93,6 +94,7 @@
     "vuepress": "2.0.0-beta.53"
   },
   "bundledDependencies": [
+    "@octokit/rest",
     "axios",
     "bluebird",
     "clean-stacktrace",
