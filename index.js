@@ -13,7 +13,6 @@ const {nanoid} = require('nanoid');
 
 const env = require('./lib/env');
 
-
 // Default env values
 const defaults = {
   config: {

@@ -94,7 +94,8 @@ jobs:
           ln -sf /home/runner/work/core/core /home/runner/.lando/plugins/@lando/core
           lando --clear
           lando version
-          lando config --path plugins | grep lando-core | grep /home/runner/.lando/plugins/@lando/core || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
+          lando config --path plugins | grep "@lando/core" | grep /home/runner/.lando/plugins/@lando/core || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
+          lando config --path plugins | grep "@lando/networking" | grep /home/runner/.lando/plugins/@lando/networking || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         env:
