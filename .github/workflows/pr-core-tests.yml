@@ -91,10 +91,9 @@ jobs:
       - name: Verify Lando works and we are dogfooding this plugin for tests
         run: |
           mkdir -p /home/runner/.lando/plugins/@lando
-          ln -sf /home/runner/work/core/core /home/runner/.lando/plugins/@lando/core
           lando --clear
           lando version
-          lando config --path plugins
+          lando config
           echo "hi"
           lando config --path plugins --format json | jq -r '.[] | select(.name == "@lando/core")'
           echo "hi2"
