@@ -85,15 +85,15 @@ jobs:
         with:
           lando-version: ${{ matrix.lando-version }}
           config: |
-            plugins.@lando/core=/home/runner/work/core/core
             orchestratorVersion=${{ matrix.docker-compose-version }}
           telemetry: false
       - name: Verify Lando works and we are dogfooding this plugin for tests
         run: |
           mkdir -p /home/runner/.lando/plugins/@lando
+          ln -sf /home/runner/work/core/core /home/runner/.lando/plugins/@lando/core
           lando --clear
           lando version
-          lando config
+          lando config --path plugins
           echo "hi"
           lando config --path plugins --format json | jq -r '.[] | select(.name == "@lando/core")'
           echo "hi2"
