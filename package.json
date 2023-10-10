@@ -10,8 +10,7 @@
   "keywords": [
     "lando",
     "lando-plugin",
-    "@lando/core",
-    "docker",
+    "lando-core",
     "php"
   ],
   "engines": {

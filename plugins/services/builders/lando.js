@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 
-const {normalizeOverrides} = require('../../../lib/utils');
+const {normalizeOverrides} = require('../../lando-core/lib/utils');
 
 /*
  * this should be the same as the v3 "compose" service but we are stealth loading it in core so that we can
