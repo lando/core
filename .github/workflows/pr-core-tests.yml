@@ -94,6 +94,8 @@ jobs:
           ln -sf /home/runner/work/core/core /home/runner/.lando/plugins/@lando/core
           lando --clear
           lando version
+          lando config --path plugins
+          lando config --path plugins --format json | jq -r '.[] | select(.name == "@lando/core").searchDir'
           lando config --path plugins --format json | jq -r '.[] | select(.name == "@lando/core").searchDir' | grep /home/runner/.lando/plugins/@lando/core || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
           lando config --path plugins --format json | jq -r '.[] | select(.name == "@lando/networking").searchDir' | grep /home/runner/.lando/plugins/@lando/core/plugins/networking || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
       - name: Run Leia Tests
