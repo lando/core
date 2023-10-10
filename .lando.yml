@@ -1,9 +1,11 @@
 name: core.docs
-env_file:
-  - lando.env
 services:
   cli:
-    type: node:16
+    api: 3
+    type: lando
+    services:
+      image: node:16
+      command: sleep infinity
     build:
       - yarn install
     scanner: false
