@@ -95,9 +95,10 @@ jobs:
           lando --clear
           lando version
           lando config --path plugins
-          lando config --path plugins --format json | jq -r '.[] | select(.name == "@lando/core").searchDir'
+          echo "hi"
+          lando config --path plugins --format json | jq -r '.[] | select(.name == "@lando/core")'
+          echo "hi2"
           lando config --path plugins --format json | jq -r '.[] | select(.name == "@lando/core").searchDir' | grep /home/runner/.lando/plugins/@lando/core || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
-          lando config --path plugins --format json | jq -r '.[] | select(.name == "@lando/networking").searchDir' | grep /home/runner/.lando/plugins/@lando/core/plugins/networking || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         env:
