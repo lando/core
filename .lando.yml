@@ -6,6 +6,9 @@ services:
     services:
       image: node:16
       command: sleep infinity
+      working_dir: /app
+      ports:
+        - 8080:8080
     build:
       - yarn install
     scanner: false

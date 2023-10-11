@@ -18,7 +18,7 @@ const os = require('os');
 const path = require('path');
 const Plugins = require('./../lib/plugins');
 
-const testPlugin = fs.readFileSync(path.resolve(__dirname, '..', 'plugins', 'lando-test', 'index.js'), 'utf8');
+const testPlugin = fs.readFileSync(path.resolve(__dirname, '..', 'plugins', 'test', 'index.js'), 'utf8');
 const searchDirs = [
   path.join(os.tmpdir(), 'dir1'),
   path.join(os.tmpdir(), 'dir2'),
@@ -26,8 +26,8 @@ const searchDirs = [
 ];
 const fsConfig = {};
 _.forEach(searchDirs, dir => {
-  fsConfig[path.join(dir, 'plugins', 'lando-test', 'index.js')] = testPlugin;
-  fsConfig[path.join(dir, 'plugins', 'lando-test', 'plugin.yml')] = 'DONT MATTER';
+  fsConfig[path.join(dir, 'plugins', 'test', 'index.js')] = testPlugin;
+  fsConfig[path.join(dir, 'plugins', 'test', 'plugin.yml')] = 'DONT MATTER';
 });
 
 // This is the file we are testing

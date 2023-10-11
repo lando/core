@@ -55,7 +55,6 @@ module.exports = (lando, app) => {
           if (!config.appMount && _.has(config, 'config.working_dir')) opts[0] = config.config.working_dir;
         }
 
-
         // continue
         if (_.isNull(user)) user = getUser(service, app.info);
         return lando.engine.run(utils.buildCommand(app, command, service, user, {}, ...opts)).catch(error => {
