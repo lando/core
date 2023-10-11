@@ -55,9 +55,9 @@ describe('lando', () => {
   describe('#bootstrap', () => {
     it('should return a lando object with the default config', () => {
       const lando = new Lando({logLevelConsole: 'warn'});
-      return lando.bootstrap().then(lando => {
+      return lando.bootstrap('config').then(lando => {
         lando.config.userConfRoot.should.equal(os.tmpdir());
-        lando.config.plugins.should.be.an('array').and.be.empty;
+        lando.config.plugins.should.be.an('array').and.be.not.empty;
       });
     });
 
@@ -65,9 +65,9 @@ describe('lando', () => {
       process.env.JOURNEY_PRODUCT = 'steveperry';
       process.env.JOURNEY_MODE = 'rocknroll';
       const lando = new Lando({envPrefix: 'JOURNEY'});
-      return lando.bootstrap().then(lando => {
+      return lando.bootstrap('config').then(lando => {
         lando.config.userConfRoot.should.equal(os.tmpdir());
-        lando.config.plugins.should.be.an('array').and.be.empty;
+        lando.config.plugins.should.be.an('array').and.be.not.empty;
         lando.config.product.should.equal(process.env.JOURNEY_PRODUCT);
         lando.config.mode.should.equal(process.env.JOURNEY_MODE);
         delete process.env.JOURNEY_PRODUCT;
@@ -85,7 +85,7 @@ describe('lando', () => {
       // @TODO: need to spoof lando.cli because this is added in the CLI as of cli/core decoupling
       lando.cli = cliMock;
       // bootstrap
-      return lando.bootstrap().then(lando => {
+      return lando.bootstrap('config').then(lando => {
         lando.config.plugins.should.be.an('array').and.not.be.empty;
         // We need to clear out tasks because it seems to persist from require to require
         lando.tasks.tasks = [];
