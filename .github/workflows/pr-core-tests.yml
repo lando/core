@@ -65,12 +65,19 @@ jobs:
           lando-version: ${{ matrix.lando-version }}
           config: |
             orchestratorVersion=${{ matrix.docker-compose-version }}
+            plugins.@lando/core=/home/runner/work/core/core
           telemetry: false
       - name: Verify Lando works and we are dogfooding this plugin for tests
         run: |
+          # TODO: once we have the new plugin stuff in the CLI we can remove this in favor of a local lando pa
+          # what about removing the plugins?
+          mkdir -p /home/runner/.lando/plugins/@lando
+          ln -sf /home/runner/work/core/core /home/runner/.lando/plugins/@lando/core
+
           lando --clear
           lando config
           lando config --path plugins --format json | jq -r '.[] | select(.name == "@lando/core").searchDir' | grep /home/runner/work/core/core || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
+          lando config --path plugins --format json | jq -r '.[] | select(.name == "@lando/networking").searchDir' | grep /home/runner/work/core/core/plugins/networking || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         env:
