@@ -21,9 +21,9 @@ jobs:
         lando-version:
           - 3-dev
         leia-test:
-          # - examples/healthcheck
-          # - examples/networking
-          # - examples/scanner
+          - examples/healthcheck
+          - examples/networking
+          - examples/scanner
         node-version:
           - "16"
         os:

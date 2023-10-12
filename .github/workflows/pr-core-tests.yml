@@ -69,8 +69,6 @@ jobs:
           telemetry: false
       - name: Verify Lando works and we are dogfooding this plugin for tests
         run: |
-          # right now this is the jank way we need to remove the plugins
-          rm -rf /home/runner/work/core/core/plugins
           lando --clear
           lando config
           lando config --path plugins --format json | jq -r '.[] | select(.name == "@lando/core").searchDir' | grep /home/runner/work/core/core || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
