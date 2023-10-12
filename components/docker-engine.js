@@ -12,9 +12,9 @@ const {EventEmitter} = require('events');
 const {nanoid} = require('nanoid');
 const {PassThrough} = require('stream');
 
-const makeError = require('../utils/make-error');
-const makeSuccess = require('../utils/make-success');
-const mergePromise = require('../utils/merge-promise');
+const makeError = require('../get-service-api/make-error');
+const makeSuccess = require('../get-service-api/make-success');
+const mergePromise = require('../get-service-api/merge-promise');
 
 class DockerEngine extends Dockerode {
   static name = 'docker-engine';
