@@ -65,7 +65,6 @@ jobs:
           lando-version: ${{ matrix.lando-version }}
           config: |
             orchestratorVersion=${{ matrix.docker-compose-version }}
-            plugins.@lando/core=/home/runner/work/core/core
           telemetry: false
       - name: Verify Lando works and we are dogfooding this plugin for tests
         run: |
