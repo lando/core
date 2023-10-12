@@ -1,4 +1,4 @@
-name: Core Tests
+name: Plugin Tests
 
 on:
   pull_request:
@@ -21,36 +21,36 @@ jobs:
         lando-version:
           - 3-dev
         leia-test:
-          - examples/badname
-          - examples/base
-          - examples/events
-          - examples/init-github
-          - examples/init-remote
-          - examples/keys
-          - examples/l337
-          - examples/landofile-custom
-          - examples/long-name
-          - examples/no-services
-          - examples/orchestrator
-          - examples/proxy
-          - examples/services
-          - examples/tooling
+          # - examples/healthcheck
+          # - examples/networking
+          # - examples/scanner
         node-version:
           - "16"
         os:
           - ubuntu-22.04
         scanner:
           - new
+        include:
+          # run legacy scanner checks on dc2
+          - docker-compose-version: "2.21.0"
+            healthcheck: new
+            node-version: "16"
+            lando-version: 3-dev
+            leia-test: examples/scanner
+            os: ubuntu-22.04
+            scanner: legacy
+          # run legacy healthchecks on dc2
+          - docker-compose-version: "2.21.0"
+            healthcheck: legacy
+            node-version: "16"
+            lando-version: 3-dev
+            leia-test: examples/healthcheck
+            os: ubuntu-22.04
+            scanner: new
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.DEPLOY_KEY }}
-          known_hosts: unnecessary
-          if_key_exists: replace
       - name: Install node ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
@@ -65,12 +65,11 @@ jobs:
           lando-version: ${{ matrix.lando-version }}
           config: |
             orchestratorVersion=${{ matrix.docker-compose-version }}
-            plugins.@lando/core=/home/runner/work/core/core
           telemetry: false
       - name: Verify Lando works and we are dogfooding this plugin for tests
         run: |
-          # right now this is the jank way we need to remove the plugins
-          rm -rf /home/runner/work/core/core/plugins
+          mkdir -p /home/runner/.lando/plugins/@lando
+          ln -sf /home/runner/work/core/core /home/runner/.lando/plugins/@lando/core
           lando --clear
           lando config
           lando config --path plugins --format json | jq -r '.[] | select(.name == "@lando/core").searchDir' | grep /home/runner/work/core/core || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
