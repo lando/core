@@ -10,6 +10,13 @@ const getKeys = (keys = true) => {
 };
 
 module.exports = async (app, lando) => {
+  // Build step locl files
+  app.preLockfile = `${app.name}.build.lock`;
+  app.postLockfile = `${app.name}.post-build.lock`;
+
+  // load in and parse v3 services
+  app.events.on('pre-init', async () => await require('./hooks/app-add-v3-services')(app, lando));
+
   // Add localhost info to our containers if they are up
   app.events.on('post-init', async () => await require('./hooks/app-find-localhosts')(app, lando));
 

@@ -27,7 +27,6 @@ const getDockerBin = (bin, base, pathFallback = true) => {
   }
 };
 
-// checks to see if a setting is disabled
 module.exports = ({orchestratorVersion = '2.21.0', userConfRoot = os.tmpdir()} = {}) => {
   const orchestratorBin = `docker-compose-v${orchestratorVersion}`;
   switch (process.platform) {

@@ -26,7 +26,7 @@ const getDockerBin = (bin, base, pathFallback = true) => {
   }
 };
 
-// checks to see if a setting is disabled
+
 module.exports = () => {
   const base = (process.platform === 'linux') ? '/usr/bin' : require('./get-docker-bin-path')();
   return getDockerBin('docker', base);

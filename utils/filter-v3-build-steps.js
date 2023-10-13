@@ -3,7 +3,6 @@
 const _ = require('lodash');
 const {getUser} = require('../lib/utils');
 
-// checks to see if a setting is disabled
 module.exports = (services, app, rootSteps = [], buildSteps= [], prestart = false) => {
   // compute stdid based on compose major version
   const cstdio = _.get(app, '_config.orchestratorMV', 2) ? 'inherit' : ['inherit', 'pipe', 'pipe'];

@@ -1,5 +1,8 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
+
 module.exports = async (lando, {caCert, caDir, caDomain}) => {
   const caNormalizedCert = path.join(caDir, `${caDomain}.crt`);
   if (fs.existsSync(caCert) && !fs.existsSync(caNormalizedCert)) {

@@ -30,7 +30,6 @@ const macosCacheDir = product => {
   return process.platform === 'darwin' ? path.join(getOClifHome(), 'Library', 'Caches', product) : undefined;
 };
 
-// checks to see if a setting is disabled
 module.exports = product => {
   return process.env[`${product.toUpperCase()}_CACHE_DIR`]
     || macosCacheDir(product)

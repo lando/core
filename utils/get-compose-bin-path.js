@@ -2,7 +2,6 @@
 
 const path = require('path');
 
-// checks to see if a setting is disabled
 module.exports = () => {
   switch (process.platform) {
     case 'darwin':

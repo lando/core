@@ -2,8 +2,6 @@
 
 const _ = require('lodash');
 
-const {normalizeOverrides} = require('../../../lib/utils');
-
 /*
  * this should be the same as the v3 "compose" service but we are stealth loading it in core so that we can
  * use it for testing when the cli is decoupled from its plugins. you shouldnt really use it directly but theoretically
@@ -30,7 +28,7 @@ module.exports = {
         services: _.set(
           {},
           options.name,
-          normalizeOverrides(options.services, options._app.root, options.volumes),
+          require('../utils/normalize-overrides')(options.services, options._app.root, options.volumes),
         ),
         networks: options.networks,
         volumes: options.volumes,

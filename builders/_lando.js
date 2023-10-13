@@ -6,8 +6,6 @@ const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
 
-const utils = require('../lib/utils');
-
 /*
  * The lowest level lando service, this is where a lot of the deep magic lives
  */
@@ -147,7 +145,7 @@ module.exports = {
       }
 
       // Add our overrides at the end
-      sources.push({services: _.set({}, name, utils.normalizeOverrides(overrides, root))});
+      sources.push({services: _.set({}, name, require('../utils/normalize-overrides')(overrides, root))});
 
       // Add some info basics
       info.config = config;

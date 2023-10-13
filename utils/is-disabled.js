@@ -1,6 +1,5 @@
 'use strict';
 
-// checks to see if a setting is disabled
 module.exports = data => {
   // return true if boolean false
   if (data === false || data === 0) return true;

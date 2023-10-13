@@ -1,6 +1,5 @@
 'use strict';
 
-// checks to see if a setting is disabled
 module.exports = (version = 3) => {
   // return 4 if its 4ish
   if (version === 4 || version === '4' || version === 'v4') return 4;
