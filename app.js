@@ -17,6 +17,9 @@ module.exports = async (app, lando) => {
   // load in and parse v3 services
   app.events.on('pre-init', async () => await require('./hooks/app-add-v3-services')(app, lando));
 
+  // run v3 build steps
+  app.events.on('post-init', async () => await require('./hooks/app-run-v3-build-steps')(app, lando));
+
   // Add localhost info to our containers if they are up
   app.events.on('post-init', async () => await require('./hooks/app-find-localhosts')(app, lando));
 
@@ -37,12 +40,18 @@ module.exports = async (app, lando) => {
   // @TODO: i feel like there has to be a better way to do this than this mega loop right?
   app.events.on('post-init', 9999, async () => await require('./hooks/app-set-bind-address')(app, lando));
 
+  // Discover portforward true info
+  app.events.on('ready', async () => await require('./hooks/app-set-portforwards')(app, lando));
+
   // Otherwise set on rebuilds
   // NOTE: We set this pre-rebuild because post-rebuild runs after post-start because you would need to
   // do two rebuilds to remove the warning since appWarning is already set by the time we get here.
   // Running pre-rebuild ensures the warning goes away but concedes a possible warning tradeoff between
   // this and a build step failure
   app.events.on('pre-rebuild', async () => await require('./hooks/app-update-built-against')(app, lando));
+
+  // Determine pullable and locally built images
+  app.events.on('pre-rebuild', async () => await require('./hooks/app-set-pullables')(app, lando));
 
   // If the app already is installed but we can't determine the builtAgainst, then set it to something bogus
   app.events.on('pre-start', async () => await require('./hooks/app-update-built-against-pre')(app, lando));
@@ -62,8 +71,10 @@ module.exports = async (app, lando) => {
   // Remove meta cache on destroy
   app.events.on('post-destroy', async () => await require('./hooks/app-purge-metadata-cache')(app, lando));
 
+  // remove v3 build locks
+  app.events.on('post-uninstall', async () => await require('./hooks/app-purge-v3-build-locks')(app, lando));
+
   // LEGACY healthchecks
-  // Add some logic that extends start until healthchecked containers report as healthy
   if (_.get(lando, 'config.healthcheck', true) === 'legacy') {
     app.events.on('post-start', 2, async () => await require('./hooks/app-run-legacy-healthchecks')(app, lando));
   }
