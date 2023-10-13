@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const warnings = require('../lib/warnings');
 
 module.exports = async (app, lando) => {
   // scope app.nonRoot to v3 services only since this is not a workaround that v4 needs

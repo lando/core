@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const warnings = require('../lib/warnings');
 
 module.exports = async (app, lando) => {
   const buildServices = _.get(app, 'opts.services', app.services)

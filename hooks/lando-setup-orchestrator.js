@@ -1,6 +1,12 @@
 'use strict';
 
 const _ = require('lodash');
+const axios = require('axios');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+
+const {nanoid} = require('nanoid');
 
 /*
  * Helper to get docker compose v2 download url

@@ -2,8 +2,8 @@
 
 // Modules
 const _ = require('lodash');
+const fs = require('fs');
 const ip = require('ip');
-const mkdirp = require('mkdirp');
 const path = require('path');
 
 // Default env values
@@ -41,29 +41,33 @@ const uc = (uid, gid, username) => ({
 module.exports = lando => {
   // Set some stuff and set seom stuff up
   const caDir = path.join(lando.config.userConfRoot, 'certs');
+  const sshDir = path.join(lando.config.home, '.ssh');
+  const binDir = path.join(lando.config.userConfRoot, 'bin');
+
+  // certs stuff
+  // @TODO: should this end up elsewhere?
   const caDomain = lando.config.domain;
   const caCert = path.join(caDir, `${caDomain}.pem`);
   const caKey = path.join(caDir, `${caDomain}.key`);
   const caProject = `landocasetupkenobi38ahsoka${lando.config.instance}`;
-  const sshDir = path.join(lando.config.home, '.ssh');
-  const binDir = path.join(lando.config.userConfRoot, 'bin');
+  const certData = {caCert, caDir, caDomain, caKey, caProject};
 
   // Ensure some dirs exist before we start
-  _.forEach([binDir, caDir, sshDir], dir => mkdirp.sync(dir));
+  _.forEach([binDir, caDir, sshDir], dir => fs.mkdirSync(dir, {recursive: true}));
 
   // Ensure we download docker-compose if needed
-  lando.events.on('pre-bootstrap-engine', 1, async () => require('./hooks/lando-setup-ca')(lando));
+  lando.events.on('pre-bootstrap-engine', 1, async () => require('./hooks/lando-setup-orchestrator')(lando));
 
   // at this point we should be able to set orchestratorBin if it hasnt been set already
   lando.events.on('pre-bootstrap-engine', 2, async () => require('./hooks/lando-ensure-orchestrator')(lando));
 
   // Make sure we have a host-exposed root ca if we don't already
   // NOTE: we don't run this on the caProject otherwise infinite loop happens!
-  lando.events.on('pre-engine-start', 2, async data => require('./hooks/lando-setup-data')(lando, data));
+  lando.events.on('pre-engine-start', 2, async data => require('./hooks/lando-setup-ca')(lando, data, certData));
 
   // Let's also make a copy of caCert with the standarized .crt ending for better linux compat
   // See: https://github.com/lando/lando/issues/1550
-  lando.events.on('pre-engine-start', 3, async () => require('./hooks/lando-copy-ca')(lando));
+  lando.events.on('pre-engine-start', 3, async () => require('./hooks/lando-copy-ca')(lando, certData));
 
   // Return some default things
   return _.merge({}, defaults, uc(lando.user.getUid(), lando.user.getGid(), lando.user.getUsername()), {config: {

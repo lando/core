@@ -1,6 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
+const fs = require('fs');
+const path = require('path');
+const warnings = require('../lib/warnings');
 
 module.exports = async (app, lando) => {
   // Get keys on host

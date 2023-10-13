@@ -1,5 +1,7 @@
 'use strict';
 
+const _ = require('lodash');
+
 // Update built against
 const updateBuiltAgainst = (app, version = 'unknown') => {
   app.meta = _.merge({}, app.meta, {builtAgainst: version});

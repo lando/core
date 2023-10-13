@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const fs = require('fs');
 
 /*
  * Helper to get ca run object
@@ -17,7 +18,7 @@ const getCaRunner = (project, files, separator = '_') => ({
   },
 });
 
-module.exports = async (lando, data) => {
+module.exports = async (lando, data, {caCert, caDir, caProject}) => {
   if (!fs.existsSync(caCert) && data.project !== caProject) {
     const LandoCa = lando.factory.get('_casetup');
     const env = _.cloneDeep(lando.config.appEnv);
