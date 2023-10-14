@@ -38,7 +38,7 @@ const uc = (uid, gid, username) => ({
   },
 });
 
-module.exports = lando => {
+module.exports = async lando => {
   // Set some stuff and set seom stuff up
   const caDir = path.join(lando.config.userConfRoot, 'certs');
   const sshDir = path.join(lando.config.home, '.ssh');
@@ -56,18 +56,18 @@ module.exports = lando => {
   _.forEach([binDir, caDir, sshDir], dir => fs.mkdirSync(dir, {recursive: true}));
 
   // Ensure we download docker-compose if needed
-  lando.events.on('pre-bootstrap-engine', 1, async () => require('./hooks/lando-setup-orchestrator')(lando));
+  lando.events.on('pre-bootstrap-engine', 1, async () => await require('./hooks/lando-setup-orchestrator')(lando));
 
   // at this point we should be able to set orchestratorBin if it hasnt been set already
-  lando.events.on('pre-bootstrap-engine', 2, async () => require('./hooks/lando-ensure-orchestrator')(lando));
+  lando.events.on('pre-bootstrap-engine', 2, async () => await require('./hooks/lando-ensure-orchestrator')(lando));
 
   // Make sure we have a host-exposed root ca if we don't already
   // NOTE: we don't run this on the caProject otherwise infinite loop happens!
-  lando.events.on('pre-engine-start', 2, async data => require('./hooks/lando-setup-ca')(lando, data, certData));
+  lando.events.on('pre-engine-start', 2, async data => await require('./hooks/lando-setup-ca')(lando, data, certData));
 
   // Let's also make a copy of caCert with the standarized .crt ending for better linux compat
   // See: https://github.com/lando/lando/issues/1550
-  lando.events.on('pre-engine-start', 3, async () => require('./hooks/lando-copy-ca')(lando, certData));
+  lando.events.on('pre-engine-start', 3, async () => await require('./hooks/lando-copy-ca')(lando, certData));
 
   // Return some default things
   return _.merge({}, defaults, uc(lando.user.getUid(), lando.user.getGid(), lando.user.getUsername()), {config: {

@@ -75,7 +75,7 @@ describe('plugins', () => {
         error: sinon.spy(),
         verbose: sinon.spy(),
       });
-      plugins.load('irrelevant', 'somewhere', {});
+      plugins.load({name: 'something'}, 'somewhere', {});
       plugins.log.error.callCount.should.equal(1);
     });
 

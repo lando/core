@@ -93,9 +93,8 @@ module.exports = async lando => {
     })
     // download success, trust but verify
     .then(async () => {
-      const {makeExecutable} = require('./lib/utils');
       const {spawnSync} = require('child_process');
-      makeExecutable([path.basename(tmpDest)], path.dirname(tmpDest));
+      require('../utils/make-executable')([path.basename(tmpDest)], path.dirname(tmpDest));
       // see if the thing we downloaded is good
       const {status, stdout, stderr} = spawnSync(tmpDest, ['--version']);
       if (status === 0) {
