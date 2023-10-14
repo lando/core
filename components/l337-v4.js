@@ -11,8 +11,8 @@ const {generateDockerFileFromArray} = require('dockerfile-generator/lib/dockerGe
 const {nanoid} = require('nanoid');
 
 // @TODO: should these be methods as well? static or otherwise?
-const getMountMatches = require('../get-service-api/get-mount-matches');
-const hasInstructions = require('../get-service-api/has-instructions');
+const getMountMatches = require('../utils/get-mount-matches');
+const hasInstructions = require('../utils/has-instructions');
 
 class L337ServiceV4 {
   #data

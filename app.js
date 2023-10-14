@@ -2,6 +2,9 @@
 
 // Modules
 const _ = require('lodash');
+const path = require('path');
+
+const {nanoid} = require('nanoid');
 
 // Helper to set the LANDO_LOAD_KEYS var
 const getKeys = (keys = true) => {
@@ -14,11 +17,44 @@ module.exports = async (app, lando) => {
   app.preLockfile = `${app.name}.build.lock`;
   app.postLockfile = `${app.name}.post-build.lock`;
 
+  // Add v4 stuff to the app object
+  app.v4 = {};
+  app.v4._debugShim = require('./utils/debug-shim')(app.log);
+  app.v4._dir = path.join(lando.config.userConfRoot, 'v4', `${app.name}-${app.id}`);
+  app.v4.orchestratorVersion = '3.6';
+  app.v4.preLockfile = `${app.name}.v4.build.lock`;
+  app.v4.postLockfile = `${app.name}.v4.build.lock`;
+  app.v4.services = [];
+  app.v4.composeCache = `${app.name}.compose.cache`;
+
+  // front load top level networks
+  app.v4.addNetworks = (data = {}) => {
+    app.add({
+      id: `v4-${nanoid()}`,
+      info: {},
+      data: [{networks: data, version: app.v4.orchestratorVersion}],
+    }, true);
+  };
+  // front load top level volumes
+  app.v4.addVolumes = (data = {}) => {
+    app.add({
+      id: `v4-${nanoid()}`,
+      info: {},
+      data: [{volumes: data, version: app.v4.orchestratorVersion}],
+    }, true);
+  };
+
   // load in and parse v3 services
   app.events.on('pre-init', async () => await require('./hooks/app-add-v3-services')(app, lando));
 
+  // load in and parse v4 services
+  app.events.on('pre-init', async () => await require('./hooks/app-add-v4-services')(app, lando));
+
   // run v3 build steps
   app.events.on('post-init', async () => await require('./hooks/app-run-v3-build-steps')(app, lando));
+
+  // run v4 build steps
+  app.events.on('post-init', async () => await require('./hooks/app-run-v4-build-steps')(app, lando));
 
   // Add localhost info to our containers if they are up
   app.events.on('post-init', async () => await require('./hooks/app-find-localhosts')(app, lando));
@@ -43,6 +79,26 @@ module.exports = async (app, lando) => {
   // Discover portforward true info
   app.events.on('ready', async () => await require('./hooks/app-set-portforwards')(app, lando));
 
+  // v4 parts of the app are ready
+  app.events.on('ready', 6, async () => await require('./hooks/app-v4-ready')(app, lando));
+
+  // Save a compose cache every time the app is ready, we have to duplicate this for v4 because we modify the
+  // composeData after the v3 app.ready event
+  app.events.on('ready-v4', () => {
+    lando.cache.set(app.v4.composeCache, {
+      name: app.name,
+      project: app.project,
+      compose: app.compose,
+      containers: app.containers,
+      root: app.root,
+      info: app.info,
+      mounts: require('./utils/get-mounts')(_.get(app, 'v4.services', {})),
+      overrides: {
+        tooling: app._coreToolingOverrides,
+      },
+    }, {persist: true});
+  });
+
   // Otherwise set on rebuilds
   // NOTE: We set this pre-rebuild because post-rebuild runs after post-start because you would need to
   // do two rebuilds to remove the warning since appWarning is already set by the time we get here.
@@ -52,6 +108,10 @@ module.exports = async (app, lando) => {
 
   // Determine pullable and locally built images
   app.events.on('pre-rebuild', async () => await require('./hooks/app-set-pullables')(app, lando));
+
+  // we need to temporarily set app.compose to be V3 only and then restore it post-rebuild
+  // i really wish thre was a better way to do this but alas i do not think there is
+  app.events.on('pre-rebuild', 10, async () => await require('./hooks/app-shuffle-locals')(app, lando));
 
   // If the app already is installed but we can't determine the builtAgainst, then set it to something bogus
   app.events.on('pre-start', async () => await require('./hooks/app-update-built-against-pre')(app, lando));
@@ -73,6 +133,9 @@ module.exports = async (app, lando) => {
 
   // remove v3 build locks
   app.events.on('post-uninstall', async () => await require('./hooks/app-purge-v3-build-locks')(app, lando));
+
+  // remove v4 build locks
+  app.events.on('post-uninstall', async () => await require('./hooks/app-purge-v4-build-locks')(app, lando));
 
   // LEGACY healthchecks
   if (_.get(lando, 'config.healthcheck', true) === 'legacy') {

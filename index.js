@@ -55,6 +55,11 @@ module.exports = async lando => {
   // Ensure some dirs exist before we start
   _.forEach([binDir, caDir, sshDir], dir => fs.mkdirSync(dir, {recursive: true}));
 
+  // make sure Lando Specification 337 is available to all
+  lando.events.on('post-bootstrap-app', async () => {
+    lando.factory.registry.unshift({api: 4, name: 'l337', builder: require('./components/l337-v4')});
+  });
+
   // Ensure we download docker-compose if needed
   lando.events.on('pre-bootstrap-engine', 1, async () => await require('./hooks/lando-setup-orchestrator')(lando));
 
