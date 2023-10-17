@@ -157,8 +157,14 @@ describe('docker', () => {
   });
 
   describe('#list', () => {
+    // this is a hack to stop mock-fs from not finding some module deps
+    require('../utils/to-lando-container');
+    require('../utils/docker-composify');
+
     beforeEach(() => {
-      filesystem({'/tmp/.lando.yml': 'CODEZ'});
+      filesystem({
+        '/tmp/.lando.yml': 'CODEZ',
+      });
     });
 
     it('should filter out any containers that are pending removal', () => {

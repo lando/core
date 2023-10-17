@@ -20,10 +20,15 @@
   "main": "lib/lando.js",
   "nyc": {
     "include": [
+      "builders/**/*.js",
+      "components/**/*.js",
+      "hooks/**/*.js",
       "lib/**/*.js",
       "recipes/**/*.js",
+      "renderers/**/*.js",
       "services/**/*.js",
-      "types/**/*.js"
+      "types/**/*.js",
+      "utils/**/*.js"
     ],
     "exclude": [
       "test/**"

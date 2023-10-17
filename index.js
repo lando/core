@@ -25,16 +25,16 @@ const defaults = {
 /*
  * Helper to get user conf
  */
-const uc = (uid, gid, username) => ({
+const uc = () => ({
   config: {
     appEnv: {
-      LANDO_HOST_UID: uid,
-      LANDO_HOST_GID: gid,
-      LANDO_HOST_USER: username,
+      LANDO_HOST_UID: require('./utils/get-uid')(),
+      LANDO_HOST_GID: require('./utils/get-gid')(),
+      LANDO_HOST_USER: require('./utils/get-username')(),
     },
-    gid,
-    uid,
-    username,
+    gid: require('./utils/get-gid')(),
+    uid: require('./utils/get-uid')(),
+    username: require('./utils/get-username')(),
   },
 });
 
@@ -75,7 +75,7 @@ module.exports = async lando => {
   lando.events.on('pre-engine-start', 3, async () => await require('./hooks/lando-copy-ca')(lando, certData));
 
   // Return some default things
-  return _.merge({}, defaults, uc(lando.user.getUid(), lando.user.getGid(), lando.user.getUsername()), {config: {
+  return _.merge({}, defaults, uc(), {config: {
     appEnv: {
       LANDO_CA_CERT: '/lando/certs/' + path.basename(caCert),
       LANDO_CA_KEY: '/lando/certs/' + path.basename(caKey),

@@ -30,7 +30,7 @@ const macosCacheDir = product => {
   return process.platform === 'darwin' ? path.join(getOClifHome(), 'Library', 'Caches', product) : undefined;
 };
 
-module.exports = product => {
+module.exports = (product = 'hyperdrive') => {
   return process.env[`${product.toUpperCase()}_CACHE_DIR`]
     || macosCacheDir(product)
     || getOClifBase(product);

@@ -1,11 +1,10 @@
-'use strict';
 
 // Modules
 const _ = require('lodash');
 const http = require('http');
 const https = require('https');
-const Log = require('./logger');
-const Promise = require('./promise');
+const Log = require('./../lib/logger');
+const Promise = require('./../lib/promise');
 
 /*
  * Helper to load request library
