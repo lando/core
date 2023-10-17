@@ -24,7 +24,7 @@ module.exports = async (lando, data, {caCert, caDir, caProject}) => {
     const env = _.cloneDeep(lando.config.appEnv);
     const labels = _.cloneDeep(lando.config.appLabels);
     const caData = new LandoCa(lando.config.userConfRoot, env, labels);
-    const caFiles = lando.utils.dumpComposeData(caData, caDir);
+    const caFiles = require('../utils/dump-compose-data')(caData, caDir);
     lando.log.debug('setting up Lando Local CA at %s', caCert);
     return lando.engine.run(getCaRunner(caProject, caFiles, lando.config.orchestratorSeparator));
   }

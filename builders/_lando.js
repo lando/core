@@ -57,7 +57,8 @@ module.exports = {
       // If this version is not supported throw an error
       // @TODO: get this someplace else for unit tezting
       if (!supportedIgnore && !_.includes(supported, version)) {
-        if (!patchesSupported || !_.includes(utils.stripWild(supported), utils.stripPatch(version))) {
+        if (!patchesSupported
+          || !_.includes(require('../utils/strip-wild')(supported), require('../utils/strip-patch')(version))) {
           throw Error(`${type} version ${version} is not supported`);
         }
       }
@@ -68,7 +69,7 @@ module.exports = {
       // Move our config into the userconfroot if we have some
       // NOTE: we need to do this because on macOS and Windows not all host files
       // are shared into the docker vm
-      if (fs.existsSync(confSrc)) utils.moveConfig(confSrc, confDest);
+      if (fs.existsSync(confSrc)) require('../utils/move-config')(confSrc, confDest);
 
       // Get some basic locations
       const scriptsDir = path.join(userConfRoot, 'scripts');

@@ -126,7 +126,7 @@ module.exports = async (app, lando) => {
   app.events.on('post-start', async () => await require('./hooks/app-check-docker-compat')(app, lando));
 
   // Reset app info on a stop, this helps prevent wrong/duplicate information being reported on a restart
-  app.events.on('post-stop', async () => lando.utils.getInfoDefaults(app));
+  app.events.on('post-stop', async () => require('./utils/get-app-info-defaults')(app));
 
   // Remove meta cache on destroy
   app.events.on('post-destroy', async () => await require('./hooks/app-purge-metadata-cache')(app, lando));
