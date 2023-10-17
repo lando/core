@@ -1,7 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
-
 module.exports = lando => {
   return {
     command: 'poweroff',
@@ -14,24 +12,21 @@ module.exports = lando => {
 
       // SHUT IT ALL DOWN
       if (containers.length > 0) {
-        const mtl = _.max(containers.map(containers => containers.name.length));
-        const getSpacer = size => _.range(size).map(size => '').join(' ');
-
-        console.log(lando.cli.chalk.blue(`[+] Stopping ${containers.length}/${containers.length}`));
         const tasks = containers.map(container => ({
-          title: `Container ${container.name}${getSpacer(mtl - container.name.length + 3)}`,
-          task: async (ctx, task) => {
-            const prefix = `Container ${container.name}${getSpacer(mtl - container.name.length + 3)}`;
-            task.title = `${prefix}${lando.cli.chalk.green('Stopping')}`;
-            await lando.engine.stop({id: container.id});
-            task.title = `${prefix}${lando.cli.chalk.green('Stopped')}`;
-          },
+          title: `Container ${container.name}`,
+          task: async (ctx, task) => await lando.engine.stop({id: container.id}),
         }));
 
-        await lando.cli.runTaskList(tasks, {
+        await lando.runTasks(tasks, {
           debugRendererOptions: {log: lando.log.info},
-          renderer: 'lando',
-          rendererOptions: {level: 0.5},
+          renderer: 'dc2',
+          rendererOptions: {
+            header: 'Stopping',
+            states: {
+              COMPLETED: 'Stopped',
+              STARTED: 'Stopping',
+            },
+          },
         });
       }
 

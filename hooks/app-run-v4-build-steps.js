@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const chalk = require('chalk');
 
 module.exports = async (app, lando) => {
   // get buildable services
@@ -28,40 +27,52 @@ module.exports = async (app, lando) => {
       const services = _(app.v4.services)
         .filter(service => _.includes(buildV4Services, service.id))
         .value();
+
       app.log.debug('going to build v4 services', services.map(service => service.id));
 
       // now build an array of promises with our services
-      const buildSteps = services.map(async service => {
-        // @TODO: replace entire line so it looks more like docker compose?
-        // @TODO: better ux for building, listr? simple throbber ex?
-        process.stdout.write(`Building v4 image ${service.id} ...\n`);
-        try {
-          const success = await service.buildImage();
-          process.stdout.write(`Building v4 image ${service.id} ... ${chalk.green('done')}\n`);
-          return success;
-        } catch (e) {
-          process.stdout.write(`Building v4 image ${service.id} ... ${chalk.red('ERROR')}\n`);
-          return e;
-        }
+      const tasks = services.map(service => {
+        const container = [app.project, service.id, '1'].join(lando.config.orchestratorSeparator);
+        return {
+          title: `Image for ${container}`,
+          task: async (ctx, task) => {
+            try {
+              await service.buildImage();
+            } catch (error) {
+              ctx.errors.push(error);
+              throw error;
+            }
+          },
+        };
       });
 
       // and then run them in parallel
-      const results = await Promise.all(buildSteps);
-      // get failures and successes
-      const failures = _(results).filter(service => service.exitCode !== 0).value();
+      const {errors} = await app.runTasks(tasks, {
+        ctx: {errors: []},
+        debugRendererOptions: {log: app.log.info},
+        renderer: 'dc2',
+        rendererOptions: {
+          header: 'Building',
+          states: {
+            COMPLETED: 'Built',
+            STARTED: 'Building',
+          },
+        },
+      });
+
       // write build lock if we have no failures
-      if (_.isEmpty(failures)) lando.cache.set(app.v4.preLockfile, app.configHash, {persist: true});
+      if (_.isEmpty(errors)) lando.cache.set(app.v4.preLockfile, app.configHash, {persist: true});
 
       // go through failures and add warnings as needed, rebase on base image
-      _.forEach(failures, failure => {
+      _.forEach(errors, error => {
         app.addWarning({
-          title: `Could not build v4 image "${_.get(failure, 'context.id')}!"`,
+          title: `Could not build v4 image "${_.get(error, 'context.id')}!"`,
           detail: [
-            `Failed with "${_.get(failure, 'short')}"`,
+            `Failed with "${_.get(error, 'short')}"`,
             `Rerun with "lando rebuild -vvv" to see the entire build log and look for errors. When fixed run:`,
           ],
           command: 'lando rebuild',
-        }, failure);
+        }, error);
       });
 
       // merge rebuild success results into app.info for downstream usage for api 4 services

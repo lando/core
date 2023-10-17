@@ -33,6 +33,7 @@ jobs:
           - examples/no-services
           - examples/orchestrator
           - examples/proxy
+          - examples/renderer
           - examples/services
           - examples/tooling
         node-version:

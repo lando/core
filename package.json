@@ -46,6 +46,7 @@
     "axios": "0.21.4",
     "bluebird": "^3.4.1",
     "clean-stacktrace": "^1.1.0",
+    "cli-truncate": "2.1.0",
     "copy-dir": "^0.4.0",
     "dayjs": "^1.8.25",
     "debug": "^4.3.4",
@@ -59,7 +60,9 @@
     "is-class": "^0.0.9",
     "js-yaml": "^3.4.6",
     "jsonfile": "^2.4.0",
+    "listr2": "^6.6.1",
     "lodash": "^4.17.21",
+    "log-update": "4.0.0",
     "nanoid": "^3",
     "node-cache": "^4.1.1",
     "object-hash": "^1.1.8",
@@ -72,7 +75,8 @@
     "transliteration": "^2.2.0",
     "uuid": "^3.2.1",
     "valid-url": "^1.0.9",
-    "winston": "2.4.5"
+    "winston": "2.4.5",
+    "wrap-ansi": "7.0.0"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.0",
