@@ -76,3 +76,6 @@ tooling:
         alias:
           - s
         describe: Run a different service
+
+plugins:
+  "@lando/core": "../.."

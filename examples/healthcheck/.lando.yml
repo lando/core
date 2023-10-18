@@ -72,3 +72,6 @@ services:
         MARIADB_USER: test
         MARIADB_PASSWORD: test
         MARIADB_AUTO_UPGRADE: da
+
+plugins:
+  "@lando/core": "../.."

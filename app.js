@@ -13,6 +13,8 @@ const getKeys = (keys = true) => {
 };
 
 module.exports = async (app, lando) => {
+  // Compose cache key
+  app.composeCache = `${app.name}.compose.cache`;
   // Build step locl files
   app.preLockfile = `${app.name}.build.lock`;
   app.postLockfile = `${app.name}.post-build.lock`;
@@ -68,6 +70,9 @@ module.exports = async (app, lando) => {
   // Assess our key situation so we can warn users who may have too many
   app.events.on('post-init', async () => await require('./hooks/app-check-ssh-keys')(app, lando));
 
+  // Add tooling if applicable
+  app.events.on('post-init', async () => await require('./hooks/app-add-tooling')(app, lando));
+
   // Collect info so we can inject LANDO_INFO
   // @NOTE: this is not currently the full lando info because a lot of it requires the app to be on
   app.events.on('post-init', 10, async () => await require('./hooks/app-set-lando-info')(app, lando));
@@ -78,6 +83,12 @@ module.exports = async (app, lando) => {
 
   // Discover portforward true info
   app.events.on('ready', async () => await require('./hooks/app-set-portforwards')(app, lando));
+
+  // set tooling compose cache
+  app.events.on('ready', async () => await require('./hooks/app-set-compose-cache')(app, lando));
+
+  // override the ssh tooling command with a good default
+  app.events.on('ready', 1, async () => await require('./hooks/app-override-ssh-defaults')(app, lando));
 
   // v4 parts of the app are ready
   app.events.on('ready', 6, async () => await require('./hooks/app-v4-ready')(app, lando));
@@ -136,6 +147,9 @@ module.exports = async (app, lando) => {
 
   // remove v4 build locks
   app.events.on('post-uninstall', async () => await require('./hooks/app-purge-v4-build-locks')(app, lando));
+
+  // remove compose cache
+  app.events.on('post-uninstall', async () => await require('./hooks/app-purge-compose-cache')(app, lando));
 
   // LEGACY healthchecks
   if (_.get(lando, 'config.healthcheck', true) === 'legacy') {

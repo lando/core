@@ -1,1 +1,4 @@
 name: nothing-app
+
+plugins:
+  "@lando/core": "../.."

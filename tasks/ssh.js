@@ -2,8 +2,6 @@
 
 // Modules
 const _ = require('lodash');
-const getUser = require('./../../../lib/utils').getUser;
-const utils = require('./../lib/utils');
 
 // Other things
 const bashme = ['/bin/sh', '-c', 'if ! type bash > /dev/null; then sh; else bash; fi'];
@@ -56,8 +54,15 @@ module.exports = (lando, app) => {
         }
 
         // continue
-        if (_.isNull(user)) user = getUser(service, app.info);
-        return lando.engine.run(utils.buildCommand(app, command, service, user, {}, ...opts)).catch(error => {
+        if (_.isNull(user)) user = require('../utils/get-user')(service, app.info);
+        return lando.engine.run(require('../utils/build-tooling-runner')(
+          app,
+          command,
+          service,
+          user,
+          {},
+          ...opts,
+        )).catch(error => {
           error.hide = true;
           throw error;
         });

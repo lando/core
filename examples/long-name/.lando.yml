@@ -17,3 +17,6 @@ services:
       - '80'
     volumes:
     - ./:/usr/share/nginx/html
+
+plugins:
+  "@lando/core": "../.."

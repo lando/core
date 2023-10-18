@@ -10,6 +10,7 @@ pluginDirs:
   - plugins
 plugins:
   "@lando/base-test-plugin-2": ./test-plugin-2
+  "@lando/core": "./../.."
 services:
   web3:
     api: 4
@@ -18,3 +19,6 @@ services:
       - '80'
     volumes:
     - ./:/usr/share/nginx/html
+
+plugins:
+  "@lando/core": "../.."

@@ -19,4 +19,4 @@ services:
       - ./:/usr/share/nginx/html:ro
 
 plugins:
-  "@lando/core": "./../.."
+  "@lando/core": "../.."

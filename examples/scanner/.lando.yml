@@ -105,3 +105,6 @@ services:
       - '8888'
     volumes:
       - ./:/usr/share/nginx/html
+
+plugins:
+  "@lando/core": "../.."

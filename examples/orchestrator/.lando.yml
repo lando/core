@@ -6,3 +6,6 @@ services:
     services:
       image: php:8.2-fpm
       command: docker-php-entrypoint sleep infinity
+
+plugins:
+  "@lando/core": "../.."

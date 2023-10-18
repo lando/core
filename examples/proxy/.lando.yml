@@ -89,3 +89,6 @@ services:
       ports:
         - "8080"
       user: root
+
+plugins:
+  "@lando/core": "../.."

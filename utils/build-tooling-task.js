@@ -1,12 +1,7 @@
 'use strict';
 
-// Modules
 const _ = require('lodash');
-const utils = require('./utils');
 
-/*
- * Helper to build tasks from metadata
- */
 module.exports = (config, injected) => {
   // Get our defaults and such
   const {name, app, appMount, cmd, describe, dir, env, options, service, stdio, user} = utils.toolingDefaults(config);
