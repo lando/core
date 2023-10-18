@@ -104,6 +104,7 @@
     "axios",
     "bluebird",
     "clean-stacktrace",
+    "cli-truncate",
     "copy-dir",
     "dayjs",
     "debug",
@@ -117,8 +118,9 @@
     "is-class",
     "js-yaml",
     "jsonfile",
+    "listr2",
     "lodash",
-    "mkdirp",
+    "log-update",
     "nanoid",
     "node-cache",
     "object-hash",
@@ -128,9 +130,8 @@
     "slugify",
     "string-argv",
     "through",
-    "transliteration",
-    "uuid",
     "valid-url",
-    "winston"
+    "winston",
+    "wrap-ansi"
   ]
 }
