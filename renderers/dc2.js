@@ -65,7 +65,7 @@ class DC2Renderer extends LandoRenderer {
   }
 
   getSpacer(size, max) {
-    if (!max || max === 0 || !Number.isInteger(max)) return '';
+    if (!max || max === 0 || !Number.isInteger(max)) return '  ';
     return require('lodash/range')(max - size + 3).map(s => '').join(' ');
   }
 
