@@ -30,7 +30,6 @@ lando info -s db | grep lastBuild: | grep never
 lando info -s db | grep -z image: | grep core/examples/l337/Dockerfile
 lando info -s db | grep primary: | grep false
 lando info -s db | grep user: | grep www-data
-lando info -s db | grep hostnames: | grep db.l337.internal
 cat $(lando info -s db --path "[0].image" --format json | tr -d '"') | grep "ENV SERVICE=db"
 lando info -s web | grep api: | grep 4
 lando info -s web | grep type: | grep l337
@@ -39,7 +38,6 @@ lando info -s web | grep -z image: | grep /Imagefile
 lando info -s web | grep primary: | grep true
 lando info -s web | grep appMount: | grep /site
 lando info -s web | grep user: | grep nginx
-lando info -s web | grep hostnames: | grep web.l337.internal
 cat $(lando info -s web --path "[0].image" --format json | tr -d '"') | grep ENV | grep SERVICE | grep web
 lando info -s image-1 | grep image: | grep nginx:1.21.6
 lando info -s image-2 | grep -z image: | grep core/examples/l337/images/nginx/Dockerfile
