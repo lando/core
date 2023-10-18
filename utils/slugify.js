@@ -1,3 +1,5 @@
 'use strict';
 
-module.exports = data => require('slugify')(data, {lower: true, strict: true});
+const _ = require('lodash');
+
+module.exports = data => require('slugify')(_.toString(data), {lower: true, strict: true});
