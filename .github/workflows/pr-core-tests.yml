@@ -23,7 +23,7 @@ jobs:
         leia-test:
           - examples/badname
           - examples/base
-          # - examples/events
+          - examples/events
           # - examples/init-github
           # - examples/init-remote
           - examples/keys

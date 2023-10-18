@@ -50,7 +50,7 @@ module.exports = async (app, lando) => {
       const {errors} = await app.runTasks(tasks, {
         ctx: {errors: []},
         debugRendererOptions: {log: app.log.info},
-        renderer: 'dc2-fallback',
+        renderer: 'dc2',
         rendererOptions: {
           header: 'Building',
           states: {

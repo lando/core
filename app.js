@@ -151,6 +151,13 @@ module.exports = async (app, lando) => {
   // remove compose cache
   app.events.on('post-uninstall', async () => await require('./hooks/app-purge-compose-cache')(app, lando));
 
+  // process events
+  if (!_.isEmpty(_.get(app, 'config.events', []))) {
+    _.forEach(app.config.events, (cmds, name) => {
+      app.events.on(name, 9999, async data => await require('./hooks/app-run-events')(app, lando, cmds, data));
+    });
+  }
+
   // LEGACY healthchecks
   if (_.get(lando, 'config.healthcheck', true) === 'legacy') {
     app.events.on('post-start', 2, async () => await require('./hooks/app-run-legacy-healthchecks')(app, lando));

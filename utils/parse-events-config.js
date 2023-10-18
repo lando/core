@@ -2,7 +2,6 @@
 
 // Modules
 const _ = require('lodash');
-const getUser = require('../../../lib/utils').getUser;
 
 // Helper to find the default service
 const getDefaultService = (data = {}, defaultService = 'appserver') => {
@@ -34,10 +33,8 @@ const getService = (cmd, data = {}, defaultService = 'appserver') => {
   return typeof cmd === 'object' ? getFirstKey(cmd) : getDefaultService(data, defaultService);
 };
 
-/*
- * Translate events into run objects
- */
-exports.events2Runz = (cmds, app, data = {}) => _.map(cmds, cmd => {
+// adds required methods to ensure the lando v3 debugger can be injected into v4 things
+module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
   // Discover the service
   const command = getCommand(cmd);
   const service = getService(cmd, data, app._defaultService);
@@ -67,7 +64,7 @@ exports.events2Runz = (cmds, app, data = {}) => _.map(cmds, cmd => {
     opts: {
       cstdio,
       mode: 'attach',
-      user: getUser(service, app.info),
+      user: require('./get-user')(service, app.info),
       services: [service],
     },
   };
