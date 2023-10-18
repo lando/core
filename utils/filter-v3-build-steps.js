@@ -1,9 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
-const {getUser} = require('../lib/utils');
 
 module.exports = (services, app, rootSteps = [], buildSteps= [], prestart = false) => {
+  const getUser = require('../utils/get-user');
   // compute stdid based on compose major version
   const cstdio = _.get(app, '_config.orchestratorMV', 2) ? 'inherit' : ['inherit', 'pipe', 'pipe'];
   // Start collecting them
