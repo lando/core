@@ -24,8 +24,8 @@ jobs:
           - examples/badname
           - examples/base
           - examples/events
-          # - examples/init-github
-          # - examples/init-remote
+          - examples/init-github
+          - examples/init-remote
           - examples/keys
           - examples/l337
           - examples/landofile-custom

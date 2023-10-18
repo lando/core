@@ -15,6 +15,8 @@ const getKeys = (keys = true) => {
 module.exports = async (app, lando) => {
   // Compose cache key
   app.composeCache = `${app.name}.compose.cache`;
+  // Tooling cache key
+  app.toolingCache = `${app.name}.tooling.cache`;
   // Build step locl files
   app.preLockfile = `${app.name}.build.lock`;
   app.postLockfile = `${app.name}.post-build.lock`;
@@ -45,6 +47,9 @@ module.exports = async (app, lando) => {
       data: [{volumes: data, version: app.v4.orchestratorVersion}],
     }, true);
   };
+
+  // load in and parse recipes
+  app.events.on('pre-init', 4, async () => await require('./hooks/app-add-recipes')(app, lando));
 
   // load in and parse v3 services
   app.events.on('pre-init', async () => await require('./hooks/app-add-v3-services')(app, lando));
@@ -81,34 +86,21 @@ module.exports = async (app, lando) => {
   // @TODO: i feel like there has to be a better way to do this than this mega loop right?
   app.events.on('post-init', 9999, async () => await require('./hooks/app-set-bind-address')(app, lando));
 
+  // override the ssh tooling command with a good default
+  app.events.on('ready', 1, async () => await require('./hooks/app-override-ssh-defaults')(app, lando));
+
   // Discover portforward true info
   app.events.on('ready', async () => await require('./hooks/app-set-portforwards')(app, lando));
 
   // set tooling compose cache
   app.events.on('ready', async () => await require('./hooks/app-set-compose-cache')(app, lando));
 
-  // override the ssh tooling command with a good default
-  app.events.on('ready', 1, async () => await require('./hooks/app-override-ssh-defaults')(app, lando));
-
   // v4 parts of the app are ready
   app.events.on('ready', 6, async () => await require('./hooks/app-v4-ready')(app, lando));
 
   // Save a compose cache every time the app is ready, we have to duplicate this for v4 because we modify the
   // composeData after the v3 app.ready event
-  app.events.on('ready-v4', () => {
-    lando.cache.set(app.v4.composeCache, {
-      name: app.name,
-      project: app.project,
-      compose: app.compose,
-      containers: app.containers,
-      root: app.root,
-      info: app.info,
-      mounts: require('./utils/get-mounts')(_.get(app, 'v4.services', {})),
-      overrides: {
-        tooling: app._coreToolingOverrides,
-      },
-    }, {persist: true});
-  });
+  app.events.on('ready-v4', async () => await require('./hooks/app-set-v4-compose-cache')(app, lando));
 
   // Otherwise set on rebuilds
   // NOTE: We set this pre-rebuild because post-rebuild runs after post-start because you would need to
@@ -150,6 +142,9 @@ module.exports = async (app, lando) => {
 
   // remove compose cache
   app.events.on('post-uninstall', async () => await require('./hooks/app-purge-compose-cache')(app, lando));
+
+  // remove tooling cache
+  app.events.on('post-uninstall', async () => await require('./hooks/app-purge-tooling-cache')(app, lando));
 
   // process events
   if (!_.isEmpty(_.get(app, 'config.events', []))) {

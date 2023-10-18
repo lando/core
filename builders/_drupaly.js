@@ -4,12 +4,53 @@
 const _ = require('lodash');
 const LandoLaemp = require('./_lamp.js');
 const semver = require('semver');
-const utils = require('../lib/utils.js');
-const warnings = require('../lib/warnings.js');
 
 // "Constants"
 const DRUSH8 = '8.4.8';
 const DRUSH7 = '7.4.0';
+
+/*
+ * Helper to get DRUSH phar url
+ */
+const getDrushUrl = version => `https://github.com/drush-ops/drush/releases/download/${version}/drush.phar`;
+
+const drushWarn = version => ({
+  title: 'May need site-local drush',
+  detail: [
+    `Lando has detected you are trying to globally install drush ${version}`,
+    'This version of drush prefers a site-local installation',
+    'We recommend you install drush that way, see:',
+  ],
+  url: 'https://www.drush.org/install/',
+});
+
+/*
+ * Helper to get a phar download and setupcommand
+ * @TODO: clean this mess up
+ */
+const getPhar = (url, src, dest, check = 'true') => {
+  // Arrayify the check if needed
+  if (_.isString(check)) check = [check];
+  // Phar install command
+  const pharInstall = [
+    ['curl', url, '-LsS', '-o', src],
+    ['chmod', '+x', src],
+    ['mv', src, dest],
+    check,
+  ];
+  // Return
+  return _.map(pharInstall, cmd => cmd.join(' ')).join(' && ');
+};
+
+/*
+ * Helper to get the phar build command
+ */
+const getDrush = (version, status) => getPhar(
+  getDrushUrl(version),
+  '/tmp/drush.phar',
+  '/usr/local/bin/drush',
+  status,
+);
 
 /*
  * Build Drupal 7
@@ -47,12 +88,12 @@ module.exports = {
         // Switch to phar based install if we can
         if (semver.valid(options.drush) && semver.major(options.drush) === 8) {
           delete options.composer['drush/drush'];
-          options.build.unshift(utils.getDrush(options.drush, ['drush', '--version']));
+          options.build.unshift(getDrush(options.drush, ['drush', '--version']));
         }
         // Attempt to set a warning if possible
         const coercedDrushVersion = semver.valid(semver.coerce(options.drush));
         if (!_.isNull(coercedDrushVersion) && semver.gte(coercedDrushVersion, '10.0.0')) {
-          options._app.addWarning(warnings.drushWarn(options.drush));
+          options._app.addWarning(drushWarn(options.drush));
         }
       }
 

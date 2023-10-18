@@ -3,7 +3,6 @@
 // Modules
 const _ = require('lodash');
 const fs = require('fs');
-const utils = require('../lib/utils');
 
 // Tooling defaults
 const toolingDefaults = {
@@ -50,6 +49,33 @@ const toolingDefaults = {
   },
 };
 
+// Default DB cli commands
+const mysqlCli = {
+  service: ':host',
+  description: 'Drops into a MySQL shell on a database service',
+  cmd: 'mysql -uroot',
+  options: {
+    host: {
+      description: 'The database service to use',
+      default: 'database',
+      alias: ['h'],
+    },
+  },
+};
+const postgresCli = {
+  service: ':host',
+  description: 'Drops into a psql shell on a database service',
+  cmd: 'psql -Upostgres',
+  user: 'root',
+  options: {
+    host: {
+      description: 'The database service to use',
+      default: 'database',
+      alias: ['h'],
+    },
+  },
+};
+
 /*
  * Helper to get config defaults
  */
@@ -89,7 +115,7 @@ const getServices = options => ({
     build_internal: options.build,
     composer: options.composer,
     composer_version: options.composer_version,
-    config: utils.getServiceConfig(options),
+    config: getServiceConfig(options),
     run_as_root_internal: options.run_root,
     ssl: true,
     type: `php:${options.php}`,
@@ -98,7 +124,7 @@ const getServices = options => ({
     webroot: options.webroot,
   },
   database: {
-    config: utils.getServiceConfig(options, ['database']),
+    config: getServiceConfig(options, ['database']),
     authentication: 'mysql_native_password',
     type: options.database,
     portforward: true,
@@ -111,9 +137,45 @@ const getServices = options => ({
 });
 
 /*
+ * Helper to get the phar build command
+ */
+const getDbTooling = database => {
+  // Make sure we strip out any version number
+  database = database.split(':')[0];
+  // Choose wisely
+  if (_.includes(['mysql', 'mariadb'], database)) {
+    return {mysql: mysqlCli};
+  } else if (database === 'postgres') {
+    return {psql: postgresCli};
+  } else if (database === 'mongo') {
+    return {mongo: {
+      service: 'database',
+      description: 'Drop into the mongo shell',
+    }};
+  }
+};
+
+/*
+ * Helper to get service config
+ */
+const getServiceConfig = (options, types = ['php', 'server', 'vhosts']) => {
+  const config = {};
+  _.forEach(types, type => {
+    if (_.has(options, `config.${type}`)) {
+      config[type] = options.config[type];
+    } else if (!_.has(options, `config.${type}`) && _.has(options, `defaultFiles.${type}`)) {
+      if (_.has(options, 'confDest')) {
+        config[type] = path.join(options.confDest, options.defaultFiles[type]);
+      }
+    }
+  });
+  return config;
+};
+
+/*
  * Helper to get tooling
  */
-const getTooling = options => _.merge({}, toolingDefaults, utils.getDbTooling(options.database));
+const getTooling = options => _.merge({}, toolingDefaults, getDbTooling(options.database));
 
 /*
  * Build L(E)AMP
