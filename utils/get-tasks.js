@@ -56,7 +56,13 @@ const engineRunner = (config, command) => (argv, lando) => {
   app.events = new AsyncEvents(lando.log);
 
   // Load only what we need so we don't pay the appinit penalty
-  require('./../plugins/events/app')(app, lando);
+  if (!_.isEmpty(_.get(app, 'config.events', []))) {
+    _.forEach(app.config.events, (cmds, name) => {
+      app.events.on(name, 9999, async data => await require('./../hooks/app-run-events')(app, lando, cmds, data));
+    });
+  }
+
+  // get tooling
   app.config.tooling = require('./get-tooling-tasks')(app.config.tooling, app);
   // get task
   // @NOTE: can we actually assume this will always find something? i **THINK** we catch upstream?
