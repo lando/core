@@ -3,8 +3,10 @@
 const _ = require('lodash');
 
 module.exports = (config, injected) => {
+  const getToolingDefaults = require('./get-tooling-defaults');
+
   // Get our defaults and such
-  const {name, app, appMount, cmd, describe, dir, env, options, service, stdio, user} = utils.toolingDefaults(config);
+  const {name, app, appMount, cmd, describe, dir, env, options, service, stdio, user} = getToolingDefaults(config);
   // Handle dynamic services and passthrough options right away
   // Get the event name handler
   const eventName = name.split(' ')[0];
@@ -12,11 +14,11 @@ module.exports = (config, injected) => {
     // Kick off the pre event wrappers
     .then(() => app.events.emit(`pre-${eventName}`, config, answers))
     // Get an interable of our commandz
-    .then(() => _.map(utils.parseConfig(cmd, service, options, answers)))
+    .then(() => _.map(require('./parse-tooling-config')(cmd, service, options, answers)))
     // Build run objects
-    .map(({command, service}) => utils.buildCommand(app, command, service, user, env, dir, appMount))
+    .map(({command, service}) => require('./build-tooling-runner')(app, command, service, user, env, dir, appMount))
     // Try to run the task quickly first and then fallback to compose launch
-    .each(runner => utils.dockerExec(injected, stdio, runner).catch(execError => {
+    .each(runner => require('./build-docker-exec')(injected, stdio, runner).catch(execError => {
       return injected.engine.isRunning(runner.id).then(isRunning => {
         if (!isRunning) {
           return injected.engine.run(runner).catch(composeError => {

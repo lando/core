@@ -23,6 +23,7 @@ jobs:
         leia-test:
           - examples/healthcheck
           - examples/networking
+          - examples/proxy
           - examples/scanner
         node-version:
           - "16"

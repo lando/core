@@ -49,17 +49,15 @@ const appRunner = command => (argv, lando) => {
  * Helper to return the engine task runner
  */
 const engineRunner = (config, command) => (argv, lando) => {
-  const AsyncEvents = require('./events');
+  const AsyncEvents = require('./../lib/events');
   // Build a minimal app
   const app = lando.cache.get(path.basename(config.composeCache));
   app.config = config;
   app.events = new AsyncEvents(lando.log);
 
   // Load only what we need so we don't pay the appinit penalty
-  const utils = require('./../plugins/tooling/lib/utils');
-  const buildTask = require('./../plugins/tooling/lib/build');
   require('./../plugins/events/app')(app, lando);
-  app.config.tooling = utils.getToolingTasks(app.config.tooling, app);
+  app.config.tooling = require('./get-tooling-tasks')(app.config.tooling, app);
   // get task
   // @NOTE: can we actually assume this will always find something? i **THINK** we catch upstream?
   const task = _.find(app.config.tooling, task => task.name === command);
@@ -86,7 +84,7 @@ const engineRunner = (config, command) => (argv, lando) => {
   // Final event to modify and then load and run
   return lando.events.emit('pre-engine-runner', app)
   .then(() => lando.events.emit('pre-command-runner', app))
-  .then(() => buildTask(task, lando).run(argv));
+  .then(() => require('./build-tooling-task')(task, lando).run(argv));
 };
 
 module.exports = (config = {}, argv = {}, tasks = []) => {
