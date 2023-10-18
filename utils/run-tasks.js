@@ -22,6 +22,10 @@ module.exports = async (tasks, {
   if (typeof renderer === 'string' && fs.existsSync(path.resolve(__dirname, '..', 'renderers', `${renderer}.js`))) {
     renderer = require(path.resolve(__dirname, '..', 'renderers', renderer));
   }
+  // ditto for fallback renderer
+  if (typeof fallbackRenderer === 'string' && fs.existsSync(path.resolve(__dirname, '..', 'renderers', `${fallbackRenderer}.js`))) { // eslint-disable-line max-len
+    fallbackRenderer = require(path.resolve(__dirname, '..', 'renderers', fallbackRenderer));
+  }
 
   // if renderer force is on then make sure our fallback is just the normal renderer
   if (rendererForce === true) {
