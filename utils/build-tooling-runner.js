@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const path = require('lodash');
+const path = require('path');
 
 /*
  * Helper to map the cwd on the host to the one in the container
