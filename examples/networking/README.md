@@ -49,7 +49,7 @@ lando ssh -s placeholder -c "cat /certs/cert.ext" | grep placeholder.lando-lemp.
 cd lamp
 lando info -s appserver | grep hostnames: | grep appserver.landolamp.internal
 cd .. && cd lemp
-lando info -s placeholder | grep hostnames: | grep placeholder.landolamp.internal
+lando info -s placeholder | grep hostnames: | grep placeholder.landolemp.internal
 
 # Should be able to self connect from lamp
 cd lamp
