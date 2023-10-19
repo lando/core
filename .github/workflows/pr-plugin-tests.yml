@@ -22,9 +22,9 @@ jobs:
           - 3-dev
         leia-test:
           - examples/healthcheck
-          # - examples/networking
-          # - examples/proxy
-          # - examples/scanner
+          - examples/networking
+          - examples/proxy
+          - examples/scanner
         node-version:
           - "16"
         os:

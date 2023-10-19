@@ -23,7 +23,7 @@ module.exports = lando => {
           // get scanner stuff
           const type = !_.isEmpty(app.warnings) ? 'report' : 'post';
           const phase = legacyScanner ? `${type}_legacy` : type;
-          const scans = _.find(app.checks, {type: 'url-scan-listr2'});
+          const scans = _.find(app.checks, {type: 'url-scan-tasks'});
 
           // print post start table
           console.log(lando.cli.makeArt('appStart', {name: app.name, phase, warnings: app.warnings}));
