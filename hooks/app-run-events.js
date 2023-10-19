@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 
-module.exports = async (app, lando, cmds, data) => {
+module.exports = async (app, lando, cmds, data, event) => {
   const eventCommands = require('./../utils/parse-events-config')(cmds, app, data);
   // add perm sweeping to all v3 services
   if (!_.isEmpty(eventCommands)) {
@@ -28,11 +28,12 @@ module.exports = async (app, lando, cmds, data) => {
   }
   const injectable = _.has(app, 'engine') ? app : lando;
   return injectable.engine.run(eventCommands).catch(err => {
-    const command = _.tail(name.split('-')).join('-');
+    const command = _.tail(event.split('-')).join('-');
     if (app.addWarning) {
       const message = _.trim(_.get(err, 'message'));
+      console.log(err);
       app.addWarning({
-        title: `The ${name} event has command(s) that failed!`,
+        title: `The ${event} event has command(s) that failed!`,
         detail: [
           `Event failed with: "${message}"`,
           'This **MAY** prevent your app from working.',

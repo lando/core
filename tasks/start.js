@@ -15,15 +15,6 @@ module.exports = lando => {
       if (app) {
         console.log(lando.cli.makeArt('appStart', {name: app.name, phase: 'pre'}));
 
-        // in order to preserve runtim consistency with older healthchecks this all needs to run in the same
-        // post-start event
-        if (_.get(lando, 'config.healthcheck', true) !== 'legacy') {
-          app.events.on('post-start', 2, async () => {
-            const healthchecks = _.find(app.checks, {type: 'healthcheck-listr2'});
-            if (healthchecks) await healthchecks.test(...healthchecks.args);
-          });
-        }
-
         // Normal bootup
         try {
           await app.start();

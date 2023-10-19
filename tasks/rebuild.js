@@ -30,18 +30,8 @@ module.exports = lando => {
         // If user has given us options then set those
         if (!_.isEmpty(options.service)) app.opts = _.merge({}, app.opts, {services: options.service});
 
-        // in order to preserve runtim consistency with older healthchecks this all needs to run in the same
-        // post-start event
-        if (_.get(lando, 'config.healthcheck', true) !== 'legacy') {
-          app.events.on('post-start', 2, async () => {
-            const healthchecks = _.find(app.checks, {type: 'healthcheck-listr2'});
-            if (healthchecks) await healthchecks.test(...healthchecks.args);
-          });
-        }
-
         // rebuild hero
         console.log(lando.cli.makeArt('appRebuild', {name: app.name, phase: 'pre'}));
-
         // rebuild
         await app.rebuild();
         // determine legacy settings

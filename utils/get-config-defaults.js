@@ -24,7 +24,7 @@ const defaultConfig = options => ({
     release: os.release(),
     arch: os.arch(),
   },
-  // pluginDirs: [{path: path.join(__dirname, '..'), subdir: 'plugins', namespace: '@lando'}],
+  pluginDirs: [{path: path.join(__dirname, '..'), subdir: 'plugins', namespace: '@lando'}],
   plugins: [{name: '@lando/core', path: path.join(__dirname, '..'), type: 'local'}],
   userConfRoot: os.tmpdir(),
 });

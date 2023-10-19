@@ -18,7 +18,6 @@ module.exports = lando => {
         }));
 
         await lando.runTasks(tasks, {
-          debugRendererOptions: {log: lando.log.info},
           renderer: 'dc2',
           rendererOptions: {
             header: 'Stopping',

@@ -148,8 +148,8 @@ module.exports = async (app, lando) => {
 
   // process events
   if (!_.isEmpty(_.get(app, 'config.events', []))) {
-    _.forEach(app.config.events, (cmds, name) => {
-      app.events.on(name, 9999, async data => await require('./hooks/app-run-events')(app, lando, cmds, data));
+    _.forEach(app.config.events, (cmds, event) => {
+      app.events.on(event, 9999, async data => await require('./hooks/app-run-events')(app, lando, cmds, data, event));
     });
   }
 

@@ -49,7 +49,6 @@ module.exports = async (app, lando) => {
       // and then run them in parallel
       const {errors} = await app.runTasks(tasks, {
         ctx: {errors: []},
-        debugRendererOptions: {log: app.log.info},
         renderer: 'dc2',
         rendererOptions: {
           header: 'Building',
