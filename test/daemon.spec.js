@@ -12,15 +12,16 @@ chai.should();
 // const sinon = require('sinon');
 
 const Daemon = require('./../lib/daemon');
-const env = require('./../lib/env');
 const Log = require('./../lib/logger');
+
+const getDockerExecutable = require('../utils/get-docker-x');
 
 describe('daemon', () => {
   describe('#LandoDaemon', () => {
     it('should return an instance with the correct defaults', () => {
       const daemon = new Daemon();
 
-      daemon.docker.should.equal(env.getDockerExecutable());
+      daemon.docker.should.equal(getDockerExecutable());
       daemon.log.should.be.instanceOf(Log);
       return daemon.context.should.equal('node');
     });
