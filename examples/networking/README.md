@@ -11,14 +11,14 @@ Start up tests
 --------------
 
 ```bash
-# Should init and start a lamp recipe
+# Should init and start a lamp app
 rm -rf lamp && mkdir -p lamp
 cp -rf index.php lamp/index.php
 cp -rf apache.conf lamp/apache.conf
 cp -rf .lando.lamp.yml lamp/.lando.yml
 cd lamp && lando start
 
-# Should init and start a lemp recipe
+# Should init and start a lemp app
 rm -rf lemp && mkdir -p lemp
 cp -rf index.php lemp/index.php
 cp -rf apache.conf lemp/apache.conf
@@ -44,6 +44,12 @@ lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.1 | grep -w placeho
 lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.2 | grep -w placeholder
 lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.3 | grep -w localhost
 lando ssh -s placeholder -c "cat /certs/cert.ext" | grep placeholder.lando-lemp.lndo.site
+
+# Should have the correct internal hostname info
+cd lamp
+lando info -s appserver | grep hostnames: | grep appserver.landolamp.internal
+cd .. && cd lemp
+lando info -s placeholder | grep hostnames: | grep placeholder.landolamp.internal
 
 # Should be able to self connect from lamp
 cd lamp

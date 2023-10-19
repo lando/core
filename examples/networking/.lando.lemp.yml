@@ -50,3 +50,4 @@ services:
 
 plugins:
   "@lando/core": "../../.."
+  "@lando/networking": "../../../plugins/networking"
