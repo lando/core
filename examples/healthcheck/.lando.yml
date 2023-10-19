@@ -1,54 +1,54 @@
 name: lando-healthcheck
-events:
-  post-start:
-    - database1: mysql -uroot --silent --execute "SHOW DATABASES;"
+# events:
+#   post-start:
+#     - database1: mysql -uroot --silent --execute "SHOW DATABASES;"
 services:
-  appserver:
-    api: 3
-    type: lando
-    services:
-      image: php:8.2-fpm
-      command: docker-php-entrypoint sleep infinity
-      volumes:
-        - "./healthcheck.sh:/usr/local/bin/healthcheck"
-    healthcheck: healthcheck
-  nginx:
-    api: 3
-    type: lando
-    services:
-      image: nginx:1.22.1
-      command: /docker-entrypoint.sh nginx -g "daemon off;"
-      ports:
-        - 80
-      volumes:
-        - ./:/usr/share/nginx/html
-    run_as_root:
-      - echo "$(id)" > /run_as_root.txt
-      - ln -snf /usr/share/zoneinfo/America/New_York /etc/localtime
-      - echo "America/New_York" > /etc/timezone
-    overrides:
-      environment:
-        THING: STUFF
-      volumes:
-        - "./test.txt:/var/www/test.txt"
-  database1:
-    api: 3
-    type: lando
-    healthcheck:
-      command: mysql -uroot --silent --execute "SHOW DATABASES;"
-      user: mysql
-      retry: 10
-      delay: 1000
-    services:
-      image: mariadb:10.4
-      command: docker-entrypoint.sh mysqld
-      environment:
-        MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: da
-        MARIADB_MYSQL_LOCALHOST_USER: da
-        MARIADB_DATABASE: test
-        MARIADB_USER: test
-        MARIADB_PASSWORD: test
-        MARIADB_AUTO_UPGRADE: da
+  # appserver:
+  #   api: 3
+  #   type: lando
+  #   services:
+  #     image: php:8.2-fpm
+  #     command: docker-php-entrypoint sleep infinity
+  #     volumes:
+  #       - "./healthcheck.sh:/usr/local/bin/healthcheck"
+  #   healthcheck: healthcheck
+  # nginx:
+  #   api: 3
+  #   type: lando
+  #   services:
+  #     image: nginx:1.22.1
+  #     command: /docker-entrypoint.sh nginx -g "daemon off;"
+  #     ports:
+  #       - 80
+  #     volumes:
+  #       - ./:/usr/share/nginx/html
+  #   run_as_root:
+  #     - echo "$(id)" > /run_as_root.txt
+  #     - ln -snf /usr/share/zoneinfo/America/New_York /etc/localtime
+  #     - echo "America/New_York" > /etc/timezone
+  #   overrides:
+  #     environment:
+  #       THING: STUFF
+  #     volumes:
+  #       - "./test.txt:/var/www/test.txt"
+  # database1:
+  #   api: 3
+  #   type: lando
+  #   healthcheck:
+  #     command: mysql -uroot --silent --execute "SHOW DATABASES;"
+  #     user: mysql
+  #     retry: 10
+  #     delay: 1000
+  #   services:
+  #     image: mariadb:10.4
+  #     command: docker-entrypoint.sh mysqld
+  #     environment:
+  #       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: da
+  #       MARIADB_MYSQL_LOCALHOST_USER: da
+  #       MARIADB_DATABASE: test
+  #       MARIADB_USER: test
+  #       MARIADB_PASSWORD: test
+  #       MARIADB_AUTO_UPGRADE: da
   database2:
     api: 3
     type: lando
@@ -60,7 +60,7 @@ services:
         - --execute
         - SHOW DATABASES;
       user: mysql
-      retry: 10
+      retry: 1
       delay: 1000
     services:
       image: mariadb:10.4
