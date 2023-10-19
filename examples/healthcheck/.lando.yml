@@ -60,7 +60,7 @@ services:
         - --execute
         - SHOW DATABASES;
       user: mysql
-      retry: 10
+      retry: 1
       delay: 1000
     services:
       image: mariadb:10.4
@@ -72,3 +72,7 @@ services:
         MARIADB_USER: test
         MARIADB_PASSWORD: test
         MARIADB_AUTO_UPGRADE: da
+
+plugins:
+  "@lando/core": "../.."
+  "@lando/healthcheck": "../../plugins/healthcheck"

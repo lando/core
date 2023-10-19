@@ -47,3 +47,10 @@ services:
       MARIADB_USER: test
       MARIADB_PASSWORD: test
       MARIADB_AUTO_UPGRADE: da
+
+plugins:
+  "@lando/core": "../../.."
+  "@lando/healthcheck": "../../../plugins/healthcheck"
+  "@lando/networking": "../../../plugins/networking"
+  "@lando/proxy": "../../../plugins/proxy"
+  "@lando/scanner": "../../../plugins/scanner"

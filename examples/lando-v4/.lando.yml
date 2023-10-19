@@ -122,3 +122,6 @@ services:
     # l337:
     # compose:
     # overrides:
+
+plugins:
+  "@lando/core": "../.."

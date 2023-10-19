@@ -61,3 +61,5 @@ services:
         - ./easykey:/user/.ssh/mykey2
         - ./easykey:/user/.ssh/mykey3
 
+plugins:
+  "@lando/core": "../.."

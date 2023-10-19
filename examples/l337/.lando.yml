@@ -274,3 +274,6 @@ networks:
   my-network:
 volumes:
   my-data:
+
+plugins:
+  "@lando/core": "../.."

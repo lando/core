@@ -4,3 +4,6 @@ tooling:
   npm2:
     service: node2
     cmd: npm
+
+plugins:
+  "@lando/core": "../.."

@@ -34,6 +34,9 @@
   },
   "nyc": {
     "include": [
+      "builders/**/*.js",
+      "components/**/*.js",
+      "hooks/**/*.js",
       "lib/**/*.js",
       "scripts/util.js"
     ],

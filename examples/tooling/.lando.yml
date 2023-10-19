@@ -205,3 +205,6 @@ tooling:
         describe: Runs in this service
   bad-tool: disabled
   naughty-tool: false
+
+plugins:
+  "@lando/core": "../.."
