@@ -16,7 +16,7 @@ jobs:
         os:
           - ubuntu-20.04
         node-version:
-          - '16'
+          - "18"
     steps:
       # Install deps and cache
       - name: Checkout code

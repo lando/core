@@ -35,7 +35,7 @@ jobs:
           - examples/services
           - examples/tooling
         node-version:
-          - "16"
+          - "18"
         os:
           - ubuntu-22.04
         scanner:

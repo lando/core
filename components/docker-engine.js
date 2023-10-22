@@ -270,7 +270,7 @@ class DockerEngine extends Dockerode {
    */
   run(command,
     {
-      image = 'node:16-alpine',
+      image = 'node:18-alpine',
       createOptions = {},
       allo = '',
       attach = false,
