@@ -45,10 +45,10 @@ module.exports = async (tasks, {
       log: require('debug')('task-runner'),
       collapseSubtasks: false,
       suffixRetries: false,
-      showErrorMessage: false,
+      showErrorMessage: true,
       taskCount: Array.isArray(tasks) ? tasks.length : 0,
     },
-    showErrorMessage: false,
+    showErrorMessage: true,
   };
 
   // construct the runner

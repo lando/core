@@ -64,7 +64,16 @@ module.exports = async lando => {
   lando.events.on('pre-bootstrap-engine', 1, async () => await require('./hooks/lando-setup-orchestrator')(lando));
 
   // at this point we should be able to set orchestratorBin if it hasnt been set already
-  lando.events.on('pre-bootstrap-engine', 2, async () => await require('./hooks/lando-ensure-orchestrator')(lando));
+  lando.events.on('post-setup', async () => await require('./hooks/lando-ensure-orchestrator')(lando));
+
+  // autostart docker if we need to
+  lando.events.on('post-setup', async () => await require('./hooks/lando-autostart-engine')(lando));
+
+  // run engine compat checks
+  lando.events.on('post-setup', async () => await require('./hooks/lando-get-compat')(lando));
+
+  // autostart docker if we need to
+  lando.events.on('post-setup', 9999, async () => await require('./hooks/lando-get-compat')(lando));
 
   // Make sure we have a host-exposed root ca if we don't already
   // NOTE: we don't run this on the caProject otherwise infinite loop happens!
