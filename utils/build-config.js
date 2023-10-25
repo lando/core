@@ -81,6 +81,12 @@ module.exports = options => {
     delete config.orchestratorBin;
   }
 
+  // if orchestrator is not a valid version then remove it and try to use a system provided orchestartor
+  if (require('semver/functions/valid')(config.orchestratorVersion) === null) {
+    config.orchestratorBin = require('./get-compose-x')(config);
+    delete config.orchestratorVersion;
+  }
+
   // if we still have an orchestrator version at this point lets try to suss out its major version
   if (config.orchestratorVersion && require('semver/functions/valid')(config.orchestratorVersion)) {
     config.orchestratorMV = require('semver/functions/major')(config.orchestratorVersion);
@@ -93,7 +99,6 @@ module.exports = options => {
   // If orchestratorSeparator is set to '-' and we are using docker-compose 2 then allow that
   config.env.COMPOSE_COMPATIBILITY = config.orchestratorSeparator === '_';
   // config.env.COMPOSE_ANSI='always';
-
 
   // Get hyperdrive lando config file location
   config.hconf = path.join(getOclifCacheDir(config.hyperdrive), `${config.product}.json`);
