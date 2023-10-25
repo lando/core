@@ -52,7 +52,7 @@ module.exports = async lando => {
     const debug = require('../utils/debug-shim')(lando.log);
     const {color} = require('listr2');
 
-    const tasks = [{
+    lando.setup.push({
       title: `Downloading orchestrator`,
       task: async (ctx, task) => new Promise((resolve, reject) => {
         const download = require('../utils/download-x')(url, {debug, dest, test: ['--version']});
@@ -71,9 +71,6 @@ module.exports = async lando => {
           task.title = `Downloading orchestrator ${color.dim(`[${progress.percentage}%]`)}`;
         });
       }),
-    }];
-
-    // run orchestrator DL tasks
-    await lando.runTasks(tasks, {ctx: {errors: []}});
+    });
   }
 };
