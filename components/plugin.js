@@ -85,7 +85,7 @@ class Plugin {
 
       // if not a "lando plugin" then throw an error
       if (!Plugin.isValid(info)) {
-        const error = new Error(`${pkg.raw} does not seem to be a valid plugin.`);
+        const error = new Error(`${pkg.raw} does not seem to be a valid plugin!`);
         error.ref = 'docs to plugin requirements dev page';
         error.suggestions = ['tbd'];
         throw error;
@@ -95,8 +95,13 @@ class Plugin {
 
     // handle errors
     } catch (error) {
+      // @TODO: other errors?
+      // local path that does not exist?
+      // auth failure?
+      // debug the original error
+      Plugin.debug('%j', error);
       // better 404 message
-      if (error.statusCode === 404) error.message = `Could not find a plugin called ${pkg.raw}`;
+      if (error.statusCode === 404) error.message = `Could not find a plugin called ${pkg.raw} (${error.uri})`;
       // throw
       throw makeError({error});
     }

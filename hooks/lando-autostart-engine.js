@@ -19,9 +19,6 @@ module.exports = async lando => {
         }
       },
     }];
-    await lando.runTasks(tasks, {
-      ctx: {errors: []},
-      listrOptions: {exitOnError: true},
-    });
+    await lando.runTasks(tasks, {listrOptions: {exitOnError: true}});
   }
 };

@@ -34,7 +34,7 @@ module.exports = async (tasks, {
   }
 
   const defaults = {
-    ctx,
+    ctx: {data: {}, errors: [], results: []},
     concurrent: true,
     collectErrors: true,
     exitOnError: false,
@@ -53,6 +53,7 @@ module.exports = async (tasks, {
 
   // construct the runner
   const runner = new Manager(_.merge({}, defaults, {
+    ctx,
     ...listrOptions,
     rendererOptions,
   }));

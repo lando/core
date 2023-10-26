@@ -19,15 +19,14 @@ module.exports = lando => {
     },
 
     run: async options => {
-      const find = require('lodash/find');
-      const merge = require('lodash/merge');
       const config2Lopts = require('../utils/config-2-lopts');
       const lopts2Popts = require('../utils/lopts-2-popts');
-
+      const merge = require('../utils/merge');
       const Plugin = require('../components/plugin');
 
       // @TODO: get npmrc stuff?
       // @TODO: test lando-plugin-spark
+      // @TODO: what exactly was pluginConfig again? just yaml npmrc?
 
       // we need to merge various Plugin config soruces together to set the plugin config
       // lets start with getting stuff directly from lando.config
@@ -35,7 +34,7 @@ module.exports = lando => {
       // lets merge passed in options on top of lopts
       options.config = lopts2Popts(options, options.config);
       // finanly lets rebase ontop of any npm config we may have
-      options.config = merge({}, options.config);
+      options.config = merge({}, [options.config]);
 
       // reset Plugin static defaults for v3 purposes
       Plugin.config = options.config;
@@ -45,40 +44,15 @@ module.exports = lando => {
       const plugins = [options.plugin].concat(options.plugins);
       lando.log.debug('attempting to install plugins %j', plugins);
 
+      // attempt to compute the destination to install the plugin
+      // @NOTE: is it possible for this to ever be undefined?
+      const {dir} = lando.config.pluginDirs.find(dir => dir.type === require('../utils/get-plugin-type')());
       // prep listr things
-      const tasks = plugins.map(plugin => ({
-        title: `Adding ${plugin}`,
-        task: async (ctx, task) => {
-          try {
-            // attempt to compute the destination to install the plugin
-            // @NOTE: is it possible for this to ever be undefined?
-            const {dir} = find(lando.config.pluginDirs, {type: require('../utils/get-plugin-type')(plugin)});
-
-            // add the plugin
-            task.plugin = await require('../utils/fetch-plugin')(plugin, {config: Plugin.config, dest: dir}, Plugin);
-
-            // update and and return
-            task.title = `Installed ${task.plugin.name}@${task.plugin.version}`;
-            ctx.added++;
-
-            return task.plugin;
-
-          // if we have an error then add it to the status object and throw
-          // @TODO: make sure we force remove any errered plugins?
-          } catch (error) {
-            ctx.errors.push(error);
-            throw error;
-
-          // add the plugin regardless of the status
-          } finally {
-            ctx.plugins.push(task.plugin);
-          }
-        },
-      }));
+      const tasks = plugins.map(plugin => require('../utils/get-plugin-add-task')(plugin, {dir, Plugin}));
 
       // try to fetch the plugins
-      const results = await lando.runTasks(tasks, {
-        ctx: {plugins: [], errors: [], added: 0},
+      const {added, errors, results} = await lando.runTasks(tasks, {
+        ctx: {added: 0},
         renderer: 'lando',
         rendererOptions: {
           level: 0,
@@ -86,15 +60,15 @@ module.exports = lando => {
       });
 
       // if we have errors then lets print them out
-      if (results.errors.length > 0) {
+      if (errors.length > 0) {
         // print the full errors
-        for (const error of results.errors) lando.log.debug(error);
+        for (const error of errors) lando.log.debug(error);
         throw Error('There was a problem installing some of your plugins. Rerun with -vvv for more details.');
       }
 
       // otherwise we good!
       console.log();
-      console.log('added %s of %s plugins with %s errors', results.added, results.plugins.length, results.errors.length); // eslint-disable-line max-len
+      console.log('added %s of %s plugins with %s errors', added, results.length, errors.length); // eslint-disable-line max-len
       console.log();
       // clear task caches for good measure
       lando.cli.clearTaskCaches();

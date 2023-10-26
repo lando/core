@@ -137,7 +137,6 @@ module.exports = async (app, lando) => {
       }
     },
     args: [tasks, {
-      ctx: {errors: []},
       renderer: 'dc2',
       rendererOptions: {
         header: 'Healthchecking',
