@@ -1,1 +1,4 @@
 name: "@lando/core"
+
+api: 3
+core: true

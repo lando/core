@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const fs = require('fs');
-const merger = require('../utils/merge');
+const lmerge = require('./legacy-merge');
 const path = require('path');
 const yaml = require('js-yaml');
 
@@ -18,7 +18,7 @@ const loadLandoFile = file => {
 };
 
 module.exports = (files, userConfRoot) => {
-  const config = merger({}, ..._.map(files, file => loadLandoFile(file)));
+  const config = lmerge({}, ..._.map(files, file => loadLandoFile(file)));
   return _.merge({}, config, {
     configFiles: files,
     metaCache: `${config.name}.meta.cache`,

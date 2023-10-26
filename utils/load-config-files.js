@@ -71,4 +71,4 @@ module.exports = files => _(files)
     return source;
   })
   // Start collecting
-  .reduce((a, source) => require('./merge')(a, source.data), {});
+  .reduce((a, source) => require('./legacy-merge')(a, source.data), {});

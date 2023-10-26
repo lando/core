@@ -19,14 +19,14 @@ module.exports = options => {
   // Modules
   const hasher = require('object-hash');
 
-  const merge = require('../utils/merge');
+  const lmerge = require('./legacy-merge');
   const getConfigDefaults = require('../utils/get-config-defaults');
   const getEngineConfig = require('../utils/get-engine-config');
   const getOclifCacheDir = require('../utils/get-cache-dir');
   const stripEnv = require('../utils/strip-env');
 
   // Start building the config
-  let config = merge(getConfigDefaults(options), options);
+  let config = lmerge(getConfigDefaults(options), options);
 
   // add the core config.yaml as a config source if we have it, ideally splice it in after the cli config
   // but if we cant then just put it at the beginning
@@ -44,18 +44,18 @@ module.exports = options => {
 
   // If we have configSources let's merge those in as well
   if (!_.isEmpty(config.configSources)) {
-    config = merge(config, require('../utils/load-config-files')(config.configSources));
+    config = lmerge(config, require('../utils/load-config-files')(config.configSources));
   }
 
   // @TODO: app plugin dir gets through but core yml does not?
   // If we have an envPrefix set then lets merge that in as well
   if (_.has(config, 'envPrefix')) {
-    config = merge(config, require('../utils/load-env')(config.envPrefix));
+    config = lmerge(config, require('../utils/load-env')(config.envPrefix));
   }
 
   // special handling for LANDO_PLUGIN_CONFIG
   if (_.keys(config, 'envPrefix')) {
-    config = merge(config, require('../utils/load-env-plugin-config')(config.envPrefix));
+    config = lmerge(config, require('../utils/load-env-plugin-config')(config.envPrefix));
   }
 
   // Add some final computed properties to the config
