@@ -58,6 +58,7 @@ module.exports = lando => {
       if (errors.length > 0) {
         // print the full errors
         for (const error of errors) lando.log.debug(error);
+        console.log();
         throw Error('There was a problem installing some of your plugins. Rerun with -vvv for more details.');
       }
 

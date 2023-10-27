@@ -37,35 +37,45 @@ class Plugin {
   } = {}) {
     // parse the package name
     const pkg = parsePkgName(plugin);
+
     // get the info so we can determine whether this is a lando package or not
-    const info = await Plugin.info(pkg.raw, {config});
+    try {
+      const info = await Plugin.info(pkg.raw, {config});
 
-    // update dest with name and compute the package.json location
-    dest = path.join(dest, info.name);
-    const pjson = path.join(dest, 'package.json');
+      // update dest with name and compute the package.json location
+      dest = path.join(dest, info.name);
+      const pjson = path.join(dest, 'package.json');
 
-    // make sure we have a place to extract the plugin
-    const tmp = path.join(os.tmpdir(), nanoid());
-    fs.mkdirSync(tmp, {recursive: true});
+      // make sure we have a place to extract the plugin
+      const tmp = path.join(os.tmpdir(), nanoid());
+      fs.mkdirSync(tmp, {recursive: true});
 
-    // try to extract the plugin
-    const {resolved} = await extract(pkg.raw, tmp, merge({Arborist: require('@npmcli/arborist')}, [config]));
-    Plugin.debug('extracted plugin %o to %o from %o using %o', info._id, tmp, resolved, config);
+      // try to extract the plugin
+      const {resolved} = await extract(pkg.raw, tmp, merge({Arborist: require('@npmcli/arborist')}, [config]));
+      Plugin.debug('extracted plugin %o to %o from %o using %o', info._id, tmp, resolved, config);
 
-    // if we get this far then we can safely move the plugin to dest
-    fs.rmSync(dest, {recursive: true, force: true});
-    fs.mkdirSync(dest, {recursive: true});
-    fs.copySync(tmp, dest);
-    Plugin.debug('moved plugin from %o to %o', tmp, dest);
+      // if we get this far then we can safely move the plugin to dest
+      fs.rmSync(dest, {recursive: true, force: true});
+      fs.mkdirSync(dest, {recursive: true});
+      fs.copySync(tmp, dest);
+      Plugin.debug('moved plugin from %o to %o', tmp, dest);
 
-    // rewrite package.json so it includes relevant dist stuff from info, this is relevant for updating purposes
-    if (fs.existsSync(pjson)) {
-      write(pjson, merge(info, require(pjson)));
-      Plugin.debug('modified %o to include distribution info', pjson);
+      // rewrite package.json so it includes relevant dist stuff from info, this is relevant for updating purposes
+      if (fs.existsSync(pjson)) {
+        write(pjson, merge(info, require(pjson)));
+        Plugin.debug('modified %o to include distribution info', pjson);
+      }
+
+      // return instantiated plugin
+      return new Plugin(dest, {installer, type});
+
+    // handle errors
+    } catch (error) {
+      // local plugin does not seem to exist
+      if (error.code === 'ENOENT') error.message = `there does not seem to be a pluigin at ${path.dirname(error.path)}`;
+      // other errors
+      throw error;
     }
-
-    // return instantiated plugin
-    return new Plugin(dest, {installer, type});
   }
 
   /*
@@ -288,6 +298,7 @@ class Plugin {
    * Remove a plugin.
    */
   remove() {
+    this.debug('removed %o from %o', this.spec, this.location);
     return fs.rmSync(this.root, {recursive: true, force: true});
   }
 
