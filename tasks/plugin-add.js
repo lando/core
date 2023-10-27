@@ -2,16 +2,16 @@
 
 module.exports = lando => {
   return {
-    command: 'pa <plugin> [plugins...]',
+    command: 'plugin-add <plugin> [plugins...]',
     options: {
       auth: {
-        describe: 'Sets auth globally or to a scope',
+        describe: 'Use global or scoped auth',
         alias: ['a'],
         array: true,
         default: [],
       },
       registry: {
-        describe: 'Sets registry globally or to a scope',
+        describe: 'Use global or scoped registry',
         alias: ['r', 's', 'scope'],
         array: true,
         default: [],
@@ -19,22 +19,17 @@ module.exports = lando => {
     },
 
     run: async options => {
-      const config2Lopts = require('../utils/config-2-lopts');
+      const getPluginConfig = require('../utils/get-plugin-config');
       const lopts2Popts = require('../utils/lopts-2-popts');
       const merge = require('../utils/merge');
+
       const Plugin = require('../components/plugin');
 
-      // @TODO: get npmrc stuff?
-      // @TODO: test lando-plugin-spark
-      // @TODO: what exactly was pluginConfig again? just yaml npmrc?
-
-      // we need to merge various Plugin config soruces together to set the plugin config
-      // lets start with getting stuff directly from lando.config
-      options.config = lopts2Popts(config2Lopts(lando.config.pluginConfig));
-      // lets merge passed in options on top of lopts
-      options.config = lopts2Popts(options, options.config);
-      // finanly lets rebase ontop of any npm config we may have
-      options.config = merge({}, [options.config]);
+      // normalize incoming options on top of any managed or user plugin config we already have
+      options.config = merge({}, [
+        getPluginConfig(lando.config.pluginConfigFile, lando.config.pluginConfig),
+        lopts2Popts(options),
+      ]);
 
       // reset Plugin static defaults for v3 purposes
       Plugin.config = options.config;
