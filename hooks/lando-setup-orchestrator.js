@@ -45,7 +45,6 @@ module.exports = async (lando, options, tasks) => {
   const {orchestratorBin, userConfRoot} = lando.config;
   const {noOrchestrator, orchestrator} = options;
   const dest = getComposeDownloadDest(path.join(userConfRoot, 'bin'), orchestrator);
-  console.log(options);
 
   // if we dont have a orchestratorBin or havent downloaded orchestratorVersion yet
   if (!noOrchestrator && !!!orchestratorBin && typeof orchestrator === 'string' && !fs.existsSync(dest)) {
