@@ -8,7 +8,7 @@ const os = require('os');
 // Default config
 const defaultConfig = options => ({
   orchestratorSeparator: '_',
-  orchestratorVersion: '2.21.0',
+  orchestratorVersion: '2.23.0',
   configSources: [],
   disablePlugins: [],
   dockerBin: require('../utils/get-docker-x')(),
@@ -27,7 +27,63 @@ const defaultConfig = options => ({
   pluginDirs: [{path: path.join(__dirname, '..'), subdir: 'plugins', namespace: '@lando'}],
   plugins: [{name: '@lando/core', path: path.join(__dirname, '..'), type: 'local'}],
   userConfRoot: os.tmpdir(),
+
+  // this governs both autosetup and the defaults of lando setup
+  // @TODO: orchestrator works a bit differently because it predates lando.setup() we set it elsewhere
+  setup: {
+    auto: true,
+    noPlugins: false,
+    noOrchestrator: false,
+    plugins: {
+      // core
+      // '@lando/core': 'latest',
+      '@lando/core-next': 'latest',
+
+      // contrib
+      '@lando/acquia': 'latest',
+      '@lando/apache': 'latest',
+      '@lando/backdrop': 'latest',
+      '@lando/compose': 'latest',
+      '@lando/dotnet': 'latest',
+      '@lando/drupal': 'latest',
+      '@lando/elasticsearch': 'latest',
+      '@lando/go': 'latest',
+      '@lando/joomla': 'latest',
+      '@lando/lagoon': 'latest',
+      '@lando/lamp': 'latest',
+      '@lando/laravel': 'latest',
+      '@lando/lemp': 'latest',
+      '@lando/mailhog': 'latest',
+      '@lando/mariadb': 'latest',
+      '@lando/mean': 'latest',
+      '@lando/memcached': 'latest',
+      '@lando/mongo': 'latest',
+      '@lando/mssql': 'latest',
+      '@lando/mysql': 'latest',
+      '@lando/nginx': 'latest',
+      '@lando/node': 'latest',
+      '@lando/pantheon': 'latest',
+      '@lando/php': 'latest',
+      '@lando/phpmyadmin': 'latest',
+      '@lando/platformsh': 'latest',
+      '@lando/postgres': 'latest',
+      '@lando/python': 'latest',
+      '@lando/redis': 'latest',
+      '@lando/ruby': 'latest',
+      '@lando/solr': 'latest',
+      '@lando/symfony': 'latest',
+      '@lando/tomcat': 'latest',
+      '@lando/varnish': 'latest',
+      '@lando/wordpress': 'latest',
+    },
+  },
 });
+
+// * config for 'setup'
+// * config.setup.plugins.@lando/core
+// * config.setup.auto = true ?
+// * for autosetup of plugins we need to look at some kind of update file?
+
 
 /*
  * Determine whether we are in a browser or not

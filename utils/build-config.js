@@ -90,6 +90,7 @@ module.exports = options => {
   // if we still have an orchestrator version at this point lets try to suss out its major version
   if (config.orchestratorVersion && require('semver/functions/valid')(config.orchestratorVersion)) {
     config.orchestratorMV = require('semver/functions/major')(config.orchestratorVersion);
+    config.setup.orchestrator = config.setup.orchestrator ?? config.orchestratorVersion;
   }
 
   // Add some docker compose protection on windows

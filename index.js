@@ -59,20 +59,24 @@ module.exports = async lando => {
   lando.events.on('post-bootstrap-app', async () => {
     lando.factory.registry.unshift({api: 4, name: 'l337', builder: require('./components/l337-v4')});
   });
-  // Ensure we download docker-compose if needed
-  lando.events.on('pre-setup', async () => await require('./hooks/lando-setup-orchestrator')(lando));
+
+  // Ensure we setup docker-compose if needed
+  lando.events.on('pre-setup', async (options, tasks) => await require('./hooks/lando-setup-orchestrator')(lando, options, tasks)); // eslint-disable-line max-len
+
+  // Ensure we grab all external plugins if needed
+  lando.events.on('pre-setup', async (options, tasks) => await require('./hooks/lando-setup-plugins')(lando, options, tasks)); // eslint-disable-line max-len
 
   // this is a gross hack we need to do to reset the engine because the lando 3 runtime had no idea
-  lando.events.on('post-setup', 1, async () => await require('./hooks/lando-reset-orchestrator')(lando));
+  lando.events.on('almost-ready', 1, async () => await require('./hooks/lando-reset-orchestrator')(lando));
 
   // run engine compat checks
-  lando.events.on('post-setup', 2, async () => await require('./hooks/lando-get-compat')(lando));
+  lando.events.on('almost-ready', 2, async () => await require('./hooks/lando-get-compat')(lando));
 
   // do a final check on deps
-  lando.events.on('post-setup', 9999, async () => await require('./hooks/lando-final-dep-check')(lando));
+  lando.events.on('almost-ready', 9999, async () => await require('./hooks/lando-final-dep-check')(lando));
 
   // autostart docker if we need to
-  lando.events.on('post-setup', 9999, async () => await require('./hooks/lando-autostart-engine')(lando));
+  lando.events.on('almost-ready', 9999, async () => await require('./hooks/lando-autostart-engine')(lando));
 
   // Make sure we have a host-exposed root ca if we don't already
   // NOTE: we don't run this on the caProject otherwise infinite loop happens!

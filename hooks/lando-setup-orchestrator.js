@@ -40,19 +40,21 @@ const getComposeDownloadDest = (base, version = '2.21.0') => {
   }
 };
 
-module.exports = async lando => {
-  // get stuff from config
-  const {orchestratorBin, orchestratorVersion, userConfRoot} = lando.config;
-  const dest = getComposeDownloadDest(path.join(userConfRoot, 'bin'), orchestratorVersion);
+module.exports = async (lando, options, tasks) => {
+  // get stuff from config/opts
+  const {orchestratorBin, userConfRoot} = lando.config;
+  const {noOrchestrator, orchestrator} = options;
+  const dest = getComposeDownloadDest(path.join(userConfRoot, 'bin'), orchestrator);
+  console.log(options);
 
   // if we dont have a orchestratorBin or havent downloaded orchestratorVersion yet
-  if (!!!orchestratorBin && typeof orchestratorVersion === 'string' && !fs.existsSync(dest)) {
-    lando.log.debug('could not detect docker-compose v%s!', orchestratorVersion);
-    const url = getComposeDownloadUrl(orchestratorVersion);
+  if (!noOrchestrator && !!!orchestratorBin && typeof orchestrator === 'string' && !fs.existsSync(dest)) {
+    lando.log.debug('could not detect docker-compose v%s!', orchestrator);
+    const url = getComposeDownloadUrl(orchestrator);
     const debug = require('../utils/debug-shim')(lando.log);
     const {color} = require('listr2');
 
-    lando.setup.push({
+    tasks.push({
       title: `Downloading orchestrator`,
       task: async (ctx, task) => new Promise((resolve, reject) => {
         const download = require('../utils/download-x')(url, {debug, dest, test: ['--version']});

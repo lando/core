@@ -72,7 +72,7 @@ class Plugin {
     // handle errors
     } catch (error) {
       // local plugin does not seem to exist
-      if (error.code === 'ENOENT') error.message = `there does not seem to be a pluigin at ${path.dirname(error.path)}`;
+      if (error.code === 'ENOENT') error.message = `there does not seem to be a plugin at ${path.dirname(error.path)}`;
       // other errors
       throw error;
     }
