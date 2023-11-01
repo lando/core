@@ -2,7 +2,7 @@
 
 module.exports = lando => {
   return {
-    command: 'setup',
+    command: 'update',
     run: options => {
       console.log('hi there!');
     },

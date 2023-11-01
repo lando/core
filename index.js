@@ -56,15 +56,21 @@ module.exports = async lando => {
   _.forEach([binDir, caDir, sshDir], dir => fs.mkdirSync(dir, {recursive: true}));
 
   // make sure Lando Specification 337 is available to all
-  lando.events.on('post-bootstrap-app', async () => {
-    lando.factory.registry.unshift({api: 4, name: 'l337', builder: require('./components/l337-v4')});
-  });
+  lando.events.on('post-bootstrap-app', async () => await require('./hooks/lando-add-l337-spec')(lando));
+
+  // Ensure we munge plugin stuff together appropriately
+  lando.events.on('pre-install-plugins', async options => await require('./hooks/lando-setup-common-plugins')(lando, options)); // eslint-disable-line max-len
 
   // Ensure we setup docker-compose if needed
-  lando.events.on('pre-setup', async (options, tasks) => await require('./hooks/lando-setup-orchestrator')(lando, options, tasks)); // eslint-disable-line max-len
+  lando.events.on('pre-setup', async options => await require('./hooks/lando-setup-orchestrator')(lando, options)); // eslint-disable-line max-len
 
-  // Ensure we grab all external plugins if needed
-  lando.events.on('pre-setup', async (options, tasks) => await require('./hooks/lando-setup-plugins')(lando, options, tasks)); // eslint-disable-line max-len
+
+  // debug stuff
+  // lando.events.on('pre-setup', 10, async (options, tasks) => {
+  //   console.log(options);
+  //   console.log(tasks);
+  //   process.exit(1);
+  // });
 
   // this is a gross hack we need to do to reset the engine because the lando 3 runtime had no idea
   lando.events.on('almost-ready', 1, async () => await require('./hooks/lando-reset-orchestrator')(lando));
@@ -73,7 +79,7 @@ module.exports = async lando => {
   lando.events.on('almost-ready', 2, async () => await require('./hooks/lando-get-compat')(lando));
 
   // do a final check on deps
-  lando.events.on('almost-ready', 9999, async () => await require('./hooks/lando-final-dep-check')(lando));
+  lando.events.on('almost-ready', async () => await require('./hooks/lando-final-dep-check')(lando));
 
   // autostart docker if we need to
   lando.events.on('almost-ready', 9999, async () => await require('./hooks/lando-autostart-engine')(lando));

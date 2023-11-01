@@ -40,38 +40,44 @@ const getComposeDownloadDest = (base, version = '2.21.0') => {
   }
 };
 
-module.exports = async (lando, options, tasks) => {
+module.exports = async (lando, tasks, options) => {
+  const debug = require('../utils/debug-shim')(lando.log);
+  const {color} = require('listr2');
+
   // get stuff from config/opts
-  const {orchestratorBin, userConfRoot} = lando.config;
-  const {noOrchestrator, orchestrator} = options;
+  const {userConfRoot} = lando.config;
+  const {orchestrator} = options;
   const dest = getComposeDownloadDest(path.join(userConfRoot, 'bin'), orchestrator);
+  const url = getComposeDownloadUrl(orchestrator);
 
-  // if we dont have a orchestratorBin or havent downloaded orchestratorVersion yet
-  if (!noOrchestrator && !!!orchestratorBin && typeof orchestrator === 'string' && !fs.existsSync(dest)) {
-    lando.log.debug('could not detect docker-compose v%s!', orchestrator);
-    const url = getComposeDownloadUrl(orchestrator);
-    const debug = require('../utils/debug-shim')(lando.log);
-    const {color} = require('listr2');
-
-    tasks.push({
-      title: `Downloading orchestrator`,
-      task: async (ctx, task) => new Promise((resolve, reject) => {
-        const download = require('../utils/download-x')(url, {debug, dest, test: ['--version']});
-        // success
-        download.on('done', () => {
-          task.title = `Installed orchestrator to ${dest}`;
-          resolve();
-        });
-        // handle errors
-        download.on('error', error => {
-          ctx.errors.push(error);
-          reject(error);
-        });
-        // update title to reflect download progress
-        download.on('progress', progress => {
-          task.title = `Downloading orchestrator ${color.dim(`[${progress.percentage}%]`)}`;
-        });
-      }),
-    });
-  }
+  tasks.push({
+    title: `Downloading orchestrator`,
+    id: 'setup-orchestrator',
+    description: '@lando/orchestrator (docker-compose)',
+    once: true,
+    required: true,
+    getStatus: async () => {
+      return !!!orchestratorBin && typeof orchestrator === 'string' && !fs.existsSync(dest);
+    },
+    canRun: async () => {
+      return true;
+    },
+    task: async (ctx, task) => new Promise((resolve, reject) => {
+      const download = require('../utils/download-x')(url, {debug, dest, test: ['--version']});
+      // success
+      download.on('done', () => {
+        task.title = `Installed orchestrator to ${dest}`;
+        resolve();
+      });
+      // handle errors
+      download.on('error', error => {
+        ctx.errors.push(error);
+        reject(error);
+      });
+      // update title to reflect download progress
+      download.on('progress', progress => {
+        task.title = `Downloading orchestrator ${color.dim(`[${progress.percentage}%]`)}`;
+      });
+    }),
+  });
 };

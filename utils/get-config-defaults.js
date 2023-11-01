@@ -31,15 +31,8 @@ const defaultConfig = options => ({
   // this governs both autosetup and the defaults of lando setup
   // @TODO: orchestrator works a bit differently because it predates lando.setup() we set it elsewhere
   setup: {
-    auto: true,
-    noPlugins: false,
-    noOrchestrator: false,
-    plugins: {
-      // core
-      // '@lando/core': 'latest',
-      '@lando/core-next': 'latest',
-
-      // contrib
+    bengine: '4.25.0',
+    commonPlugins: {
       '@lando/acquia': 'latest',
       '@lando/apache': 'latest',
       '@lando/backdrop': 'latest',
@@ -76,14 +69,12 @@ const defaultConfig = options => ({
       '@lando/varnish': 'latest',
       '@lando/wordpress': 'latest',
     },
+    installPlugins: true,
+    plugins: {},
+    tasks: [],
+    skipCommonPlugins: false,
   },
 });
-
-// * config for 'setup'
-// * config.setup.plugins.@lando/core
-// * config.setup.auto = true ?
-// * for autosetup of plugins we need to look at some kind of update file?
-
 
 /*
  * Determine whether we are in a browser or not

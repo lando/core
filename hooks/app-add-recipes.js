@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const parseConfig = require('../utils/parse-config');
 
 module.exports = async (app, lando) => {
   if (_.has(app, 'config.recipe')) {
@@ -14,7 +13,7 @@ module.exports = async (app, lando) => {
     // Build da things
     // @NOTE: this also gathers app.info and build steps
     const Recipe = lando.factory.get(app.config.recipe);
-    const config = parseConfig(app.config.recipe, app);
+    const config = require('../utils/parse-recipe-config')(app.config.recipe, app);
     // Get recipe config
     const recipe = new Recipe(config.name, config).config;
     // Cache dump our app tooling so we can use it in our entrypoint

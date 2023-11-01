@@ -109,6 +109,7 @@ class Plugin {
       // local path that does not exist?
       // auth failure?
       // debug the original error
+      Plugin.debug('%s', error.message);
       Plugin.debug('%j', error);
       // better 404 message
       if (error.statusCode === 404) error.message = `Could not find a plugin called ${pkg.raw} (${error.uri})`;
