@@ -10,8 +10,6 @@ const defaults = task => ({
   hasRun: async () => false,
   canInstall: async () => true,
   canRun: async () => true,
-  installedMessage: 'Already installed!',
-  hasRunMessage: 'Task already run!',
 });
 
 /*

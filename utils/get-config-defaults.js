@@ -70,6 +70,7 @@ const defaultConfig = options => ({
       '@lando/wordpress': 'latest',
     },
     installPlugins: true,
+    installTasks: true,
     plugins: {},
     tasks: [],
     skipCommonPlugins: false,

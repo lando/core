@@ -64,14 +64,6 @@ module.exports = async lando => {
   // Ensure we setup docker-compose if needed
   lando.events.on('pre-setup', async options => await require('./hooks/lando-setup-orchestrator')(lando, options)); // eslint-disable-line max-len
 
-
-  // debug stuff
-  // lando.events.on('pre-setup', 10, async (options, tasks) => {
-  //   console.log(options);
-  //   console.log(tasks);
-  //   process.exit(1);
-  // });
-
   // this is a gross hack we need to do to reset the engine because the lando 3 runtime had no idea
   lando.events.on('almost-ready', 1, async () => await require('./hooks/lando-reset-orchestrator')(lando));
 
@@ -82,7 +74,7 @@ module.exports = async lando => {
   lando.events.on('almost-ready', async () => await require('./hooks/lando-final-dep-check')(lando));
 
   // autostart docker if we need to
-  lando.events.on('almost-ready', 9999, async () => await require('./hooks/lando-autostart-engine')(lando));
+  lando.events.on('pre-engine-start', 1, async () => await require('./hooks/lando-autostart-engine')(lando));
 
   // Make sure we have a host-exposed root ca if we don't already
   // NOTE: we don't run this on the caProject otherwise infinite loop happens!

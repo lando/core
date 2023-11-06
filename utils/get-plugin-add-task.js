@@ -10,13 +10,11 @@ module.exports = (plugin, {
 } = {}) => {
   // parse into a full package
   const pkg = require('./parse-package-name')(plugin);
-  const {color} = require('listr2');
 
   return {
     title: `Adding ${pkg.raw}`,
     id: `install-${pkg.name}`,
     description: pkg.name,
-    installedMessage: color.dim(`${plugin} is already installed! - SKIPPING`),
     isInstalled: async () => {
       const location = pkg.scope === '@lando'
         ? path.join(dir, '@lando', pkg.package) : path.join(dir, pkg.package);

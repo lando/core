@@ -40,26 +40,30 @@ const getComposeDownloadDest = (base, version = '2.21.0') => {
   }
 };
 
-module.exports = async (lando, tasks, options) => {
+module.exports = async (lando, options) => {
   const debug = require('../utils/debug-shim')(lando.log);
   const {color} = require('listr2');
 
   // get stuff from config/opts
-  const {userConfRoot} = lando.config;
+  const {orchestratorBin, userConfRoot} = lando.config;
   const {orchestrator} = options;
   const dest = getComposeDownloadDest(path.join(userConfRoot, 'bin'), orchestrator);
   const url = getComposeDownloadUrl(orchestrator);
 
-  tasks.push({
+  options.tasks.push({
     title: `Downloading orchestrator`,
     id: 'setup-orchestrator',
     description: '@lando/orchestrator (docker-compose)',
-    once: true,
     required: true,
-    getStatus: async () => {
-      return !!!orchestratorBin && typeof orchestrator === 'string' && !fs.existsSync(dest);
+    version: `docker-compose v${orchestrator}`,
+    hasRun: async () => {
+      return !!orchestratorBin && typeof orchestrator === 'string' && fs.existsSync(dest);
     },
     canRun: async () => {
+      const online = await require('is-online')();
+      // throw error if not online
+      if (!online) throw new Error('Cannot detect connection to internet!');
+
       return true;
     },
     task: async (ctx, task) => new Promise((resolve, reject) => {
@@ -67,6 +71,7 @@ module.exports = async (lando, tasks, options) => {
       // success
       download.on('done', () => {
         task.title = `Installed orchestrator to ${dest}`;
+        ctx.run++;
         resolve();
       });
       // handle errors

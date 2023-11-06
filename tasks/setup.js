@@ -1,36 +1,53 @@
 'use strict';
 
+const groupBy = require('lodash/groupBy');
+const merge = require('lodash/merge');
+
 const {color, figures} = require('listr2');
 
-// helper to get install plugin table
-const getInstallPluginsStatusTable = plugins => ({
-  rows: plugins.map(plugin => {
-    switch (plugin.state) {
+const defaultStatus = {
+  'CANNOT INSTALL': 0,
+  'INSTALLED': 0,
+  'NOT INSTALLED': 0,
+};
+
+// helper to get a status groupings
+const getStatusGroups = (status = {}) => {
+  const results = Object.fromEntries(Object.entries(groupBy(status, 'state'))
+    .map(([state, items]) => ([state, items.length])));
+
+  return merge({}, defaultStatus, results);
+};
+
+// helper to get a renderable status table
+const getStatusTable = items => ({
+  rows: items.map(item => {
+    switch (item.state) {
       case 'INSTALLED':
-        return {
-          description: plugin.description,
+        return merge({}, item, {
+          description: item.description,
           status: `${color.green(`${figures.tick} Installed`)}`,
           comment: color.dim('Dialed'),
           weight: -1,
-        };
+        });
       case 'NOT INSTALLED':
-        return {
-          description: plugin.description,
+        return merge({}, item, {
+          description: item.description,
           status: `${color.yellow(`${figures.warning} Not Installed`)}`,
-          comment: `Will install ${plugin.plugin}`,
+          comment: color.dim(`Will install ${item.version}`),
           weight: 0,
-        };
+        });
       case 'CANNOT INSTALL':
-        return {
-          description: plugin.description,
+        return merge({}, item, {
+          description: item.description,
           status: `${color.red(`${figures.cross} Cannot Install!`)}`,
-          comment: plugin.reason,
+          comment: item.comment,
           weight: 1,
-        };
+        });
     }
   }),
   columns: {
-    description: {header: 'PLUGIN'},
+    description: {header: 'THING'},
     status: {header: 'STATUS'},
     comment: {header: 'COMMENT'},
   },
@@ -79,7 +96,6 @@ module.exports = lando => {
     command: 'setup',
     options,
     run: async options => {
-      const groupBy = require('lodash/groupBy');
       const sortBy = require('lodash/sortBy');
 
       const parsePkgName = require('../utils/parse-package-name');
@@ -87,10 +103,15 @@ module.exports = lando => {
 
       // @TODO: start by showing the setup header unless non-interactive
       // @TODO: assess logging?
-      // rm -rf ~/.lando/plugins/@lando && mkdir -p ~/.lando/plugins/@lando && ln -sf ~/work/core ~/.lando/plugins/@lando/core && ls -lsa ~/.lando/plugins/@lando
+      // @TODO: calculating requirements spinner?
+      // @TODO:
+      // * dep installation art header?
+      // * other options like --interactive?
+      // * conditional visibility for lando setup re first time run succesfully?
 
-      // ensure options.plugins is an empty object if not passed in somehow?
+      // ensure plguins/tasks is an empty object if not passed in somehow?
       options.plugins = options.plugins ?? {};
+      options.tasks = options.tasks ?? [];
 
       // start by looping through option.plugin and object merging
       // this should allow us to skip plugin-resolution because its just going to always use the "last" version
@@ -99,19 +120,15 @@ module.exports = lando => {
         options.plugins[name] = peg === '*' ? 'latest' : peg;
       }
 
-      // attempt to get the status of our plugins
+      // attempt to get the status and status summary of our plugins
       const pstatus = await lando.getInstallPluginsStatus(options);
-      // determine our situation summary
-      const pstatusSummary = Object.fromEntries(Object.entries(groupBy(pstatus, 'state'))
-        .map(([state, plugins]) => ([state, plugins.length])));
-
-      // set installPlugins
-      options.installPlugins = pstatusSummary['NOT INSTALLED'] > 0 || pstatusSummary['CANNOT INSTALL'] > 0;
+      const pstatusSummary = getStatusGroups(pstatus);
+      options.installPlugins = pstatusSummary['NOT INSTALLED'] + pstatusSummary['CANNOT INSTALL'] > 0;
 
       // show plugin install status/summary and prompt if needed
       if (options.installPlugins && options.yes === false) {
         // @TODO: lando plugin header install art
-        const {rows, columns} = getInstallPluginsStatusTable(pstatus);
+        const {rows, columns} = getStatusTable(pstatus);
 
         // print table
         console.log('');
@@ -135,35 +152,53 @@ module.exports = lando => {
       }
 
       // actually install plugins
+      console.log('');
       const presults = await lando.installPlugins(options);
-      console.log(presults);
-      // reload with newyl installed plugins
+
+      // reload with newyl installed plugins and clear caches
       await lando.reloadPlugins();
 
-      // @TODO: start by showing the setup header unless non-interactive
-      lando.log.debug(errors, results, added);
+      // get setup status
+      const sstatus = await lando.getSetupStatus(options);
+      const sstatusSummary = getStatusGroups(sstatus);
+      options.installTasks = sstatusSummary['NOT INSTALLED'] + sstatusSummary['CANNOT INSTALL'] > 0;
 
-      // clear caches ?
-      lando.cli.clearTaskCaches();
+      // show setup status/summary and prompt if needed
+      if (options.installTasks && options.yes === false) {
+        // @TODO: lando plugin header install art
+        const {rows, columns} = getStatusTable(sstatus);
 
-      // @TODO: docker compose install
+        // print table
+        console.log('');
+        ux.ux.table(sortBy(rows, ['row', 'weight']), columns);
+        console.log('');
 
-      // @TODO:
-      // * dep installation art header?
-      // * other options like --interactive?
-      // * conditional visibility for lando setup re first time run succesfully?
+        // things are good!
+        if (sstatusSummary['CANNOT INSTALL'] === 0) {
+          console.log(`Lando would like to run the ${sstatusSummary['NOT INSTALLED']} setup tasks listed above.`);
+          const answer = await ux.confirm(color.bold('DO YOU CONSENT?'));
+          if (!answer) throw new Error('Setup terminated!');
 
-      // @TODO:
-      // lando setup command
-        // show setup summary?
-        // show setup results?
+        // things are probably not ok
+        } else {
+          console.log(`Lando has detected that ${sstatusSummary['CANNOT INSTALL']} setup tasks listed above cannot run correctly.`); // eslint-disable-line max-len
+          console.log(color.magenta('It may be wise to resolve their issues before continuing!'));
+          console.log('');
+          const answer = await ux.confirm(color.bold('DO YOU STILL WISH TO CONTINUE?'));
+          if (!answer) throw new Error('Setup terminated!');
+        }
+      }
 
-      // way to skip a dependency?
-      // console.error(a big warning message to run first time setup)?
+      // run setup
+      const sresults = await lando.setup(options);
 
-      // some kind of dependency tree? conditional tasks? paused? pending? skipped?
-      // try this out with engine install and networking/ca creation?
-      // check if user has admin permission for docker-engine install?
+      // combine all our results
+      const results = presults.results.concat(sresults.results);
+      const errors = presults.errors.concat(sresults.errors);
+      const pluginsInstalled = presults.added;
+      const tasksCompleted = sresults.tasksCompleted;
+
+      console.log(results, errors, pluginsInstalled, tasksCompleted);
     },
   };
 };
