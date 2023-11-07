@@ -15,7 +15,6 @@ const defaultStatus = {
 const getStatusGroups = (status = {}) => {
   const results = Object.fromEntries(Object.entries(groupBy(status, 'state'))
     .map(([state, items]) => ([state, items.length])));
-
   return merge({}, defaultStatus, results);
 };
 
@@ -55,8 +54,10 @@ const getStatusTable = items => ({
 
 module.exports = lando => {
   // get defaults from the lando config
-
   const defaults = lando.config.setup;
+  // determine label for build engine
+  const buildEngine = process.platform === 'linux' ? 'docker-engine' : 'docker-desktop';
+
   // default options
   const options = {
     // 'interactive': {
@@ -64,8 +65,13 @@ module.exports = lando => {
     //   default: false,
     //   boolean: true,
     // },
+    'build-engine': {
+      describe: `The version of the build engine (${buildEngine}) to install`,
+      default: defaults.buildEngine,
+      string: true,
+    },
     'orchestrator': {
-      describe: 'The version of the orchestrator to install',
+      describe: 'The version of the orchestrator (docker-compose) to install',
       default: defaults.orchestrator,
       string: true,
     },
@@ -94,6 +100,7 @@ module.exports = lando => {
 
   return {
     command: 'setup',
+    level: 'tasks',
     options,
     run: async options => {
       const sortBy = require('lodash/sortBy');

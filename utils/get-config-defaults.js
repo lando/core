@@ -31,7 +31,7 @@ const defaultConfig = options => ({
   // this governs both autosetup and the defaults of lando setup
   // @TODO: orchestrator works a bit differently because it predates lando.setup() we set it elsewhere
   setup: {
-    bengine: '4.25.0',
+    buildEngine: process.platform === 'linux' ? '24.0.7' : '4.25.0',
     commonPlugins: {
       '@lando/acquia': 'latest',
       '@lando/apache': 'latest',
