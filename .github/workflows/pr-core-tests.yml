@@ -58,14 +58,20 @@ jobs:
           cache: yarn
       - name: Install Yarn dependencies
         run: yarn install --prefer-offline --frozen-lockfile
+      - name: Bundle Deps
+        uses: lando/prepare-release-action@v2
+        with:
+          lando-plugin: true
+          version: dev
+          sync: false
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v2
         with:
           lando-version: ${{ matrix.lando-version }}
-          config: |
-            orchestratorVersion=${{ matrix.docker-compose-version }}
-            plugins.@lando/core=/home/runner/work/core/core
           telemetry: false
+          config: |
+            setup.skipCommonPlugins=true
+            setup.plugins.@lando/core=/home/runner/work/core/core
       - name: Verify Lando works and we are dogfooding this plugin for tests
         run: |
           # TODO: once we have the new plugin stuff in the CLI we can remove this in favor of a local lando pa
