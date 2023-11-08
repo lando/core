@@ -79,15 +79,19 @@ module.exports = async (lando, options) => {
     required: true,
     version: `${buildEngine} ${install}`,
     hasRun: async () => {
-      const BuildEngine = require('../components/docker-engine');
-      const bengine = new BuildEngine(lando.config.buildEngine, {debug});
+      // start by looking at the engine install status
+      // @NOTE: is this always defined?
+      if (lando.engine.dockerInstalled === false) return false;
 
+      // if we get here let's make sure the engine is on
       try {
+        await lando.engine.daemon.up();
+        const BuildEngine = require('../components/docker-engine');
+        const bengine = new BuildEngine(lando.config.buildEngine, {debug});
         await bengine.info();
-        // @TODO: look at the info and verify stuff
         return true;
       } catch (error) {
-        lando.log.debug('could not connect to docker %j', error);
+        lando.log.debug('docker install task has not run %j', error);
         return false;
       }
     },
@@ -120,8 +124,7 @@ module.exports = async (lando, options) => {
           ctx.password = await task.prompt({
             type: 'password',
             name: 'password',
-            initial: undefined,
-            message: `Enter computer password for ${username}`,
+            message: `Enter computer password for ${username} to install build engine`,
             validate: async (input, state) => {
               const options = {debug, ignoreReturnCode: true, password: input};
               const response = await require('../utils/run-elevated')(['echo', 'hello there'], options);
@@ -132,7 +135,7 @@ module.exports = async (lando, options) => {
         }
 
         // run install command
-        task.title = 'Installing build engine';
+        task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;
         await require('../utils/run-elevated')([installerScript, ctx.download.dest, username], {
           debug,
           password: ctx.password,

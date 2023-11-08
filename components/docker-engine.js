@@ -22,7 +22,7 @@ class DockerEngine extends Dockerode {
   static debug = require('debug')('docker-engine');
   static config = {};
   // @NOTE: is wsl accurate here?
-  static supportedPlatforms = ['linux', 'wsl'];
+  // static supportedPlatforms = ['linux', 'wsl'];
 
   constructor(config, {debug = DockerEngine.debug} = {}) {
     super(config);
