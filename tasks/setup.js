@@ -100,7 +100,6 @@ module.exports = lando => {
 
   return {
     command: 'setup',
-    level: 'tasks',
     options,
     run: async options => {
       const sortBy = require('lodash/sortBy');

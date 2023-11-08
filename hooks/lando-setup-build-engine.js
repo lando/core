@@ -1,94 +1,151 @@
 'use strict';
 
-const fs = require('fs');
+const os = require('os');
 const path = require('path');
+const semver = require('semver');
+
+const {color} = require('listr2');
+
+const buildIds = {
+  '4.25.0': '126437',
+};
+
+/*
+ * Helper to get build engine id
+ */
+const getId = version => {
+  // if version is an integer then assume its already the id
+  if (semver.valid(version) === null && Number.isInteger(parseInt(version))) return version;
+  // otherwise return that corresponding build-id
+  return buildIds[version];
+};
+
+const getVersion = version => {
+  // if version is not an integer then assume its already the version
+  if (semver.valid(version) !== null) return version;
+  // otherwise return the version that corresponds to the build id
+  return Object.keys(buildIds).find(key => buildIds[key] === version);
+};
 
 /*
  * Helper to get docker compose v2 download url
  */
-const getComposeDownloadUrl = (version = '2.21.0') => {
-  const mv = version.split('.')[0] > 1 ? '2' : '1';
-  const arch = process.arch === 'arm64' ? 'aarch64' : 'x86_64';
-  const toggle = `${process.platform}-${mv}`;
-
-  // https://desktop.docker.com/mac/main/arm64/126437/Docker.dmg
-  // https://desktop.docker.com/win/main/amd64/126437/Docker%20Desktop%20Installer.exe
-  // https://desktop.docker.com/mac/main/amd64/126437/Docker.dmg?_gl=1*nejssi*_ga*MTY3MDM0NTc4OC4xNjU2MDcxNTIz*_ga_XJWPQMJYHQ*MTY5OTM2Mzk3MS4yMzEuMS4xNjk5MzYzOTc0LjU3LjAuMA..
-
-  switch (toggle) {
-    case 'darwin-amd64':
-      return `https://github.com/docker/compose/releases/download/v${version}/docker-compose-darwin-${arch}`;
-    case 'darwin-arm64':
-      return `https://github.com/docker/compose/releases/download/v${version}/docker-compose-linux-${arch}`;
-    case 'linux-1':
-      return `https://github.com/docker/compose/releases/download/${version}/docker-compose-Linux-x86_64`;
-    case 'win32-amd64':
-    case 'win32-arm64':
-      return `https://github.com/docker/compose/releases/download/v${version}/docker-compose-windows-${arch}.exe`;
-    case 'darwin-1':
-      return `https://github.com/docker/compose/releases/download/${version}/docker-compose-Darwin-x86_64`;
-
-    case 'win32-1':
-      return `https://github.com/docker/compose/releases/download/${version}/docker-compose-Windows-x86_64.exe`;
+const getEngineDownloadUrl = (id = '126437') => {
+  const arch = process.arch === 'arm64' ? 'arm64' : 'amd64';
+  switch (process.platform) {
+    case 'darwin':
+      return `https://desktop.docker.com/mac/main/${arch}/${id}/Docker.dmg`;
+    case 'win32':
+      return `https://desktop.docker.com/win/main/${arch}/${id}/Docker%20Desktop%20Installer.exe`;
   }
 };
 
 /*
- * Helper to get docker compose v2 download destination
+ * wrapper for docker-desktop install
  */
-const getComposeDownloadDest = (base, version = '2.21.0') => {
-  switch (process.platform) {
-    case 'linux':
-    case 'darwin':
-      return path.join(base, `docker-compose-v${version}`);
-    case 'win32':
-      return path.join(base, `docker-compose-v${version}.exe`);
-  }
-};
+const downloadDockerDesktop = (url, {debug, task, ctx}) => new Promise((resolve, reject) => {
+  const download = require('../utils/download-x')(url, {debug});
+  // success
+  download.on('done', result => {
+    task.title = `Downloaded build engine`;
+    ctx.run++;
+    resolve(result);
+  });
+  // handle errors
+  download.on('error', error => {
+    ctx.errors.push(error);
+    reject(error);
+  });
+  // update title to reflect download progress
+  download.on('progress', progress => {
+    task.title = `Downloading build engine ${color.dim(`[${progress.percentage}%]`)}`;
+  });
+});
 
 module.exports = async (lando, options) => {
   const debug = require('../utils/debug-shim')(lando.log);
-  const {color} = require('listr2');
 
   // get stuff from config/opts
-  const {orchestratorBin, userConfRoot} = lando.config;
-  const {orchestrator} = options;
-  const dest = getComposeDownloadDest(path.join(userConfRoot, 'bin'), orchestrator);
-  const url = getComposeDownloadUrl(orchestrator);
+  const build = getId(options.buildEngine);
+  const version = getVersion(options.buildEngine);
+  // cosmetics
+  const buildEngine = process.platform === 'linux' ? 'docker-engine' : 'docker-desktop';
+  const install = version ? `v${version}` : `build ${build}`;
 
   options.tasks.push({
-    title: `Downloading orchestrator`,
-    id: 'setup-orchestrator',
-    description: '@lando/orchestrator (docker-compose)',
+    title: `Downloading build engine`,
+    id: 'setup-build-engine',
+    description: `@lando/build-engine (${buildEngine})`,
     required: true,
-    version: `docker-compose v${orchestrator}`,
+    version: `${buildEngine} ${install}`,
     hasRun: async () => {
-      return !!orchestratorBin && typeof orchestrator === 'string' && fs.existsSync(dest);
+      const BuildEngine = require('../components/docker-engine');
+      const bengine = new BuildEngine(lando.config.buildEngine, {debug});
+
+      try {
+        await bengine.info();
+        // @TODO: look at the info and verify stuff
+        return true;
+      } catch (error) {
+        lando.log.debug('could not connect to docker %j', error);
+        return false;
+      }
     },
     canRun: async () => {
-      const online = await require('is-online')();
+      // throw if we cannot resolve a semantic version to a buildid
+      if (!build) throw new Error(`Could not resolve ${install} to an installable version!`);
       // throw error if not online
-      if (!online) throw new Error('Cannot detect connection to internet!');
+      if (!await require('is-online')()) throw new Error('Cannot detect connection to internet!');
+      // throw if user is not an admin
+      if (!await require('../utils/is-admin-user')()) {
+        throw new Error([
+          `User "${os.userInfo().username}" does not have permission to install the build engine!`,
+          'Contact your system admin for permission and then rerun setup.',
+        ].join(os.EOL));
+      }
 
       return true;
     },
-    task: async (ctx, task) => new Promise((resolve, reject) => {
-      const download = require('../utils/download-x')(url, {debug, dest, test: ['--version']});
-      // success
-      download.on('done', () => {
-        task.title = `Installed orchestrator to ${dest}`;
+    task: async (ctx, task) => {
+      try {
+        // path to installer script
+        const installerScript = path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.sh');
+        const username = os.userInfo().username;
+
+        // download the installer
+        ctx.download = await downloadDockerDesktop(getEngineDownloadUrl(build), {ctx, debug, task});
+
+        // prompt for password if interactive
+        if (require('is-interactive')) {
+          ctx.password = await task.prompt({
+            type: 'password',
+            name: 'password',
+            initial: undefined,
+            message: `Enter computer password for ${username}`,
+            validate: async (input, state) => {
+              const options = {debug, ignoreReturnCode: true, password: input};
+              const response = await require('../utils/run-elevated')(['echo', 'hello there'], options);
+              if (response.code !== 0) return response.stderr;
+              return true;
+            },
+          });
+        }
+
+        // run install command
+        task.title = 'Installing build engine';
+        await require('../utils/run-elevated')([installerScript, ctx.download.dest, username], {
+          debug,
+          password: ctx.password,
+        });
+
+        // finish up
         ctx.run++;
-        resolve();
-      });
-      // handle errors
-      download.on('error', error => {
+        task.title = 'Installed build engine to /Applications/Docker.app';
+
+      // push any errorz
+      } catch (error) {
         ctx.errors.push(error);
-        reject(error);
-      });
-      // update title to reflect download progress
-      download.on('progress', progress => {
-        task.title = `Downloading orchestrator ${color.dim(`[${progress.percentage}%]`)}`;
-      });
-    }),
+      }
+    },
   });
 };

@@ -37,7 +37,7 @@ module.exports = otask => {
     }
 
     // and finally we can hit dat og
-    await orunner(ctx, task);
+    return await orunner(ctx, task);
   };
 
   // also skip the task if its already been set and skip has not been set

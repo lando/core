@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 // get the bosmang
-const {Manager} = require('listr2');
+const {Listr} = require('listr2');
 
 // adds required methods to ensure the lando v3 debugger can be injected into v4 things
 module.exports = async (tasks, {
@@ -52,16 +52,13 @@ module.exports = async (tasks, {
   };
 
   // construct the runner
-  const runner = new Manager(_.merge({}, defaults, {
+  const runner = new Listr(tasks, _.merge({}, defaults, {
     ctx,
     ...listrOptions,
     rendererOptions,
   }));
 
-  // add the tasks
-  runner.add(tasks);
-
-  // run
-  return runner.runAll();
+  // runer gonna run
+  return await runner.run();
 };
 

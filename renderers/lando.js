@@ -17,6 +17,8 @@ class LandoRenderer extends DefaultRenderer {
       ...options,
     };
 
+    options.prompt = true;
+
     const render = [];
 
     const renderTasks = this.renderer(this.tasks, this.options.level);
