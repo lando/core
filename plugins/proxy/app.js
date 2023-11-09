@@ -2,7 +2,7 @@
 
 // Modules
 const _ = require('lodash');
-const mkdirp = require('mkdirp');
+const fs = require('fs');
 const path = require('path');
 const utils = require('./lib/utils');
 const warnings = require('./lib/warnings');
@@ -69,7 +69,7 @@ module.exports = (app, lando) => {
       lando.log.verbose('proxy is ON.');
       lando.log.verbose('Setting the default proxy certificate %s', lando.config.proxyDefaultCert);
       // Create needed directories
-      mkdirp.sync(lando.config.proxyConfigDir);
+      fs.mkdirSync(lando.config.proxyConfigDir, {recursive: true});
       const files = [{
         path: path.join(lando.config.proxyConfigDir, 'default-certs.yaml'),
         data: {tls: {stores: {default: {defaultCertificate: {
