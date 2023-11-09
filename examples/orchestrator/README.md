@@ -29,7 +29,7 @@ lando start -vvv 2>&1 | grep ".lando/bin/docker-compose-v$(lando config --path o
 
 # Should install a custom version if specified
 LANDO_ORCHESTRATOR_VERSION="2.19.1" lando config --path orchestratorVersion --format json | tr -d '"' | grep "2.19.1"
-LANDO_ORCHESTRATOR_VERSION="2.19.1" lando --clear
+LANDO_ORCHESTRATOR_VERSION="2.19.1" lando --clear && lando config
 LANDO_ORCHESTRATOR_VERSION="2.19.1" lando setup -y --skip-common-plugins
 LANDO_ORCHESTRATOR_VERSION="2.19.1" lando start
 LANDO_ORCHESTRATOR_VERSION="2.19.1" lando start -vvv 2>&1 | grep ".lando/bin/docker-compose-v2.19.1"
