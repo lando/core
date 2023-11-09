@@ -72,7 +72,7 @@ jobs:
           config: |
             setup.skipCommonPlugins=true
             setup.plugins.@lando/core=/home/runner/work/core/core
-            setup.orchestrator=${{ docker-compose-version }}
+            setup.orchestrator=${{ matrix.docker-compose-version }}
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         env:
