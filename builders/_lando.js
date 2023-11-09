@@ -2,9 +2,9 @@
 
 // Modules
 const _ = require('lodash');
-const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
+const {color} = require('listr2');
 
 /*
  * The lowest level lando service, this is where a lot of the deep magic lives
@@ -63,7 +63,7 @@ module.exports = {
         }
       }
       if (_.includes(legacy, version)) {
-        console.error(chalk.yellow(`${type} version ${version} is a legacy version! We recommend upgrading.`));
+        console.error(color.yellow(`${type} version ${version} is a legacy version! We recommend upgrading.`));
       }
 
       // Move our config into the userconfroot if we have some
