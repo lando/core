@@ -8,7 +8,6 @@
 const _ = require('lodash');
 const chai = require('chai');
 const EventEmitter = require('events').EventEmitter;
-const filesystem = require('mock-fs');
 const fs = require('fs');
 const path = require('path');
 chai.should();
@@ -16,6 +15,10 @@ chai.should();
 const Log = require('./../lib/logger');
 
 describe('logger', () => {
+  beforeEach(() => {
+    fs.rmSync('/tmp/logz', {recursive: true, force: true});
+  });
+
   describe('#Log', () => {
     it('should return a Log instance with correct default options', () => {
       const log = new Log();
@@ -54,7 +57,6 @@ describe('logger', () => {
       // lazy requires on the mock filesystem and CAN'T FIND SHIT
       // @see: https://github.com/tschaub/mock-fs/issues/213
       require(path.resolve('./node_modules/winston/lib/winston/transports/file')).File;
-      filesystem();
       const log = new Log({logDir: '/tmp/logz', logLevel: 'warn'});
       fs.existsSync('/tmp/logz').should.be.true;
       _.forEach(['error-file', 'log-file'], transport => {
@@ -62,7 +64,6 @@ describe('logger', () => {
         log.transports[transport].should.be.instanceof(EventEmitter);
         log.transports[transport].should.have.property('level', 'warn');
       });
-      filesystem.restore();
     });
   });
 });
