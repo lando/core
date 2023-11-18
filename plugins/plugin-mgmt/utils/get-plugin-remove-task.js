@@ -3,7 +3,7 @@
 // checks to see if a setting is disabled
 module.exports = (plugin, {
   fallback = 'unknown plugin',
-  Plugin = require('../components/plugin'),
+  Plugin = require('../../../components/plugin'),
 } = {}) => {
   const name = plugin && plugin.name ? plugin.name : fallback;
   return {

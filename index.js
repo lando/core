@@ -58,15 +58,6 @@ module.exports = async lando => {
   // make sure Lando Specification 337 is available to all
   lando.events.on('post-bootstrap-app', async () => await require('./hooks/lando-add-l337-spec')(lando));
 
-  // Ensure we munge plugin stuff together appropriately
-  lando.events.on('pre-install-plugins', async options => await require('./hooks/lando-setup-common-plugins')(lando, options)); // eslint-disable-line max-len
-
-  // Ensure we setup docker-compose if needed
-  lando.events.on('pre-setup', async options => await require('./hooks/lando-setup-orchestrator')(lando, options)); // eslint-disable-line max-len
-
-  // Ensure we setup docker if needed
-  lando.events.on('pre-setup', async options => await require('./hooks/lando-setup-build-engine')(lando, options)); // eslint-disable-line max-len
-
   // this is a gross hack we need to do to reset the engine because the lando 3 runtime had no idea
   lando.events.on('almost-ready', 1, async () => await require('./hooks/lando-reset-orchestrator')(lando));
 

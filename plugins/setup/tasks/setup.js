@@ -77,7 +77,7 @@ module.exports = lando => {
     },
     'plugin': {
       describe: 'Additional plugin(s) to install',
-      default: require('../utils/parse-to-plugin-strings')(defaults.plugins),
+      default: require('../../../utils/parse-to-plugin-strings')(defaults.plugins),
       array: true,
     },
     'skip-common-plugins': {
@@ -104,7 +104,7 @@ module.exports = lando => {
     run: async options => {
       const sortBy = require('lodash/sortBy');
 
-      const parsePkgName = require('../utils/parse-package-name');
+      const parsePkgName = require('../../../utils/parse-package-name');
       const ux = lando.cli.getUX();
 
       // @TODO: start by showing the setup header unless non-interactive

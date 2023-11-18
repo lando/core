@@ -1,0 +1,4 @@
+name: "@lando/setup"
+
+api: 3
+core: true

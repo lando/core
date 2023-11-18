@@ -21,9 +21,9 @@ module.exports = lando => {
     run: async options => {
       const getPluginConfig = require('../utils/get-plugin-config');
       const lopts2Popts = require('../utils/lopts-2-popts');
-      const merge = require('../utils/merge');
+      const merge = require('../../../utils/merge');
 
-      const Plugin = require('../components/plugin');
+      const Plugin = require('../../../components/plugin');
 
       // normalize incoming options on top of any managed or user plugin config we already have
       options.config = merge({}, [
@@ -33,7 +33,7 @@ module.exports = lando => {
 
       // reset Plugin static defaults for v3 purposes
       Plugin.config = options.config;
-      Plugin.debug = require('../utils/debug-shim')(lando.log);
+      Plugin.debug = require('../../../utils/debug-shim')(lando.log);
 
       // merge plugins together
       const plugins = [options.plugin].concat(options.plugins);

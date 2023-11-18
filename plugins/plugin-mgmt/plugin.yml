@@ -1,0 +1,4 @@
+name: "@lando/plugin-mgmt"
+
+api: 3
+core: true

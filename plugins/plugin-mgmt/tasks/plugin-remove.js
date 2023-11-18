@@ -4,15 +4,15 @@ module.exports = lando => {
   return {
     command: 'plugin-remove <plugin> [plugins...]',
     run: async options => {
-      const Plugin = require('../components/plugin');
+      const Plugin = require('../../../components/plugin');
 
       // reset Plugin.debug to use the lando 3 debugger
-      Plugin.debug = require('../utils/debug-shim')(lando.log);
+      Plugin.debug = require('../../../utils/debug-shim')(lando.log);
 
       // merge plugins together, parse/normalize their names and return only unique values
       const plugins = [options.plugin]
         .concat(options.plugins)
-        .map(plugin => require('../utils/parse-package-name')(plugin).name)
+        .map(plugin => require('../../../utils/parse-package-name')(plugin).name)
         .filter((plugin, index, array) => array.indexOf(plugin) === index);
       lando.log.debug('attempting to remove plugins %j', plugins);
 
