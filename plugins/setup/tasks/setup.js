@@ -93,6 +93,15 @@ module.exports = lando => {
     },
   };
 
+  // if docker-desktop then we need to add the accept license option
+  if (buildEngine === 'docker-desktop') {
+    options['build-engine-accept-license'] = {
+      describe: 'Accepts the Docker Desktop license during install instead of later',
+      default: defaults.buildEngineAcceptLicense,
+      boolean: true,
+    };
+  }
+
   // allow plugins to contribute options to setup
   // @NOTE: ideally we'd dynamically add in setup options but this is not easily possible in Lando 3 so
   // we are going to kick it to Lando 4 and just hardcode all the options we need

@@ -32,6 +32,7 @@ const defaultConfig = options => ({
   // @TODO: orchestrator works a bit differently because it predates lando.setup() we set it elsewhere
   setup: {
     buildEngine: process.platform === 'linux' ? '24.0.7' : '4.25.0',
+    buildEngineAcceptLicense: !require('is-interactive')(),
     commonPlugins: {
       '@lando/acquia': 'latest',
       '@lando/apache': 'latest',

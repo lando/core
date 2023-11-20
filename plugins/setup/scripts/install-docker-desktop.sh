@@ -1,6 +1,8 @@
 #!/bin/bash
 set -eo pipefail
 # @TODO: throw error if not run as root?
+# @TODO: proper options handling like in windows?
+# @TODO: new logger stuff?
 
 DMG="${1:-Docker.dmg}"
 USER="${2:-$(whoami)}"

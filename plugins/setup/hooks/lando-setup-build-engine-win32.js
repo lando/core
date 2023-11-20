@@ -37,17 +37,6 @@ const getEngineDownloadUrl = (id = '126437') => {
 };
 
 /*
- * Helper for install script command
- */
-const getInstallCommand = (script, installer, user = os.userInfo().username) => ([
-  script,
-  '-installer',
-  installer,
-  '-user',
-  user,
-]);
-
-/*
  * wrapper for docker-desktop install
  */
 const downloadDockerDesktop = (url, {debug, task, ctx}) => new Promise((resolve, reject) => {
@@ -81,6 +70,13 @@ module.exports = async (lando, options) => {
   // cosmetics
   const buildEngine = process.platform === 'linux' ? 'docker-engine' : 'docker-desktop';
   const install = version ? `v${version}` : `build ${build}`;
+
+  // build base install task
+  const installCommand = [path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1')];
+
+  // add optional install args as proper
+  if (options.buildEngineAcceptLicense) installCommand.push('-acceptlicense');
+  if (options.debug || options.verbose > 0) installCommand.push('-debug');
 
   // win32 install task
   options.tasks.push({
@@ -116,30 +112,15 @@ module.exports = async (lando, options) => {
     },
     task: async (ctx, task) => {
       try {
-        // path to installer script
-        const installerScript = path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1');
-
         // download the installer
         ctx.download = await downloadDockerDesktop(getEngineDownloadUrl(build), {ctx, debug, task});
-
-        // prompt for password if interactive
-        // if (require('is-interactive')) {
-        //   ctx.password = await task.prompt({
-        //     type: 'password',
-        //     name: 'password',
-        //     message: `Enter computer password for ${username} to install build engine`,
-        //     validate: async (input, state) => {
-        //       const options = {debug, ignoreReturnCode: true, password: input};
-        //       const response = await require('../../../utils/run-elevated')(['echo', 'hello there'], options);
-        //       if (response.code !== 0) return response.stderr;
-        //       return true;
-        //     },
-        //   });
-        // }
+        // add the installer to the install command
+        installCommand.push('-installer');
+        installCommand.push(ctx.download.dest);
 
         // run install command
         task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;
-        await require('../../../utils/run-elevated')(getInstallCommand(installerScript, ctx.download.dest), {debug});
+        await require('../../../utils/run-elevated')(installCommand, {debug});
 
         // finish up
         ctx.run++;
