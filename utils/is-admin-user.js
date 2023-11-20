@@ -2,26 +2,19 @@
 
 const os = require('os');
 
-module.exports = async user => {
+module.exports = user => {
   // set user to person running this process if its not set
   if (!user) user = os.userInfo().username;
 
-  // posix route
-  if (process.platform !== 'win32') {
-    const {status, stdout, stderr} = require('./spawn-sync-stringer')('groups', [user]);
-
-    // if we failed for some reason
-    if (status !== 0) throw new Error(`Could not determine admin situation: ${stderr}`);
-
-    // get groups
-    const groups = stdout.split(' ').map(group => group.trim());
-
-    // darwin wants "admin"
-    if (process.platform === 'darwin') return groups.includes('admin');
-    // @TODO: linux wasnts TBD
-    return false;
+  // differetn strokes, different folks
+  switch (process.platform) {
+    case 'darwin':
+      return require('./is-group-member')('admin', user);
+    case 'linux':
+      return require('./is-group-member')('sudo', user);
+    case 'win32':
+      return require('./is-group-member')('administrators', user);
+    default:
+      return false;
   }
-
-  // otherwise false?
-  return false;
 };

@@ -3,6 +3,7 @@
 module.exports = lando => {
   return {
     command: 'plugin-add <plugin> [plugins...]',
+    level: 'tasks',
     options: {
       auth: {
         describe: 'Use global or scoped auth',
@@ -19,7 +20,7 @@ module.exports = lando => {
     },
 
     run: async options => {
-      const getPluginConfig = require('../utils/get-plugin-config');
+      const getPluginConfig = require('../../../utils/get-plugin-config');
       const lopts2Popts = require('../utils/lopts-2-popts');
       const merge = require('../../../utils/merge');
 
@@ -41,7 +42,7 @@ module.exports = lando => {
 
       // attempt to compute the destination to install the plugin
       // @NOTE: is it possible for this to ever be undefined?
-      const {dir} = lando.config.pluginDirs.find(dir => dir.type === require('../utils/get-plugin-type')());
+      const {dir} = lando.config.pluginDirs.find(dir => dir.type === require('../../../utils/get-plugin-type')());
       // prep listr things
       const tasks = plugins.map(plugin => require('../utils/get-plugin-add-task')(plugin, {dir, Plugin}));
 

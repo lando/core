@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const merge = require('lodash/merge');
-const read = require('../../../utils/read-file');
+const read = require('./read-file');
 
 module.exports = (file, config = {}) => {
   // if config file exists then rebase config on top of it

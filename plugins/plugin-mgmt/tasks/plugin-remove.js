@@ -3,6 +3,7 @@
 module.exports = lando => {
   return {
     command: 'plugin-remove <plugin> [plugins...]',
+    level: 'tasks',
     run: async options => {
       const Plugin = require('../../../components/plugin');
 

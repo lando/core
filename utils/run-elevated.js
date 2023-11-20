@@ -19,20 +19,34 @@ const defaults = {
 module.exports = (args, options, stdout = '', stderr = '') => {
   // merge our options over the defaults
   options = merge({}, defaults, options);
+
+  // @NOTE: windows should automatically prompt via UAC so no prompt is needed?
+  const cmd = process.platform === 'win32' ? 'powershell' : 'sudo';
   const debug = options.debug;
 
+  // on posix we need to add special options to sudo
+  // determine elevations options
   // start by delimiting between sudo args and others
-  args.unshift('--');
-  // if we want to notify the user
-  if (options.notify) args.unshift('--bell');
-  // if this is non-interactive then pass that along to sudo
-  if (!options.isInteractive) args.unshift('--non-interactive');
-  // if interactive and have a password then add -S so we can write the password to stdin
-  if (options.isInteractive && options.password) args.unshift('--stdin');
+  if (process.platform === 'darwin' || process.platform === 'linux') {
+    args.unshift('--');
+    // if we want to notify the user
+    if (options.notify) args.unshift('--bell');
+    // if this is non-interactive then pass that along to sudo
+    if (!options.isInteractive) args.unshift('--non-interactive');
+    // if interactive and have a password then add -S so we can write the password to stdin
+    if (options.isInteractive && options.password) args.unshift('--stdin');
+  }
+
+  // also on windows we need to unshift some args
+  if (process.platform === 'win32') {
+    args.unshift('-File');
+    args.unshift('Bypass');
+    args.unshift('-ExecutionPolicy');
+  }
 
   // birth
-  debug('running elevated command %o %o', 'sudo', args);
-  const child = spawn('sudo', args, options);
+  debug('running elevated command %o %o', cmd, args);
+  const child = spawn(cmd, args, options);
 
   child.stdout.on('data', data => {
     debug('sudo stdout %o', data.toString().trim());
