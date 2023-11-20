@@ -136,7 +136,6 @@ module.exports = async (lando, options) => {
         });
 
         // finish up
-        ctx.run++;
         task.title = 'Installed build engine to /Applications/Docker.app';
 
       // push any errorz

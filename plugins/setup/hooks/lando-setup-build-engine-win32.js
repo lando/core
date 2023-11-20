@@ -78,7 +78,7 @@ module.exports = async (lando, options) => {
   if (options.buildEngineAcceptLicense) installCommand.push('-acceptlicense');
   if (options.debug || options.verbose > 0) installCommand.push('-debug');
 
-  // win32 install task
+  // win32 install docker desktop task
   options.tasks.push({
     title: `Downloading build engine`,
     id: 'setup-build-engine',
@@ -120,15 +120,17 @@ module.exports = async (lando, options) => {
 
         // run install command
         task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;
-        await require('../../../utils/run-elevated')(installCommand, {debug});
+        const thing = await require('../../../utils/run-powershell-script')(installCommand, {debug});
+        console.log(thing);
 
         // finish up
-        ctx.run++;
-        task.title = 'Installed build engine to /Applications/Docker.app';
+        const location = process.env.ProgramW6432 ?? process.env.ProgramFiles;
+        task.title = `Installed build engine to ${location}/Docker/Docker!`;
 
       // push any errorz
       } catch (error) {
         ctx.errors.push(error);
+        throw new Error(error.message);
       }
     },
   });

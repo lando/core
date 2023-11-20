@@ -35,6 +35,7 @@ if ($acceptlicense -eq $true) {$options = "$options --accept-license"}
 # Install
 Write-Debug "Running $installer with 'install $options'"
 $p = Start-Process -FilePath "$installer" -ArgumentList "install $options" -Wait -PassThru
-Write-Debug "Installer completed with exit code $p.ExitCode"
+Write-Debug "Process finished with return code: $($p.ExitCode)"
 
-exit $LASTEXITCODE
+# If there is an error then throw here
+if ($($p.ExitCode) -ne 0) {throw "Docker Desktop install failed! Rerun setup with --debug or -vvv for more info!"}

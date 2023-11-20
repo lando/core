@@ -17,7 +17,6 @@ const defaults = task => ({
  */
 module.exports = otask => {
   // first make sure task is sufficiently defined
-  // @TODO: other things handling?
     // dependsOn:
     // skipFlags?
     // post-install-notes?
