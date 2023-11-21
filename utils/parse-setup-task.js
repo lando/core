@@ -28,15 +28,18 @@ module.exports = otask => {
   // lets rework the task to accomodate some setup things
   otask.task = async (ctx, task) => {
     try {
+      // checks
       await otask.canInstall();
       await otask.canRun();
+      // main event
+      const result = await orunner(ctx, task);
+      // harvest
+      ctx.results.push(result);
+      return result;
     } catch (error) {
       ctx.errors.push(error);
       throw error;
     }
-
-    // and finally we can hit dat og
-    return await orunner(ctx, task);
   };
 
   // also skip the task if its already been set and skip has not been set

@@ -40,7 +40,7 @@ const getEngineDownloadUrl = (id = '126437') => {
  * wrapper for docker-desktop install
  */
 const downloadDockerDesktop = (url, {debug, task, ctx}) => new Promise((resolve, reject) => {
-  const download = require('../../../utils/download-x')(url, {
+  const download = require('../utils/download-x')(url, {
     debug,
     dest: path.join(os.tmpdir(), `${nanoid()}.exe`),
   });
@@ -48,7 +48,6 @@ const downloadDockerDesktop = (url, {debug, task, ctx}) => new Promise((resolve,
   // success
   download.on('done', result => {
     task.title = `Downloaded build engine`;
-    ctx.run++;
     resolve(result);
   });
   // handle errors
@@ -63,7 +62,7 @@ const downloadDockerDesktop = (url, {debug, task, ctx}) => new Promise((resolve,
 });
 
 module.exports = async (lando, options) => {
-  const debug = require('../../../utils/debug-shim')(lando.log);
+  const debug = require('../utils/debug-shim')(lando.log);
   // get stuff from config/opts
   const build = getId(options.buildEngine);
   const version = getVersion(options.buildEngine);
@@ -93,7 +92,7 @@ module.exports = async (lando, options) => {
       // if we get here let's make sure the engine is on
       try {
         await lando.engine.daemon.up();
-        const BuildEngine = require('../../../components/docker-engine');
+        const BuildEngine = require('../components/docker-engine');
         const bengine = new BuildEngine(lando.config.buildEngine, {debug});
         await bengine.info();
         return true;
@@ -120,18 +119,60 @@ module.exports = async (lando, options) => {
 
         // run install command
         task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;
-        const thing = await require('../../../utils/run-powershell-script')(installCommand, {debug});
-        console.log(thing);
+        const result = await require('../utils/run-powershell-script')(installCommand, {debug});
+        result.download = ctx.download;
 
         // finish up
         const location = process.env.ProgramW6432 ?? process.env.ProgramFiles;
         task.title = `Installed build engine to ${location}/Docker/Docker!`;
-
-      // push any errorz
+        return result;
       } catch (error) {
-        ctx.errors.push(error);
-        throw new Error(error.message);
+        throw error;
       }
     },
   });
+
+  // // add docker group add task
+  // options.tasks.push({
+  //   title: `running1`,
+  //   id: 'setup-build-engine',
+  //   description: `@lando/build-engine (${buildEngine})`,
+  //   required: true,
+  //   version: `${buildEngine} ${install}`,
+  //   task: async (ctx, task) => {
+  //     await require('delay')(5000);
+  //   },
+  // });
+  // options.tasks.push({
+  //   title: `running2`,
+  //   id: 'setup-build-engine-2',
+  //   description: `@lando/build-engine (${buildEngine})`,
+  //   required: true,
+  //   version: `${buildEngine} ${install}`,
+  //   task: async (ctx, task) => {
+  //     await require('delay')(1000);
+  //     ctx.enableSecondTask = true;
+  //     const e = task.task.parent.subtasks.find(task => task.task.id === 'setup-build-engine-group');
+  //     const enable = await e.check(ctx);
+  //     if (enable) await e.run(ctx);
+  //   },
+  // });
+
+  // options.tasks.push({
+  //   title: `dependent`,
+  //   id: 'setup-build-engine-group',
+  //   dependsOn: ['setup-build-engine', 'setup-build-engine-2'],
+  //   description: `@lando/build-engine (${buildEngine})`,
+  //   required: true,
+  //   version: `${buildEngine} ${install}`,
+  //   enabled: ctx => {
+  //     console.log(ctx.enableSecondTask);
+  //     return ctx.enableSecondTask;
+  //   },
+  //   task: async (ctx, task) => {
+  //     await require('delay')(1000);
+  //     throw new Error('no')
+  //   },
+  //   // enabled: ctx => ctx.enableSecondTask,
+  // });
 };

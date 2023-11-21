@@ -55,6 +55,22 @@ module.exports = async lando => {
   // Ensure some dirs exist before we start
   _.forEach([binDir, caDir, sshDir], dir => fs.mkdirSync(dir, {recursive: true}));
 
+  // Ensure we munge plugin stuff together appropriately
+  lando.events.once('pre-install-plugins', async options => await require('./hooks/lando-setup-common-plugins')(lando, options)); // eslint-disable-line max-len
+
+  // Ensure we setup docker-compose if needed
+  lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-orchestrator')(lando, options)); // eslint-disable-line max-len
+
+  // Ensure we setup docker if needed
+  lando.events.once('pre-setup', async options => {
+    switch (process.platform) {
+      case 'darwin':
+        return await require('./hooks/lando-setup-build-engine-darwin')(lando, options);
+      case 'win32':
+        return await require('./hooks/lando-setup-build-engine-win32')(lando, options);
+    }
+  });
+
   // make sure Lando Specification 337 is available to all
   lando.events.on('post-bootstrap-app', async () => await require('./hooks/lando-add-l337-spec')(lando));
 

@@ -5,7 +5,7 @@
 [CmdletBinding(PositionalBinding=$false)]
 Param(
   [string]$installer,
-  [switch]$acceptlicense = 0
+  [switch]$acceptlicense = $false
 )
 
 # error handling

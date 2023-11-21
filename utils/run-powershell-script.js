@@ -17,7 +17,7 @@ module.exports = (args, options, stdout = '', stderr = '') => {
   const debug = options.debug;
 
   // birth
-  debug('running elevated command %o %o', 'powershell', args);
+  debug('running command %o %o', 'powershell', args);
   const child = spawn('powershell', ['-ExecutionPolicy', 'Bypass', '-File'].concat(args), options);
 
   child.stdout.on('data', data => {

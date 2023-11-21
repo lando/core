@@ -34,7 +34,7 @@ module.exports = async (tasks, {
   }
 
   const defaults = {
-    ctx: {data: {}, errors: [], results: []},
+    ctx: {data: {}, errors: [], results: [], total: 0},
     concurrent: true,
     collectErrors: true,
     exitOnError: false,
@@ -57,6 +57,10 @@ module.exports = async (tasks, {
     ...listrOptions,
     rendererOptions,
   }));
+
+  // set the task size
+  // @NOTE: is this sufficient? do we need some kind of recursion for subtaks?
+  runner.options.ctx.total = Array.isArray(runner.tasks) ? runner.tasks.length : 0;
 
   // runer gonna run
   return await runner.run();

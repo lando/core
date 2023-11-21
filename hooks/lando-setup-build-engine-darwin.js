@@ -39,16 +39,14 @@ const getEngineDownloadUrl = (id = '126437') => {
  * wrapper for docker-desktop install
  */
 const downloadDockerDesktop = (url, {debug, task, ctx}) => new Promise((resolve, reject) => {
-  const download = require('../../../utils/download-x')(url, {debug});
+  const download = require('../utils/download-x')(url, {debug});
   // success
   download.on('done', result => {
     task.title = `Downloaded build engine`;
-    ctx.run++;
     resolve(result);
   });
   // handle errors
   download.on('error', error => {
-    ctx.errors.push(error);
     reject(error);
   });
   // update title to reflect download progress
@@ -58,7 +56,7 @@ const downloadDockerDesktop = (url, {debug, task, ctx}) => new Promise((resolve,
 });
 
 module.exports = async (lando, options) => {
-  const debug = require('../../../utils/debug-shim')(lando.log);
+  const debug = require('../utils/debug-shim')(lando.log);
   // get stuff from config/opts
   const build = getId(options.buildEngine);
   const version = getVersion(options.buildEngine);
@@ -80,7 +78,7 @@ module.exports = async (lando, options) => {
       // if we get here let's make sure the engine is on
       try {
         await lando.engine.daemon.up();
-        const BuildEngine = require('../../../components/docker-engine');
+        const BuildEngine = require('../components/docker-engine');
         const bengine = new BuildEngine(lando.config.buildEngine, {debug});
         await bengine.info();
         return true;
@@ -95,7 +93,7 @@ module.exports = async (lando, options) => {
       // throw error if not online
       if (!await require('is-online')()) throw new Error('Cannot detect connection to internet!');
       // throw if user is not an admin
-      if (!await require('../../../utils/is-admin-user')()) {
+      if (!await require('../utils/is-admin-user')()) {
         throw new Error([
           `User "${os.userInfo().username}" does not have permission to install the build engine!`,
           'Contact your system admin for permission and then rerun setup.',
@@ -121,7 +119,7 @@ module.exports = async (lando, options) => {
             message: `Enter computer password for ${username} to install build engine`,
             validate: async (input, state) => {
               const options = {debug, ignoreReturnCode: true, password: input};
-              const response = await require('../../../utils/run-elevated')(['echo', 'hello there'], options);
+              const response = await require('../utils/run-elevated')(['echo', 'hello there'], options);
               if (response.code !== 0) return response.stderr;
               return true;
             },
@@ -130,17 +128,17 @@ module.exports = async (lando, options) => {
 
         // run install command
         task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;
-        await require('../../../utils/run-elevated')([installerScript, ctx.download.dest, username], {
+        const result = await require('../utils/run-elevated')([installerScript, ctx.download.dest, username], {
           debug,
           password: ctx.password,
         });
+        result.download = ctx.download;
 
         // finish up
         task.title = 'Installed build engine to /Applications/Docker.app';
-
-      // push any errorz
+        return result;
       } catch (error) {
-        ctx.errors.push(error);
+        throw error;
       }
     },
   });

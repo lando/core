@@ -3,7 +3,7 @@
 // checks to see if a setting is disabled
 module.exports = (plugin, {
   fallback = 'unknown plugin',
-  Plugin = require('../../../components/plugin'),
+  Plugin = require('../components/plugin'),
 } = {}) => {
   const name = plugin && plugin.name ? plugin.name : fallback;
   return {
@@ -30,18 +30,15 @@ module.exports = (plugin, {
 
         // update and and return
         task.title = `Removed ${task.plugin.name}@${task.plugin.version} from ${task.plugin.location}`;
-        ctx.added++;
+        ctx.results.push(task.plugin);
         return task.plugin;
 
       // if we have an error then add it to the status object and throw
       // @TODO: make sure we force remove any errered plugins?
       } catch (error) {
+        error.plugin = task.plugin;
         ctx.errors.push(error);
         throw error;
-
-      // add the plugin regardless of the status
-      } finally {
-        ctx.results.push(task.plugin);
       }
     },
   };

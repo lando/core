@@ -47,9 +47,9 @@ module.exports = lando => {
     run: async options => {
       const merge = require('lodash/merge');
       const profile = require('npm-profile');
-      const getPluginConfig = require('../../../utils/get-plugin-config');
+      const getPluginConfig = require('../utils/get-plugin-config');
       const lopts2Popts = require('../utils/lopts-2-popts');
-      const write = require('../../../utils/write-file');
+      const write = require('../utils/write-file');
 
       const {color} = require('listr2');
 

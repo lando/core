@@ -41,7 +41,7 @@ const getComposeDownloadDest = (base, version = '2.21.0') => {
 };
 
 module.exports = async (lando, options) => {
-  const debug = require('../../../utils/debug-shim')(lando.log);
+  const debug = require('../utils/debug-shim')(lando.log);
   const {color} = require('listr2');
 
   // get stuff from config/opts
@@ -67,16 +67,14 @@ module.exports = async (lando, options) => {
       return true;
     },
     task: async (ctx, task) => new Promise((resolve, reject) => {
-      const download = require('../../../utils/download-x')(url, {debug, dest, test: ['--version']});
+      const download = require('../utils/download-x')(url, {debug, dest, test: ['--version']});
       // success
-      download.on('done', () => {
+      download.on('done', data => {
         task.title = `Installed orchestrator to ${dest}`;
-        ctx.run++;
-        resolve();
+        resolve(data);
       });
       // handle errors
       download.on('error', error => {
-        ctx.errors.push(error);
         reject(error);
       });
       // update title to reflect download progress

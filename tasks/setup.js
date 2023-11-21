@@ -77,7 +77,7 @@ module.exports = lando => {
     },
     'plugin': {
       describe: 'Additional plugin(s) to install',
-      default: require('../../../utils/parse-to-plugin-strings')(defaults.plugins),
+      default: require('../utils/parse-to-plugin-strings')(defaults.plugins),
       array: true,
     },
     'skip-common-plugins': {
@@ -113,7 +113,7 @@ module.exports = lando => {
     run: async options => {
       const sortBy = require('lodash/sortBy');
 
-      const parsePkgName = require('../../../utils/parse-package-name');
+      const parsePkgName = require('../utils/parse-package-name');
       const ux = lando.cli.getUX();
 
       // @TODO: start by showing the setup header unless non-interactive
@@ -167,9 +167,7 @@ module.exports = lando => {
       }
 
       // actually install plugins
-      console.log('');
       const presults = await lando.installPlugins(options);
-
       // reload with newyl installed plugins and clear caches
       await lando.reloadPlugins();
 
@@ -210,10 +208,9 @@ module.exports = lando => {
       // combine all our results
       const results = presults.results.concat(sresults.results);
       const errors = presults.errors.concat(sresults.errors);
-      const pluginsInstalled = presults.added;
-      const tasksCompleted = sresults.tasksCompleted;
+      const total = presults.total = sresults.total;
 
-      console.log(results, errors, pluginsInstalled, tasksCompleted);
+      console.log(results, errors, results.length, errors.length, total);
     },
   };
 };
