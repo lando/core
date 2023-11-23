@@ -41,7 +41,7 @@ module.exports = ({
 
         // otherwise proceed with retrying
         } else {
-          task.title = `${color.grey(title)} ${color.dim(rm)}${color.dim(code)}`;
+          task.title = `${color.gray(title)} ${color.dim(rm)}${color.dim(code)}`;
           return require('delay')(delay + (100 * count)).then(() => {
             throw error;
           });

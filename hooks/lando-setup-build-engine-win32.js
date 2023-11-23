@@ -63,6 +63,8 @@ const downloadDockerDesktop = (url, {debug, task, ctx}) => new Promise((resolve,
 
 module.exports = async (lando, options) => {
   const debug = require('../utils/debug-shim')(lando.log);
+  debug.enabled = lando.debuggy;
+
   // get stuff from config/opts
   const build = getId(options.buildEngine);
   const version = getVersion(options.buildEngine);
@@ -70,19 +72,11 @@ module.exports = async (lando, options) => {
   const buildEngine = process.platform === 'linux' ? 'docker-engine' : 'docker-desktop';
   const install = version ? `v${version}` : `build ${build}`;
 
-  // build base install task
-  const installCommand = [path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1')];
-
-  // add optional install args as proper
-  if (options.buildEngineAcceptLicense) installCommand.push('-acceptlicense');
-  if (options.debug || options.verbose > 0) installCommand.push('-debug');
-
   // win32 install docker desktop task
   options.tasks.push({
     title: `Downloading build engine`,
     id: 'setup-build-engine',
     description: `@lando/build-engine (${buildEngine})`,
-    required: true,
     version: `${buildEngine} ${install}`,
     hasRun: async () => {
       // start by looking at the engine install status
@@ -113,13 +107,16 @@ module.exports = async (lando, options) => {
       try {
         // download the installer
         ctx.download = await downloadDockerDesktop(getEngineDownloadUrl(build), {ctx, debug, task});
-        // add the installer to the install command
-        installCommand.push('-installer');
-        installCommand.push(ctx.download.dest);
+        // script
+        const script = [path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1')];
+        // args
+        const args = ['-installer', ctx.download.dest];
+        if (options.buildEngineAcceptLicense) args.push('-acceptlicense');
+        if (options.debug || options.verbose > 0) args.push('-debug');
 
         // run install command
         task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;
-        const result = await require('../utils/run-powershell-script')(installCommand, {debug});
+        const result = await require('../utils/run-powershell-script')(script, args, {debug});
         result.download = ctx.download;
 
         // finish up
@@ -132,47 +129,26 @@ module.exports = async (lando, options) => {
     },
   });
 
-  // // add docker group add task
-  // options.tasks.push({
-  //   title: `running1`,
-  //   id: 'setup-build-engine',
-  //   description: `@lando/build-engine (${buildEngine})`,
-  //   required: true,
-  //   version: `${buildEngine} ${install}`,
-  //   task: async (ctx, task) => {
-  //     await require('delay')(5000);
-  //   },
-  // });
-  // options.tasks.push({
-  //   title: `running2`,
-  //   id: 'setup-build-engine-2',
-  //   description: `@lando/build-engine (${buildEngine})`,
-  //   required: true,
-  //   version: `${buildEngine} ${install}`,
-  //   task: async (ctx, task) => {
-  //     await require('delay')(1000);
-  //     ctx.enableSecondTask = true;
-  //     const e = task.task.parent.subtasks.find(task => task.task.id === 'setup-build-engine-group');
-  //     const enable = await e.check(ctx);
-  //     if (enable) await e.run(ctx);
-  //   },
-  // });
-
-  // options.tasks.push({
-  //   title: `dependent`,
-  //   id: 'setup-build-engine-group',
-  //   dependsOn: ['setup-build-engine', 'setup-build-engine-2'],
-  //   description: `@lando/build-engine (${buildEngine})`,
-  //   required: true,
-  //   version: `${buildEngine} ${install}`,
-  //   enabled: ctx => {
-  //     console.log(ctx.enableSecondTask);
-  //     return ctx.enableSecondTask;
-  //   },
-  //   task: async (ctx, task) => {
-  //     await require('delay')(1000);
-  //     throw new Error('no')
-  //   },
-  //   // enabled: ctx => ctx.enableSecondTask,
-  // });
+  // add docker group add task
+  options.tasks.push({
+    title: `Adding ${lando.config.username} to docker-users group`,
+    id: 'setup-build-engine-group',
+    dependsOn: ['setup-build-engine'],
+    description: `@lando/build-engine-group (${lando.config.username}@docker-users)`,
+    comments: {
+      'NOT INSTALLED': `Will add ${lando.config.username} to docker-users group`,
+    },
+    hasRun: async () => require('../utils/is-group-member')('docker-users'),
+    task: async (ctx, task) => {
+      try {
+        const command = ['net', 'localgroup', 'docker-users', lando.config.username, '/ADD'];
+        const response = await require('../utils/run-elevated')(command, {debug});
+        task.title = `Added ${lando.config.username} to docker-users`;
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
+  });
 };
+

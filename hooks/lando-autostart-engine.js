@@ -7,7 +7,7 @@ module.exports = async lando => {
   if (lando._bootstrapLevel >= 3 && await lando.engine.daemon.isUp() === false) {
     const tasks = [{
       title: 'It seems Docker is not running, trying to start it up...',
-      retry: 10,
+      retry: 25,
       delay: 1000,
       task: async (ctx, task) => {
         try {

@@ -33,7 +33,7 @@ const getStatusTable = items => ({
         return merge({}, item, {
           description: item.description,
           status: `${color.yellow(`${figures.warning} Not Installed`)}`,
-          comment: color.dim(`Will install ${item.version}`),
+          comment: color.dim(item.comment) || color.dim(`Will install ${item.version}`),
           weight: 0,
         });
       case 'CANNOT INSTALL':

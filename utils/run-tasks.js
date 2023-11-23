@@ -61,6 +61,8 @@ module.exports = async (tasks, {
   // set the task size
   // @NOTE: is this sufficient? do we need some kind of recursion for subtaks?
   runner.options.ctx.total = Array.isArray(runner.tasks) ? runner.tasks.length : 0;
+  // also add the runner to ctx so we can access other tasks and stuff
+  runner.options.ctx.runner = runner;
 
   // runer gonna run
   return await runner.run();

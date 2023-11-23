@@ -11,27 +11,28 @@ const defaults = {
   ignoreReturnCode: false,
 };
 
-module.exports = (args, options, stdout = '', stderr = '') => {
+module.exports = (script, args = [], options = {}, stdout = '', stderr = '') => {
+  // @TODO: error handling?
   // merge our options over the defaults
   options = merge({}, defaults, options);
   const debug = options.debug;
 
   // birth
-  debug('running command %o %o', 'powershell', args);
-  const child = spawn('powershell', ['-ExecutionPolicy', 'Bypass', '-File'].concat(args), options);
-
-  child.stdout.on('data', data => {
-    debug('powershell %o', data.toString().trim());
-    stdout += data;
-  });
-
-  child.stderr.on('data', data => {
-    debug('powershell stderr %o', data.toString().trim());
-    stderr += data;
-  });
+  debug('running powershell script %o %o', script, args);
+  const child = spawn('powershell', ['-ExecutionPolicy', 'Bypass', '-File', script].concat(args), options);
 
   return require('./merge-promise')(child, async () => {
     return new Promise((resolve, reject) => {
+      child.stdout.on('data', data => {
+        debug('powershell %o', data.toString().trim());
+        stdout += data;
+      });
+
+      child.stderr.on('data', data => {
+        debug('powershell stderr %o', data.toString().trim());
+        stderr += data;
+      });
+
       child.on('close', code => {
         // if code is non-zero and we arent ignoring then reject here
         if (code !== 0 && !options.ignoreReturnCode) {
