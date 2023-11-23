@@ -140,6 +140,9 @@ module.exports = async (lando, options) => {
     },
     hasRun: async () => require('../utils/is-group-member')('docker-users'),
     task: async (ctx, task) => {
+      // check one last time incase this was added by a dependee or otherwise
+      if (require('../utils/is-group-member')('docker-users')) return {code: 0};
+
       try {
         const command = ['net', 'localgroup', 'docker-users', lando.config.username, '/ADD'];
         const response = await require('../utils/run-elevated')(command, {debug});
