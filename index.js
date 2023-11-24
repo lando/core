@@ -66,6 +66,8 @@ module.exports = async lando => {
     switch (process.platform) {
       case 'darwin':
         return await require('./hooks/lando-setup-build-engine-darwin')(lando, options);
+      case 'linux':
+        return await require('./hooks/lando-setup-build-engine-linux')(lando, options);
       case 'win32':
         return await require('./hooks/lando-setup-build-engine-win32')(lando, options);
     }

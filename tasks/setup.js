@@ -224,8 +224,9 @@ module.exports = lando => {
 
       // if restart is required then surface that here
       // @TODO: nice art for this?
-      if (errors.length === 0 && sresults.restart) {
-        if (options.yes === false) await ux.anykey(`Press any key to restart or ${color.yellow('q')} to exit`);
+      // @TODO: catch for anykey?
+      if (true || errors.length === 0 && sresults.restart) {
+        if (options.yes === false) await ux.anykey(`Press any key to restart or ${color.yellow('q')} to restart later`);
         await require('../utils/shutdown-os')({
           debug: require('../utils/debug-shim')(lando.log),
           message: 'Lando needs to restart to complete setup!',

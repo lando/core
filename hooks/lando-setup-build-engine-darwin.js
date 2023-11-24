@@ -106,9 +106,6 @@ module.exports = async (lando, options) => {
     },
     task: async (ctx, task) => {
       try {
-        // get user
-        const username = os.userInfo().username;
-
         // download the installer
         ctx.download = await downloadDockerDesktop(getEngineDownloadUrl(build), {ctx, debug, task});
 
@@ -117,7 +114,7 @@ module.exports = async (lando, options) => {
           ctx.password = await task.prompt({
             type: 'password',
             name: 'password',
-            message: `Enter computer password for ${username} to install build engine`,
+            message: `Enter computer password for ${lando.config.usernam} to install build engine`,
             validate: async (input, state) => {
               const options = {debug, ignoreReturnCode: true, password: input};
               const response = await require('../utils/run-elevated')(['echo', 'hello there'], options);
@@ -130,13 +127,8 @@ module.exports = async (lando, options) => {
         task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;
 
         // assemble
-        const command = [
-          path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.sh'),
-          '--installer',
-          ctx.download.dest,
-          '--user',
-          username,
-        ];
+        const script = path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.sh');
+        const command = [script, '--installer', ctx.download.dest, '--user', lando.config.usernam];
 
         // add optional args
         if (options.buildEngineAcceptLicense) command.push('--accept-license');

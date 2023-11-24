@@ -12,7 +12,15 @@ module.exports = ({
   switch (process.platform) {
     case 'darwin':
     case 'linux':
-      return false;
+      // handle the restart type
+      if (type === 'logout') args.push('--reboot');
+      else if (type === 'restart') args.push('--reboot');
+      else if (type === 'shutdown') args.push('--poweroff');
+      else args.push('--reboot');
+      // the waiting is the hardest part
+      args.push(wait);
+
+      return require('./run-command')('shutdown', args, {debug});
     case 'win32':
       // handle the restart type
       if (type === 'logout') args.push('/l');
