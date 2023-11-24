@@ -7,6 +7,8 @@ const semver = require('semver');
 const {color} = require('listr2');
 
 const buildIds = {
+  '4.25.2': '129061',
+  '4.25.1': '128006',
   '4.25.0': '126437',
 };
 
@@ -104,8 +106,7 @@ module.exports = async (lando, options) => {
     },
     task: async (ctx, task) => {
       try {
-        // path to installer script
-        const installerScript = path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.sh');
+        // get user
         const username = os.userInfo().username;
 
         // download the installer
@@ -126,12 +127,23 @@ module.exports = async (lando, options) => {
           });
         }
 
-        // run install command
         task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;
-        const result = await require('../utils/run-elevated')([installerScript, ctx.download.dest, username], {
-          debug,
-          password: ctx.password,
-        });
+
+        // assemble
+        const command = [
+          path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.sh'),
+          '--installer',
+          ctx.download.dest,
+          '--user',
+          username,
+        ];
+
+        // add optional args
+        if (options.buildEngineAcceptLicense) command.push('--accept-license');
+        if (options.debug || options.verbose > 0) command.push('--debug');
+
+        // run
+        const result = await require('../utils/run-elevated')(command, {debug, password: ctx.password});
         result.download = ctx.download;
 
         // finish up
