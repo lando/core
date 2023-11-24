@@ -5,13 +5,29 @@
 // not going to address it in favor of lando 4 stuff
 module.exports = async lando => {
   if (lando._bootstrapLevel >= 3 && await lando.engine.daemon.isUp() === false) {
+    const debug = require('../utils/debug-shim')(lando.log);
     const tasks = [{
       title: 'It seems Docker is not running, trying to start it up...',
       retry: 25,
       delay: 1000,
       task: async (ctx, task) => {
+        // prompt for password if interactive and we dont have it
+        if (process.platform === 'linux' && require('is-interactive')) {
+          ctx.password = await task.prompt({
+            type: 'password',
+            name: 'password',
+            message: `Enter computer password for ${lando.config.username} to start docker`,
+            validate: async (input, state) => {
+              const options = {debug, ignoreReturnCode: true, password: input};
+              const response = await require('../utils/run-elevated')(['echo', 'hello there'], options);
+              if (response.code !== 0) return response.stderr;
+              return true;
+            },
+          });
+        }
+
         try {
-          await lando.engine.daemon.up(false);
+          await lando.engine.daemon.up(false, ctx.password);
           await lando.shell.sh([`"${lando.engine.daemon.docker}"`, 'network', 'ls']);
         } catch (error) {
           ctx.errors.push(error);
