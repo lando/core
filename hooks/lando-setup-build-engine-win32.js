@@ -108,7 +108,7 @@ module.exports = async (lando, options) => {
     requiresRestart: async () => {
       // if wsl is not installed then this requires a restart
       try {
-        await require('../utils/run-command')('wsl', ['status'], {debug});
+        await require('../utils/run-command')('wsl', ['--status'], {debug});
         return false;
       } catch (error) {
         lando.log.debug('wsl2 not installed, restart is now required!');
