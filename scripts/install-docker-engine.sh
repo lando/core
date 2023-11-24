@@ -2,7 +2,7 @@
 set -eo pipefail
 
 DEBUG=0
-INSTALLER="Docker.dmg"
+INSTALLER="get-docker.sh"
 VERSION="24.0.7"
 OPTS=
 

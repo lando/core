@@ -5,7 +5,7 @@ module.exports = ({
   debug = require('debug')('@lando/shutdown-os'),
   message = 'Lando wants to restart your computer',
   type = 'restart',
-  wait = 5,
+  wait = process.platform === 'win32' ? 5 : 'now',
 } = {}) => {
   debug('shutdown with %o %o', type, {message, wait});
 
@@ -19,6 +19,8 @@ module.exports = ({
       else args.push('--reboot');
       // the waiting is the hardest part
       args.push(wait);
+      // message
+      args.push(`"${message}"`);
 
       return require('./run-command')('shutdown', args, {debug});
     case 'win32':
