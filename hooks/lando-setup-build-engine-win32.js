@@ -8,6 +8,8 @@ const {color} = require('listr2');
 const {nanoid} = require('nanoid');
 
 const buildIds = {
+  '4.25.2': '129061',
+  '4.25.1': '128006',
   '4.25.0': '126437',
 };
 
@@ -103,8 +105,21 @@ module.exports = async (lando, options) => {
       // @TODO: check for wsl2?
       return true;
     },
+    requiresRestart: async () => {
+      return true;
+
+      // if wsl is not installed then this requires a restart
+      try {
+        await require('../utils/run-command')('wsl', ['status'], {debug});
+        return false;
+      } catch (error) {
+        lando.log.debug('wsl2 not installed, restart is now required!');
+        return true;
+      }
+    },
     task: async (ctx, task) => {
       try {
+        return 'yes';
         // download the installer
         ctx.download = await downloadDockerDesktop(getEngineDownloadUrl(build), {ctx, debug, task});
         // script

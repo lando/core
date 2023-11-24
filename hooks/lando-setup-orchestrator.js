@@ -54,7 +54,6 @@ module.exports = async (lando, options) => {
     title: `Downloading orchestrator`,
     id: 'setup-orchestrator',
     description: '@lando/orchestrator (docker-compose)',
-    required: true,
     version: `docker-compose v${orchestrator}`,
     hasRun: async () => {
       return !!orchestratorBin && typeof orchestrator === 'string' && fs.existsSync(dest);

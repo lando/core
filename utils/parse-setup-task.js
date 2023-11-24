@@ -5,14 +5,15 @@ const slugify = require('slugify');
 const {color} = require('listr2');
 
 const defaults = task => ({
-  dependsOn: [],
-  description: task.title,
-  id: slugify(task.title),
-  isInstalled: async () => false,
-  hasRun: async () => false,
   canInstall: async () => true,
   canRun: async () => true,
   comments: {},
+  dependsOn: [],
+  description: task.title,
+  hasRun: async () => false,
+  id: slugify(task.title),
+  isInstalled: async () => false,
+  requiresRestart: false,
 });
 
 /*
@@ -20,7 +21,7 @@ const defaults = task => ({
  */
 module.exports = otask => {
   // first make sure task is sufficiently defined
-    // post-install-notes?
+  // @TODO: post-install-notes?
   otask = {...defaults(otask), ...otask};
 
   // get the parent task
@@ -32,6 +33,9 @@ module.exports = otask => {
       // checks
       await otask.canInstall();
       await otask.canRun();
+
+      // if requires restart is a function then run it to reset teh task
+      if (typeof otask.requiresRestart === 'function') otask.requiresRestart = await otask.requiresRestart(ctx, task);
 
       // get some helpful things for downstream
       const initialTitle = task.task.initialTitle ?? task.task.title;

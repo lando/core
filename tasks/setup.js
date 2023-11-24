@@ -18,6 +18,16 @@ const getStatusGroups = (status = {}) => {
   return merge({}, defaultStatus, results);
 };
 
+// get not installed message
+const getNotInstalledMessage = item => {
+  // start with the action and fallbacks
+  const message = [item.comment || `Will install ${item.version}` || 'Will install'];
+  // add a restart message if applicable
+  if (item.restart) message.push('[Requires restart]');
+  // return
+  return message.join(' ');
+};
+
 // helper to get a renderable status table
 const getStatusTable = items => ({
   rows: items.map(item => {
@@ -33,7 +43,7 @@ const getStatusTable = items => ({
         return merge({}, item, {
           description: item.description,
           status: `${color.yellow(`${figures.warning} Not Installed`)}`,
-          comment: color.dim(item.comment) || color.dim(`Will install ${item.version}`),
+          comment: color.dim(getNotInstalledMessage(item)),
           weight: 0,
         });
       case 'CANNOT INSTALL':
@@ -88,7 +98,7 @@ module.exports = lando => {
     'yes': {
       describe: 'Runs non-interactively with all accepted default answers',
       alias: ['y'],
-      default: false,
+      default: !require('is-interactive'),
       boolean: true,
     },
   };
@@ -210,7 +220,17 @@ module.exports = lando => {
       const errors = presults.errors.concat(sresults.errors);
       const total = presults.total = sresults.total;
 
-      console.log(results, errors, results.length, errors.length, total);
+      console.log(results, errors, results.length, errors.length, total, sresults.restart);
+
+      // if restart is required then surface that here
+      // @TODO: nice art for this?
+      if (sresults.restart) {
+        if (options.yes === false) await ux.anykey(`Press any key to restart or ${color.yellow('q')} to exit`);
+        await require('../utils/shutdown-os')({
+          debug: require('../utils/debug-shim')(lando.log),
+          message: 'Lando needs to restart to complete setup!',
+        });
+      }
     },
   };
 };

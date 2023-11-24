@@ -40,9 +40,6 @@ module.exports = (command, options, stdout = '', stderr = '') => {
   // merge our options over the defaults
   options = merge({}, defaults, options);
 
-  // @TODO: read them (trim them?) and write to either stdout or stderr
-  // @TODO: handle user cancelled?
-
   // sudo
   if (options.method === 'sudo') {
     command.unshift('--');

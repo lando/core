@@ -7,29 +7,29 @@ const {spawn} = require('child_process');
 
 // get the bosmang
 const defaults = {
-  debug: require('debug')('@lando/run-powershell-script'),
+  debug: require('debug')('@lando/run-command'),
   ignoreReturnCode: false,
 };
 
-module.exports = (script, args = [], options = {}, stdout = '', stderr = '') => {
+module.exports = (command, args = [], options = {}, stdout = '', stderr = '') => {
   // @TODO: error handling?
   // merge our options over the defaults
   options = merge({}, defaults, options);
   const debug = options.debug;
 
   // birth
-  debug('running powershell script %o %o', script, args);
-  const child = spawn('powershell', ['-ExecutionPolicy', 'Bypass', '-File', script].concat(args), options);
+  debug('running command %o %o', command, args);
+  const child = spawn(command, args, options);
 
   return require('./merge-promise')(child, async () => {
     return new Promise((resolve, reject) => {
       child.stdout.on('data', data => {
-        debug('powershell stdout %o', data.toString().trim());
+        debug('stdout %o', data.toString().trim());
         stdout += data;
       });
 
       child.stderr.on('data', data => {
-        debug('powershell stderr %o', data.toString().trim());
+        debug('stderr %o', data.toString().trim());
         stderr += data;
       });
 
