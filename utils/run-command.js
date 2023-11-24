@@ -9,6 +9,9 @@ const {spawn} = require('child_process');
 const defaults = {
   debug: require('debug')('@lando/run-command'),
   ignoreReturnCode: false,
+  env: {
+    WSL_UTF8: 1,
+  },
 };
 
 module.exports = (command, args = [], options = {}, stdout = '', stderr = '') => {
@@ -17,6 +20,7 @@ module.exports = (command, args = [], options = {}, stdout = '', stderr = '') =>
   options = merge({}, defaults, options);
   const debug = options.debug;
 
+  process.env.WSL_UTF8 = 1;
   // birth
   debug('running command %o %o', command, args);
   const child = spawn(command, args, options);
