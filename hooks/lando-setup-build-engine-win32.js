@@ -106,8 +106,6 @@ module.exports = async (lando, options) => {
       return true;
     },
     requiresRestart: async () => {
-      return true;
-
       // if wsl is not installed then this requires a restart
       try {
         await require('../utils/run-command')('wsl', ['status'], {debug});
@@ -119,7 +117,6 @@ module.exports = async (lando, options) => {
     },
     task: async (ctx, task) => {
       try {
-        return 'yes';
         // download the installer
         ctx.download = await downloadDockerDesktop(getEngineDownloadUrl(build), {ctx, debug, task});
         // script
