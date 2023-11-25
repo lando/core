@@ -63,7 +63,7 @@ module.exports = async (app, lando) => {
 
       // go through failures and add warnings as needed, rebase on base image
       _.forEach(errors, error => {
-        app.addWarning({
+        app.addMessage({
           title: `Could not build v4 image "${_.get(error, 'context.id')}!"`,
           detail: [
             `Failed with "${_.get(error, 'short')}"`,

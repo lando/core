@@ -15,7 +15,7 @@ module.exports = (app, steps, lockfile, hash = 'YOU SHALL NOT PASS') => {
     })
     // Make sure we don't save a hash if our build fails
     .catch(error => {
-      app.addWarning({
+      app.addMessage({
         title: `One of your v3 build steps failed`,
         detail: [
           'This **MAY** prevent your app from working.',

@@ -24,7 +24,7 @@ module.exports = async (app, lando) => {
         },
       })
       .catch(err => {
-        app.addWarning(warnings.serviceNotRunningWarning(service), err);
+        app.addMessage(warnings.serviceNotRunningWarning(service), err);
       });
     }));
   }

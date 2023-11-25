@@ -152,7 +152,7 @@ module.exports = (app, lando) => {
       .map(service => {
         // Throw error but proceed if we don't have the service
         if (!_.includes(app.services, service.name)) {
-          app.addWarning(warnings.unknownServiceWarning(service.name));
+          app.addMessage(warnings.unknownServiceWarning(service.name));
           return {};
         }
 
