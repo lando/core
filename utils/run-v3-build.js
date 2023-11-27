@@ -17,6 +17,7 @@ module.exports = (app, steps, lockfile, hash = 'YOU SHALL NOT PASS') => {
     .catch(error => {
       app.addMessage({
         title: `One of your v3 build steps failed`,
+        type: 'warning',
         detail: [
           'This **MAY** prevent your app from working.',
           'Check for errors above, fix them in your Landofile, and try again by running:',

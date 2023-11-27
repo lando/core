@@ -65,6 +65,7 @@ module.exports = async (app, lando) => {
       _.forEach(errors, error => {
         app.addMessage({
           title: `Could not build v4 image "${_.get(error, 'context.id')}!"`,
+          type: 'warning',
           detail: [
             `Failed with "${_.get(error, 'short')}"`,
             `Rerun with "lando rebuild -vvv" to see the entire build log and look for errors. When fixed run:`,

@@ -126,6 +126,7 @@ module.exports = async (app, lando) => {
             // add the warning
             app.addMessage({
               title: `The service "${error.service}" failed its healthcheck`,
+              type: 'warning',
               detail: [
                 `Failed with "${message}"`,
                 'This may be ok but we recommend you run the command below to investigate:',

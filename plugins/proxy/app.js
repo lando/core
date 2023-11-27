@@ -5,7 +5,6 @@ const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const utils = require('./lib/utils');
-const warnings = require('./lib/warnings');
 
 /*
  * Helper to find the ports we need for the proxy
@@ -152,7 +151,7 @@ module.exports = (app, lando) => {
       .map(service => {
         // Throw error but proceed if we don't have the service
         if (!_.includes(app.services, service.name)) {
-          app.addMessage(warnings.unknownServiceWarning(service.name));
+          app.addMessage(require('./messages/unknown-service-warning')(service.name));
           return {};
         }
 
