@@ -67,14 +67,8 @@ module.exports = lando => {
   const defaults = lando.config.setup;
   // determine label for build engine
   const buildEngine = process.platform === 'linux' ? 'docker-engine' : 'docker-desktop';
-
   // default options
   const options = {
-    // 'interactive': {
-    //   describe: 'Force setup into an interactive mode',
-    //   default: false,
-    //   boolean: true,
-    // },
     'build-engine': {
       describe: `The version of the build engine (${buildEngine}) to install`,
       default: defaults.buildEngine,
@@ -121,18 +115,14 @@ module.exports = lando => {
     command: 'setup',
     options,
     run: async options => {
+      // @TODO: conditional visibility for lando setup re first time run succesfully?
       const sortBy = require('lodash/sortBy');
 
       const parsePkgName = require('../utils/parse-package-name');
       const ux = lando.cli.getUX();
 
-      // @TODO: start by showing the setup header unless non-interactive
-      // @TODO: assess logging?
-      // @TODO: calculating requirements spinner?
-      // @TODO:
-      // * dep installation art header?
-      // * other options like --interactive?
-      // * conditional visibility for lando setup re first time run succesfully?
+      // setup header
+      console.log(lando.cli.makeArt('setupHeader'));
 
       // ensure plguins/tasks is an empty object if not passed in somehow?
       options.plugins = options.plugins ?? {};
@@ -146,15 +136,16 @@ module.exports = lando => {
       }
 
       // attempt to get the status and status summary of our plugins
+      ux.action.start('Generating plugin installation matrix');
       const pstatus = await lando.getInstallPluginsStatus(options);
       const pstatusSummary = getStatusGroups(pstatus);
       options.installPlugins = pstatusSummary['NOT INSTALLED'] + pstatusSummary['CANNOT INSTALL'] > 0;
+      ux.action.stop(options.installPlugins ? `${color.green('done')} ${color.dim('[see table below]')}`
+        : `${color.green('done')} ${color.dim('[nothing to install]')}`);
 
       // show plugin install status/summary and prompt if needed
       if (options.installPlugins && options.yes === false) {
-        // @TODO: lando plugin header install art
         const {rows, columns} = getStatusTable(pstatus);
-
         // print table
         console.log('');
         ux.ux.table(sortBy(rows, ['row', 'weight']), columns);
@@ -178,13 +169,25 @@ module.exports = lando => {
 
       // actually install plugins
       const presults = await lando.installPlugins(options);
+
+      // handle plugin install errors
+      // @NOTE: should a plugin install error stop the rest of setup?
+      if (presults.errors.length > 0) {
+        const error = new Error(`A setup error occured! Rerun with ${color.bold('lando setup --debug')} for more info.`); // eslint-disable-line max-len
+        lando.log.debug('%j', presults.errors[0]);
+        throw error;
+      }
+
       // reload with newyl installed plugins and clear caches
       await lando.reloadPlugins();
 
       // get setup status
+      ux.action.start('Generating setup task installation matrix');
       const sstatus = await lando.getSetupStatus(options);
       const sstatusSummary = getStatusGroups(sstatus);
       options.installTasks = sstatusSummary['NOT INSTALLED'] + sstatusSummary['CANNOT INSTALL'] > 0;
+      ux.action.stop(options.installTasks ? `${color.green('done')} ${color.dim('[see table below]')}`
+        : `${color.green('done')} ${color.dim('[nothing to install]')}`);
 
       // show setup status/summary and prompt if needed
       if (options.installTasks && options.yes === false) {
@@ -218,19 +221,51 @@ module.exports = lando => {
       // combine all our results
       const results = presults.results.concat(sresults.results);
       const errors = presults.errors.concat(sresults.errors);
-      const total = presults.total = sresults.total;
+      // @NOTE: total includes all tasks, even ones that dont need to run so its sort of confusing for UX purposes
+      // we will just imrpove this in L4
+      // const total = presults.total = sresults.total;
+      // padme bro
+      console.log('');
 
-      console.log(results, errors, results.length, errors.length, total, sresults.restart);
+      // we didnt have to do anything
+      if (errors.length === 0 && results.length === 0) {
+        console.log(`As far as ${color.bold('lando setup')} can tell you are ${color.green('good to go')} and do not require additional setup!`); // eslint-disable-line max-len
+        return;
+      }
 
-      // if restart is required then surface that here
-      // @TODO: nice art for this?
-      // @TODO: catch for anykey?
-      if (errors.length === 0 && results.length > 0 && sresults.restart) {
-        if (options.yes === false) await ux.anykey(`Press any key to restart or ${color.yellow('q')} to restart later`);
-        await require('../utils/shutdown-os')({
-          debug: require('../utils/debug-shim')(lando.log),
-          message: 'Lando needs to restart to complete setup!',
-        });
+      // if we had errors
+      if (errors.length > 0) {
+        const error = new Error(`A setup error occured! Rerun with ${color.bold('lando setup --debug')} for more info.`); // eslint-disable-line max-len
+        lando.log.debug('%j', errors[0]);
+        throw error;
+      }
+
+      // success!
+      if (errors.length === 0 && results.length > 0) {
+        // restart logix
+        if (sresults.restart) {
+          console.log(`Setup installed ${color.green(results.length)} of ${color.bold(results.length)} things successfully!`); // eslint-disable-line max-len
+          console.log(color.magenta('However, a restart is required is complete your setup.'));
+          if (options.yes === false) {
+            try {
+              console.log('');
+              await ux.anykey(`Press any key to restart or ${color.yellow('q')} to restart later`);
+            } catch {
+              throw new Error(`Restart cancelled! ${color.yellow('Note that Lando may not work correctly until you restart!')}`); // eslint-disable-line max-len
+            }
+          }
+          ux.action.start('Restarting');
+          await require('../utils/shutdown-os')({
+            debug: require('../utils/debug-shim')(lando.log),
+            message: 'Lando needs to restart to complete setup!',
+          });
+          ux.action.stop(color.green('done'));
+
+        // otherwise the usual success message
+        } else {
+          console.log(`Setup installed ${color.green(results.length)} of ${color.bold(results.length)} things successfully!`); // eslint-disable-line max-len
+          console.log(`You are now ${color.green('good to go')} and can start using Lando!`);
+        }
       }
     },
   };

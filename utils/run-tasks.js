@@ -64,7 +64,8 @@ module.exports = async (tasks, {
   // also add the runner to ctx so we can access other tasks and stuff
   runner.options.ctx.runner = runner;
 
-  // runer gonna run
-  return await runner.run();
+  // if we have tasks then run them
+  if (Array.isArray(tasks) && tasks.length > 0) return await runner.run();
+  else return runner.options.ctx;
 };
 
