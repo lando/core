@@ -23,6 +23,7 @@ class Plugin {
   // @TODO: ^ some hook can set these with npmrc/yarnrc files?
   // @TODO: we need to add some masking to auth stuff ^ in lando config get
   static config = {};
+  static channel = 'stable';
   static id = 'plugin';
   static debug = require('debug')('@lando/core:plugin');
 
@@ -79,7 +80,6 @@ class Plugin {
   }
 
   /*
-   *
    * TBD
    */
   static async info(plugin, {
@@ -143,6 +143,7 @@ class Plugin {
    * @TODO: scripts shoudl be moved into the engine constructor
    */
   constructor(location, {
+    channel = Plugin.channel,
     config = {},
     debug = Plugin.debug,
     id = Plugin.id || 'lando',
@@ -153,6 +154,7 @@ class Plugin {
   } = {}) {
     // core props
     this.root = location;
+    this.channel = channel;
     this.enabled = true;
     this.installer = installer;
     this.type = type;
@@ -179,15 +181,12 @@ class Plugin {
     this.package = this.pjson.name;
     this.version = this.pjson.version;
 
-    // add auxilary info
-    this.spec = `${this.name}@${this.version}`;
-    this.scope = require('npm-package-arg')(this.spec).scope;
-
     // extract the plugin config from teh manifest and merge in any user injected config
     this.api = this.manifest.api || 4;
     this.cspace = this.manifest.cspace || this.name;
-    this.config = merge({}, [this.manifest.config, config[this.cspace]]);
     this.core = this.manifest.core === true || false;
+    // @NOTE: do we still want to do this?
+    this.config = merge({}, [this.manifest.config, config[this.cspace]]);
 
     // if we dont have a version at this point lets traverse up and see if we can find a parent
     if (!this.version) {
@@ -197,15 +196,27 @@ class Plugin {
       ppsjons.pop();
       // paternity test
       const pjsons = ppsjons.filter(pjson => fs.existsSync(pjson));
-      // if we have parents then use the closest
-      if (pjsons.length > 0) this.version = require(pjsons[0]).version;
+
+      // if we have parents then use the closest and also reset some package considerations for updating
+      if (pjsons.length > 0) {
+        this.parent = require(pjsons[0]);
+        this.version = this.parent.version;
+        this.package = this.parent.name;
+        this.nested = true;
+      }
     }
+
+    // add auxilary package info
+    this.spec = `${this.package}@${this.version}`;
+    this.scope = require('npm-package-arg')(this.spec).scope;
+    if (this.scope) this.unscoped = this.package.replace(`${this.scope}/`, '');
 
     // add some computed properties
     // @NOTE: do we need a stronger check for isupdateable?
     this.isInstalled = false;
-    this.isUpdateable = has(this, 'pjson.dist');
+    this.isUpdateable = has(this.parent, 'pjson.dist') || has(this, 'pjson.dist');
     this.isValid = Plugin.isValid(this);
+    this.updateAvailable = false;
 
     // if the plugin does not have any dependencies then consider it installed
     if (!this.pjson.dependencies || Object.keys(this.pjson.dependencies).length === 0) {
@@ -216,6 +227,13 @@ class Plugin {
     // @NOTE: is this good enough?
     if (fs.existsSync(this.nm) && fs.readdirSync(this.nm).length > 0) {
       this.isInstalled = true;
+    }
+
+    // if is updateable then lets try to figure out the template string for release notes
+    if (this.isUpdateable) this.rnt = this.manifest['release-notes'];
+    // special release notes handling for core @lando/packages
+    if (!this.rnt && this.scope === '@lando') {
+      this.rnt = `https://github.com/lando/${this.unscoped}/releases/tag/v\${version}`;
     }
 
     // log result
@@ -239,37 +257,58 @@ class Plugin {
     return {};
   }
 
-  async hasUpdate(channel = 'stable') {
-    // normalize channel
-    channel = channel === 'stable' ? 'latest' : 'latest';
+  async check4Update() {
+    // if plugin is not updateable then immediately return
+    if (!this.isUpdateable) {
+      this.debug('%o is not updateable, update manually', this.name);
+      return this;
+    }
+
+    // otherwise proceed by first normalizing the channel
+    const channel = this.channel === 'stable' ? 'latest' : this.channel;
 
     try {
       // get release data
-      const data = await packument(this.spec, {fullMetadata: true});
+      const data = await packument(this.spec, merge({}, [Plugin.config, {fullMetadata: true}]));
       // build a list of highest available versions
       const havs = [data['dist-tags'].latest];
       // if we are looking at a non-standard channel then include that tag as well
-      if (channel !== 'stable') havs.push(data['dist-tags'][channel]);
+      if (this.channel !== 'stable') havs.push(data['dist-tags'][channel]);
       // select the highest version
       const hv = semver.rsort(havs)[0];
+      const hc = data['dist-tags'].latest === hv ? 'stable' : channel;
 
       // if the hv is lte to what we have then no update is available
       if (semver.lte(hv, this.version)) {
-        this.debug('no update available on the %o channel, %o <= %o', channel, hv, this.version);
-        return false;
+        this.debug('%o cannot be updated on channel %o (%o <= %o)', this.package, channel, hv, this.version);
+        return this;
 
       // otherwise update is available
       } else {
-        this.debug('update available on the %o channel, %o <= %o, ', channel, hv, this.version);
-        return true;
+        this.updateAvailable = `${this.package}@${hv}`;
+        this.update = await Plugin.info(this.updateAvailable);
+        this.update.channel = hc;
+        this.debug(
+          '%o can be updated to (%o) on channel %o (%o > %o) ',
+          this.package,
+          this.updateAvailable,
+          channel,
+          hv,
+          this.version,
+        );
+        return this;
       }
 
     // catch
     // @TODO: what do we actually want to do here?
     } catch (error) {
       // better 404 message
-      if (error.statusCode === 404) error.message = `Could not find a plugin called ${pkg.raw}`;
-      // throw
+      if (error.statusCode === 404) error.message = `Could not find a plugin called ${this.package}`;
+      // debug error
+      this.debug('%o could not get update info, error: %o', this.package, error.message);
+      this.debug('%j', error);
+      this.isUpdateable = false;
+      this.updateAvailable = false;
       throw makeError({error});
     }
   }
@@ -302,35 +341,6 @@ class Plugin {
     this.debug('removed %o from %o', this.spec, this.location);
     return fs.rmSync(this.root, {recursive: true, force: true});
   }
-
-  /*
-   * updates a plugin.
-   */
-  // async update(channel = 'stable') {
-  // // normalize channel
-  //   channel = channel === 'stable' ? 'latest' : 'latest';
-
-  //   try {
-  //     // get release data
-  //     const data = await packument(this.spec, {fullMetadata: true});
-  //     // build a list of highest available versions
-  //     const havs = [data['dist-tags'].latest];
-  //     // if we are looking at a non-standard channel then include that tag as well
-  //     if (channel !== 'stable') havs.push(data['dist-tags'][channel]);
-  //     // extract the highest version
-  //     const hv = semver.rsort(havs)[0];
-  //     // @TODO: calculate the destination?
-
-
-  //   // catch
-  //   // @TODO: what do we actually want to do here?
-  //   } catch (error) {
-  //     // better 404 message
-  //     if (error.statusCode === 404) error.message = `Could not find a plugin called ${pkg.raw}`;
-  //     // throw
-  //     throw makeError({error});
-  //   }
-  // }
 }
 
 module.exports = Plugin;
