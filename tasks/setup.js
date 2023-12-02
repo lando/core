@@ -2,6 +2,7 @@
 
 const groupBy = require('lodash/groupBy');
 const merge = require('lodash/merge');
+const sortBy = require('lodash/sortBy');
 
 const {color, figures} = require('listr2');
 
@@ -116,8 +117,6 @@ module.exports = lando => {
     options,
     run: async options => {
       // @TODO: conditional visibility for lando setup re first time run succesfully?
-      const sortBy = require('lodash/sortBy');
-
       const parsePkgName = require('../utils/parse-package-name');
       const ux = lando.cli.getUX();
 
@@ -148,7 +147,7 @@ module.exports = lando => {
         const {rows, columns} = getStatusTable(pstatus);
         // print table
         console.log('');
-        ux.ux.table(sortBy(rows, ['row', 'weight']), columns);
+        ux.table(sortBy(rows, ['row', 'weight']), columns);
         console.log('');
 
         // things are good!
@@ -196,7 +195,7 @@ module.exports = lando => {
 
         // print table
         console.log('');
-        ux.ux.table(sortBy(rows, ['row', 'weight']), columns);
+        ux.table(sortBy(rows, ['row', 'weight']), columns);
         console.log('');
 
         // things are good!
