@@ -21,7 +21,7 @@ module.exports = async (spec, opts, Plugin = require('../components/plugin')) =>
     fs.moveSync(src, dest, {overwrite: true});
     plugin.debug('non-lando org scoped plugin detected, moved up a dir to %s', dest);
     // remove and log
-    fs.rmSync(path.resolve(src, '..'), {recursive: true});
+    fs.removeSync(path.resolve(src, '..'), {recursive: true});
     plugin.debug('removed dangling and presumably/hopefully empty org scope dir %s', orgDir);
 
     // get the plugin info again to confirm we moved it to the correct place

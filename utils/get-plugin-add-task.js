@@ -37,7 +37,6 @@ module.exports = (plugin, {
       try {
         // add the plugin
         task.plugin = await require('./fetch-plugin')(plugin, {config: Plugin.config, dest: dir}, Plugin);
-
         // update and and return
         task.title = `Installed ${task.plugin.name}@${task.plugin.version} to ${task.plugin.location}`;
         return task.plugin;

@@ -56,14 +56,14 @@ class Plugin {
       Plugin.debug('extracted plugin %o to %o from %o using %o', info._id, tmp, resolved, config);
 
       // if we get this far then we can safely move the plugin to dest
-      fs.rmSync(dest, {recursive: true, force: true});
+      fs.removeSync(dest, {recursive: true, force: true});
       fs.mkdirSync(dest, {recursive: true});
-      fs.copySync(tmp, dest);
+      fs.copySync(tmp, dest, {overwrite: true});
       Plugin.debug('moved plugin from %o to %o', tmp, dest);
 
       // rewrite package.json so it includes relevant dist stuff from info, this is relevant for updating purposes
       if (fs.existsSync(pjson)) {
-        write(pjson, merge(info, require(pjson)));
+        write(pjson, merge(info, read(pjson)));
         Plugin.debug('modified %o to include distribution info', pjson);
       }
 
@@ -164,7 +164,7 @@ class Plugin {
 
     // set top level things
     this.location = this.root;
-    this.pjson = require(path.join(this.root, 'package.json'));
+    this.pjson = read(path.join(this.root, 'package.json'));
 
     // get the manifest
     debug.extend(this.pjson.name)('found plugin at %o', this.root);
@@ -268,6 +268,11 @@ class Plugin {
     const channel = this.channel === 'stable' ? 'latest' : this.channel;
 
     try {
+      // check internet connection
+      const online = await require('is-online')();
+      // throw error if not online
+      if (!online) throw new Error('Cannot detect connection to internet!');
+      // process to check
       // get release data
       const data = await packument(this.spec, merge({}, [Plugin.config, {fullMetadata: true}]));
       // build a list of highest available versions
@@ -309,6 +314,7 @@ class Plugin {
       this.debug('%j', error);
       this.isUpdateable = false;
       this.updateAvailable = false;
+      this.update = {error};
       throw makeError({error});
     }
   }

@@ -74,7 +74,7 @@ const defaultConfig = options => ({
     installTasks: true,
     plugins: {},
     tasks: [],
-    skipCommonPlugins: !options.fatcore,
+    skipCommonPlugins: options.fatcore,
   },
 });
 

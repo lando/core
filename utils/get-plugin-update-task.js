@@ -11,14 +11,21 @@ module.exports = (plugin, {
   const pkg = require('./parse-package-name')(plugin);
 
   return {
-    title: `Updating ${pkg.raw}`,
+    title: `Updating ${pkg.name} to v${pkg.peg}`,
     description: pkg.name,
+    canInstall: async () => {
+      const online = await require('is-online')();
+      // throw error if not online
+      if (!online) throw new Error('Cannot detect connection to internet!');
+      // or true
+      return true;
+    },
     task: async (ctx, task) => {
       try {
         // add the plugin
         task.plugin = await require('./fetch-plugin')(plugin, {config: Plugin.config, dest: dir}, Plugin);
         // update and and return
-        task.title = `Updated ${task.plugin.name}@${task.plugin.version}@${task.plugin.location}`;
+        task.title = `Updated ${task.plugin.name} to v${task.plugin.version}`;
         return task.plugin;
 
       // if we have an error then add it to the status object and throw
