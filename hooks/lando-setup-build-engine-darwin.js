@@ -70,7 +70,6 @@ module.exports = async (lando, options) => {
     title: `Downloading build engine`,
     id: 'setup-build-engine',
     description: `@lando/build-engine (docker-desktop)`,
-    required: true,
     version: `docker-desktop ${install}`,
     hasRun: async () => {
       // start by looking at the engine install status

@@ -14,8 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         docker-compose-version:
-          - "1.29.1"
-          - "2.21.0"
+          - "2.23.0"
         healthcheck:
           - new
         lando-version:

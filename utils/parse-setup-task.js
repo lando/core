@@ -84,6 +84,14 @@ module.exports = otask => {
   // also skip the task if its already been set and skip has not been set
   if (!otask.enabled) otask.enabled = async () => !await otask.isInstalled() && !await otask.hasRun();
 
+  // but actually wrap enabled in something else so we can make sure it resolves to a boolean
+  if (otask.enabled && typeof otask.enabled === 'function') {
+    const penabled = otask.enabled;
+    otask.enabled = async () => {
+      otask.enabled = await penabled();
+    };
+  }
+
   // return
   return otask;
 };

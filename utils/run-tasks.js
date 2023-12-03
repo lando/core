@@ -34,7 +34,7 @@ module.exports = async (tasks, {
   }
 
   const defaults = {
-    ctx: {data: {}, errors: [], results: [], total: 0},
+    ctx: {data: {}, errors: [], results: [], skipped: 0, ran: 0, total: 0},
     concurrent: true,
     collectErrors: true,
     exitOnError: false,
@@ -58,14 +58,21 @@ module.exports = async (tasks, {
     rendererOptions,
   }));
 
-  // set the task size
-  // @NOTE: is this sufficient? do we need some kind of recursion for subtaks?
-  runner.options.ctx.total = Array.isArray(runner.tasks) ? runner.tasks.length : 0;
+  // if we got nothing to run then return the ctx
+  if (!Array.isArray(tasks) || tasks.length === 0) return runner.options.ctx;
+
   // also add the runner to ctx so we can access other tasks and stuff
   runner.options.ctx.runner = runner;
+  runner.options.ctx.total = Array.isArray(runner.tasks) ? runner.tasks.length : 0;
 
-  // if we have tasks then run them
-  if (Array.isArray(tasks) && tasks.length > 0) return await runner.run();
-  else return runner.options.ctx;
+  // get results
+  const results = await runner.run();
+  // update results and then return
+  results.skipped = tasks.filter(task => !task.enabled).length;
+  results.ran = tasks.filter(task => task.enabled).length;
+  // remove the runner from the results
+  // @NOTE: is this a good idea?
+  delete results.runner;
+  return results;
 };
 
