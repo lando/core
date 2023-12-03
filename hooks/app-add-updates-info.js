@@ -10,7 +10,6 @@ module.exports = async (app, lando) => {
         detail: [
           `Lando has detected ${updates} packages that can be updated.`,
           'Updating fixes bugs, security issues and bring new features.',
-          'We recommend you run:',
         ],
         command: 'lando update',
       });

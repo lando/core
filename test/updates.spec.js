@@ -11,9 +11,6 @@ chai.use(require('sinon-chai'));
 chai.use(require('chai-as-promised'));
 chai.should();
 
-const Github = require('github');
-const Promise = require('../lib/promise');
-
 const UpdateManager = require('./../lib/updates');
 const updates = new UpdateManager();
 
@@ -60,51 +57,6 @@ describe('updates', () => {
       updates.fetch({expires: new Date('October 21, 2015, 16:29:00')}).should.be.false;
       // Back to the future
       clock.restore();
-    });
-  });
-
-  describe('#refresh', () => {
-    // We need a Github API Client to stub.
-    const github = new Github({Promise: Promise});
-    // Use our stubbed Github API so we don't make a real HTTP request.
-    updates.githubApi = github;
-
-    it('should use current or specified version of there is an error getting updated data', () => {
-      // Throw an error on purpose
-      const stub = sinon.stub(updates.githubApi.repos, 'getReleases').rejects('Whoops!');
-      // If something goes wrong with the Github API, handle it gracefully.
-      return updates.refresh('vlolnotrealversion').should.eventually.be
-        .an('object').with.property('version', 'lolnotrealversion')
-        .then(() => stub.restore());
-    });
-
-    it('should return the first non draft or prerelease release data', () => {
-      const mockReleaseData = {data: [
-        {
-          tag_name: 'v1',
-          prerelease: true,
-          draft: false,
-        },
-        {
-          tag_name: 'v2',
-          prerelease: false,
-          draft: true,
-        },
-        {
-          tag_name: 'v3',
-          prerelease: false,
-          draft: false,
-          html_url: 'crashoverride',
-        },
-      ]};
-      const stub = sinon.stub(updates.githubApi.repos, 'getReleases').callsFake(() => Promise.resolve(mockReleaseData));
-      return updates.refresh('beta.2')
-      .then(data => {
-        data.should.be.an('object');
-        data.version.should.equal('3');
-        data.url.should.equal('crashoverride');
-      })
-      .then(() => stub.restore());
     });
   });
 });

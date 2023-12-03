@@ -294,7 +294,7 @@ class Plugin {
         this.update = await Plugin.info(this.updateAvailable);
         this.update.channel = hc;
         this.debug(
-          '%o can be updated to (%o) on channel %o (%o > %o) ',
+          '%o can be updated to %o on channel %o (%o > %o) ',
           this.package,
           this.updateAvailable,
           channel,
