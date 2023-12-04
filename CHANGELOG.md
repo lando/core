@@ -1,10 +1,48 @@
-## v3.20.4 - [October 6, 2023](https://github.com/lando/core/releases/tag/3.20.4)
+## v3.21.0-alpha.1 - [December 4, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.1)
+
+> This will begin to set things right
+
+### New Features
+
+* Added `autostart` Docker Engine support to Linux
+* Added `lando update` command so Lando and installed plugins can self-update
+* Added hidden `lando setup` command to replace package installers
+* Added hidden `lando plugin-add` command to install external plugins
+* Added hidden `lando plugin-remove` command to remove external plugins
+* Improved `lando version` to give more total version information
+
+### Fixes
+
+* Fixed broken Docker Compose|Desktop|Engine links
+* Fixed bug causing `lando` services to report `Up` when they actually `Exited` non-zero
+* Fixed longstanding bug causing some debug output to print to `stdout` instead of `stderr`
+* Improved post-start status message granularity, they can one of `tip|info|warn|error` now
+* Improved post-start status message accessibility
+* Improved "Update Available" warning to be less **INTENSE**, is now a post-start info message
+
+### Internal
+
+* Added `app.addMessage` for more granular and accessible post-start app status reporting
+* Bumped minimum `node` version to `18`
+* Bumped supported Docker Desktop version to `>4 <4.26`
+* Removed lingering and dangling should-now-be-in-plugins code eg `_drupaly.js`
+* Reorganized core to be more like `@lando/core-next` (eg Lando 4)
+* Switched (fully, finally) from `github` to `@octokit/rest`
+* Removed `github` dependency
+* Removed `mkdirp` dependency
+
+### DEPRECATIONS
+
+* DEPRECATED `app.addWarning` in favor of `app.addMessage`
+
+
+## v3.20.4 - [October 6, 2023](https://github.com/lando/core/releases/tag/v3.20.4)
 
 ### Fixes
 
 * Fixed borked path leading to `Cannot find module './laemp.js'`
 
-## v3.20.3 - [October 6, 2023](https://github.com/lando/core/releases/tag/3.20.3)
+## v3.20.3 - [October 6, 2023](https://github.com/lando/core/releases/tag/v3.20.3)
 
 ### Fixes
 
@@ -20,7 +58,7 @@
 * Set `inits` directory as the preferred `init` source
 * Switched `github` init `source` to use `@octokit/rest`
 
-## v3.20.2 - [September 30, 2023](https://github.com/lando/core/releases/tag/3.20.2)
+## v3.20.2 - [September 30, 2023](https://github.com/lando/core/releases/tag/v3.20.2)
 
 ### Fixes
 
@@ -28,13 +66,13 @@
 * Improved `docker-compose` auto-download so it is more transparent [#63](https://github.com/lando/core/issues/63)
 * Improved `docker-compose` download verification [#63](https://github.com/lando/core/issues/63)
 
-## v3.20.1 - [September 27, 2023](https://github.com/lando/core/releases/tag/3.20.1)
+## v3.20.1 - [September 27, 2023](https://github.com/lando/core/releases/tag/v3.20.1)
 
 ### Fixes
 
 * Fixed bug where `tooling` commands using `app` bootstrap would use `/` instead of `appMount`
 
-## v3.20.0 - [September 22, 2023](https://github.com/lando/core/releases/tag/3.20.0)
+## v3.20.0 - [September 22, 2023](https://github.com/lando/core/releases/tag/v3.20.0)
 
 ### New Features
 
@@ -66,74 +104,74 @@
   * `composeBin` is now discouraged in favor of `orchestratorVersion`. [Read more](https://docs.lando.dev/core/v3/orchestrator.html).
   * `max` and `min` in `dockerSupportedVersions` are now discouraged in favor of `satisfies`. [See example](https://github.com/lando/core/blob/main/config.yml).
 
-## v3.17.2 - [June 20, 2023](https://github.com/lando/core/releases/tag/3.17.2)
+## v3.17.2 - [June 20, 2023](https://github.com/lando/core/releases/tag/v3.17.2)
 
 * Fixed busted cutover to new release process take 2
 
-## v3.17.1 - [June 20, 2023](https://github.com/lando/core/releases/tag/3.17.1)
+## v3.17.1 - [June 20, 2023](https://github.com/lando/core/releases/tag/v3.17.1)
 
 * Fixed busted cutover to new release process
 
-## v3.17.0 - [June 20, 2023](https://github.com/lando/core/releases/tag/3.17.0)
+## v3.17.0 - [June 20, 2023](https://github.com/lando/core/releases/tag/v3.17.0)
 
 * Added `~/.lando/bin` as preferred install location for Docker Compose
 * Switched release flow over to [@lando/prepare-release-action](https://github.com/lando/prepare-release-action)
 * Docker Compose `1.29.2` will now be automatically installed to `~/.lando/bin` if a suitable version is not detected, this is to prepare for Docker Compose V1 being removed from Docker Desktop
 
-## v3.16.2 - [June 5, 2023](https://github.com/lando/core/releases/tag/3.16.2)
+## v3.16.2 - [June 5, 2023](https://github.com/lando/core/releases/tag/v3.16.2)
 
 * Fixed bug causing key sanitization to mutate the underlying data
 
-## v3.16.1 - [May 25, 2023](https://github.com/lando/core/releases/tag/3.16.1)
+## v3.16.1 - [May 25, 2023](https://github.com/lando/core/releases/tag/v3.16.1)
 
 * Added metadata required for `@lando/core` to be pass plugin validation
 
-## v3.16.0 - [May 11, 2023](https://github.com/lando/core/releases/tag/3.16.0)
+## v3.16.0 - [May 11, 2023](https://github.com/lando/core/releases/tag/v3.16.0)
 
 * Added default `okCodes` to the scanner to allow `3xx` and `404` [#39](https://github.com/lando/core/pull/39).
 
-## v3.15.0 - [April 7, 2023](https://github.com/lando/core/releases/tag/3.15.0)
+## v3.15.0 - [April 7, 2023](https://github.com/lando/core/releases/tag/v3.15.0)
 
 * Added `maxRedirects` as a configurable option of the new `scanner`
 * Reverted new url `scanner` to not follow redirects by default, this is more aligned with the behavior of the older `scanner`. [READ MORE](https://docs.lando.dev/core/v3/scanner.html)
 
-## v3.14.0 - [March 1, 2023](https://github.com/lando/core/releases/tag/3.14.0)
+## v3.14.0 - [March 1, 2023](https://github.com/lando/core/releases/tag/v3.14.0)
 
 * Added new and improved URL `scanner` provides real time feedback on service status. [READ MORE](https://docs.lando.dev/core/v3/scanner.html)
 * Improved `scanner` reliability by preferring IPv4 [#21](https://github.com/lando/core/issues/21)
 
-## v3.11.0 - [February 26, 2023](https://github.com/lando/core/releases/tag/3.11.0)
+## v3.11.0 - [February 26, 2023](https://github.com/lando/core/releases/tag/v3.11.0)
 
 * Added detection of MySQL 8 DBs for `laemp` recipes to insert appropriate config [lando/lando#1426](https://github.com/lando/lando/issues/1462)
 
-## v3.10.0 - [January 23, 2023](https://github.com/lando/core/releases/tag/3.10.0)
+## v3.10.0 - [January 23, 2023](https://github.com/lando/core/releases/tag/v3.10.0)
 
 * Bumped version just to indicate push to stable
 
-## v3.8.5 - [January 20, 2023](https://github.com/lando/core/releases/tag/3.8.5)
+## v3.8.5 - [January 20, 2023](https://github.com/lando/core/releases/tag/v3.8.5)
 
 * Added support for "sandboxed" v3 plugins in anticipation of plugin hybridization
 * Fixed bug causing loading of non V3 plugins on Windows [#27](https://github.com/lando/core/issues/27)
 
-## v3.8.4 - [January 18, 2023](https://github.com/lando/core/releases/tag/3.8.4)
+## v3.8.4 - [January 18, 2023](https://github.com/lando/core/releases/tag/v3.8.4)
 
 * Added workaround to help with `VirtioFS` support in Docker Desktop `4.16.1`
 * Bumped supported Docker Desktop version to `4.16.99`
 
-## v3.8.3 - [January 13, 2023](https://github.com/lando/core/releases/tag/3.8.3)
+## v3.8.3 - [January 13, 2023](https://github.com/lando/core/releases/tag/v3.8.3)
 
 * Fixed bug causing `null` `lando.versions` to fatally error
 
-## v3.8.2 - [December 11, 2022](https://github.com/lando/core/releases/tag/3.8.2)
+## v3.8.2 - [December 11, 2022](https://github.com/lando/core/releases/tag/v3.8.2)
 
 * Needed fixes to power a deteched `@lando/core`
 
-## v3.8.1 - [December 11, 2022](https://github.com/lando/core/releases/tag/3.8.1)
+## v3.8.1 - [December 11, 2022](https://github.com/lando/core/releases/tag/v3.8.1)
 
 * [Ejected the core](https://www.youtube.com/watch?v=BhQ59YzEdUY)
 * Removed `lando-alliance` core plugin
 
-## v3.8.0 - [December 10, 2022](https://github.com/lando/core/releases/tag/3.8.0)
+## v3.8.0 - [December 10, 2022](https://github.com/lando/core/releases/tag/v3.8.0)
 
 * Core ejected
 
