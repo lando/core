@@ -58,6 +58,15 @@ module.exports = lando => ({
       const Plugin = require('../components/plugin');
       for (const data of lando.config.plugins) {
         const plugin = new Plugin(data.dir);
+        // if we are an internal lando core in packaged dev version then reset any core plugin to match that
+        if (lando.config.cli
+          && lando.config.cli.dev
+          && lando.config.cli.coreBase
+          && plugin.package === '@lando/core') {
+          plugin.version = lando.config.version;
+        }
+
+        // then set the version
         versions[plugin.name] = `v${plugin.version}`;
       }
     }
