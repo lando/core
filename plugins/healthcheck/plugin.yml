@@ -1,1 +1,4 @@
 name: "@lando/healthcheck"
+
+api: 3
+core: true

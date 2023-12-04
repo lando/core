@@ -3,7 +3,6 @@
 const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
-const warnings = require('../lib/warnings');
 
 module.exports = async (app, lando) => {
   // Get keys on host
@@ -20,6 +19,6 @@ module.exports = async (app, lando) => {
   app.log.silly('users keys', keys);
   // Add a warning if we have more keys than the warning level
   if (keySize > lando.config.maxKeyWarning) {
-    app.addWarning(warnings.maxKeyWarning());
+    app.addMessage(require('../messages/max-key-tip'));
   }
 };

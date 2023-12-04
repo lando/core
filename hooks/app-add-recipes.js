@@ -13,12 +13,12 @@ module.exports = async (app, lando) => {
     // Build da things
     // @NOTE: this also gathers app.info and build steps
     const Recipe = lando.factory.get(app.config.recipe);
-    const config = utils.parseConfig(app.config.recipe, app);
+    const config = require('../utils/parse-recipe-config')(app.config.recipe, app);
     // Get recipe config
     const recipe = new Recipe(config.name, config).config;
     // Cache dump our app tooling so we can use it in our entrypoint
     // @NOTE: we dump pre-merge so that tooling directly in the landofile is not mixed in
-    lando.cache.set(toolingCache, JSON.stringify(recipe.tooling), {persist: true});
+    lando.cache.set(app.toolingCache, JSON.stringify(recipe.tooling), {persist: true});
     // Merge stuff together correctly
     app.config.proxy = _.merge({}, recipe.proxy, _.get(app, 'config.proxy', {}));
     app.config = lando.utils.merge({services: recipe.services, tooling: recipe.tooling}, app.config);

@@ -11,7 +11,7 @@ const expect = chai.expect;
 const hasher = require('object-hash');
 chai.should();
 
-const merge = require('../utils/merge');
+const merge = require('../utils/legacy-merge');
 
 describe('merge', () => {
   it('should return the same as _.merge for objects', () => {

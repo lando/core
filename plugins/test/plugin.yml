@@ -1,2 +1,5 @@
 name: "@lando/test"
+
+api: 3
+core: true
 hidden: true

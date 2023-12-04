@@ -81,11 +81,17 @@ lando config --lando | grep verbose
 # Should return the version
 lando version | grep "v3."
 
-# Should run with specified verbosity
-# @NOTE: for some reason -vvv|DEBUG does not work so omitting
-lando info -v | grep INFO
-lando info -vv | grep VERBOSE
-lando info -vvvv | grep SILLY
+# Should run debug messages on stderr
+lando info -v | grep INFO || echo $? | grep 1
+lando info -vv | grep VERBOSE || echo $? | grep 1
+lando info -vvv | grep DEBUG || echo $? | grep 1
+lando info -vvvv | grep SILLY || echo $? | grep 1
+
+# Should run with specified verbosity on stderr
+lando info -v 2>&1 | grep INFO
+lando info -vv 2>&1 | grep VERBOSE
+lando info -vvv 2>&1 | grep DEBUG
+lando info -vvvv 2>&1 | grep SILLY
 
 # Should run lando config without error
 lando config

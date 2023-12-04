@@ -14,7 +14,7 @@ module.exports = options => {
   // Get absolute path of destination
   options.destination = path.resolve(options.destination);
   // Create directory if needed
-  if (!fs.existsSync(options.destination)) mkdirp.sync(options.destination);
+  if (!fs.existsSync(options.destination)) fs.mkdirSync(options.destination, {recursive: true});
   // Set node working directory to the destination
   // @NOTE: is this still needed?
   process.chdir(options.destination);

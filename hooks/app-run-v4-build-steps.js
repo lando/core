@@ -48,7 +48,6 @@ module.exports = async (app, lando) => {
 
       // and then run them in parallel
       const {errors} = await app.runTasks(tasks, {
-        ctx: {errors: []},
         renderer: 'dc2',
         rendererOptions: {
           header: 'Building',
@@ -64,8 +63,9 @@ module.exports = async (app, lando) => {
 
       // go through failures and add warnings as needed, rebase on base image
       _.forEach(errors, error => {
-        app.addWarning({
+        app.addMessage({
           title: `Could not build v4 image "${_.get(error, 'context.id')}!"`,
+          type: 'warning',
           detail: [
             `Failed with "${_.get(error, 'short')}"`,
             `Rerun with "lando rebuild -vvv" to see the entire build log and look for errors. When fixed run:`,

@@ -26,6 +26,7 @@ const resetPlatform = () => {
 
 const getComposeExecutable = require('../utils/get-compose-x');
 const getDockerBinPath= require('../utils/get-docker-bin-path');
+require('../utils/get-compose-bin-path');
 
 describe('get-compose-x', () => {
   it('should return the correct lando-provided path on win32', () => {

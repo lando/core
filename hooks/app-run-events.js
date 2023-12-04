@@ -29,11 +29,11 @@ module.exports = async (app, lando, cmds, data, event) => {
   const injectable = _.has(app, 'engine') ? app : lando;
   return injectable.engine.run(eventCommands).catch(err => {
     const command = _.tail(event.split('-')).join('-');
-    if (app.addWarning) {
-      const message = _.trim(_.get(err, 'message'));
-      console.log(err);
-      app.addWarning({
+    if (app.addMessage) {
+      const message = _.trim(_.get(err, 'message')) || 'UNKNOWN ERROR';
+      app.addMessage({
         title: `The ${event} event has command(s) that failed!`,
+        type: 'warning',
         detail: [
           `Event failed with: "${message}"`,
           'This **MAY** prevent your app from working.',

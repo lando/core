@@ -37,12 +37,12 @@ module.exports = lando => {
         // determine legacy settings
         const legacyScanner = _.get(lando, 'config.scanner', true) === 'legacy';
         // get scanner stuff
-        const type = !_.isEmpty(app.warnings) ? 'report' : 'post';
+        const type = !_.isEmpty(app.messages) ? 'report' : 'post';
         const phase = legacyScanner ? `${type}_legacy` : type;
         const scans = _.find(app.checks, {type: 'url-scan-tasks'});
 
         // rebuold tables
-        console.log(lando.cli.makeArt('appRebuild', {name: app.name, phase, warnings: app.warnings}));
+        console.log(lando.cli.makeArt('appRebuild', {name: app.name, phase, messages: app.messages}));
         console.log(lando.cli.formatData(utils.startTable(app, {legacyScanner}), {format: 'table'}, {border: false}));
 
         // if we are not in legacy scanner mode then run the scans

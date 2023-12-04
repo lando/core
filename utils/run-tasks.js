@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 // get the bosmang
-const {Manager} = require('listr2');
+const {Listr} = require('listr2');
 
 // adds required methods to ensure the lando v3 debugger can be injected into v4 things
 module.exports = async (tasks, {
@@ -34,7 +34,7 @@ module.exports = async (tasks, {
   }
 
   const defaults = {
-    ctx,
+    ctx: {data: {}, errors: [], results: [], skipped: 0, ran: 0, total: 0},
     concurrent: true,
     collectErrors: true,
     exitOnError: false,
@@ -45,22 +45,34 @@ module.exports = async (tasks, {
       log: require('debug')('task-runner'),
       collapseSubtasks: false,
       suffixRetries: false,
-      showErrorMessage: false,
+      showErrorMessage: true,
       taskCount: Array.isArray(tasks) ? tasks.length : 0,
     },
-    showErrorMessage: false,
+    showErrorMessage: true,
   };
 
   // construct the runner
-  const runner = new Manager(_.merge({}, defaults, {
+  const runner = new Listr(tasks, _.merge({}, defaults, {
+    ctx,
     ...listrOptions,
     rendererOptions,
   }));
 
-  // add the tasks
-  runner.add(tasks);
+  // if we got nothing to run then return the ctx
+  if (!Array.isArray(tasks) || tasks.length === 0) return runner.options.ctx;
 
-  // run
-  return runner.runAll();
+  // also add the runner to ctx so we can access other tasks and stuff
+  runner.options.ctx.runner = runner;
+  runner.options.ctx.total = Array.isArray(runner.tasks) ? runner.tasks.length : 0;
+
+  // get results
+  const results = await runner.run();
+  // update results and then return
+  results.skipped = tasks.filter(task => !task.enabled).length;
+  results.ran = tasks.filter(task => task.enabled).length;
+  // remove the runner from the results
+  // @NOTE: is this a good idea?
+  delete results.runner;
+  return results;
 };
 

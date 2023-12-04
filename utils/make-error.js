@@ -27,7 +27,7 @@ module.exports = ({
   short = short ||
     (error && error.reason) ||
     (error && error.body && error.body.error);
-  const message = [stdout, stderr].filter(Boolean).join('\n') || all || error;
+  const message = [stdout, stderr].filter(Boolean).join('\n') || all || error.message;
 
   // repurpose original error if we have one
   if (Object.prototype.toString.call(error) === '[object Error]') {

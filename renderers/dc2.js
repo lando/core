@@ -14,6 +14,7 @@ class DC2Renderer extends LandoRenderer {
     options.header = options.header || 'Processing';
     options.icon = {...options.icon, DOCKER_COMPOSE_HEADER: '[+]'};
     options.taskCount = options.taskCount || 0;
+    options.showErrorMessage = false;
 
     // dc2 state changes
     options.states = {

@@ -26,7 +26,7 @@ module.exports = (src, dest = os.tmpdir()) => {
     const f = _.get(error, 'path');
 
     // Catch this so we can try to repair
-    if (code !== 'EISDIR' || syscall !== 'open' || !!mkdirp.sync(f)) {
+    if (code !== 'EISDIR' || syscall !== 'open' || !!fs.mkdirSync(f, {recursive: true})) {
       throw new Error(error);
     }
 

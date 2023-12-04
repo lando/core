@@ -9,7 +9,7 @@ const _ = require('lodash');
 module.exports = (app, lando) => {
   // Add all the apps containers to the lando bridge network with .internal aliases
   // for cross app networking
-  app.events.on('post-start', 1, () => {
+  app.events.on('post-start', 1, async () => {
     // We assume the lando net exists at this point
     const landonet = lando.engine.getNetwork(lando.config.networkBridge);
     // List all our app containers
@@ -22,7 +22,7 @@ module.exports = (app, lando) => {
       return landonet.disconnect({Container: container.id, Force: true})
       // Only throw non not connected errors
       .catch(error => {
-        if (!_.includes(error.message, 'is not connected to network lando')) throw error;
+        if (!_.includes(error.message, 'is not connected to network')) throw error;
       })
       // Connect
       .then(() => {
@@ -67,7 +67,7 @@ module.exports = (app, lando) => {
         return bridgeNet.disconnect({Container: proxyContainer, Force: true})
           // Only throw non not connected errors
           .catch(error => {
-            if (!_.includes(error.message, 'is not connected to network lando')) throw error;
+            if (!_.includes(error.message, 'is not connected to network')) throw error;
           })
           // Connect
           .then(() => {
