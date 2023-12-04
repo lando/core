@@ -145,6 +145,7 @@ class Plugin {
   constructor(location, {
     channel = Plugin.channel,
     config = {},
+    commit,
     debug = Plugin.debug,
     id = Plugin.id || 'lando',
     installer = Plugin.installer,
@@ -165,6 +166,7 @@ class Plugin {
     // set top level things
     this.location = this.root;
     this.pjson = read(path.join(this.root, 'package.json'));
+    this.sourceRoot = this.root;
 
     // get the manifest
     debug.extend(this.pjson.name)('found plugin at %o', this.root);
@@ -200,6 +202,7 @@ class Plugin {
       // if we have parents then use the closest and also reset some package considerations for updating
       if (pjsons.length > 0) {
         this.parent = require(pjsons[0]);
+        this.sourceRoot = path.dirname(pjsons[0]);
         this.version = this.parent.version;
         this.package = this.parent.name;
         this.nested = true;
@@ -217,6 +220,13 @@ class Plugin {
     this.isUpdateable = has(this.parent, 'pjson.dist') || has(this, 'pjson.dist');
     this.isValid = Plugin.isValid(this);
     this.updateAvailable = false;
+
+    // determine some packaging stuff
+    this.packaged = has(this.parent, 'pjson.dist') || has(this, 'pjson.dist');
+    this.source = fs.existsSync(path.join(this.sourceRoot, '.git', 'HEAD'));
+    this.commit = this.source ? require('../utils/get-commit-hash')(this.sourceRoot, {short: true}) : false;
+    // append commit to version if from source
+    if (this.source && this.commit) this.version = `${this.version}-0-${this.commit}`;
 
     // if the plugin does not have any dependencies then consider it installed
     if (!this.pjson.dependencies || Object.keys(this.pjson.dependencies).length === 0) {

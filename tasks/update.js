@@ -28,6 +28,12 @@ const getUpdateMessage = item => {
   return rn || update;
 };
 
+// get not installed message
+const getCannotUpdateMessage = item => {
+  if (item.source) return 'Running from source. Please update manually.';
+  else 'Please update manually.';
+};
+
 // helper to get a renderable status table
 const getStatusTable = items => ({
   rows: items.map(item => {
@@ -48,7 +54,7 @@ const getStatusTable = items => ({
         return merge({}, item, {
           description: item.description,
           status: `${color.dim(`${figures.warning} Cannot update`)}`,
-          comment: color.dim('Please update manually'),
+          comment: color.dim(getCannotUpdateMessage(item)),
         });
       case 'ERROR':
         return merge({}, item, {
