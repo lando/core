@@ -28,9 +28,10 @@ lando start
 lando start -vvv 2>&1 | grep ".lando/bin/docker-compose-v$(lando config --path orchestratorVersion --format json | tr -d '"')"
 
 # Should install a custom version if specified
-LANDO_ORCHESTRATOR_VERSION="1.29.2" lando config --path orchestratorVersion --format json | tr -d '"' | grep "1.29.2"
-LANDO_ORCHESTRATOR_VERSION="1.29.2" lando start
-LANDO_ORCHESTRATOR_VERSION="1.29.2" lando start -vvv 2>&1 | grep ".lando/bin/docker-compose-v1.29.2"
+lando setup -y --skip-common-plugins --orchestrator="2.19.1"
+LANDO_ORCHESTRATOR_VERSION="2.19.1" lando config --path orchestratorVersion --format json | tr -d '"' | grep "2.19.1"
+LANDO_ORCHESTRATOR_VERSION="2.19.1" lando start
+LANDO_ORCHESTRATOR_VERSION="2.19.1" lando start -vvv 2>&1 | grep ".lando/bin/docker-compose-v2.19.1"
 
 # Should use a system fallback if avialable if version is bogus
 LANDO_ORCHESTRATOR_VERSION="UHNO" lando start -vvv 2>&1 | grep "/usr/local/bin/docker-compose"

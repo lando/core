@@ -55,16 +55,41 @@ module.exports = async lando => {
   // Ensure some dirs exist before we start
   _.forEach([binDir, caDir, sshDir], dir => fs.mkdirSync(dir, {recursive: true}));
 
-  // make sure Lando Specification 337 is available to all
-  lando.events.on('post-bootstrap-app', async () => {
-    lando.factory.registry.unshift({api: 4, name: 'l337', builder: require('./components/l337-v4')});
+  // Ensure we munge plugin stuff together appropriately
+  lando.events.once('pre-install-plugins', async options => await require('./hooks/lando-setup-common-plugins')(lando, options)); // eslint-disable-line max-len
+
+  // Ensure we setup docker-compose if needed
+  lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-orchestrator')(lando, options)); // eslint-disable-line max-len
+
+  // Ensure we setup docker if needed
+  lando.events.once('pre-setup', async options => {
+    switch (process.platform) {
+      case 'darwin':
+        return await require('./hooks/lando-setup-build-engine-darwin')(lando, options);
+      case 'linux':
+        return await require('./hooks/lando-setup-build-engine-linux')(lando, options);
+      case 'win32':
+        return await require('./hooks/lando-setup-build-engine-win32')(lando, options);
+    }
   });
 
-  // Ensure we download docker-compose if needed
-  lando.events.on('pre-bootstrap-engine', 1, async () => await require('./hooks/lando-setup-orchestrator')(lando));
+  // make sure Lando Specification 337 is available to all
+  lando.events.on('post-bootstrap-app', async () => await require('./hooks/lando-add-l337-spec')(lando));
 
-  // at this point we should be able to set orchestratorBin if it hasnt been set already
-  lando.events.on('pre-bootstrap-engine', 2, async () => await require('./hooks/lando-ensure-orchestrator')(lando));
+  // flush update cache if it needs to be
+  lando.events.on('ready', async () => await require('./hooks/lando-flush-updates-cache')(lando));
+
+  // this is a gross hack we need to do to reset the engine because the lando 3 runtime had no idea
+  lando.events.on('almost-ready', 1, async () => await require('./hooks/lando-reset-orchestrator')(lando));
+
+  // run engine compat checks
+  lando.events.on('almost-ready', 2, async () => await require('./hooks/lando-get-compat')(lando));
+
+  // throw error if engine/orchestrator is not available
+  lando.events.on('engine-autostart', 1, async () => await require('./hooks/lando-dep-check')(lando));
+
+  // autostart docker if we need to
+  lando.events.on('engine-autostart', 2, async () => await require('./hooks/lando-autostart-engine')(lando));
 
   // Make sure we have a host-exposed root ca if we don't already
   // NOTE: we don't run this on the caProject otherwise infinite loop happens!

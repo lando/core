@@ -6,7 +6,7 @@ const {DefaultRenderer} = require('listr2');
 class LandoRenderer extends DefaultRenderer {
   constructor(tasks, options, $renderHook) {
     super(tasks, options, $renderHook);
-    this.options.level = options.level || 0.5;
+    this.options.level = options.level ?? 0.5;
   }
 
   create(options) {
@@ -16,6 +16,8 @@ class LandoRenderer extends DefaultRenderer {
       prompt: true,
       ...options,
     };
+
+    options.prompt = true;
 
     const render = [];
 

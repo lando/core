@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const warnings = require('../lib/warnings');
 
 module.exports = async (app, lando) => {
   const buildServices = _.get(app, 'opts.services', app.services)
@@ -23,7 +22,7 @@ module.exports = async (app, lando) => {
       },
     })
     .catch(err => {
-      app.addWarning(warnings.serviceNotRunningWarning(service), err);
+      app.addMessage(require('../messages/service-not-running-error')(service), err);
     });
   }));
 };

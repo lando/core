@@ -144,6 +144,7 @@ module.exports = {
       },
     }),
     build: (options, lando) => ([
+      {name: 'wait-for-user', cmd: `/helpers/wait-for-user.sh www-data ${lando.config.uid}`},
       {name: 'generate-key', cmd: `/helpers/generate-key.sh ${gitHubLandoKey} ${gitHubLandoKeyComment}`},
       {name: 'post-key', func: (options, lando) => {
         return postKey(
@@ -153,7 +154,6 @@ module.exports = {
         );
       }},
       {name: 'reload-keys', cmd: '/helpers/load-keys.sh --silent', user: 'root'},
-      {name: 'wait-for-user', cmd: `/helpers/wait-for-user.sh www-data ${lando.config.uid}`},
       {name: 'clone-repo', cmd: `/helpers/get-remote-url.sh ${options['github-repo']}`, remove: true},
       {name: 'set-caches', func: (options, lando) => setCaches(options, lando)},
     ]),

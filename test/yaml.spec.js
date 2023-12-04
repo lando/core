@@ -47,7 +47,7 @@ describe('yaml', () => {
 
   describe('#dump', () => {
     beforeEach(() => {
-      filesystem();
+      fs.rmSync('/tmp/test', {recursive: true, force: true});
     });
 
     it('should create the directory for the file if it does not exist', () => {
@@ -68,10 +68,6 @@ describe('yaml', () => {
       const yaml = new Yaml();
       const file = yaml.dump('/tmp/test/file.yml', {});
       expect(file).to.equal('/tmp/test/file.yml');
-    });
-
-    afterEach(() => {
-      filesystem.restore();
     });
   });
 });

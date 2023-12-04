@@ -14,8 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         docker-compose-version:
-          - "1.29.1"
-          - "2.21.0"
+          - "2.23.0"
         healthcheck:
           - new
         lando-version:
@@ -35,7 +34,7 @@ jobs:
           - examples/services
           - examples/tooling
         node-version:
-          - "16"
+          - "18"
         os:
           - ubuntu-22.04
         scanner:
@@ -58,24 +57,22 @@ jobs:
           cache: yarn
       - name: Install Yarn dependencies
         run: yarn install --prefer-offline --frozen-lockfile
+      - name: Bundle Deps
+        uses: lando/prepare-release-action@v2
+        with:
+          lando-plugin: true
+          version: dev
+          sync: false
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v2
         with:
           lando-version: ${{ matrix.lando-version }}
-          config: |
-            orchestratorVersion=${{ matrix.docker-compose-version }}
-            plugins.@lando/core=/home/runner/work/core/core
           telemetry: false
-      - name: Verify Lando works and we are dogfooding this plugin for tests
-        run: |
-          # TODO: once we have the new plugin stuff in the CLI we can remove this in favor of a local lando pa
-          # what about removing the plugins?
-          mkdir -p /home/runner/.lando/plugins/@lando
-          ln -sf /home/runner/work/core/core /home/runner/.lando/plugins/@lando/core
-
-          lando --clear
-          lando config
-          lando config --path plugins --format json | jq -r '.[] | select(.name == "@lando/core").searchDir' | grep /home/runner/work/core/core || (echo "::error:: Not dogfooding this plugin correctly!" && exit 1)
+          config: |
+            setup.skipCommonPlugins=true
+            setup.plugins.@lando/core=/home/runner/work/core/core
+            setup.orchestrator=${{ matrix.docker-compose-version }}
+            orchestratorVersion=${{ matrix.docker-compose-version }}
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         env:

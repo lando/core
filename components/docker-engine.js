@@ -22,7 +22,7 @@ class DockerEngine extends Dockerode {
   static debug = require('debug')('docker-engine');
   static config = {};
   // @NOTE: is wsl accurate here?
-  static supportedPlatforms = ['linux', 'wsl'];
+  // static supportedPlatforms = ['linux', 'wsl'];
 
   constructor(config, {debug = DockerEngine.debug} = {}) {
     super(config);
@@ -45,7 +45,7 @@ class DockerEngine extends Dockerode {
       sources = [],
     } = {}) {
     // handles the promisification of the merged return
-    const promiseHandler = async () => {
+    const awaitHandler = async () => {
       return new Promise((resolve, reject) => {
         // if we are not attaching then lets log the progress to the debugger
         if (!attach) {
@@ -134,7 +134,7 @@ class DockerEngine extends Dockerode {
     super.buildImage({context, src: fs.readdirSync(context)}, {forcerm: true, t: tag}, callbackHandler);
 
     // make this a hybrid async func and return
-    return mergePromise(builder, promiseHandler);
+    return mergePromise(builder, awaitHandler);
   }
 
   /*
@@ -178,7 +178,7 @@ class DockerEngine extends Dockerode {
       attach = false,
     } = {}) {
     // handles the promisification of the merged return
-    const promiseHandler = async () => {
+    const awaitHandler = async () => {
       return new Promise((resolve, reject) => {
         // if we are not attaching then lets log the progress to the debugger
         if (!attach) {
@@ -242,7 +242,7 @@ class DockerEngine extends Dockerode {
     // log
     this.debug('pulling image %o', image);
     // make this a hybrid async func and return
-    return mergePromise(puller, promiseHandler);
+    return mergePromise(puller, awaitHandler);
   }
 
   /*
@@ -270,7 +270,7 @@ class DockerEngine extends Dockerode {
    */
   run(command,
     {
-      image = 'node:16-alpine',
+      image = 'node:18-alpine',
       createOptions = {},
       allo = '',
       attach = false,
@@ -279,7 +279,7 @@ class DockerEngine extends Dockerode {
       stdouto = '',
       stderro = '',
     } = {}) {
-    const promiseHandler = async () => {
+    const awaitHandler = async () => {
       return new Promise((resolve, reject) => {
         runner.on('container', container => {
           runner.on('stream', stream => {
@@ -382,7 +382,7 @@ class DockerEngine extends Dockerode {
     // log
     this.debug('running command %o on image %o with create opts %o', command, image, copts);
     // make this a hybrid async func and return
-    return mergePromise(runner, promiseHandler);
+    return mergePromise(runner, awaitHandler);
   }
 }
 

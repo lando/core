@@ -124,8 +124,9 @@ module.exports = async (app, lando) => {
             // parse the message
             const message = _.trim(_.get(error, 'message', 'UNKNOWN ERROR'));
             // add the warning
-            app.addWarning({
+            app.addMessage({
               title: `The service "${error.service}" failed its healthcheck`,
+              type: 'warning',
               detail: [
                 `Failed with "${message}"`,
                 'This may be ok but we recommend you run the command below to investigate:',
@@ -137,7 +138,6 @@ module.exports = async (app, lando) => {
       }
     },
     args: [tasks, {
-      ctx: {errors: []},
       renderer: 'dc2',
       rendererOptions: {
         header: 'Healthchecking',

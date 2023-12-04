@@ -9,7 +9,6 @@ const _ = require('lodash');
 const chai = require('chai');
 const expect = chai.expect;
 const sinon = require('sinon');
-const filesystem = require('mock-fs');
 const fs = require('fs');
 const NodeCache = require('node-cache');
 chai.should();
@@ -17,6 +16,10 @@ chai.should();
 const Cache = require('./../lib/cache');
 
 describe('cache', () => {
+  beforeEach(() => {
+    fs.rmSync('/tmp/cache', {recursive: true, force: true});
+  });
+
   describe('#Cache', () => {
     it('should return a cache instance with correct default options', () => {
       const cache = new Cache();
@@ -36,29 +39,19 @@ describe('cache', () => {
     });
 
     it('should return a cache instance with custom cachedir option', () => {
-      filesystem();
-
       const cache = new Cache({cacheDir: '/tmp/cache'});
       cache.should.have.property('cacheDir', '/tmp/cache');
-
-      filesystem.restore();
     });
 
     it('should create the cache directory', () => {
-      filesystem();
-
       const cache = new Cache({cacheDir: '/tmp/cache'});
       cache.should.have.property('cacheDir', '/tmp/cache');
       fs.existsSync('/tmp/cache').should.be.true;
-
-      filesystem.restore();
     });
   });
 
   describe('#__get', () => {
     it('should be the same as new NodeCache().get', () => {
-      filesystem();
-
       const cache = new Cache();
       cache.set('yyz', 'amazing');
 
@@ -66,27 +59,19 @@ describe('cache', () => {
       nCache.set('yyz', 'amazing');
 
       cache.__get('yyz').should.eql(nCache.get('yyz'));
-
-      filesystem.restore();
     });
   });
 
   describe('#__set', () => {
     it('should be the same as new NodeCache().set', () => {
-      filesystem();
-
       const cache = new Cache();
       const nCache = new NodeCache();
       cache.__set('yyz', 'amazing').should.eql(nCache.set('yyz', 'amazing'));
-
-      filesystem.restore();
     });
   });
 
   describe('#__del', () => {
     it('should be the same as new NodeCache().del', () => {
-      filesystem();
-
       const cache = new Cache();
       const nCache = new NodeCache();
       cache.__set('yyz', 'amazing');
@@ -95,20 +80,14 @@ describe('cache', () => {
       const returntwo = nCache.del('yyz');
 
       returnone.should.eql(returntwo);
-
-      filesystem.restore();
     });
   });
 
   describe('#set', () => {
     it('should set a cached key in memory', () => {
-      filesystem();
-
       const cache = new Cache({cacheDir: '/tmp/cache'});
       cache.set('yyz', 'amazing');
       fs.existsSync('/tmp/cache/yyz').should.be.false;
-
-      filesystem.restore();
     });
 
     it('should log a failure when key cannot be cached in memory', () => {
@@ -121,7 +100,6 @@ describe('cache', () => {
     });
 
     it('should remove a cached key in memory after ttl has expired', () => {
-      filesystem();
       const clock = sinon.useFakeTimers();
 
       const cache = new Cache();
@@ -133,15 +111,12 @@ describe('cache', () => {
 
       expect(cache.get('yyz')).to.be.undefined;
       clock.restore();
-      filesystem.restore();
     });
 
     it('should set a cached key in a file if persist is set', () => {
-      filesystem();
       const cache = new Cache({cacheDir: '/tmp/cache'});
       cache.set('yyz', 'amazing', {persist: true});
       fs.existsSync('/tmp/cache/yyz').should.be.true;
-      filesystem.restore();
     });
 
     it('should throw an error for unsafe cache keys', () => {
@@ -158,7 +133,6 @@ describe('cache', () => {
     });
 
     it('should fail to return a cached key from memory if ttl is expired', () => {
-      filesystem();
       const clock = sinon.useFakeTimers();
 
       const cache = new Cache();
@@ -170,15 +144,12 @@ describe('cache', () => {
 
       expect(cache.get('yyz')).to.be.undefined;
       clock.restore();
-      filesystem.restore();
     });
 
     it('should return a cached key from file if persists is set', () => {
-      filesystem();
       const cache = new Cache({cacheDir: '/tmp/cache'});
       cache.set('yyz', 'amazing', {persist: true});
       cache.get('yyz').should.eql('amazing');
-      filesystem.restore();
     });
 
     it('should return undefined when grabbing an unset key', () => {
@@ -200,7 +171,6 @@ describe('cache', () => {
     });
 
     it('should remove file for cached key if it was persistent', () => {
-      filesystem();
       const cache = new Cache({cacheDir: '/tmp/cache/'});
       cache.set(
         'subdivisions',
@@ -212,7 +182,6 @@ describe('cache', () => {
       cache.remove('subdivisions');
 
       fs.existsSync('/tmp/cache/subdivisions').should.be.false;
-      filesystem.restore();
     });
 
     it('should log a failure when key cannot be removed from memory', () => {
