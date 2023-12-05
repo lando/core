@@ -41,10 +41,10 @@
     "docs:dev": "vuepress dev docs --clean-cache --clean-temp",
     "docs:build": "vuepress build docs",
     "docs:lint": "eslint -c docs/.eslintrc.json --quiet docs/.vuepress",
-    "lint": "eslint --quiet . && yarn docs:lint",
+    "lint": "eslint --quiet . && npm run docs:lint",
     "test:unit": "nyc --reporter=html --reporter=text mocha --timeout 5000 test/**/*.spec.js",
-    "test:leia": "yarn leia \"examples/**/README.md\" -c 'Destroy tests' --stdin",
-    "test": "yarn lint && yarn test:unit"
+    "test:leia": "npm run leia \"examples/**/README.md\" -c 'Destroy tests' --stdin",
+    "test": "npm run lint && npm run test:unit"
   },
   "dependencies": {
     "@npmcli/arborist": "^6.2.9",

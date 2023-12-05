@@ -1,3 +1,41 @@
+## v3.21.0-alpha.2 - [December 4, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.2)
+
+> This will begin to set things right
+
+### New Features
+
+* Added `autostart` Docker Engine support to Linux
+* Added `lando update` command so Lando and installed plugins can self-update
+* Added hidden `lando setup` command to replace package installers
+* Added hidden `lando plugin-add` command to install external plugins
+* Added hidden `lando plugin-remove` command to remove external plugins
+* Improved `lando version` to give more total version information
+
+### Fixes
+
+* Fixed broken Docker Compose|Desktop|Engine links
+* Fixed bug causing `lando` services to report `Up` when they actually `Exited` non-zero
+* Fixed longstanding bug causing some debug output to print to `stdout` instead of `stderr`
+* Improved post-start status message granularity, they can one of `tip|info|warn|error` now
+* Improved post-start status message accessibility
+* Improved "Update Available" warning to be less **INTENSE**, is now a post-start info message
+
+### Internal
+
+* Added `app.addMessage` for more granular and accessible post-start app status reporting
+* Bumped minimum `node` version to `18`
+* Bumped supported Docker Desktop version to `>4 <4.26`
+* Removed lingering and dangling should-now-be-in-plugins code eg `_drupaly.js`
+* Reorganized core to be more like `@lando/core-next` (eg Lando 4)
+* Switched (fully, finally) from `github` to `@octokit/rest`
+* Switched plugin package manager to `npm`
+* Removed `github` dependency
+* Removed `mkdirp` dependency
+
+### DEPRECATIONS
+
+* DEPRECATED `app.addWarning` in favor of `app.addMessage`
+
 ## v3.21.0-alpha.1 - [December 4, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.1)
 
 > This will begin to set things right
@@ -28,13 +66,13 @@
 * Removed lingering and dangling should-now-be-in-plugins code eg `_drupaly.js`
 * Reorganized core to be more like `@lando/core-next` (eg Lando 4)
 * Switched (fully, finally) from `github` to `@octokit/rest`
+* Switched plugin package manager to `npm`
 * Removed `github` dependency
 * Removed `mkdirp` dependency
 
 ### DEPRECATIONS
 
 * DEPRECATED `app.addWarning` in favor of `app.addMessage`
-
 
 ## v3.20.4 - [October 6, 2023](https://github.com/lando/core/releases/tag/v3.20.4)
 

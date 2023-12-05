@@ -10,7 +10,7 @@ services:
       ports:
         - 8080:8080
     build:
-      - yarn install
+      - npm install
     scanner: false
     ssl: false
     sslExpose: false
@@ -19,5 +19,5 @@ tooling:
     service: cli
   vuepress:
     service: cli
-  yarn:
+  npm:
     service: cli
