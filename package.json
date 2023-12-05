@@ -1,7 +1,7 @@
 {
   "name": "@lando/core",
   "description": "The libraries that power all of Lando.",
-  "version": "3.21.0-alpha.2",
+  "version": "3.21.0-alpha.3",
   "author": "Mike Pirog @pirog",
   "license": "GPL-3.0",
   "repository": "lando/core",
@@ -149,6 +149,7 @@
     "through",
     "valid-url",
     "winston",
-    "wrap-ansi"
+    "wrap-ansi",
+    "yargs-parser"
   ]
 }
