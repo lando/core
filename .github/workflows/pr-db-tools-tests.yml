@@ -35,12 +35,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: yarn
-      - name: Install Yarn dependencies
+          cache: npm
+      - name: Install dependencies
         run: |
-          yarn install --prefer-offline --frozen-lockfile
+          npm clean-install --prefer-offline --frozen-lockfile
           cd cli
-          yarn install --prefer-offline --frozen-lockfile
+          npm clean-install --prefer-offline --frozen-lockfile
 
       # This block should eventually become use lando/actions-hyperdrive@v2
       - name: Verify Docker dependencies
@@ -72,7 +72,7 @@ jobs:
           ls -lsa ./node_modules/@lando/core
           ls -lsa ./node_modules/@lando/core | grep COPY_TEST
       - name: Package CLI
-        run: cd /tmp/cli && yarn cli:build
+        run: cd /tmp/cli && npm run cli:build
       - name: Replace source CLI with packaged one
         run: sudo mv /tmp/cli/dist/@lando/cli /usr/local/bin/lando
       - name: Verify we can run the packaged CLI
@@ -83,4 +83,4 @@ jobs:
       # This block should eventually become use lando/actions-leia@v2
       - name: Run leia tests
         shell: bash
-        run: yarn leia "./${{ matrix.leia-tests }}/README.md" -c 'Destroy tests' --stdin --shell bash
+        run: npm run leia "./${{ matrix.leia-tests }}/README.md" -c 'Destroy tests' --stdin --shell bash

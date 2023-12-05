@@ -43,3 +43,6 @@ docs/.vuepress/dist
 
 # lando
 .lando/id
+
+# yarn
+yarn.lock
