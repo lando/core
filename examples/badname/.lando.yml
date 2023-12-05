@@ -20,3 +20,8 @@ services:
 
 plugins:
   "@lando/core": "../.."
+
+# tooling:
+#   test:
+#     service: defaults
+#     command: true
