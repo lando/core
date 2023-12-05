@@ -66,7 +66,7 @@
     "ip": "^1.1.8",
     "is-class": "^0.0.9",
     "is-interactive": "^1",
-    "is-online": "^9",
+    "is-online": "^10",
     "is-root": "^2",
     "js-yaml": "^3.4.6",
     "jsonfile": "^2.4.0",
