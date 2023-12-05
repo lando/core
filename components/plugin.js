@@ -270,7 +270,7 @@ class Plugin {
   async check4Update() {
     // if plugin is not updateable then immediately return
     if (!this.isUpdateable) {
-      this.debug('%o is not updateable, update manually', this.name);
+      this.debug('is not updateable, update manually');
       return this;
     }
 
@@ -295,7 +295,7 @@ class Plugin {
 
       // if the hv is lte to what we have then no update is available
       if (semver.lte(hv, this.version)) {
-        this.debug('%o cannot be updated on channel %o (%o <= %o)', this.package, channel, hv, this.version);
+        this.debug('cannot be updated on channel %o (%o <= %o)', this.package, channel, hv, this.version);
         return this;
 
       // otherwise update is available
@@ -304,7 +304,7 @@ class Plugin {
         this.update = await Plugin.info(this.updateAvailable);
         this.update.channel = hc;
         this.debug(
-          '%o can be updated to %o on channel %o (%o > %o) ',
+          'can be updated to %o on channel %o (%o > %o) ',
           this.package,
           this.updateAvailable,
           channel,

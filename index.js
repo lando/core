@@ -86,10 +86,10 @@ module.exports = async lando => {
   lando.events.on('almost-ready', 2, async () => await require('./hooks/lando-get-compat')(lando));
 
   // throw error if engine/orchestrator is not available
-  lando.events.on('engine-autostart', 1, async () => await require('./hooks/lando-dep-check')(lando));
+  lando.events.once('pre-engine-autostart', async () => await require('./hooks/lando-dep-check')(lando));
 
   // autostart docker if we need to
-  lando.events.on('engine-autostart', 2, async () => await require('./hooks/lando-autostart-engine')(lando));
+  lando.events.once('engine-autostart', async () => await require('./hooks/lando-autostart-engine')(lando));
 
   // Make sure we have a host-exposed root ca if we don't already
   // NOTE: we don't run this on the caProject otherwise infinite loop happens!
