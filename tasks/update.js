@@ -89,6 +89,12 @@ module.exports = lando => {
     run: async options => {
       const sortBy = require('lodash/sortBy');
       const ux = lando.cli.getUX();
+
+      // add the plugins and install dir
+      const dir = lando.config.pluginDirs.find(dir => dir.type === require('../utils/get-plugin-type')());
+      lando.updates.plugins = lando.config.plugins;
+      lando.updates.dir = dir ? dir.dir : undefined;
+
       // get updatable items
       ux.action.start('Generating plugin/cli update matrix');
       const checks = await lando.updates.check();
@@ -96,26 +102,27 @@ module.exports = lando => {
       ux.action.stop(updatesAvailable ? `${color.green('done')} ${color.dim('[see table below]')}`
         : `${color.green('done')} ${color.dim('[nothing to update]')}`);
 
-      // show plugin install status/summary and prompt if needed
-      if (updatesAvailable && options.yes === false) {
-        // map into things for tabular display
-        const items = checks.map(item => {
-          if (item.update && item.update.error) item.state = 'ERROR';
-          else if (!item.isUpdateable) item.state = 'CANNOT UPDATE';
-          else if (item.updateAvailable === false) item.state = 'NO UPDATE';
-          else item.state = 'HAS UPDATE';
-          return item;
-        });
+      // map into things for tabular display
+      const items = checks.map(item => {
+        if (item.update && item.update.error) item.state = 'ERROR';
+        else if (!item.isUpdateable) item.state = 'CANNOT UPDATE';
+        else if (item.updateAvailable === false) item.state = 'NO UPDATE';
+        else item.state = 'HAS UPDATE';
+        return item;
+      });
 
+      // show plugin install status summary unless non-interactive
+      if (options.yes === false) {
         const {rows, columns} = getStatusTable(items);
-        const summary = getStatusGroups(items);
-
         // print table
         console.log('');
         ux.ux.table(sortBy(rows, ['row', 'name']), columns);
         console.log('');
+      }
 
-        // things are good!
+      // show prompts if needed
+      if (updatesAvailable && options.yes === false) {
+        const summary = getStatusGroups(items);
         if (summary['ERROR'] === 0) {
           console.log(`Lando would like to update ${summary['HAS UPDATE']} package(s) listed above.`);
           const answer = await ux.confirm(color.bold('DO YOU CONSENT?'));
