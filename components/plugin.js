@@ -214,20 +214,15 @@ class Plugin {
     this.scope = require('npm-package-arg')(this.spec).scope;
     if (this.scope) this.unscoped = this.package.replace(`${this.scope}/`, '');
 
-    // this is a hotfix until prepare-lando-release does something better
-    this.packaged = has(this.parent, 'pjson.dist')
-      || has(this, 'pjson.dist')
-      || has(this.parent, 'pjson.bundledDependencies')
-      || has(this, 'pjson.bundledDependencies');
-
     // add some computed properties
     // @NOTE: do we need a stronger check for isupdateable?
     this.isInstalled = false;
-    this.isUpdateable = this.packaged;
+    this.isUpdateable = has(this.parent, 'pjson.dist') || has(this, 'pjson.dist');
     this.isValid = Plugin.isValid(this);
     this.updateAvailable = false;
 
     // determine some packaging stuff
+    this.packaged = has(this.parent, 'pjson.dist') || has(this, 'pjson.dist');
     this.source = fs.existsSync(path.join(this.sourceRoot, '.git', 'HEAD'));
     this.commit = this.source ? require('../utils/get-commit-hash')(this.sourceRoot, {short: true}) : false;
     // append commit to version if from source
