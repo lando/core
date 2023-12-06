@@ -60,7 +60,7 @@ jobs:
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile
       - name: Bundle Deps
-        uses: lando/prepare-release-action@v2
+        uses: lando/prepare-release-action@v3
         with:
           lando-plugin: true
           version: dev

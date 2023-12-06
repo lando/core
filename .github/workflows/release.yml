@@ -17,6 +17,7 @@ jobs:
           - ubuntu-20.04
         node-version:
           - "18"
+
     steps:
       # Install deps and cache
       - name: Checkout code
@@ -36,7 +37,7 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
       - name: Prepare Release
-        uses: lando/prepare-release-action@v2
+        uses: lando/prepare-release-action@v3
         with:
           lando-plugin: true
 

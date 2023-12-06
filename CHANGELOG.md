@@ -23,12 +23,15 @@
 ### Internal
 
 * Added `app.addMessage` for more granular and accessible post-start app status reporting
+* Changed `lando.log` and `app.log` to be more like `debug`
 * Bumped minimum `node` version to `18`
-* Bumped supported Docker Desktop version to `>4 <4.26`
+* Bumped supported Docker Desktop version to `>4 <4.27`
 * Removed lingering and dangling should-now-be-in-plugins code eg `_drupaly.js`
 * Reorganized core to be more like `@lando/core-next` (eg Lando 4)
 * Switched (fully, finally) from `github` to `@octokit/rest`
 * Switched plugin package manager to `npm`
+* Removed `bundledDependencies` from `package.json`, now handled by `@lando/prepare-release-action@v3`
+* Removed `dayjs` dependency
 * Removed `github` dependency
 * Removed `mkdirp` dependency
 

@@ -87,11 +87,12 @@ lando info -vv | grep VERBOSE || echo $? | grep 1
 lando info -vvv | grep DEBUG || echo $? | grep 1
 lando info -vvvv | grep SILLY || echo $? | grep 1
 
-# Should run with specified verbosity on stderr
-lando info -v 2>&1 | grep INFO
-lando info -vv 2>&1 | grep VERBOSE
-lando info -vvv 2>&1 | grep DEBUG
-lando info -vvvv 2>&1 | grep SILLY
+# Should run all log levels on stderr
+lando info -v 2>&1 | grep lando | grep + | grep ms
+lando info -vv 2>&1 | grep lando | grep + | grep ms
+lando info -vvv 2>&1 | grep lando | grep + | grep ms
+lando info -vvvv 2>&1 | grep lando | grep + | grep ms
+lando info --debug 2>&1 | grep lando | grep + | grep ms
 
 # Should run lando config without error
 lando config
