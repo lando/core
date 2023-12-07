@@ -1,3 +1,7 @@
+## v3.21.0-alpha.8 - [December 7, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.8)
+
+* This release has no content, it exists to test new `lando update` flows
+
 ## v3.21.0-alpha.7 - [December 5, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.7)
 
 ### **DANGER NOTES**
