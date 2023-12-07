@@ -19,6 +19,7 @@
 * Improved post-start status message granularity, they can one of `tip|info|warn|error` now
 * Improved post-start status message accessibility
 * Improved "Update Available" warning to be less **INTENSE**, is now a post-start info message
+* Improved `LANDO_DEBUG` to also throw a stack trace
 
 ### Internal
 
