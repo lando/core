@@ -1,6 +1,14 @@
 ## v3.21.0-alpha.7 - [December 5, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.7)
 
-> This will begin to set things right
+### **DANGER NOTES**
+
+This is an `alpha` release which means:
+
+* Definitely don't try it out unless you are into [risky business](https://www.youtube.com/watch?v=G2UVsyVLLcE)
+* It is "feature complete" but has very little automated testing so we cannot guarantee any level of "it works" beyond "it works on our machines" ;)
+* Subsequent releases could be breaking, _very breaking_
+
+So, basically, if you have real work you need to do we recommend you [don't try it](https://www.youtube.com/watch?v=7Ood-IE7sx4)!
 
 ### New Features
 
