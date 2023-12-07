@@ -59,12 +59,6 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile
-      - name: Bundle Deps
-        uses: lando/prepare-release-action@v3
-        with:
-          lando-plugin: true
-          version: dev
-          sync: false
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v2
         with:
