@@ -1,21 +1,21 @@
 'use strict';
 
 const _ = require('lodash');
-const copydir = require('copy-dir');
-const fs = require('fs');
+const fs = require('fs-extra');
 const os = require('os');
 const path = require('path');
 
 module.exports = (src, dest = os.tmpdir()) => {
   // Copy opts and filter out all js files
   // We don't want to give the false impression that you can edit the JS
-  const filter = (stat, filepath, filename) => (path.extname(filename) !== '.js');
+  const filter = (src, dest) => path.extname(src) !== '.js';
   // Ensure to exists
   fs.mkdirSync(dest, {recursive: true});
   // Try to copy the assets over
   try {
     // @todo: why doesn't the below work for PLD?
-    copydir.sync(src, dest, filter);
+    fs.copySync(src, dest, {filter});
+    // make any sh script executable
     require('./make-executable')(_(fs.readdirSync(dest))
       .filter(file => path.extname(file) === '.sh')
       .value()
@@ -32,7 +32,7 @@ module.exports = (src, dest = os.tmpdir()) => {
 
     // Try to take corrective action
     fs.unlinkSync(f);
-    copydir.sync(src, dest, filter);
+    fs.copySync(src, dest, {filter});
     require('./make-executable')(_(fs.readdirSync(dest))
       .filter(file => path.extname(file) === '.sh')
       .value()
