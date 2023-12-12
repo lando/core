@@ -1,6 +1,9 @@
-## v3.21.0-alpha.9 - [December 7, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.9)
+## v3.21.0-alpha.9 - [December 12, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.9)
+
+### Internal
 
 * Removed `copy-dir` in attempt to simplify/minimize/reduce dependencies
+* Removed lingering `db-tools` tests which should happen in implementating plugins now
 
 ## v3.21.0-alpha.8 - [December 7, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.8)
 
