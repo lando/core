@@ -1,3 +1,7 @@
+## v3.21.0-alpha.10 - [January 3, 2024](https://github.com/lando/core/releases/tag/v3.21.0-alpha.10)
+
+* Removed dangling reference to utils.appMachineName to fix init issue.
+
 ## v3.21.0-alpha.9 - [December 12, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.9)
 
 ### Internal
