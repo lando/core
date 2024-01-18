@@ -80,6 +80,7 @@ jobs:
         env:
           LANDO_SCANNER: ${{ matrix.scanner }}
           LANDO_HEALTHCHECK: ${{ matrix.new }}
+          PIROG_TOKEN: ${{ secrets.PIROG_TOKEN }}
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"
