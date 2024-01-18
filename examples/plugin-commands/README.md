@@ -56,7 +56,7 @@ lando plugin-remove "@lando/php"
 lando config | grep -qv "plugins/@lando/php"
 
 # Should execute `lando plugin-login`
-lando plugin-login --registry "https://npm.pkg.github.com" --password "$PIROG_TOKEN" --username "pirog" --scope "lando::registry=https://npm.pkg.github.com"
+lando plugin-login --registry "https://npm.pkg.github.com" --password "$GH_PCKG_KEY" --username "reynoldsalec" --scope "lando::registry=https://npm.pkg.github.com"
 
 # Should be able to add and remove a private plugin via a registry string.
 lando config | grep -qv "plugins/@lando/lando-plugin-test"
