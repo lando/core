@@ -22,17 +22,6 @@ Verification commands
 Run the following commands to validate things are rolling as they should.
 
 ```bash
-
-# Should execute `lando plugin-login`
-lando plugin-login --registry "https://npm.pkg.github.com" --password "$PIROG_TOKEN" --username "pirog" --scope "@lando"
-
-# Should be able to add and remove a private plugin via a registry string.
-lando config | grep -qv "plugins/@lando/lando-plugin-test"
-lando plugin-add "@lando/lando-test-plugin"
-lando config | grep -q "plugins/@lando/lando-plugin-test"
-lando plugin-remove "@lando/lando-test-plugin"
-lando config | grep -qv "plugins/@lando/lando-plugin-test"
-
 # Should be able to add a public plugin via a registry string.
 lando config | grep -qv "plugins/@lando/php"
 lando plugin-add "@lando/php"
@@ -63,9 +52,18 @@ lando config | grep -qv "plugins/@lando/php"
 # Should be able to add a plugin from a git repo URL.
 lando plugin-add "https://github.com/lando/php.git"
 lando config | grep -q "plugins/@lando/php"
-lando plugin-remove "@lando/lando-test-plugin"
+lando plugin-remove "@lando/lando-plugin-test"
 lando config | grep -qv "plugins/@lando/php"
 
+# Should execute `lando plugin-login`
+lando plugin-login --registry "https://npm.pkg.github.com" --password "$PIROG_TOKEN" --username "pirog" --scope "lando:registry=https://npm.pkg.github.com"
+
+# Should be able to add and remove a private plugin via a registry string.
+lando config | grep -qv "plugins/@lando/lando-plugin-test"
+lando plugin-add "@lando/lando-plugin-test"
+lando config | grep -q "plugins/@lando/lando-plugin-test"
+lando plugin-remove "@lando/lando-plugin-test"
+lando config | grep -qv "plugins/@lando/lando-plugin-test"
 ```
 
 Destroy tests
