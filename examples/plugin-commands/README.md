@@ -24,7 +24,7 @@ Run the following commands to validate things are rolling as they should.
 ```bash
 
 # Should execute `lando plugin-login`
-lando plugin-login --registry "https://npm.pkg.github.com" --password "$PIROG_TOKEN" --username "pirog"
+lando plugin-login --registry "https://npm.pkg.github.com" --password "$PIROG_TOKEN" --username "pirog" --scope "@lando"
 
 # Should be able to add and remove a private plugin via a registry string.
 lando config | grep -qv "plugins/@lando/lando-plugin-test"
