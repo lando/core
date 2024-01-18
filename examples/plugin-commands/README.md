@@ -52,7 +52,7 @@ lando config | grep -qv "plugins/@lando/php"
 # Should be able to add a plugin from a git repo URL.
 lando plugin-add "https://github.com/lando/php.git"
 lando config | grep -q "plugins/@lando/php"
-lando plugin-remove "@lando/lando-plugin-test"
+lando plugin-remove "@lando/php"
 lando config | grep -qv "plugins/@lando/php"
 
 # Should execute `lando plugin-login`
@@ -64,14 +64,4 @@ lando plugin-add "@lando/lando-plugin-test"
 lando config | grep -q "plugins/@lando/lando-plugin-test"
 lando plugin-remove "@lando/lando-plugin-test"
 lando config | grep -qv "plugins/@lando/lando-plugin-test"
-```
-
-Destroy tests
--------------
-
-Run the following commands to trash this app like nothing ever happened.
-
-```bash
-# Should remove plugin with success.
-lando plugin-remove lando-plugin-test
 ```
