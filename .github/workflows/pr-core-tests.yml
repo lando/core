@@ -34,6 +34,7 @@ jobs:
           - examples/plugin-commands
           - examples/services
           - examples/tooling
+          - examples/update
         node-version:
           - "18"
         os:
