@@ -1,4 +1,4 @@
-name: Core Tests
+name: Setup Tests
 
 on:
   pull_request:
