@@ -1,0 +1,71 @@
+name: Setup Tests
+
+on:
+  pull_request:
+
+jobs:
+  leia-tests:
+    runs-on: ${{ matrix.os }}
+    env:
+      TERM: xterm
+      GITHUB_PAT: ${{ secrets.PIROG_TOKEN }}
+      GITHUB_KEY_NAME: "${{ github.sha }}${{ matrix.docker-compose-version }}"
+    strategy:
+      fail-fast: false
+      matrix:
+        docker-compose-version:
+          - "2.23.0"
+        healthcheck:
+          - new
+        lando-version:
+          - 3-dev
+        leia-test:
+          - examples/setup
+        node-version:
+          - "18"
+        os:
+          - ubuntu-22.04
+        scanner:
+          - new
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DEPLOY_KEY }}
+          known_hosts: unnecessary
+          if_key_exists: replace
+      - name: Install node ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org
+          cache: npm
+      - name: Install dependencies
+        run: npm clean-install --prefer-offline --frozen-lockfile
+      # bundle deps is needed so local plugin installation succeeds
+      - name: Bundle Deps
+        uses: lando/prepare-release-action@v3
+        with:
+          lando-plugin: true
+          version: dev
+          sync: false
+      - name: Setup lando ${{ matrix.lando-version }}
+        uses: lando/setup-lando@v2
+        with:
+          lando-version: ${{ matrix.lando-version }}
+          telemetry: false
+          setup: off
+      - name: Run Leia Tests
+        uses: lando/run-leia-action@v2
+        env:
+          LANDO_SCANNER: ${{ matrix.scanner }}
+          LANDO_HEALTHCHECK: ${{ matrix.new }}
+          GH_PCKG_KEY: ${{ secrets.GH_PCKG_KEY }}
+        with:
+          leia-test: "./${{ matrix.leia-test }}/README.md"
+          cleanup-header: "Destroy tests"
+          shell: bash
+          stdin: true
