@@ -20,7 +20,7 @@ This allows you to:
 * Never have to worry about which version of `php` or `grunt` you need for each project ever again
 
 ::: warning Make sure to install your dependencies!!!
-You will want to make sure you install the tools you need inside of the services your app is running. If you are not clear on how to do this, check out either [build steps](./services.md#build-steps) or our [`ssh`](https://docs.lando.dev/basics/ssh.html) command.
+You will want to make sure you install the tools you need inside of the services your app is running. If you are not clear on how to do this, check out either [build steps](./services.md#build-steps) or our [`ssh`](https://docs.lando.dev/getting-started/ssh.html) command.
 :::
 
 ## Usage

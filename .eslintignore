@@ -1,5 +1,6 @@
-.temp
-.cache
+temp
+cache
 dist
 _site
 coverage
+!.vitepress

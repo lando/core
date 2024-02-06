@@ -1,6 +1,6 @@
 [build]
   base = "./"
-  publish = "./docs/.vuepress/dist"
+  publish = "docs/.vitepress/dist"
   command = "npm run docs:build"
 
 # Sets our asset optimization
@@ -21,12 +21,27 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000"
 
+# pluginz
+# https://github.com/netlify/netlify-plugin-lighthouse#readme
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+  [plugins.inputs.audits]
+    output_path = "reports/lighthouse.html"
+
+# https://github.com/munter/netlify-plugin-checklinks#readme
+[[plugins]]
+  package = "netlify-plugin-checklinks"
+  [plugins.inputs]
+    todoPatterns = [ "load" ]
+    skipPatterns = [ ".rss", ".gif", ".jpg", 'x.com', 'twitter.com' ]
+    checkExternal = true
+
 # We need this so preview environments and the base site look ok on their own
 [[redirects]]
   from = "/"
-  to = "/core/v3"
+  to = "/core"
   status = 200
 [[redirects]]
-  from = "/core/v3/*"
+  from = "/core/*"
   to = "/:splat"
   status = 200
