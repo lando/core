@@ -5,7 +5,7 @@ description: Learn how to develop and contribute to Lando Core
 
 # Development
 
-This guide contains information to help onboard developers to work on Lando Core, hereafter referred to as "core".
+This guide contains information to help onboard developers to work on Lando Core. 
 
 ## Requirements
 
@@ -17,7 +17,7 @@ At the very least you will need to have the following installed:
 
 ## Installation
 
-Working on Lando Core requires that you have both the [Lando CLI]() and [Lando Core]() installed from source. You can then symlink (or use `npm link`) to have `@lando/cli` utilize your locally installed source copy of `@lando/core`:
+Working on Lando Core requires that you have both the [Lando CLI](https://github.com/lando/cli) and [Lando Core][(](https://github.com/lando/core)) installed [from source](https://docs.lando.dev/getting-started/installation.html#from-source). You can then symlink (or use `npm link`) to have `@lando/cli` utilize your locally installed source copy of `@lando/core`:
 
 
 ```sh
@@ -33,7 +33,7 @@ cd ../cli/node_modules/@lando && rm -r core && ln -s ../../../core core
 
 ## Working
 
-This plugin contains various working and tested Lando apps in the [examples](https://github.com/lando/core/tree/main/examples) folder. You should use these or create new ones to help with development.
+This repo contains various working and tested Lando apps in the [examples](https://github.com/lando/core/tree/main/examples) folder. You should use these or create new ones to help with development.
 
 Note that each one of these examples contains the following section in its Landofile.
 
@@ -42,7 +42,7 @@ plugins:
   "@lando/core": ../..
 ```
 
-This tells Lando that _this_ app should use the source version of `@lando/core` that you cloned down in the installation. This is useful because it allows you to isolate development within this repo without interferring with any other apps using the stable and global version of the plugin.
+This tells Lando that _this_ app should use the source version of `@lando/core` that you cloned down in the installation. This is useful because it allows you to isolate development within this repo without interferring with any other apps using the stable and global version of `@lando/core`.
 
 This means that you should _almost always_ develop against apps in the `examples` folder and that those apps should _always_ contain the above `plugins` config. If you have an extant Lando application you want to develop against you can temporarily tell it to use the cloned down version of `@lando/core` with the same line.
 

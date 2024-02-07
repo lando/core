@@ -1,5 +1,5 @@
 ---
-description: Learn about the team that made the Core plugin.
+description: Learn about the team that made Lando Core.
 layout: page
 title: Team
 ---
@@ -10,7 +10,7 @@ title: Team
       Team
     </template>
     <template #lead>
-      We are the people who brought Core to Lando.
+      We are the people who built Lando Core.
     </template>
   </VPLTeamPageTitle>
   <VPLTeamMembers :members="members" size="small"/>
