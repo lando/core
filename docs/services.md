@@ -57,33 +57,11 @@ All other `api: 3` services are built on top of this service so it's worth exami
 * [URL Scanning](./scanner.md)
 * [Docker Compose Overrides](./lando-service.md#overrides)
 
-That said, it's almost always better to use one of the [supported services](#supported-services) below if you can.
+That said, it's almost always better to use a pre-built supported service.
 
 ## Supported Services
 
-The following services are currently supported. Please check out each one to learn how to use them.
-
-*   ### [apache](https://docs.lando.dev/apache/)
-*   ### [dotnet](https://docs.lando.dev/dotnet/)
-*   ### [elasticsearch](https://docs.lando.dev/elasticsearch/)
-*   ### [go](https://docs.lando.dev/go/)
-*   ### [mailhog](https://docs.lando.dev/mailhog/)
-*   ### [mariadb](https://docs.lando.dev/mariadb/)
-*   ### [memcached](https://docs.lando.dev/memcached/)
-*   ### [mongo](https://docs.lando.dev/mongo/)
-*   ### [mssql](https://docs.lando.dev/mssql/)
-*   ### [mysql](https://docs.lando.dev/mysql/)
-*   ### [nginx](https://docs.lando.dev/nginx/)
-*   ### [node](https://docs.lando.dev/node/)
-*   ### [php](https://docs.lando.dev/php/)
-*   ### [phpmyadmin](https://docs.lando.dev/phpmyadmin/)
-*   ### [postgres](https://docs.lando.dev/postgres/)
-*   ### [python](https://docs.lando.dev/python/)
-*   ### [redis](https://docs.lando.dev/redis/)
-*   ### [ruby](https://docs.lando.dev/ruby/)
-*   ### [solr](https://docs.lando.dev/solr/)
-*   ### [tomcat](https://docs.lando.dev/tomcat/)
-*   ### [varnish](https://docs.lando.dev/varnish/)
+Visit the [plugins page](https://docs.lando.dev/plugins) for a list of available services.
 
 ## Default service
 
