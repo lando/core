@@ -13,6 +13,7 @@ export default defineConfig({
   landoDocs: 3,
   landoPlugin,
   version,
+  base: '/core/v3/',
   head: [
     ['meta', {name: 'viewport', content: 'width=device-width, initial-scale=1'}],
     ['link', {rel: 'icon', href: '/core/favicon.ico', size: 'any'}],
