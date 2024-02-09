@@ -40,9 +40,9 @@
 # We need this so preview environments and the base site look ok on their own
 [[redirects]]
   from = "/"
-  to = "/core"
+  to = "/core/v3"
   status = 200
 [[redirects]]
-  from = "/core/*"
+  from = "/core/v3/*"
   to = "/:splat"
   status = 200
