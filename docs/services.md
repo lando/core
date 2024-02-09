@@ -5,7 +5,7 @@ description: Lando services are a curated set of Docker containers like php, apa
 
 # Services
 
-Lando services are our distillation of Docker containers into their most important options combined with some *special sauce* to setup good [networking](./networking.md), [certificates](./security.md) and [SSH keys](./ssh.md) as well as options to run [build steps](./lando-service.md#build-steps) and provide low level [overrides](./lando-service.md#overrides).
+Lando services are our distillation of Docker containers into their most important options combined with some *special sauce* to setup good [networking](./networking.md), [certificates](./security.md) and [SSH keys](./ssh.md) as well as options to run [build steps](./lando-service.md) and provide low level [overrides](./lando-service.md).
 
 You can use the top-level `services` config in your [Landofile](./index.md) to define and configure a service.
 
@@ -50,12 +50,12 @@ As mentioned above Lando 3 core ships with a single general purpose service call
 
 All other `api: 3` services are built on top of this service so it's worth examining its features as they are available in _all other_ downstream services. Some of its key features are:
 
-* [Application Mounting](./lando-service.md#app-mount)
-* [Build Steps](./lando-service.md#build-steps)
+* [Application Mounting](./lando-service.md)
+* [Build Steps](./lando-service.md)
 * [Healthcheck](./healthcheck.md)
-* [SSL and Certs](./lando-service.md#ssl)
+* [SSL and Certs](./lando-service.md)
 * [URL Scanning](./scanner.md)
-* [Docker Compose Overrides](./lando-service.md#overrides)
+* [Docker Compose Overrides](./lando-service.md)
 
 That said, it's almost always better to use a pre-built supported service.
 
