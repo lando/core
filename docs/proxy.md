@@ -201,7 +201,7 @@ proxy:
           value: on
 ```
 
-Note that while `name` is arbitrary if it ends in `-secured` it will _only_ be applied to `https` routes. Please consult the [traefik documentation](https://docs.traefik.io/middlewares/overview/) for the exact Docker label based syntax.
+Note that while `name` is arbitrary if it ends in `-secured` it will _only_ be applied to `https` routes. Please consult the [traefik documentation](https://doc.traefik.io/middlewares/overview/) for the exact Docker label based syntax.
 
 ## Configuration
 
