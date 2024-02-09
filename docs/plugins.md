@@ -16,4 +16,4 @@ pluginDirs:
 
 Note that these are relative to your application's root directory. Plugin functionality is the main part of Lando `3.1` so expect more improvements here based on [this spec](https://github.com/lando/lando/issues/2434).
 
-For more information on writing plugins check out [these docs](https://docs.lando.dev/contrib/contrib-plugins.html).
+For more information on writing plugins check out [these docs](https://docs.lando.dev/contrib/coder.html).

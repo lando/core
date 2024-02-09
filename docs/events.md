@@ -6,7 +6,7 @@ description: Lando events let you run arbitrary commands before or after certain
 # Events
 
 ::: tip When should I use events instead of a build step?
-Unlike [build steps](./services.md#build-steps) `events` will run **every time** so it is advisable to use them for automating common steps like compiling `sass` before or after your app starts and not installing lower level dependencies like `node modules` or `php extensions`.
+Unlike [build steps](./lando-service.md#build-steps) `events` will run **every time** so it is advisable to use them for automating common steps like compiling `sass` before or after your app starts and not installing lower level dependencies like `node modules` or `php extensions`.
 :::
 
 Events allow you to automate commands or tasks you might often or always run either `before` or `after` something happens. Generally, you can hook into `pre` and `post` events for every part of the Lando and App runtime. At time of writing, those events were as follows:

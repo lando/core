@@ -9,9 +9,9 @@ Recipes are Lando's highest level abstraction and they contain common combinatio
 
 ## Usage
 
-You can use the top-level `recipe` config in your [Landofile](./index.md) to select a recipe. Note that you will need to select one of the [supported recipes](#supported-recipes) or [create your own](https://docs.lando.dev/contrib/contrib-plugins.html#recipes).
+You can use the top-level `recipe` config in your [Landofile](./index.md) to select a recipe. Note that you will need to select one of the supported recipes from the [plugins page](https://docs.lando.dev/plugins) or [create your own](https://docs.lando.dev/contrib/coder.html).
 
-For example, we will use the [Drupal 8](./drupal8.md) recipe.
+For example, we will use the [Drupal](https://docs.lando.dev/drupal/) recipe.
 
 ```yaml
 recipe: drupal8
@@ -25,7 +25,7 @@ You can optionally configure some of the more obvious things in your recipe such
 While a decent amount config is the same from recipe to recipe, we recommend you consult the documentation for the recipe you intend to use for the full list of its config options.
 :::
 
-For example, some of the configurable things in the [LAMP](./lamp.md) recipe are shown below:
+For example, some of the configurable things in the [LAMP](https://docs.lando.dev/lamp/) recipe are shown below:
 
 ```yml
 recipe: lamp
@@ -42,25 +42,7 @@ config:
 
 ## Supported Recipes
 
-The following recipes are currently offered. Please check out each one to learn how to specifically use them.
-
-* [Acquia](https://docs.lando.dev/acquia/)
-* [Backdrop](https://docs.lando.dev/backdrop/)
-* [Drupal 6](https://docs.lando.dev/drupal/)
-* [Drupal 7](https://docs.lando.dev/drupal/)
-* [Drupal 8](https://docs.lando.dev/drupal/)
-* [Drupal 9](https://docs.lando.dev/drupal/)
-* [Drupal 10](https://docs.lando.dev/drupal/)
-* [Joomla](https://docs.lando.dev/joomla/)
-* [Lagoon](https://docs.lando.dev/lagoon/) **(BETA)**
-* [Laravel](https://docs.lando.dev/laravel/)
-* [LAMP](https://docs.lando.dev/lamp/)
-* [LEMP](https://docs.lando.dev/lemp/)
-* [MEAN](https://docs.lando.dev/mean/)
-* [Pantheon](https://docs.lando.dev/pantheon/)
-* [Platform.sh](https://docs.lando.dev/platformsh/) **(BETA)**
-* [Symfony](https://docs.lando.dev/symfony/)
-* [WordPress](https://docs.lando.dev/wordpress/)
+Visit the [plugins page](https://docs.lando.dev/plugins) for a list of available recipes.
 
 ## Extending and Overriding Recipes
 

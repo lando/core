@@ -277,7 +277,7 @@ Note that the above example will lose any Lando functionality that is provided b
 
 ## Healthcheck
 
-Since [Lando 3.20.0](https://github.com/lando/lando/releases/tag/v3.20.0) service URL scanning is [in its own plugin](./healthcheck).
+Since [Lando 3.20.0](https://github.com/lando/lando/releases/tag/v3.20.1) service URL scanning is [in its own plugin](./healthcheck).
 
 ## Localhost Assignment
 
@@ -402,11 +402,11 @@ services:
       command: docker-php-entrypoint apache2-foreground
 ```
 
-You can _probably_ force the original container behavior and by extention forego the Lando magic by explicitly resetting the [entrypoint](#entryoint).
+You can _probably_ force the original container behavior and by extention forego the Lando magic by explicitly resetting the [entrypoint](#entrypoint).
 
 ### Setting the app mount
 
-Many Docker images will put code in `/app`. This directly conflicts with Lando's default codebase mount point. If you are running into a problem because of this collision, we recommend you [disable](https://docs.lando.dev/config/services.html#app-mount) the `app_mount` by setting it to `false` or `disabled`.
+Many Docker images will put code in `/app`. This directly conflicts with Lando's default codebase mount point. If you are running into a problem because of this collision, we recommend you [disable](https://docs.lando.dev/core/v3/lando-service.html#app-mount) the `app_mount` by setting it to `false` or `disabled`.
 
 This will prevent Lando from mounting your codebase to `/app` so the Docker image can use its own code at `/app`.
 
