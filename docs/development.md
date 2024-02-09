@@ -11,13 +11,13 @@ This guide contains information to help onboard developers to work on Lando Core
 
 At the very least you will need to have the following installed:
 
-* [Lando 3.21.0+](https://docs.lando.dev/getting-started/installation.html) preferably installed [from source](https://docs.lando.dev/getting-started/installation.html#from-source).
+* [Lando 3.21.0+](https://docs.lando.dev/getting-started/installation.html) preferably installed [from source](https://docs.lando.dev/install/source.html).
 * [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 * [Node 18](https://nodejs.org/dist/latest-v18.x/)
 
 ## Installation
 
-Working on Lando Core requires that you have both the [Lando CLI](https://github.com/lando/cli) and [Lando Core][(](https://github.com/lando/core)) installed [from source](https://docs.lando.dev/getting-started/installation.html#from-source). You can then symlink (or use `npm link`) to have `@lando/cli` utilize your locally installed source copy of `@lando/core`:
+Working on Lando Core requires that you have both the [Lando CLI](https://github.com/lando/cli) and [Lando Core][(](https://github.com/lando/core)) installed [from source](https://docs.lando.dev/install/source.html). You can then symlink (or use `npm link`) to have `@lando/cli` utilize your locally installed source copy of `@lando/core`:
 
 
 ```sh
