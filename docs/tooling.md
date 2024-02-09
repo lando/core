@@ -20,7 +20,7 @@ This allows you to:
 * Never have to worry about which version of `php` or `grunt` you need for each project ever again
 
 ::: warning Make sure to install your dependencies!!!
-You will want to make sure you install the tools you need inside of the services your app is running. If you are not clear on how to do this, check out either [build steps](./lando-service.md#build-steps) or our [`ssh`](https://docs.lando.dev/getting-started/ssh.html) command.
+You will want to make sure you install the tools you need inside of the services your app is running. If you are not clear on how to do this, check out either [build steps](./lando-service.md#build-steps) or our [`ssh`](https://docs.lando.dev/cli/ssh.html) command.
 :::
 
 ## Usage
@@ -221,7 +221,7 @@ tooling:
 
 ### Options driven tooling
 
-You can also define your own options for use in tooling. These options follow the same spec as [Lando tasks](https://docs.lando.dev/contrib/contrib-plugins.md#tasks) and are, generally, used in combination with an underlying script.
+You can also define your own options for use in tooling. These options follow the same spec as [Lando tasks](https://docs.lando.dev/contrib/coder.html) and are, generally, used in combination with an underlying script.
 
 Note that the options interface just provides a way to define and then inject options into a given command. It is up to the user to make sure the underlying command or script knows what to do with such options. Note that if you use interactive options, you need to set `level: app` as shown below:
 

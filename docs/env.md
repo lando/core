@@ -15,7 +15,7 @@ While the default variables are more or less the same between services, we recom
 lando ssh -s appserver -c env | grep LANDO_
 ```
 
-For reference, an example of the default container envvars inside of the [LAMP](https://github.com/lando/lamp/tree/main/examples/lamp) recipe/example is shown below:
+For reference, an example of the default container envvars inside of the [LAMP](https://github.com/lando/lamp/tree/main/examples) recipe/example is shown below:
 
 ```bash
 LANDO_WEBROOT_USER=www-data
@@ -91,7 +91,7 @@ If you add or change the `env_file` config, or alter the contents of any env fil
 ::: warning This ONLY injects directly into the container environment!
 We inject variables **ONLY** into the container environment. This means that it is up to the user to use relevant mechanisms on the application side to grab them.
 
-For example, in `php` you will want to use something like the [`getenv()`](http://php.net/manual/en/function.getenv.php) function instead of server-provided globals like `$_ENV`.
+For example, in `php` you will want to use something like the [`getenv()`](https://www.php.net/manual/en/function.getenv.php) function instead of server-provided globals like `$_ENV`.
 :::
 
 ## Environment Configuration

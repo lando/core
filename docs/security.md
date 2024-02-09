@@ -60,7 +60,7 @@ Lando uses its own Certificate Authority to sign the certs for each service and 
 |-- cert.pem
 ```
 
-However, for reasons detailed in [this blog post](https://httptoolkit.tech/blog/debugging-https-without-global-root-ca-certs), we do not trust this CA on your system automatically. Instead, we require you to opt-in manually as a security precaution.
+However, for reasons detailed in [this blog post](https://httptoolkit.com/blog/debugging-https-without-global-root-ca-certs/), we do not trust this CA on your system automatically. Instead, we require you to opt-in manually as a security precaution.
 
 **This means that by default you will receive browser warnings** when accessing `https` proxy routes.
 

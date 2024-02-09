@@ -277,7 +277,7 @@ Note that the above example will lose any Lando functionality that is provided b
 
 ## Healthcheck
 
-Since [Lando 3.20.0](https://github.com/lando/lando/releases/tag/v3.20.0) service URL scanning is [in its own plugin](./healthcheck).
+Since [Lando 3.20.0](https://github.com/lando/lando/releases/tag/v3.20.1) service URL scanning is [in its own plugin](./healthcheck).
 
 ## Localhost Assignment
 
