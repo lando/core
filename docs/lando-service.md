@@ -402,7 +402,7 @@ services:
       command: docker-php-entrypoint apache2-foreground
 ```
 
-You can _probably_ force the original container behavior and by extention forego the Lando magic by explicitly resetting the [entrypoint](#entryoint).
+You can _probably_ force the original container behavior and by extention forego the Lando magic by explicitly resetting the [entrypoint](#entrypoint).
 
 ### Setting the app mount
 
