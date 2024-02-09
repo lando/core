@@ -184,7 +184,7 @@ To fix this, either enable https for your Lando proxy urls, or disable HTTPS-Onl
 
 ### Advanced
 
-For advanced usage like setting custom headers and redirects you can access traefik's [middleware layer](https://docs.traefik.io/middlewares/overview/) using the following config:
+For advanced usage like setting custom headers and redirects you can access traefik's [middleware layer](https://doc.traefik.io/traefik/middlewares/overview/) using the following config:
 
 ```yaml
 proxy:
@@ -273,7 +273,7 @@ Note that we generate a [Certificate Authority](./security.md) based on the `dom
 
 If you are working offline and/or have added custom domains and want to get them to work, you will need to edit your `hosts` file. Generally, this file is located at `/etc/hosts` on Linux and macOS and `C:\Windows\System32\Drivers\etc\host` on Windows. You will need administrative privileges to edit this file.
 
-Here is a [good read](http://www.howtogeek.com/howto/27350/beginner-geek-how-to-edit-your-hosts-file/) if you are not very familiar with the `hosts` file, how to edit it and how it works.
+Here is a [good read](https://www.hostinger.com/tutorials/how-to-edit-hosts-file) if you are not very familiar with the `hosts` file, how to edit it and how it works.
 
 An example is shown below:
 

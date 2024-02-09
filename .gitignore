@@ -33,16 +33,17 @@ dist
 .nyc_output
 coverage/
 
-# Vuepress
-.temp
-.cache
-_site
-docs/.vuepress/.cache
-docs/.vuepress/.temp
-docs/.vuepress/dist
-
 # lando
 .lando/id
 
-# yarn
+# docs
+.temp
+.cache
+_site
+dist
+cache
+temp
+config.*.timestamp-*-*.*
+
+# YARN
 yarn.lock
