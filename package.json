@@ -91,7 +91,7 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.0",
     "@lando/leia": "^1.0.0-beta.1",
-    "@lando/vitepress-theme-default-plus": "^1.0.0-beta.35",
+    "@lando/vitepress-theme-default-plus": "^1.0.0-beta.36",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "chai-events": "^0.0.1",
