@@ -11,7 +11,7 @@ Recipes are Lando's highest level abstraction and they contain common combinatio
 
 You can use the top-level `recipe` config in your [Landofile](./index.md) to select a recipe. Note that you will need to select one of the supported recipes from the [plugins page](https://docs.lando.dev/plugins) or [create your own](https://docs.lando.dev/contrib/coder.html).
 
-For example, we will use the [Drupal](https://docs.lando.dev/drupal/) recipe.
+For example, we will use the [Drupal](https://docs.lando.dev/plugins/drupal/) recipe.
 
 ```yaml
 recipe: drupal8
@@ -25,7 +25,7 @@ You can optionally configure some of the more obvious things in your recipe such
 While a decent amount config is the same from recipe to recipe, we recommend you consult the documentation for the recipe you intend to use for the full list of its config options.
 :::
 
-For example, some of the configurable things in the [LAMP](https://docs.lando.dev/lamp/) recipe are shown below:
+For example, some of the configurable things in the [LAMP](https://docs.lando.dev/plugins/lamp/) recipe are shown below:
 
 ```yml
 recipe: lamp

@@ -46,7 +46,7 @@ For these options you will want to consult the documentation for the specific se
 
 ## Lando Service
 
-As mentioned above Lando 3 core ships with a single general purpose service called [`lando`](./lando-service.md). This service is similar to and replaces the now **DEPRECATED** [compose service](https://docs.lando.dev/compose/).
+As mentioned above Lando 3 core ships with a single general purpose service called [`lando`](./lando-service.md). This service is similar to and replaces the now **DEPRECATED** [compose service](https://docs.lando.dev/plugins/compose/).
 
 All other `api: 3` services are built on top of this service so it's worth examining its features as they are available in _all other_ downstream services. Some of its key features are:
 
