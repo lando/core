@@ -5,7 +5,7 @@ description: Lando services are a curated set of Docker containers like php, apa
 
 # Services
 
-Lando services are our distillation of Docker containers into their most important options combined with some *special sauce* to setup good [networking](./networking.md), [certificates](./security.md) and [SSH keys](./ssh.md) as well as options to run [build steps](./lando-service.md#build-steps) and provide low level [overrides](./lando-service.md#overrides).
+Lando services are our distillation of Docker containers into their most important options combined with some *special sauce* to setup good [networking](./networking.md), [certificates](./security.md) and [SSH keys](./ssh.md) as well as options to run [build steps](./lando-service.md) and provide low level [overrides](./lando-service.md).
 
 You can use the top-level `services` config in your [Landofile](./index.md) to define and configure a service.
 
@@ -46,44 +46,22 @@ For these options you will want to consult the documentation for the specific se
 
 ## Lando Service
 
-As mentioned above Lando 3 core ships with a single general purpose service called [`lando`](./lando-service.md). This service is similar to and replaces the now **DEPRECATED** [compose service](https://docs.lando.dev/compose/).
+As mentioned above Lando 3 core ships with a single general purpose service called [`lando`](./lando-service.md). This service is similar to and replaces the now **DEPRECATED** [compose service](https://docs.lando.dev/plugins/compose/).
 
 All other `api: 3` services are built on top of this service so it's worth examining its features as they are available in _all other_ downstream services. Some of its key features are:
 
-* [Application Mounting](./lando-service.md#app-mount)
-* [Build Steps](./lando-service.md#build-steps)
+* [Application Mounting](./lando-service.md)
+* [Build Steps](./lando-service.md)
 * [Healthcheck](./healthcheck.md)
-* [SSL and Certs](./lando-service.md#ssl)
+* [SSL and Certs](./lando-service.md)
 * [URL Scanning](./scanner.md)
-* [Docker Compose Overrides](./lando-service.md#overrides)
+* [Docker Compose Overrides](./lando-service.md)
 
-That said, it's almost always better to use one of the [supported services](#supported-services) below if you can.
+That said, it's almost always better to use a pre-built supported service.
 
 ## Supported Services
 
-The following services are currently supported. Please check out each one to learn how to use them.
-
-*   ### [apache](https://docs.lando.dev/apache/)
-*   ### [dotnet](https://docs.lando.dev/dotnet/)
-*   ### [elasticsearch](https://docs.lando.dev/elasticsearch/)
-*   ### [go](https://docs.lando.dev/go/)
-*   ### [mailhog](https://docs.lando.dev/mailhog/)
-*   ### [mariadb](https://docs.lando.dev/mariadb/)
-*   ### [memcached](https://docs.lando.dev/memcached/)
-*   ### [mongo](https://docs.lando.dev/mongo/)
-*   ### [mssql](https://docs.lando.dev/mssql/)
-*   ### [mysql](https://docs.lando.dev/mysql/)
-*   ### [nginx](https://docs.lando.dev/nginx/)
-*   ### [node](https://docs.lando.dev/node/)
-*   ### [php](https://docs.lando.dev/php/)
-*   ### [phpmyadmin](https://docs.lando.dev/phpmyadmin/)
-*   ### [postgres](https://docs.lando.dev/postgres/)
-*   ### [python](https://docs.lando.dev/python/)
-*   ### [redis](https://docs.lando.dev/redis/)
-*   ### [ruby](https://docs.lando.dev/ruby/)
-*   ### [solr](https://docs.lando.dev/solr/)
-*   ### [tomcat](https://docs.lando.dev/tomcat/)
-*   ### [varnish](https://docs.lando.dev/varnish/)
+Visit the [plugins page](https://docs.lando.dev/plugins) for a list of available services.
 
 ## Default service
 

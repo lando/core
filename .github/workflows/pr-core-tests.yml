@@ -31,8 +31,10 @@ jobs:
           - examples/long-name
           - examples/no-services
           - examples/orchestrator
+          - examples/plugin-commands
           - examples/services
           - examples/tooling
+          - examples/update
         node-version:
           - "18"
         os:
@@ -57,6 +59,7 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile
+      # bundle deps is needed so local plugin installation succeeds
       - name: Bundle Deps
         uses: lando/prepare-release-action@v3
         with:
@@ -78,6 +81,7 @@ jobs:
         env:
           LANDO_SCANNER: ${{ matrix.scanner }}
           LANDO_HEALTHCHECK: ${{ matrix.new }}
+          GH_PCKG_KEY: ${{ secrets.GH_PCKG_KEY }}
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"

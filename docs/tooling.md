@@ -20,7 +20,7 @@ This allows you to:
 * Never have to worry about which version of `php` or `grunt` you need for each project ever again
 
 ::: warning Make sure to install your dependencies!!!
-You will want to make sure you install the tools you need inside of the services your app is running. If you are not clear on how to do this, check out either [build steps](./services.md#build-steps) or our [`ssh`](https://docs.lando.dev/basics/ssh.html) command.
+You will want to make sure you install the tools you need inside of the services your app is running. If you are not clear on how to do this, check out either [build steps](./lando-service.md#build-steps) or our [`ssh`](https://docs.lando.dev/cli/ssh.html) command.
 :::
 
 ## Usage
@@ -221,7 +221,7 @@ tooling:
 
 ### Options driven tooling
 
-You can also define your own options for use in tooling. These options follow the same spec as [Lando tasks](https://docs.lando.dev/contrib/contrib-plugins.md#tasks) and are, generally, used in combination with an underlying script.
+You can also define your own options for use in tooling. These options follow the same spec as [Lando tasks](https://docs.lando.dev/contrib/coder.html) and are, generally, used in combination with an underlying script.
 
 Note that the options interface just provides a way to define and then inject options into a given command. It is up to the user to make sure the underlying command or script knows what to do with such options. Note that if you use interactive options, you need to set `level: app` as shown below:
 
@@ -310,7 +310,7 @@ Note that if you set `dir` option in your tooling command `pwd` will **ONLY** ev
 
 If you are not sure about what tools live inside your container, you can use `lando ssh` to drop into a shell on a specific service to both investigate and install any needed dependencies.
 
-Note that while you can do the below, it's, generally, recommended to install any additional dependencies as part of a build process using either the specific dependency management options built into the service you are using or with Lando's more generic [build steps](./services.md#build-steps).
+Note that while you can do the below, it's, generally, recommended to install any additional dependencies as part of a build process using either the specific dependency management options built into the service you are using or with Lando's more generic [build steps](./lando-service.md#build-steps).
 
 ::: warning Make sure to install your dependencies!!!
 Not installing dependencies as part of the build process will result in the loss of those dependencies if `lando rebuild` is executed or the service container is removed.

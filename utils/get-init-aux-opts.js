@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const slugify = require('./slugify.js');
 
 // Name Opts
 const nameOpts = {
@@ -10,7 +11,7 @@ const nameOpts = {
     type: 'input',
     message: () => 'What do you want to call this app?',
     default: () => 'My Lando App',
-    filter: input => utils.appMachineName(input),
+    filter: input => slugify(input),
     when: () => true,
     weight: 1000,
     validate: () => true,
