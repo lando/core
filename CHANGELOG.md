@@ -1,3 +1,7 @@
+## v3.21.0-beta.1 - [February 16, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.1)
+
+* This release has no content, it exists to move forward our versioning.
+
 ## v3.21.0-alpha.10 - [January 3, 2024](https://github.com/lando/core/releases/tag/v3.21.0-alpha.10)
 
 * Removed dangling reference to utils.appMachineName to fix init issue.
