@@ -27,7 +27,7 @@ while (( "$#" )); do
       shift 2
     ;;
     --installer=*)
-      INSTALLER="${i#*=}"
+      INSTALLER="${1#*=}"
       shift
     ;;
     -u|--user)
@@ -35,7 +35,7 @@ while (( "$#" )); do
       shift 2
     ;;
     -u=*|--user=*)
-      USER="${i#*=}"
+      USER="${1#*=}"
       shift
     ;;
     --)

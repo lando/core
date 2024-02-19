@@ -22,7 +22,7 @@ while (( "$#" )); do
       shift 2
     ;;
     --installer=*)
-      INSTALLER="${i#*=}"
+      INSTALLER="${1#*=}"
       shift
     ;;
     -v|--version)
@@ -30,7 +30,7 @@ while (( "$#" )); do
       shift 2
     ;;
     -v=*|--version=*)
-      VERSION="${i#*=}"
+      VERSION="${1#*=}"
       shift
     ;;
     --)
