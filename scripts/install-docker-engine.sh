@@ -3,7 +3,7 @@ set -eo pipefail
 
 DEBUG=0
 INSTALLER="get-docker.sh"
-VERSION="24.0.7"
+VERSION="25.0.3"
 OPTS=
 
 debug() {
