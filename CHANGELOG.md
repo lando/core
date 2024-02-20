@@ -10,6 +10,7 @@
 
 ### Fixes
 
+* Fixed `Enquirer is a peer dependency that must be installed separately` showing up on `lando setup` [#105](https://github.com/lando/core/issues/105)
 * Improved dependency version compatibility check to be [more forgiving](https://www.youtube.com/watch?v=1DxFDK8kmPY) [#104](https://github.com/lando/core/issues/104)
 
 ### Internal
