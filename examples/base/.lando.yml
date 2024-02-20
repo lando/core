@@ -14,6 +14,7 @@ plugins:
 services:
   web3:
     api: 4
+    type: l337
     image: nginx
     ports:
       - '80'

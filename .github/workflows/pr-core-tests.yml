@@ -80,7 +80,7 @@ jobs:
         uses: lando/run-leia-action@v2
         env:
           LANDO_SCANNER: ${{ matrix.scanner }}
-          LANDO_HEALTHCHECK: ${{ matrix.new }}
+          LANDO_HEALTHCHECK: ${{ matrix.healthcheck }}
           GH_PCKG_KEY: ${{ secrets.GH_PCKG_KEY }}
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
