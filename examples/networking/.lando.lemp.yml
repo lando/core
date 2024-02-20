@@ -9,7 +9,7 @@ services:
     api: 3
     type: lando
     ssl: true
-    healthcheck: curl -I https://localhost
+    healthcheck: curl -I http://localhost
     services:
       image: php:8.2-apache
       command: docker-php-entrypoint apache2-foreground
