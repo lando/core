@@ -25,10 +25,10 @@ module.exports = async (app, lando) => {
   app.v4 = {};
   app.v4._debugShim = require('./utils/debug-shim')(app.log);
   app.v4._dir = path.join(lando.config.userConfRoot, 'v4', `${app.name}-${app.id}`);
-  app.v4.orchestratorVersion = '3.6';
   app.v4.preLockfile = `${app.name}.v4.build.lock`;
   app.v4.postLockfile = `${app.name}.v4.build.lock`;
   app.v4.services = [];
+  app.v4.composeApi = '3.6';
   app.v4.composeCache = `${app.name}.compose.cache`;
 
   // front load top level networks
@@ -36,7 +36,7 @@ module.exports = async (app, lando) => {
     app.add({
       id: `v4-${nanoid()}`,
       info: {},
-      data: [{networks: data, version: app.v4.orchestratorVersion}],
+      data: [{networks: data, version: app.v4.composeApi}],
     }, true);
   };
   // front load top level volumes
@@ -44,7 +44,7 @@ module.exports = async (app, lando) => {
     app.add({
       id: `v4-${nanoid()}`,
       info: {},
-      data: [{volumes: data, version: app.v4.orchestratorVersion}],
+      data: [{volumes: data, version: app.v4.composeApi}],
     }, true);
   };
 
