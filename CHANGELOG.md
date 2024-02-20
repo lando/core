@@ -8,6 +8,10 @@
 * Updated supported Docker Desktop range to `<4.28`
 * Updated supported Docker Engine range to `<26`
 
+### Fixes
+
+* Improved dependency version compatibility check to be [more forgiving](https://www.youtube.com/watch?v=1DxFDK8kmPY) [#104](https://github.com/lando/core/issues/104)
+
 ### Internal
 
 * Changed default `api: 4` service from `l337` to `lando`
