@@ -12,6 +12,7 @@ services:
 
   defaults-v4:
     api: 4
+    type: l337
     image: nginx:1.22.1
     ports:
       - 80

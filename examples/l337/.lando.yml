@@ -35,6 +35,7 @@ tooling:
 services:
   db:
     api: 4
+    type: l337
     build:
       dockerfile: "Dockerfile"
     environment:
@@ -44,6 +45,7 @@ services:
     working_dir: "/tmp"
   web:
     api: 4
+    type: l337
     primary: true
     image: |
       FROM nginx:1.22.1
@@ -64,12 +66,15 @@ services:
   # image features
   image-1:
     api: 4
+    type: l337
     image: "nginx:1.21.6"
   image-2:
     api: 4
+    type: l337
     image: "./images/nginx/Dockerfile"
   image-3:
     api: 4
+    type: l337
     image: |
       # also test weird indentation and casing
       FROM nginx:1.20
@@ -77,15 +82,18 @@ services:
       ENV SERVICE image-3
   image-4:
     api: 4
+    type: l337
     image:
       imagefile: "nginx:1.21.5"
       tag: "lando/nginx:powerman-5000"
   image-5:
     api: 4
+    type: l337
     image:
       dockerfile: "./images/nginx/Dockerfile2"
   image-6:
     api: 4
+    type: l337
     image:
       imagefile: |
         FROM nginx:1.21.6
@@ -95,6 +103,7 @@ services:
   # context features
   context-1:
     api: 4
+    type: l337
     image:
       imagefile: |
         FROM nginx:1.21.6
@@ -147,6 +156,7 @@ services:
   # group example
   groups-1:
     api: 4
+    type: l337
     image:
       imagefile: "nginx:1.21.5"
       context:
@@ -240,6 +250,7 @@ services:
           weight: 10
   steps-1:
     api: 4
+    type: l337
     image:
       imagefile: "nginx:1.21.5"
       steps:

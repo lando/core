@@ -9,7 +9,7 @@ services:
     api: 3
     type: lando
     ssl: true
-    healthcheck: curl -I https://localhost
+    healthcheck: curl -I http://localhost
     services:
       image: php:8.2-apache
       command: docker-php-entrypoint apache2-foreground
@@ -20,6 +20,7 @@ services:
         - 443
   appserver_nginx:
     api: 4
+    type: l337
     image:
       imagefile: nginx:1.22.1
       context:
@@ -34,11 +35,13 @@ services:
       - appserver
   appserver:
     api: 4
+    type: l337
     image: php:8.2-fpm
     volumes:
       - ./:/var/www/html
   database:
     api: 4
+    type: l337
     image: mariadb:10.4
     environment:
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: da

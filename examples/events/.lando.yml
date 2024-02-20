@@ -4,6 +4,7 @@ compose:
 services:
   l337:
     api: 4
+    type: l337
     image: |
       FROM nginx:1.22.1
       ENV SERVICE l337

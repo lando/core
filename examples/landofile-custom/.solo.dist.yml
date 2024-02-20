@@ -8,6 +8,7 @@ services:
       command: docker-entrypoint.sh sleep infinity
   node2:
     api: 4
+    type: l337
     image: node:14
     command: sleep infinity
     volumes:

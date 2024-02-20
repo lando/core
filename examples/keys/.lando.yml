@@ -13,6 +13,7 @@ services:
       - yes y | ssh-keygen -t rsa -N '' -C 'BADBADKEY' -f /lando/keys/badbadkey
   l337-cli:
     api: 4
+    type: l337
     image: php:8.2-cli
     command: sleep infinity
     volumes:
