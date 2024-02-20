@@ -21,6 +21,7 @@ services:
         LANDO_WEBROOT_GID: '1000'
   l337-node:
     api: 4
+    type: l337
     image: node:16
     command: sleep infinity
     meUser: node
@@ -30,11 +31,13 @@ services:
       SERVICE: l337-node
   l337-php:
     api: 4
+    type: l337
     image: php:7.1-fpm-alpine
     volumes:
       - "./:/web"
   l337-slim:
     api: 4
+    type: l337
     command: sleep infinity
     image: alpine:3.18.3
     meUser: root

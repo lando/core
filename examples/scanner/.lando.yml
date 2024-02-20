@@ -95,6 +95,7 @@ services:
       retry: 4
   l337:
     api: 4
+    type: l337
     image:
       imagefile: nginx:1.22.1
       context:
