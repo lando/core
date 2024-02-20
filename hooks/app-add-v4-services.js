@@ -69,6 +69,6 @@ module.exports = async (app, lando) => {
     });
 
     // finish with the version, as long as we are mixing streams with v3 this cannot be updated until v3 is
-    app.add({id: 'version', info: {}, data: [{version: app.v4.orchestratorVersion}]}, true);
+    app.add({id: 'version', info: {}, data: [{version: app.v4.composeApi}]}, true);
   });
 };
