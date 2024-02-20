@@ -5,6 +5,8 @@ const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 
+const Enquirer = require('enquirer');
+
 // get the bosmang
 const {Listr} = require('listr2');
 
@@ -54,6 +56,9 @@ module.exports = async (tasks, {
   // construct the runner
   const runner = new Listr(tasks, _.merge({}, defaults, {
     ctx,
+    injectWrapper: {
+      enquirer: new Enquirer(),
+    },
     ...listrOptions,
     rendererOptions,
   }));
