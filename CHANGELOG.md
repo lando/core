@@ -1,6 +1,11 @@
-## v3.22.0 - [TBD](https://github.com/lando/core/releases/tag/v3.22.0)
+## v3.21.0-beta.2 - [TBD](https://github.com/lando/core/releases/tag/v3.21.0-beta.2)
 
 * Changed default `api: 4` service from `l337` to `lando`
+* Updated default Docker Compose version to `2.24.5`
+* Updated default Docker Desktop version to `4.27.2`
+* Updated default Docker Engine version to `25.0.3`
+* Updated supported Docker Desktop range to `<4.28`
+* Updated supported Docker Engine range to `<26`
 
 ## v3.21.0-beta.1 - [February 16, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.1)
 

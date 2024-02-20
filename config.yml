@@ -12,12 +12,12 @@ dockerSupportedVersions:
       darwin: https://docs.docker.com/desktop/install/mac-install/
       win32: https://docs.docker.com/desktop/install/windows-install/
   desktop:
-    satisfies: ">=4.0.0 <4.26"
+    satisfies: ">=4.0.0 <4.28"
     link:
       darwin: https://docs.docker.com/desktop/install/mac-install/
       win32: https://docs.docker.com/desktop/install/windows-install/
   engine:
-    satisfies: ">=18 <25"
+    satisfies: ">=18 <26"
     link:
       linux: https://docs.docker.com/engine/install/debian/#install-using-the-convenience-script
 
