@@ -10,12 +10,12 @@ module.exports = services => _(services)
     api: require('./get-service-api-version')(service.api),
     config: _.omit(service, ['api', 'meUser', 'moreHttpPorts', 'primary', 'scanner', 'sport', 'type']),
     legacy: {
-      meUser: service.meUser || 'www-data',
-      moreHttpPorts: service.moreHttpPorts || [],
-      sport: service.sport || '443',
+      meUser: service.meUser ?? 'www-data',
+      moreHttpPorts: service.moreHttpPorts ?? [],
+      sport: service.sport ?? '443',
     },
-    primary: service.primary || false,
-    scanner: service.scanner || false,
-    type: service.type || 'l337',
+    primary: service.primary ?? false,
+    scanner: service.scanner ?? false,
+    type: service.type ?? 'lando',
   }))
   .value();
