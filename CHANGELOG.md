@@ -1,3 +1,9 @@
+## v3.21.0-beta.3 - [February 21, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.3)
+
+### Fixes
+
+* Fixed incorrect count showing on `lando plugin-add`
+
 ## v3.21.0-beta.2 - [February 20, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.2)
 
 ### New Features
