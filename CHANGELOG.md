@@ -2,6 +2,7 @@
 
 ### Fixes
 
+* Fixed `warnings is not defined` error when trying to bring up `proxy`
 * Fixed nested plugins eg `@lando/healthcheck` not showing correct update status
 * Fixed incorrect count showing on `lando plugin-add`
 * Fixed Docker Engine autostart for users using `service` instead of `systemctl` [#110](https://github.com/lando/core/issues/110)
