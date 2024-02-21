@@ -13,7 +13,16 @@ module.exports = (config, cache, events, log, shell, id) => {
   // get enginey stuff
   const {orchestratorBin, orchestratorVersion, dockerBin, engineConfig} = config;
   const docker = new Landerode(engineConfig, id);
-  const daemon = new LandoDaemon(cache, events, dockerBin, log, config.process, orchestratorBin, orchestratorVersion);
+  const daemon = new LandoDaemon(
+    cache,
+    events,
+    dockerBin,
+    log,
+    config.process,
+    orchestratorBin,
+    orchestratorVersion,
+    config.userConfRoot,
+  );
   const compose = (cmd, datum) => dc(shell, orchestratorBin, cmd, datum);
   return new Engine(daemon, docker, compose, config);
 };
