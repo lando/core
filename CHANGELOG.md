@@ -4,6 +4,7 @@
 
 * Fixed nested plugins eg `@lando/healthcheck` not showing correct update status
 * Fixed incorrect count showing on `lando plugin-add`
+* Fixed Docker Engine autostart for users using `service` instead of `systemctl` [#110](https://github.com/lando/core/issues/110)
 
 ## v3.21.0-beta.2 - [February 20, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.2)
 
