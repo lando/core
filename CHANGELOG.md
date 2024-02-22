@@ -1,3 +1,14 @@
+## v3.21.0-beta.4 - [February 22, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.4)
+
+### Fixes
+
+* Fixed Docker Engine autostart for users using `service` instead of `systemctl` [#110](https://github.com/lando/core/issues/110)
+* Reverted to older `moveConfig` that i guess silently failed in a good way by @pirog in https://github.com/lando/core/pull/115
+
+### New Contributors
+
+* @soleneggd made their first contribution in https://github.com/lando/core/pull/113
+
 ## v3.21.0-beta.3 - [February 21, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.3)
 
 ### Fixes
