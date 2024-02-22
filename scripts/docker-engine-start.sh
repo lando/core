@@ -1,4 +1,4 @@
 #!/bin/sh
 set -e
 
-sudo systemctl start docker.service || sudo service docker start
+systemctl start docker.service || service docker start
