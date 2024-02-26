@@ -1,3 +1,13 @@
+## v3.21.0-beta.5 - [February 26, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.5)
+
+### New Features
+
+* Added support for `slim` CLI updates
+
+### Fixes
+
+* Fixed `Cannot write to ...` CLI update isseus on Linux and macOS [#109](https://github.com/lando/core/issues/109) [#122](https://github.com/lando/core/issues/122)
+
 ## v3.21.0-beta.4 - [February 22, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.4)
 
 ### Fixes
