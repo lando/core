@@ -29,6 +29,6 @@ module.exports = (file, options = {}) => {
     case 'json':
       return require('jsonfile').readFileSync(file, options);
     default:
-      // throw error
+      return fs.readFileSync(file, 'utf8');
   }
 };
