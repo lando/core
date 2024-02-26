@@ -38,7 +38,7 @@ module.exports = lando => {
       // if we are adding
       if (options.add) {
         if (shellEnv.length > 0) {
-          await require('../utils/update-shell-profile')(options.add, shellEnv);
+          require('../utils/update-shell-profile')(options.add, shellEnv);
           console.log(`Updated ${color.green(options.add)} to include:`);
           console.log();
           console.log(color.bold(shellEnv.map(line => line[0]).join(os.EOL)));

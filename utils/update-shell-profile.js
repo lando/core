@@ -4,7 +4,7 @@ const os = require('os');
 const read = require('./read-file');
 const write = require('./write-file');
 
-module.exports = async (file, updates = []) => {
+module.exports = (file, updates = []) => {
   try {
     // get the content
     const content = read(file);
