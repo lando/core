@@ -11,8 +11,6 @@ module.exports = (file, data, options = {}) => {
   // set extension if not set
   const extension = options.extension || path.extname(file);
 
-  console.log(extension, 'hello')
-
   switch (extension) {
     case '.yaml':
     case '.yml':
