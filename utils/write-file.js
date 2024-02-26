@@ -36,5 +36,7 @@ module.exports = (file, data, options = {}) => {
     case 'json':
       require('jsonfile').writeFileSync(file, data, options);
     default:
+      if (!fs.existsSync(file)) fs.mkdirSync(path.dirname(file), {recursive: true});
+      fs.writeFileSync(file, data, 'utf8');
   }
 };
