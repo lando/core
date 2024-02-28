@@ -1,3 +1,13 @@
+## v3.21.0-beta.6 - [February 28, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.6)
+
+### Fixes
+
+* Improved `lando shellenv` so it prints a message if your environment is already g2g
+
+### Internal
+
+* Improved `get-shellenv-paths` to filter non-existant paths
+
 ## v3.21.0-beta.5 - [February 26, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.5)
 
 ### New Features
