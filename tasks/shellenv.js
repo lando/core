@@ -56,6 +56,10 @@ module.exports = lando => {
         // throw if not
         } else throw new Error(`${color.red(entrypoint)} does not appear to be in ${color.bold('PATH')}!`);
 
+      // shell env is already set up
+      } else if (shellEnv.length === 0) {
+        console.log(`Looks like your shell is already ready to go!`);
+
       // finally just print the thing
       } else {
         console.log(shellEnv.map(line => line[0]).join(os.EOL));
