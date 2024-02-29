@@ -28,6 +28,10 @@ module.exports = (command, args = [], options = {}, stdout = '', stderr = '') =>
 
   return require('./merge-promise')(child, async () => {
     return new Promise((resolve, reject) => {
+      child.on('error', error => {
+        stderr += error?.message ?? error;
+      });
+
       child.stdout.on('data', data => {
         debug('stdout %o', data.toString().trim());
         stdout += data;

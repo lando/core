@@ -66,6 +66,10 @@ module.exports = (command, options, stdout = '', stderr = '') => {
   // return the merged thingy
   return require('./merge-promise')(child, async () => {
     return new Promise((resolve, reject) => {
+      child.on('error', error => {
+        stderr += error?.message ?? error;
+      });
+
       child.stdout.on('data', data => {
         options.debug('%o stdout %o', options.method, data.toString().trim());
         stdout += data;
