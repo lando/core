@@ -1,3 +1,9 @@
+## v3.21.0-beta.7 - [TBD](https://github.com/lando/core/releases/tag/v3.21.0-beta.7)
+
+### Fixes
+
+* Change `lando shellenv` to print to `stderr` when it has no shellenv to print
+
 ## v3.21.0-beta.6 - [February 28, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.6)
 
 ### Fixes

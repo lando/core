@@ -58,7 +58,7 @@ module.exports = lando => {
 
       // shell env is already set up
       } else if (shellEnv.length === 0) {
-        console.log(`Looks like your shell is already ready to go!`);
+        console.error(`Looks like your shell is already ready to go!`);
 
       // finally just print the thing
       } else {
