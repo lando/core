@@ -2,7 +2,12 @@
 
 ### Fixes
 
-* Change `lando shellenv` to print to `stderr` when it has no shellenv to print
+* Changed `lando shellenv` to print to `stderr` when it has no shellenv to print
+* Fixed issue with `wsl.exe` throwing an error when not found [#117](https://github.com/lando/core/issues/117)
+
+### Internal
+
+* Improved `run-command`, `run-elevated` and `run-powershell-script` so they correctly handle pre-command executing errors eg `ENOENT`
 
 ## v3.21.0-beta.6 - [February 28, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.6)
 
