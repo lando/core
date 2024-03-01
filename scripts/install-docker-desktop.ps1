@@ -10,6 +10,13 @@ Param(
 
 # error handling
 $ErrorActionPreference = "Stop"
+
+# Handle uncaught errorz
+trap {
+  Write-Error "An unhandled error occurred: $_"
+  exit 1
+}
+
 # enable debugging if debug is true
 $DebugPreference = If ($DebugPreference -eq "Inquire") {"Continue"} Else {"SilentlyContinue"}
 $debug = If ($DebugPreference -eq "Continue") {$true} Else {$false}
