@@ -4,9 +4,11 @@
 
 * Changed `lando shellenv` to print to `stderr` when it has no shellenv to print
 * Fixed issue with `wsl.exe` throwing an error when not found [#117](https://github.com/lando/core/issues/117)
+* Fixed issue with `is-group-member` throwing an when target group was nonexistent [#116](https://github.com/lando/core/issues/116)
 
 ### Internal
 
+* Improved `is-group-member` so it does not require the existence of the target group
 * Improved `run-command`, `run-elevated` and `run-powershell-script` so they correctly handle pre-command executing errors eg `ENOENT`
 
 ## v3.21.0-beta.6 - [February 28, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.6)
@@ -17,7 +19,7 @@
 
 ### Internal
 
-* Improved `get-shellenv-paths` to filter non-existant paths
+* Improved `get-shellenv-paths` to filter nonexistent paths
 
 ## v3.21.0-beta.5 - [February 26, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.5)
 
