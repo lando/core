@@ -2,6 +2,7 @@
 
 ### Fixes
 
+* Added general purpose error `trap` to Docker Desktop install script on Windows, maybe fixes [#118](https://github.com/lando/core/issues/118)
 * Changed `lando shellenv` to print to `stderr` when it has no shellenv to print
 * Fixed issue with `wsl.exe` throwing an error when not found [#117](https://github.com/lando/core/issues/117)
 * Fixed issue with `is-group-member` throwing an when target group was nonexistent [#116](https://github.com/lando/core/issues/116)
