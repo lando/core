@@ -1,3 +1,7 @@
+## v3.21.0-beta.8 - [March 5, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.8)
+
+* This release has no content it exists to provide version syncing with `@lando/cli`
+
 ## v3.21.0-beta.7 - [March 1, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.7)
 
 ### Fixes
