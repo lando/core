@@ -3,29 +3,37 @@
 const os = require('os');
 const path = require('path');
 
-module.exports = () => {
-  const shellPath = process.env.SHELL;
-  if (!shellPath) {
-    console.error('SHELL environment variable is not set.');
+module.exports = (shell = require('./get-user-shell')()) => {
+  if (!shell) {
+    console.error('Could not detect shell!');
     return null;
   }
 
-  // Extract the shell name from the SHELL environment variable
-  const shellName = path.basename(shellPath);
+  // powershell is annoying
+  if (shell === 'powershell.exe') {
+    const version = require('./get-psmv')();
+    shell = `powershell${version}.exe`;
+  }
 
   // Map common shell names to their profile file names
   const shellRcMap = {
     'bash': '.bashrc',
-    'zsh': '.zshrc',
-    'fish': '.config/fish/config.fish',
+    'bash.exe': '.bashrc',
+    'cmd.exe': 'user',
     'csh': '.cshrc',
-    'tcsh': '.tcshrc',
+    'fish': '.config/fish/config.fish',
     'ksh': '.kshrc',
+    'tcsh': '.tcshrc',
+    'powershell.exe': 'Documents/WindowsPowerShell/Microsoft.PowerShell_profile.ps1',
+    'powershell5.exe': 'Documents/WindowsPowerShell/Microsoft.PowerShell_profile.ps1',
+    'powershell6.exe': 'Documents/PowerShell/Microsoft.PowerShell_profile.ps1',
+    'powershell7.exe': 'Documents/PowerShell/Microsoft.PowerShell_profile.ps1',
+    'zsh': '.zshrc',
   };
 
-  const rcFileName = shellRcMap[shellName];
+  const rcFileName = shellRcMap[shell];
   if (!rcFileName) {
-    console.error(`Unsupported or unknown shell: ${shellName}`);
+    console.error(`Unsupported or unknown shell: ${shell}`);
     return null;
   }
 

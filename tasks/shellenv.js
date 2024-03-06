@@ -21,13 +21,10 @@ module.exports = lando => {
     },
 
     run: async options => {
-      // does nothing on windows
-      if (process.platform === 'win32') throw new Error('shellenv is not available on Windows!');
-
       // get shell paths from cli
-      // @NOTE: in lando 3 it _should_be impossible for this to be undefined but should be throw an error?
-      const shellPaths = require('../utils/get-shellenv-paths')(lando?.config?.cli);
-      const shellEnv = require('../utils/get-shellenv')(shellPaths);
+      // @NOTE: in lando 3 it _should_be impossible for this to be undefined but should we throw an error?
+      const binPaths = require('../utils/get-bin-paths')(lando?.config?.cli);
+      const shellEnv = require('../utils/get-shellenv')(binPaths);
 
       // if add is passed in but is empty then attempt to discover
       if (options.add !== undefined && options.add === '') {

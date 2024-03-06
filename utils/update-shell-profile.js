@@ -25,7 +25,7 @@ module.exports = (file, updates = []) => {
     if (lines[lines.length - 1].includes(os.EOL)) lines.push();
 
     // Write the modified content back to the file
-    write(file, lines.join(os.EOL));
+    // write(file, lines.join(os.EOL));
 
   // handle errors
   } catch (error) {
