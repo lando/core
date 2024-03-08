@@ -13,15 +13,19 @@ module.exports = (paths = [], shell = require('./get-user-shell')()) => {
       return [
         ['# Lando'],
         [
-          `[Environment]::SetEnvironmentVariable("PATH", "${paths};" + [Environment]::GetEnvironmentVariable("PATH", "User"), "User") #landopath`, // eslint-disable-line max-len
+          `[Environment]::SetEnvironmentVariable("PATH", "${paths};" + [Environment]::GetEnvironmentVariable("PATH")) #landopath`, // eslint-disable-line max-len
           '#landopath',
         ],
       ];
 
     case 'cmd.exe':
-      return [
-        [`setx /M PATH "%${paths};%PATH%"`],
-      ];
+      // its more reliable and consistent to just get PATH from process.env instead of downstream in the child_process
+      // which requires we run the command in the shell and has some weirdness escaping spaces and shit
+      paths = `${paths};${process.env.PATH}`;
+      // @TODO: we really need to use is-elevated instead of is-root but we are ommiting for now since lando
+      // really cant run elevated anyway and its a bunch of extra effort to make all of this aysnc
+      // in Lando 4 this will need to be resolved though.
+      return require('is-root')() ? [[`setx /M PATH "${paths}"`]] : [[`setx PATH "${paths}"`]];
 
     default:
       return [

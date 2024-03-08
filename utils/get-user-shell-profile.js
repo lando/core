@@ -9,33 +9,31 @@ module.exports = (shell = require('./get-user-shell')()) => {
     return null;
   }
 
-  // powershell is annoying
-  if (shell === 'powershell.exe') {
-    const version = require('./get-psmv')();
-    shell = `powershell${version}.exe`;
+  switch (shell) {
+    case 'bash':
+    case 'bash.exe':
+      return path.join(os.homedir(), '.bashrc');
+    case 'cmd.exe':
+      return 'user';
+    case 'csh':
+    case 'csh.exe':
+      return path.join(os.homedir(), '.cshrc');
+    case 'fish':
+    case 'fish.exe':
+      return path.join(os.homedir(), '.config/fish/config.fish');
+    case 'ksh':
+    case 'ksh.exe':
+      return path.join(os.homedir(), '.kshrc');
+    case 'tcsh':
+    case 'tcsh.exe':
+      return path.join(os.homedir(), '.tcshrc');
+    case 'powershell.exe':
+    case 'pswh':
+      return require('./get-pwsh-profile')();
+    case 'zsh':
+    case 'zsh.exe':
+      return path.join(os.homedir(), '.zshrc');
+    default:
+      return path.join(os.homedir(), '.profile');
   }
-
-  // Map common shell names to their profile file names
-  const shellRcMap = {
-    'bash': '.bashrc',
-    'bash.exe': '.bashrc',
-    'cmd.exe': 'user',
-    'csh': '.cshrc',
-    'fish': '.config/fish/config.fish',
-    'ksh': '.kshrc',
-    'tcsh': '.tcshrc',
-    'powershell.exe': 'Documents/WindowsPowerShell/Microsoft.PowerShell_profile.ps1',
-    'powershell5.exe': 'Documents/WindowsPowerShell/Microsoft.PowerShell_profile.ps1',
-    'powershell6.exe': 'Documents/PowerShell/Microsoft.PowerShell_profile.ps1',
-    'powershell7.exe': 'Documents/PowerShell/Microsoft.PowerShell_profile.ps1',
-    'zsh': '.zshrc',
-  };
-
-  const rcFileName = shellRcMap[shell];
-  if (!rcFileName) {
-    console.error(`Unsupported or unknown shell: ${shell}`);
-    return null;
-  }
-
-  return path.join(os.homedir(), rcFileName);
 };
