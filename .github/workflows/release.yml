@@ -54,4 +54,4 @@ jobs:
             echo "::notice title=Published ${{ github.ref_name }} to @${{ github.repository }}@${{ env.PRERELEASE_TAG }}::This is a pre-release published to the '${{ env.PRERELEASE_TAG }}' npm tag"
           fi
         env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_DEPLOY_TOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_DEPLOY_TOKEN }}
