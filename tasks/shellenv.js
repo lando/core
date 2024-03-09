@@ -38,7 +38,7 @@ module.exports = lando => {
       // if we are adding
       if (options.add) {
         // handle the special case of cmd.exe since it has no relavent shell profile
-        if (shellEnv.length > 0 && require('../utils/get-user-shell')() === 'cmd.exe' ) {
+        if (shellEnv.length > 0 && require('../utils/get-user-shell')() === 'cmd.exe') {
           // build out args
           const args = require('string-argv')(shellEnv.map(line => line[0]).join(' && '));
 

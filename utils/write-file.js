@@ -39,6 +39,6 @@ module.exports = (file, data, options = {}) => {
       break;
     default:
       if (!fs.existsSync(file)) fs.mkdirSync(path.dirname(file), {recursive: true});
-      fs.writeFileSync(file, data, 'utf8');
+      fs.writeFileSync(file, data, {encoding: 'utf8'});
   }
 };
