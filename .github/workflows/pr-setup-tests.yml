@@ -18,7 +18,7 @@ jobs:
         healthcheck:
           - new
         lando-version:
-          - 3-dev
+          - 3-dev-slim
         leia-test:
           - examples/setup
         node-version:

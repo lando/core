@@ -21,9 +21,9 @@ module.exports = (command, args = [], options = {}, stdout = '', stderr = '') =>
   // this is a weirdly odd and specific thing we need to do
   // @TODO: scope to just command = wsl|wsl.exe?
   if (process.platform === 'win32') options.env.WSL_UTF8 = 1;
-
   // birth
   debug('running command %o %o', command, args);
+
   const child = spawn(command, args, options);
 
   return require('./merge-promise')(child, async () => {
