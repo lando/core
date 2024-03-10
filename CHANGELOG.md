@@ -1,3 +1,23 @@
+## v3.21.0-beta.9 - [March 1, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.9)
+
+### New Features
+
+* Improved `lando shellenv` to work on Windows shells like `powershell.exe`, `cmd.exe` and `bash.exe`
+
+### Fixes
+
+* Fixed CLI update issues on Windows [#109](https://github.com/lando/core/issues/109) [#122](https://github.com/lando/core/issues/122)
+* Fixed encoding error in default `write-file`
+
+## DevOps
+
+* Switched `leia` tests to run against `3-dev-slim` for now
+
+### Internal
+
+* Changed `lando update` to download CLI binaries to the Lando 4 `cacheDir`
+* Improved `download-x` to auto create nonexistent paths as needed
+
 ## v3.21.0-beta.8 - [March 5, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.8)
 
 * This release has no content it exists to provide version syncing with `@lando/cli`
