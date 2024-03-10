@@ -1,10 +1,18 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const os = require('os');
 const read = require('./read-file');
 const write = require('./write-file');
 
 module.exports = (file, updates = []) => {
+  // create empty file if it doesnt exist first
+  if (!fs.existsSync(file)) {
+    fs.mkdirSync(path.dirname(file), {recursive: true});
+    write(file, '');
+  }
+
   try {
     // get the content
     const content = read(file);

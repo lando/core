@@ -83,6 +83,7 @@ module.exports = (url, {
       // otherwise we assume all is well and we emit success!
       } else {
         if (fs.existsSync(dest)) fs.unlinkSync(dest);
+        fs.mkdirSync(path.dirname(dest), {recursive: true});
         fs.copyFileSync(download.testfile, dest);
         debug('downloaded %o to %o', url, dest);
         const data = {dest, url, test: download.test, status: download.status, text: download.statusText};
