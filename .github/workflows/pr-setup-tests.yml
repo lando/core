@@ -87,8 +87,8 @@ jobs:
         uses: lando/setup-lando@v2
         with:
           lando-version: ${{ matrix.lando-version }}
+          setup: lando setup --skip-common-plugins -y
           telemetry: false
-          setup: off
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         env:
