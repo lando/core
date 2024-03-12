@@ -68,6 +68,10 @@ jobs:
         shell: bash
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
+            # Check if the runner is ARM-ed
+            if [ "$(uname -m)" == "arm64" ]; then
+              echo "ARM architecture detected"
+            fi
             if brew list --versions docker-desktop; then
               echo "Docker Desktop is still installed"
               exit 1
