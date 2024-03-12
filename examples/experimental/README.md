@@ -9,7 +9,6 @@ Start up tests
 
 ```bash
 # Should start successfully
-rm -rf test
 lando start
 ```
 
@@ -19,15 +18,16 @@ Verification commands
 Run the following commands to verify things work as expected
 
 ```bash
-# Should toggle on experimetnal features
+# Should toggle on experimental features
 lando --experimental
 lando config --path experimental | grep true
 
 # Should be able to restart with experimental plugin loaded
 lando config --path experimentalPluginLoadTest | grep true
 lando restart
+fail
 
-# Should be able to toggle off experimetnal features
+# Should be able to toggle off experimental features
 lando --experimental
 lando config --path experimental | grep false
 ```
