@@ -52,6 +52,34 @@ jobs:
           lando-plugin: true
           version: dev
           sync: false
+      - name: Uninstall Docker Desktop
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            brew uninstall --force --ignore-dependencies docker-desktop
+          elif [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get remove docker-ce docker-ce-cli containerd.io
+            sudo apt-get autoremove -y
+          fi
+      - name: Test if Docker Desktop is Uninstalled
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            if brew list --versions docker-desktop; then
+              echo "Docker Desktop is still installed"
+              exit 1
+            fi
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            if docker --version; then
+              echo "Docker Desktop is still installed"
+              exit 1
+            fi
+          elif [ "$RUNNER_OS" == "Linux" ]; then
+            if dpkg -l | grep docker-desktop; then
+              echo "Docker Desktop is still installed"
+              exit 1
+            fi
+          fi
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v2
         with:
