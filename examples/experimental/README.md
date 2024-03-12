@@ -25,7 +25,6 @@ lando config --path experimental | grep true
 # Should be able to restart with experimental plugin loaded
 lando config --path experimentalPluginLoadTest | grep true
 lando restart
-fail
 
 # Should be able to toggle off experimental features
 lando --experimental

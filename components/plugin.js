@@ -159,13 +159,26 @@ class Plugin {
     this.enabled = true;
     this.installer = installer;
     this.type = type;
+    this.legacyPlugin = false;
 
-    // throw error if plugin does not seem to exist
-    if (!fs.existsSync(path.join(this.root, 'package.json'))) throw new Error(`Could not find a plugin in ${this.root}`); // eslint-disable-line max-len
+    // if there isnt a package.json we have a more complicated situation
+    if (!fs.existsSync(path.join(this.root, 'package.json'))) {
+      // if there is an index.js without a package.json then assume it is a legacy plugin and spoof
+      // a basic package.json
+      if (fs.existsSync(path.join(this.root, 'index.js'))) {
+        const resolver = process.platform === 'win32' ? path.win32.resolve : path.posix.resolve;
+        const dirs = resolver(path.dirname(path.join(this.root, 'index.js'))).split(path.sep);
+        this.pjson = {name: dirs[dirs.length - 1], lando: {legacy: true}};
+        this.legacyPlugin = true;
+
+      // otherwise throw an error that this is just not a plugin
+      } else throw new Error(`Could not find a plugin in ${this.root}`);
+
+    // read package.json
+    } else this.pjson = read(path.join(this.root, 'package.json'));
 
     // set top level things
     this.location = this.root;
-    this.pjson = read(path.join(this.root, 'package.json'));
     this.sourceRoot = this.root;
 
     // get the manifest
