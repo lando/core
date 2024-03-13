@@ -62,7 +62,11 @@ jobs:
           open -a /Applications/Docker.app --args --unattended --accept-license
           echo "hello there"
           sleep 10
+          ls -lsa /usr/local/bin
           ps aux | grep docker
+          ls -lsa ~/.docker || true
+          ls -lsa ~/.docker/run || true
+          cat ~/.docker/config.json || true
           docker version
           docker info || true
           docker run hello-world || true
