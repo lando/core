@@ -12,7 +12,7 @@ Run the following commands to validate things are rolling as they should.
 
 ```bash
 # Should dogfood the core plugin we are testing against
-lando plugin-add "@lando/core@file:${GITHUB_WORKSPACE}"
+lando plugin-add "@lando/core@file:$CORE_PLUGIN_PATH"
 
 # Should be able to uninstall docker engine succesfully
 sudo apt-get remove docker-ce docker-ce-cli containerd.io

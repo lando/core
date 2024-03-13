@@ -53,6 +53,8 @@ jobs:
           dependency-check: false
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
+        env:
+          CORE_PLUGIN_PATH: ${{ github.workspace }}
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"
