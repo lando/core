@@ -59,7 +59,7 @@ jobs:
           lando setup --help
           lando setup -y --debug
           open -a /Applications/Docker.app --args --unattended --accept-license
-          sleep 1000
+          sleep 300
           docker version
           docker info || true
           docker run hello-world || true
