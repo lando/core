@@ -61,7 +61,8 @@ jobs:
           sudo xattr -r -d com.apple.quarantine /Applications/Docker.app
           open -a /Applications/Docker.app --args --unattended --accept-license
           echo "hello there"
-          sleep 100
+          sleep 10
+          ps aux | grep docker
           docker version
           docker info || true
           docker run hello-world || true
