@@ -11,23 +11,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        docker-compose-version:
-          - "2.24.5"
-        healthcheck:
-          - new
         lando-version:
-          - 3-dev-slim
+          - 3-slim
+          # uncomment to test against bleeding edge cli
+          # - 3-dev-slim
         leia-test:
-          - examples/setup
+          - examples/setup-windows
         node-version:
           - "18"
         os:
-          - ubuntu-22.04
           - windows-2022
-          - macOS-13
-          - macOS-14
-        scanner:
-          - new
+        shell:
+          - bash
+          # - cmd
+          # - powershell
 
     steps:
       - name: Checkout code
@@ -50,45 +47,18 @@ jobs:
       - name: Uninstall Docker Desktop
         shell: bash
         run: |
-          if [ "$RUNNER_OS" == "macOS" ]; then
-            brew uninstall --force --ignore-dependencies docker-desktop
-          elif [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt-get remove docker-ce docker-ce-cli containerd.io
-            sudo apt-get autoremove -y
-            whoami
-            groups
-          fi
+          echo "uninstall stuff goes here"
       - name: Test if Docker Desktop is Uninstalled
         shell: bash
         run: |
-          if [ "$RUNNER_OS" == "macOS" ]; then
-            # Check if the runner is ARM-ed
-            if [ "$(uname -m)" == "arm64" ]; then
-              echo "ARM architecture detected"
-            fi
-            if brew list --versions docker-desktop; then
-              echo "Docker Desktop is still installed"
-              exit 1
-            fi
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            if docker --version; then
-              echo "Docker Desktop is still installed"
-              exit 1
-            fi
-          elif [ "$RUNNER_OS" == "Linux" ]; then
-            if dpkg -l | grep docker-desktop; then
-              echo "Docker Desktop is still installed"
-              exit 1
-            fi
-          fi
+          echo "uninstall test goes here"
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v2
         with:
           lando-version: ${{ matrix.lando-version }}
           telemetry: false
-          config: |
-            setup.skipCommonPlugins=true
-            setup.plugins.@lando/core=/home/runner/work/core/core
+          setup: false
+          dependency-check: false
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         env:
