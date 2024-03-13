@@ -1,4 +1,18 @@
-name: placeholder
+name: setup-linux
+services:
+  nginx:
+    api: 3
+    type: lando
+    services:
+      image: nginx:1.22.1
+      command: /docker-entrypoint.sh nginx -g "daemon off;"
+      ports:
+        - 80
+      volumes:
+        - ./:/usr/share/nginx/html
+    run_as_root:
+      - ln -snf /usr/share/zoneinfo/America/New_York /etc/localtime
+      - echo "America/New_York" > /etc/timezone
 
 plugins:
   "@lando/core": "../.."

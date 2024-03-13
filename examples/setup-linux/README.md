@@ -21,4 +21,7 @@ dpkg -l | grep docker-desktop || echo $? | grep 1
 
 # Should be able to run lando setup
 lando setup -y
+
+# Should be able to start a basic app
+lando start
 ```

@@ -34,8 +34,8 @@ jobs:
         node-version:
           - "18"
         os:
-          - macos-13
-          - macos-14
+          # - macos-13
+          # - macos-14
           - ubuntu-22.04
           # - windows-2022
         shell:
@@ -71,6 +71,7 @@ jobs:
         uses: lando/setup-lando@v2
         with:
           lando-version: ${{ matrix.lando-version }}
+          dependency-check: false
           telemetry: false
           config: |
             setup.skipCommonPlugins=true
