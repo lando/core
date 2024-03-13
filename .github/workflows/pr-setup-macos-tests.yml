@@ -58,6 +58,8 @@ jobs:
           lando plugin-add @lando/core@file:${{ github.workspace }} --debug
           lando setup --help
           lando setup -y --debug
+          open /Applications/Docker.app || true
+          open -a /Applications/Docker.app
 
       # - name: Run Leia Tests
       #   uses: lando/run-leia-action@v2
