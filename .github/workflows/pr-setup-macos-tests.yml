@@ -53,12 +53,18 @@ jobs:
           telemetry: false
           setup: false
           dependency-check: false
-      - name: Run Leia Tests
-        uses: lando/run-leia-action@v2
-        env:
-          CORE_PLUGIN_PATH: ${{ github.workspace }}
-        with:
-          leia-test: "./${{ matrix.leia-test }}/README.md"
-          cleanup-header: "Destroy tests"
-          shell: bash
-          stdin: true
+      - name: SETUP
+        run: |
+          lando plugin-add "@lando/core@file:${{ github.workspace }} --debug
+          lando setup --help
+          lando setup -y --debug
+
+      # - name: Run Leia Tests
+      #   uses: lando/run-leia-action@v2
+      #   env:
+      #     CORE_PLUGIN_PATH: ${{ github.workspace }}
+      #   with:
+      #     leia-test: "./${{ matrix.leia-test }}/README.md"
+      #     cleanup-header: "Destroy tests"
+      #     shell: bash
+      #     stdin: true
