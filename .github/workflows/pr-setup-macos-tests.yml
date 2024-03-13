@@ -59,20 +59,13 @@ jobs:
           lando setup --help
           lando setup -y --debug
           sudo xattr -r -d com.apple.quarantine /Applications/Docker.app
-          ps aux | grep docker
-          open -a /Applications/Docker.app --args --unattended --accept-license
+          ps aux | grep com.docker
           echo "hello there"
-          sleep 10
-          ls -lsa /usr/local/bin
-          ps aux | grep docker
-          ls -lsa ~/.docker || true
-          ls -lsa ~/.docker/run || true
-          cat ~/.docker/config.json || true
 
           open docker-desktop://dashboard/open
-          sleep 10
+          sleep 300
           ls -lsa /usr/local/bin
-          ps aux | grep docker
+          ps aux | grep com.docker
           ls -lsa ~/.docker || true
           ls -lsa ~/.docker/run || true
           cat ~/.docker/config.json || true
