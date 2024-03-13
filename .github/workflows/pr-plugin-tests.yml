@@ -71,7 +71,7 @@ jobs:
           telemetry: false
           config: |
             setup.skipCommonPlugins=true
-            setup.plugins.@lando/core=/home/runner/work/core/core
+            setup.plugins.@lando/core=${{ github.workspace }}
             setup.orchestrator=${{ matrix.docker-compose-version }}
             orchestratorVersion=${{ matrix.docker-compose-version }}
       - name: Run Leia Tests
