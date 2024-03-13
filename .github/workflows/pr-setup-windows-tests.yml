@@ -45,14 +45,18 @@ jobs:
           version: dev
           sync: false
       - name: Uninstall Docker CE
-        shell: bash
+        shell: powershell
         run: |
+          choco list --local-only docker-*
           # uninstall docker
-          choco uninstall docker-engine
+          docker ps --quiet | ForEach-Object {docker stop $_}
+          docker system prune --volumes --all -y
+          Uninstall-Package -Name docker -ProviderName DockerMsftProvider
+          Uninstall-Module -Name DockerMsftProvider
       - name: Test if Docker is Uninstalled
         shell: bash
         run: |
-          choco list --local-only docker-engine
+          choco list --local-only docker-*
           docker version
       - name: Install Docker Desktop
         shell: bash
