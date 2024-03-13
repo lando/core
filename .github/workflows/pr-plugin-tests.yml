@@ -8,8 +8,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       TERM: xterm
-      GITHUB_PAT: ${{ secrets.PIROG_TOKEN }}
-      GITHUB_KEY_NAME: "${{ github.sha }}${{ matrix.docker-compose-version }}"
     strategy:
       fail-fast: false
       matrix:
@@ -78,9 +76,6 @@ jobs:
             orchestratorVersion=${{ matrix.docker-compose-version }}
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
-        env:
-          LANDO_SCANNER: ${{ matrix.scanner }}
-          LANDO_HEALTHCHECK: ${{ matrix.healthcheck }}
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"

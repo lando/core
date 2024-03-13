@@ -8,8 +8,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       TERM: xterm
-      GITHUB_PAT: ${{ secrets.PIROG_TOKEN }}
-      GITHUB_KEY_NAME: "${{ github.sha }}${{ matrix.docker-compose-version }}"
     strategy:
       fail-fast: false
       matrix:
@@ -34,12 +32,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.DEPLOY_KEY }}
-          known_hosts: unnecessary
-          if_key_exists: replace
       - name: Install node ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
@@ -95,12 +87,11 @@ jobs:
           lando-version: ${{ matrix.lando-version }}
           setup: lando setup --skip-common-plugins -y
           telemetry: false
+          config: |
+            setup.skipCommonPlugins=true
+            setup.plugins.@lando/core=/home/runner/work/core/core
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
-        env:
-          LANDO_SCANNER: ${{ matrix.scanner }}
-          LANDO_HEALTHCHECK: ${{ matrix.healthcheck }}
-          GH_PCKG_KEY: ${{ secrets.GH_PCKG_KEY }}
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"
