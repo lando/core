@@ -39,12 +39,17 @@ jobs:
           lando-plugin: true
           version: dev
           sync: false
+      - name: DEBUG
+        run: |
+          ls -lsa /home/runner/work/core/core
+          cat /home/runner/work/core/core/package.json
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v2
         with:
           lando-version: ${{ matrix.lando-version }}
           telemetry: false
           setup: false
+          dependency-check: false
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         with:

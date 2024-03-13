@@ -1,4 +1,4 @@
-name: Setup Tests
+name: Setup Windows Tests
 
 on:
   pull_request:
