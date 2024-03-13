@@ -14,7 +14,7 @@ const defaults = {
   notify: true,
   debug: require('debug')('@lando/run-elevated'),
   ignoreReturnCode: false,
-  isInteractive: require('is-interactive'),
+  isInteractive: require('is-interactive')(),
   password: undefined,
   method: process.platform === 'win32' ? 'run-elevated' : 'sudo',
 };

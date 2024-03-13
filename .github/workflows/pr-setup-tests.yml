@@ -63,8 +63,6 @@ jobs:
           elif [ "$RUNNER_OS" == "Linux" ]; then
             sudo apt-get remove docker-ce docker-ce-cli containerd.io
             sudo apt-get autoremove -y
-            whoami
-            groups
           fi
       - name: Test if Docker Desktop is Uninstalled
         shell: bash

@@ -114,7 +114,7 @@ module.exports = async (lando, options) => {
         ctx.download = await downloadDockerDesktop(getEngineDownloadUrl(build), {ctx, debug, task});
 
         // prompt for password if interactive
-        if (require('is-interactive')) {
+        if (lando.config.isInteractive) {
           ctx.password = await task.prompt({
             type: 'password',
             name: 'password',

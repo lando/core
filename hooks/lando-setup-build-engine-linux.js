@@ -61,7 +61,7 @@ module.exports = async (lando, options) => {
         ctx.download = await downloadDockerEngine('https://get.docker.com', {ctx, debug, task});
 
         // prompt for password if interactive and we dont have it
-        if (password === undefined && require('is-interactive')) {
+        if (password === undefined && lando.config.isInteractive) {
           password = await task.prompt({
             type: 'password',
             name: 'password',
@@ -112,7 +112,7 @@ module.exports = async (lando, options) => {
       if (require('../utils/is-group-member')('docker')) return {code: 0};
 
       // prompt for password if interactive and we dont have it
-      if (password === undefined && require('is-interactive')) {
+      if (password === undefined && lando.config.isInteractive) {
         password = await task.prompt({
           type: 'password',
           name: 'password',
