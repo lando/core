@@ -21,7 +21,7 @@ jobs:
           - "18"
         os:
           - macos-13
-          # - macos-14
+          - macos-14
 
     steps:
       - name: Checkout code
