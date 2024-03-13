@@ -44,14 +44,20 @@ jobs:
           lando-plugin: true
           version: dev
           sync: false
-      - name: Uninstall Docker Desktop
+      - name: Uninstall Docker CE
         shell: bash
         run: |
-          echo "uninstall stuff goes here"
-      - name: Test if Docker Desktop is Uninstalled
+          # uninstall docker
+          choco uninstall docker-engine
+      - name: Test if Docker is Uninstalled
         shell: bash
         run: |
-          echo "uninstall test goes here"
+          choco list --local-only docker-engine
+          docker version
+      - name: Install Docker Desktop
+        shell: bash
+        run: |
+          choco install docker-desktop
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v2
         with:
