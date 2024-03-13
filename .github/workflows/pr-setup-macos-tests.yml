@@ -55,7 +55,7 @@ jobs:
           dependency-check: false
       - name: SETUP
         run: |
-          lando plugin-add "@lando/core@file:${{ github.workspace }} --debug
+          lando plugin-add @lando/core@file:${{ github.workspace }} --debug
           lando setup --help
           lando setup -y --debug
 
