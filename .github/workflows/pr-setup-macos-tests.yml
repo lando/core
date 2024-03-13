@@ -58,9 +58,8 @@ jobs:
           lando plugin-add @lando/core@file:${{ github.workspace }} --debug
           lando setup --help
           lando setup -y --debug
-          which open
-          open /Applications/Docker.app || true
-          open -a /Applications/Docker.app
+          open -a /Applications/Docker.app --args --unattended --accept-license
+          sleep 1000
           docker version
           docker info || true
           docker run hello-world || true
