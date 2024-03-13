@@ -21,7 +21,7 @@ jobs:
           - "18"
         os:
           - macos-13
-          - macos-14
+          # - macos-14
 
     steps:
       - name: Checkout code
@@ -46,6 +46,7 @@ jobs:
           echo "$GITHUB_WORKSPACE"
           ls -lsa "$GITHUB_WORKSPACE"
           cat "${GITHUB_WORKSPACE}/package.json"
+          docker run hello-world
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v2
         with:
