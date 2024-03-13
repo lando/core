@@ -44,14 +44,24 @@ jobs:
           lando-plugin: true
           version: dev
           sync: false
-      - name: Uninstall Docker Desktop
+      - name: Uninstall Docker CE
+        shell: powershell
+        run: |
+          choco list --local-only docker-*
+          # uninstall docker
+          docker ps --quiet | ForEach-Object {docker stop $_}
+          docker system prune --volumes --all -y
+          Uninstall-Package -Name docker -ProviderName DockerMsftProvider
+          Uninstall-Module -Name DockerMsftProvider
+      - name: Test if Docker is Uninstalled
         shell: bash
         run: |
-          echo "uninstall stuff goes here"
-      - name: Test if Docker Desktop is Uninstalled
+          choco list --local-only docker-*
+          docker version
+      - name: Install Docker Desktop
         shell: bash
         run: |
-          echo "uninstall test goes here"
+          choco install docker-desktop
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v2
         with:
