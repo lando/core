@@ -4,6 +4,7 @@
 
 * Introduced "Untested Docker Version" notice
 * Improved `sudo` user detection on Linux
+* Improved Docker compatibility messages
 * Updated default Docker Compose version to `2.24.6`
 * Updated default Docker Desktop version to `4.28.0`
 * Updated supported Docker Desktop range to `>=4.0.0 <5`
