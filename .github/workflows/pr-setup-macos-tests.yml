@@ -58,9 +58,11 @@ jobs:
           lando plugin-add @lando/core@file:${{ github.workspace }} --debug
           lando setup --help
           lando setup -y --debug
-          open -a /Applications/Docker.app --background --args --unattended --accept-license
+          sudo xattr -r -d com.apple.quarantine /Applications/Docker.app
+          sudo /Applications/Docker.app/Contents/MacOS/Docker --unattended --install-privileged-components
+          open -a /Applications/Docker.app --args --unattended --accept-license
           echo "hello there"
-          sleep 300
+          sleep 100
           docker version
           docker info || true
           docker run hello-world || true
