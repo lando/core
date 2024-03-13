@@ -1,3 +1,13 @@
+## v3.21.0-beta.10 - [TBD](https://github.com/lando/core/releases/tag/v3.21.0-beta.10)
+
+### New Features
+
+* Improved `sudo` user detection on Linux
+
+### Fixes
+
+* Fixed prompt showing in `non-interactive` environments
+
 ## v3.21.0-beta.9 - [March 10, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.9)
 
 ### New Features
