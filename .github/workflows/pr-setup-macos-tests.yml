@@ -41,6 +41,7 @@ jobs:
           sync: false
       - name: DEBUG
         run: |
+          echo "$GITHUB_WORKSPACE"
           ls -lsa /home/runner/work/core/core
           cat /home/runner/work/core/core/package.json
       - name: Setup lando ${{ matrix.lando-version }}
