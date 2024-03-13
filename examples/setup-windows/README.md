@@ -1,9 +1,9 @@
-Setup Test
-===========
+Setup Windows Test
+==================
 
 This example exists primarily to test the following documentation:
 
-* [setup](https://docs.lando.dev/cli/setup.html)
+* [lando setup](https://docs.lando.dev/cli/setup.html)
 
 Start up tests
 --------------
