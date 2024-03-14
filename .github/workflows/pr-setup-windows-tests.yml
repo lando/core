@@ -48,7 +48,6 @@ jobs:
         shell: powershell
         run: |
           # uninstall docker
-          Uninstall-Package -Name DockerMsftProvider
           Uninstall-Module -Name DockerMsftProvider
       - name: Install Docker Desktop
         shell: bash
