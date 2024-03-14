@@ -47,15 +47,8 @@ jobs:
       - name: Uninstall Docker CE
         shell: powershell
         run: |
-          choco list docker-*
           # uninstall docker\
-          Get-Command docker | Select-Object -ExpandProperty Source
-          Where docker
-          docker version
-          Get-Package -Name *Docker*
-          Get-PackageProvider -Name *Docker*
-          # Uninstall-Package -Name docker-ce -ProviderName DockerMsftProvider
-          # Uninstall-Module -Name DockerMsftProvider
+          Uninstall-Module -Name DockerMsftProvider
       - name: Install Docker Desktop
         shell: bash
         run: |
