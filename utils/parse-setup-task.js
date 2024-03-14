@@ -8,6 +8,7 @@ const defaults = task => ({
   canInstall: async () => true,
   canRun: async () => true,
   comments: {},
+  count: true,
   dependsOn: [],
   description: task.title,
   hasRun: async () => false,
@@ -73,10 +74,10 @@ module.exports = otask => {
       task.title = initialTitle;
       const result = await orunner(ctx, task);
       // harvest
-      ctx.results.push(result);
+      if (otask.count) ctx.results.push(result);
       return result;
     } catch (error) {
-      ctx.errors.push(error);
+      if (otask.count) ctx.errors.push(error);
       throw error;
     }
   };

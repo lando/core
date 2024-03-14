@@ -12,6 +12,7 @@
 
 ### Fixes
 
+* Fixed `lando setup` incorrectly reporting double the plugin installed total
 * Fixed prompt showing in `non-interactive` environments
 * Fixed `once` events running more than `once`
 
