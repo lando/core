@@ -1,0 +1,4 @@
+name: lando-experimental
+
+plugins:
+  "@lando/core": "../.."
