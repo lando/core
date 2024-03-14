@@ -12,9 +12,11 @@
 
 ### Fixes
 
+* Fixed errors caused by "legacy" plugins [#127](https://github.com/lando/core/issues/127)
 * Fixed `lando setup` incorrectly reporting double the plugin installed total
-* Fixed prompt showing in `non-interactive` environments
 * Fixed `once` events running more than `once`
+* Fixed prompt showing in `non-interactive` environments
+* Updated `lando-experimental` to new plugin format
 
 ## v3.21.0-beta.9 - [March 10, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.9)
 
