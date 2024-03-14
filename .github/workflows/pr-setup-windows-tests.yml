@@ -47,10 +47,8 @@ jobs:
       - name: Uninstall Docker CE
         shell: powershell
         run: |
-          # see what features are installed
-          dism /online /get-features
           # uninstall docker
-          Uninstall-Package -Name *docker*
+          Uninstall-Package -Name DockerMsftProvider
           Uninstall-Module -Name DockerMsftProvider
       - name: Install Docker Desktop
         shell: bash
