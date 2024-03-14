@@ -23,6 +23,7 @@ Run the following commands to validate things are rolling as they should.
 
 ```bash
 # Should install and use the version of docker compose that is in the config by default
+lando setup -y --skip-common-plugins
 lando start
 "$HOME/.lando/bin/docker-compose-v$(lando config --path orchestratorVersion --format json | tr -d '"')" --version
 lando start -vvv 2>&1 | grep ".lando/bin/docker-compose-v$(lando config --path orchestratorVersion --format json | tr -d '"')"
