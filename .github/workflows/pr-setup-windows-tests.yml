@@ -52,13 +52,10 @@ jobs:
           Get-Command docker | Select-Object -ExpandProperty Source
           Where docker
           docker version
-          Uninstall-Package -Name docker -ProviderName DockerMsftProvider
-          Uninstall-Module -Name DockerMsftProvider
-      - name: Test if Docker is Uninstalled
-        shell: bash
-        run: |
-          choco list docker-*
-          docker version
+          Get-Package -Name *Docker*
+          Get-PackageProvider -Name *Docker*
+          # Uninstall-Package -Name docker-ce -ProviderName DockerMsftProvider
+          # Uninstall-Module -Name DockerMsftProvider
       - name: Install Docker Desktop
         shell: bash
         run: |
