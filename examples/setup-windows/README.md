@@ -14,11 +14,9 @@ Run the following commands to validate things are rolling as they should.
 # Should dogfood the core plugin we are testing against
 lando plugin-add "@lando/core@file:$CORE_PLUGIN_PATH"
 
-# Should be able to uninstall docker engine succesfully
-false
-# brew uninstall --force --ignore-dependencies docker-desktop
-# brew list --versions docker-desktop || echo $? | grep 1
-
 # Should be able to run lando setup
 lando setup -y
+
+# Should be able to run lando start
+lando start
 ```
