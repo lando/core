@@ -49,12 +49,17 @@ jobs:
         run: |
           # see what features are installed
           dism /online /get-features
-          # uninstall docker\
+          # uninstall docker
+          Uninstall-Package -Name *docker*
           Uninstall-Module -Name DockerMsftProvider
       - name: Install Docker Desktop
         shell: bash
         run: |
           choco install docker-desktop
+      - name: Docker Debug
+        shell: bash
+        run: |
+          docker version
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v2
         with:
