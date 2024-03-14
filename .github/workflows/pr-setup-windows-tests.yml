@@ -48,7 +48,9 @@ jobs:
         shell: powershell
         run: |
           choco list docker-*
-          # uninstall docker
+          # uninstall docker\
+          Get-Command docker | Select-Object -ExpandProperty Source
+          Where docker
           docker version
           Uninstall-Package -Name docker -ProviderName DockerMsftProvider
           Uninstall-Module -Name DockerMsftProvider
