@@ -13,6 +13,7 @@
 ### Fixes
 
 * Fixed prompt showing in `non-interactive` environments
+* Fixed `once` events running more than `once`
 
 ## v3.21.0-beta.9 - [March 10, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.9)
 
