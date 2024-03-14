@@ -182,7 +182,7 @@ class Plugin {
     this.sourceRoot = this.root;
 
     // get the manifest
-    debug.extend(this.pjson.name)('found plugin at %o', this.root);
+    debug.extend(this.pjson.name)('found %o at %o', this.legacyPlugin ? 'legacy plugin' : 'plugin', this.root);
     // get the manifest and normalize it based on root
     this.manifest = require('../utils/normalize-manifest-paths')({...this.pjson.lando, ...this.#load(...loadOpts)}, this.root); // eslint-disable-line max-len
 

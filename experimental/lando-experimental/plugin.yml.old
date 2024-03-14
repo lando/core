@@ -1,5 +1,0 @@
-name: "@lando/experimental"
-
-api: 3
-core: true
-experimental: true

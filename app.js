@@ -75,6 +75,9 @@ module.exports = async (app, lando) => {
   // Assess our key situation so we can warn users who may have too many
   app.events.on('post-init', async () => await require('./hooks/app-check-ssh-keys')(app, lando));
 
+  // Flag legacy plugins
+  app.events.on('post-init', async () => await require('./hooks/app-check-legacy-plugins')(app, lando));
+
   // Add tooling if applicable
   app.events.on('post-init', async () => await require('./hooks/app-add-tooling')(app, lando));
 
