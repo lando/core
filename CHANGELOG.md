@@ -1,3 +1,10 @@
+## v3.21.0-beta.10 - [TBD](https://github.com/lando/core/releases/tag/v3.21.0-beta.10)
+
+### Fixes
+
+* Fixed errors caused by "legacy" plugins [#127](https://github.com/lando/core/issues/127)
+* Updated `lando-experimental` to new plugin format
+
 ## v3.21.0-beta.9 - [March 10, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.9)
 
 ### New Features

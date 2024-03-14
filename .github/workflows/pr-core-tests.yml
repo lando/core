@@ -23,6 +23,7 @@ jobs:
           - examples/badname
           - examples/base
           - examples/events
+          - examples/experimental
           - examples/init-github
           - examples/init-remote
           - examples/keys

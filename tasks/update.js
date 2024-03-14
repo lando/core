@@ -31,7 +31,11 @@ const getUpdateMessage = item => {
 // get not installed message
 const getCannotUpdateMessage = item => {
   if (item.source) return 'Running from source. Please update manually.';
-  else 'Please update manually.';
+  if (item.legacyPlugin) {
+    return 'Legacy plugin. Please see: https://docs.lando.dev/guides/updating-plugins-v4.html#lando-3-21-0';
+  }
+
+  return 'Please update manually.';
 };
 
 // helper to get a renderable status table

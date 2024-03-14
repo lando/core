@@ -1,0 +1,17 @@
+{
+  "name": "@lando/experimental",
+  "author": "Mike Pirog @pirog",
+  "license": "GPL-3.0",
+  "repository": "lando/core",
+  "bugs": "https://github.com/lando/core/issues/new/choose",
+  "homepage": "https://github.com/lando/core",
+  "keywords": [
+    "lando",
+    "lando-plugin",
+    "@lando/core"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "lando": {}
+}
