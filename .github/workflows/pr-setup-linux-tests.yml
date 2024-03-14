@@ -40,11 +40,6 @@ jobs:
           lando-plugin: true
           version: dev
           sync: false
-      - name: DEBUG
-        run: |
-          echo "$GITHUB_WORKSPACE"
-          ls -lsa "$GITHUB_WORKSPACE"
-          cat "${GITHUB_WORKSPACE}/package.json"
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v2
         with:

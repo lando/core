@@ -41,11 +41,6 @@ jobs:
           lando-plugin: true
           version: dev
           sync: false
-      - name: DEBUG
-        run: |
-          echo "$GITHUB_WORKSPACE"
-          ls -lsa "$GITHUB_WORKSPACE"
-          cat "${GITHUB_WORKSPACE}/package.json"
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v2
         with:
@@ -53,33 +48,12 @@ jobs:
           telemetry: false
           setup: false
           dependency-check: false
-      - name: SETUP
-        run: |
-          lando plugin-add @lando/core@file:${{ github.workspace }} --debug
-          lando setup --help
-          lando setup -y --debug
-          sudo xattr -r -d com.apple.quarantine /Applications/Docker.app
-          ps aux | grep com.docker
-          echo "hello there"
-
-          open docker-desktop://dashboard/open
-          sleep 300
-          ls -lsa /usr/local/bin
-          ps aux | grep com.docker
-          ls -lsa ~/.docker || true
-          ls -lsa ~/.docker/run || true
-          cat ~/.docker/config.json || true
-
-          docker version
-          docker info || true
-          docker run hello-world || true
-
-      # - name: Run Leia Tests
-      #   uses: lando/run-leia-action@v2
-      #   env:
-      #     CORE_PLUGIN_PATH: ${{ github.workspace }}
-      #   with:
-      #     leia-test: "./${{ matrix.leia-test }}/README.md"
-      #     cleanup-header: "Destroy tests"
-      #     shell: bash
-      #     stdin: true
+      - name: Run Leia Tests
+        uses: lando/run-leia-action@v2
+        env:
+          CORE_PLUGIN_PATH: ${{ github.workspace }}
+        with:
+          leia-test: "./${{ matrix.leia-test }}/README.md"
+          cleanup-header: "Destroy tests"
+          shell: bash
+          stdin: true
