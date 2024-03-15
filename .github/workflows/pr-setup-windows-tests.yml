@@ -27,54 +27,43 @@ jobs:
           # - powershell
 
     steps:
-      # - name: Checkout code
-      #   uses: actions/checkout@v3
-      # - name: Install node ${{ matrix.node-version }}
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: ${{ matrix.node-version }}
-      #     registry-url: https://registry.npmjs.org
-      #     cache: npm
-      # - name: Install dependencies
-      #   run: npm clean-install --prefer-offline --frozen-lockfile
-      # # bundle deps is needed so local plugin installation succeeds
-      # - name: Bundle Deps
-      #   uses: lando/prepare-release-action@v3
-      #   with:
-      #     lando-plugin: true
-      #     version: dev
-      #     sync: false
-      - name: DEBUG
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Install node ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org
+          cache: npm
+      - name: Install dependencies
+        run: npm clean-install --prefer-offline --frozen-lockfile
+      # bundle deps is needed so local plugin installation succeeds
+      - name: Bundle Deps
+        uses: lando/prepare-release-action@v3
+        with:
+          lando-plugin: true
+          version: dev
+          sync: false
+      - name: UNINSTALLISH
         shell: powershell
         run: |
-
-          # Get-Process -Name dockerd
-          # Get-Process -Name dockerd | Stop-Process
           Stop-Service -Name docker -Force
-
-          Get-Process
-          Get-Service
-
           Remove-Item -Path (Get-Command docker).Source -Force
-
-          Get-Command docker
           Get-Process
 
-      # - name: Install Docker Desktop
-      #   shell: bash
-      #   run: |
-      #     choco install docker-desktop
-      # - name: Docker Debug
-      #   shell: bash
-      #   run: |
-      #     docker version
-      # - name: Setup lando ${{ matrix.lando-version }}
-      #   uses: lando/setup-lando@v2
-      #   with:
-      #     lando-version: ${{ matrix.lando-version }}
-      #     telemetry: false
-      #     setup: false
-      #     dependency-check: false
+      - name: Setup lando ${{ matrix.lando-version }}
+        uses: lando/setup-lando@v2
+        with:
+          lando-version: ${{ matrix.lando-version }}
+          telemetry: false
+          setup: false
+          dependency-check: false
+
+      - name: SETUP
+        shell: bash
+        run: |
+          lando setup -y --debug
+
       # - name: Run Leia Tests
       #   uses: lando/run-leia-action@v2
       #   env:
