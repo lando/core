@@ -15,7 +15,7 @@ module.exports = async (options = {}) => {
   const opts = merge({}, defaults, options);
   const {debug} = opts;
   const {code, stdout} = await require('./run-command')('powershell', args, opts);
-  debug('wsl status', opts);
+  debug('wsl status %O', opts.env);
 
   return {code, stdout};
 };
