@@ -28,4 +28,5 @@ lando start --debug
 # Should be able to run powershell stuff
 Get-Process
 Get-Service
+Get-YoMama
 ```

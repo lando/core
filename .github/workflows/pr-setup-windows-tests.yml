@@ -23,8 +23,8 @@ jobs:
           - windows-2022
         shell:
           - bash
-          # - cmd
-          # - powershell
+          - cmd
+          - powershell
 
     steps:
       - name: Checkout code
@@ -80,4 +80,11 @@ jobs:
           CORE_PLUGIN_PATH: ${{ github.workspace }}
         run: |
           npx leia --version
-          npx leia ./examples/setup-windows/README.md --setup-header=Start,Setup,This is the dawning --test-header=Test,Validat,Verif --cleanup-header=Destroy tests --shell=powershell --retry=1 --stdin --debug
+          npx leia "./${{ matrix.leia-test }}/README.md" \
+            --setup-header=Start,Setup,This is the dawning \
+            --test-header=Test,Validat,Verif \
+            --cleanup-header=Destroy tests \
+            --shell=${{ matrix.shell }} \
+            --retry=1 \
+            --stdin \
+            --debug
