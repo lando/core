@@ -65,13 +65,19 @@ jobs:
       #     lando config
       #     lando setup --skip-common-plugins -y --debug
 
+      # - name: Run Leia Tests
+      #   uses: lando/run-leia-action@v2
+      #   env:
+      #     CORE_PLUGIN_PATH: ${{ github.workspace }}
+      #   with:
+      #     leia-test: "./${{ matrix.leia-test }}/README.md"
+      #     cleanup-header: "Destroy tests"
+      #     shell: powershell
+      #     stdin: true
+      #     debug: true
       - name: Run Leia Tests
-        uses: lando/run-leia-action@v2
         env:
           CORE_PLUGIN_PATH: ${{ github.workspace }}
-        with:
-          leia-test: "./${{ matrix.leia-test }}/README.md"
-          cleanup-header: "Destroy tests"
-          shell: powershell
-          stdin: true
-          debug: true
+        run: |
+          npx leia --version
+          npx leia ./examples/setup-windows/README.md --setup-header=Start,Setup,This is the dawning --test-header=Test,Validat,Verif --cleanup-header=Destroy tests --shell=powershell --retry=1 --stdin --debug
