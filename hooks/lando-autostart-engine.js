@@ -12,7 +12,7 @@ module.exports = async lando => {
       delay: 1000,
       task: async (ctx, task) => {
         // prompt for password if interactive and we dont have it
-        if (process.platform === 'linux' && require('is-interactive')) {
+        if (process.platform === 'linux' && lando.config.isInteractive) {
           ctx.password = await task.prompt({
             type: 'password',
             name: 'password',

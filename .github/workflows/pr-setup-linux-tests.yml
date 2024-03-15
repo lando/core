@@ -1,4 +1,4 @@
-name: Core Tests
+name: Setup Linux Tests
 
 on:
   pull_request:
@@ -16,43 +16,15 @@ jobs:
           # uncomment to test against bleeding edge cli
           # - 3-dev-slim
         leia-test:
-          - examples/badname
-          - examples/base
-          - examples/events
-          - examples/experimental
-          - examples/init-github
-          - examples/init-remote
-          - examples/keys
-          - examples/l337
-          - examples/landofile-custom
-          - examples/long-name
-          - examples/no-services
-          - examples/orchestrator
-          - examples/plugin-commands
-          - examples/services
-          - examples/tooling
-          - examples/update
+          - examples/setup-linux
         node-version:
           - "18"
         os:
-          # - macos-13
-          # - macos-14
           - ubuntu-22.04
-          # - windows-2022
-        shell:
-          - bash
-
-        # TODO: includes for also running windows tests on cmd/powershell?
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.DEPLOY_KEY }}
-          known_hosts: unnecessary
-          if_key_exists: replace
       - name: Install node ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
@@ -73,18 +45,14 @@ jobs:
         with:
           lando-version: ${{ matrix.lando-version }}
           dependency-check: false
+          setup: false
           telemetry: false
-          config: |
-            setup.skipCommonPlugins=true
-            setup.plugins.@lando/core=${{ github.workspace }}
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         env:
-          GH_PCKG_KEY: ${{ secrets.GH_PCKG_KEY }}
-          GITHUB_PAT: ${{ secrets.PIROG_TOKEN }}
-          GITHUB_KEY_NAME: "${{ github.sha }}${{ matrix.os }}"
+          CORE_PLUGIN_PATH: ${{ github.workspace }}
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"
-          shell: ${{ matrix.shell }}
+          shell: bash
           stdin: true

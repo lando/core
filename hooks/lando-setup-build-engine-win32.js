@@ -8,6 +8,7 @@ const {color} = require('listr2');
 const {nanoid} = require('nanoid');
 
 const buildIds = {
+  '4.28.0': '139021',
   '4.27.2': '137060',
   '4.27.1': '136059',
   '4.27.0': '135262',
@@ -112,12 +113,10 @@ module.exports = async (lando, options) => {
     },
     requiresRestart: async () => {
       // if wsl is not installed then this requires a restart
-      const opts = {debug, ignoreReturnCode: true};
-      const {code, stdout} = await require('../utils/run-command')('powershell', ['-Command', 'wsl --status'], opts);
-      const hasFeaturesEnabled = !stdout.includes('"Virtual Machine Platform"') && !stdout.includes('"Windows Subsystem for Linux"'); // eslint-disable-line max-len
-      const installed = code === 0 && hasFeaturesEnabled;
-      lando.log.debug('wsl installed=%o, restart %o', installed, installed ? 'not required' : 'required');
-      return !installed;
+      const {installed, features} = await require('../utils/get-wsl-status')({debug});
+      const restart = !installed || !features;
+      debug('wsl installed=%o, features=%o, restart %o', installed, features, restart ? 'required' : 'not required');
+      return restart;
     },
     task: async (ctx, task) => {
       try {
@@ -128,7 +127,7 @@ module.exports = async (lando, options) => {
         // args
         const args = ['-installer', ctx.download.dest];
         if (options.buildEngineAcceptLicense) args.push('-acceptlicense');
-        if (options.debug || options.verbose > 0) args.push('-debug');
+        if ((options.debug || options.verbose > 0) && lando.config.isInteractive) args.push('-debug');
 
         // run install command
         task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;

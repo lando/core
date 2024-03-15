@@ -1,4 +1,4 @@
-name: Setup Tests
+name: Setup macOS Tests
 
 on:
   pull_request:
@@ -8,35 +8,24 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       TERM: xterm
-      GITHUB_PAT: ${{ secrets.PIROG_TOKEN }}
-      GITHUB_KEY_NAME: "${{ github.sha }}${{ matrix.docker-compose-version }}"
     strategy:
       fail-fast: false
       matrix:
-        docker-compose-version:
-          - "2.24.5"
-        healthcheck:
-          - new
         lando-version:
-          - 3-dev-slim
+          - 3-slim
+          # uncomment to test against bleeding edge cli
+          # - 3-dev-slim
         leia-test:
-          - examples/setup
+          - examples/setup-macos
         node-version:
           - "18"
         os:
-          - ubuntu-22.04
-        scanner:
-          - new
+          - macos-13
+          - macos-14
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.DEPLOY_KEY }}
-          known_hosts: unnecessary
-          if_key_exists: replace
       - name: Install node ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
@@ -56,14 +45,13 @@ jobs:
         uses: lando/setup-lando@v2
         with:
           lando-version: ${{ matrix.lando-version }}
+          dependency-check: false
+          setup: false
           telemetry: false
-          setup: off
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         env:
-          LANDO_SCANNER: ${{ matrix.scanner }}
-          LANDO_HEALTHCHECK: ${{ matrix.healthcheck }}
-          GH_PCKG_KEY: ${{ secrets.GH_PCKG_KEY }}
+          CORE_PLUGIN_PATH: ${{ github.workspace }}
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"

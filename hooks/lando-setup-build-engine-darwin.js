@@ -7,6 +7,7 @@ const semver = require('semver');
 const {color} = require('listr2');
 
 const buildIds = {
+  '4.28.0': '139021',
   '4.27.2': '137060',
   '4.27.1': '136059',
   '4.27.0': '135262',
@@ -114,7 +115,7 @@ module.exports = async (lando, options) => {
         ctx.download = await downloadDockerDesktop(getEngineDownloadUrl(build), {ctx, debug, task});
 
         // prompt for password if interactive
-        if (require('is-interactive')) {
+        if (lando.config.isInteractive) {
           ctx.password = await task.prompt({
             type: 'password',
             name: 'password',
