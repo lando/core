@@ -15,7 +15,7 @@ module.exports = (script, args = [], options = {}, stdout = '', stderr = '') => 
   // @TODO: error handling?
   // merge our options over the defaults
   options = merge({}, defaults, options);
-  const {debug} = options.bug;
+  const {debug} = options;
 
   // birth
   debug('running powershell script %o %o', script, args);
