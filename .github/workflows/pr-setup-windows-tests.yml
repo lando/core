@@ -44,6 +44,13 @@ jobs:
           lando-plugin: true
           version: dev
           sync: false
+      - name: Setup lando ${{ matrix.lando-version }}
+        uses: lando/setup-lando@v2
+        with:
+          lando-version: ${{ matrix.lando-version }}
+          dependency-check: false
+          setup: false
+          telemetry: false
       # we need to do this to avoid having multiple examples due to different shell considerations
       - name: Prep for multishell
         shell: powershell
@@ -52,13 +59,6 @@ jobs:
           Remove-Item -Path (Get-Command docker).Source -Force
           lando plugin-add "@lando/core@file:${{ github.workspace }}"
 
-      - name: Setup lando ${{ matrix.lando-version }}
-        uses: lando/setup-lando@v2
-        with:
-          lando-version: ${{ matrix.lando-version }}
-          dependency-check: false
-          setup: false
-          telemetry: false
       # @TODO: for some reason the below refused to load anything but bash so we are just going to invoke leia
       # directly for now but eventually we need to find out why this is the case
       # - name: Run Leia Tests
