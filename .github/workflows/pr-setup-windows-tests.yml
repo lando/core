@@ -27,26 +27,28 @@ jobs:
           # - powershell
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Install node ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          registry-url: https://registry.npmjs.org
-          cache: npm
-      - name: Install dependencies
-        run: npm clean-install --prefer-offline --frozen-lockfile
-      # bundle deps is needed so local plugin installation succeeds
-      - name: Bundle Deps
-        uses: lando/prepare-release-action@v3
-        with:
-          lando-plugin: true
-          version: dev
-          sync: false
+      # - name: Checkout code
+      #   uses: actions/checkout@v3
+      # - name: Install node ${{ matrix.node-version }}
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: ${{ matrix.node-version }}
+      #     registry-url: https://registry.npmjs.org
+      #     cache: npm
+      # - name: Install dependencies
+      #   run: npm clean-install --prefer-offline --frozen-lockfile
+      # # bundle deps is needed so local plugin installation succeeds
+      # - name: Bundle Deps
+      #   uses: lando/prepare-release-action@v3
+      #   with:
+      #     lando-plugin: true
+      #     version: dev
+      #     sync: false
       - name: DEBUG
         shell: powershell
         run: |
+          Get-Process
+          Get-Process -Name dockerd
           Get-Process -Name dockerd | Stop-Process
           Remove-Item -Path (Get-Command docker).Source -Force
 
