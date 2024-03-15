@@ -23,8 +23,8 @@ jobs:
           - windows-2022
         shell:
           - bash
-          # - cmd
-          # - powershell
+          - cmd
+          - powershell
 
     steps:
       - name: Checkout code
@@ -58,7 +58,10 @@ jobs:
           Stop-Service -Name docker -Force
           Remove-Item -Path (Get-Command docker).Source -Force
           lando plugin-add "@lando/core@file:${{ github.workspace }}"
-          lando setup -y --debug
+
+      - name: Setup
+        shell: ${{ matrix.shell }}
+        run: lando setup --skip-common-plugins --debug -y
 
       # @TODO: for some reason the below refused to load anything but bash so we are just going to invoke leia
       # directly for now but eventually we need to find out why this is the case
