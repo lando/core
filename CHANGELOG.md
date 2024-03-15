@@ -5,6 +5,8 @@
 * Introduced "Untested Docker Version" notice
 * Improved `sudo` user detection on Linux
 * Improved Docker compatibility messages
+* Improved `wsl` status detection
+* Improved `spawn` debugging output
 * Updated default Docker Compose version to `2.24.6`
 * Updated default Docker Desktop version to `4.28.0`
 * Updated supported Docker Desktop range to `>=4.0.0 <5`
@@ -12,6 +14,7 @@
 
 ### Fixes
 
+* Fixed `--debug` causing `lando setup -y` to hang in GitHub Actions `windows` runners
 * Fixed errors caused by "legacy" plugins [#127](https://github.com/lando/core/issues/127)
 * Fixed `lando setup` incorrectly reporting double the plugin installed total
 * Fixed `once` events running more than `once`

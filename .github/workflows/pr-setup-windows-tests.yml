@@ -44,12 +44,12 @@ jobs:
           lando-plugin: true
           version: dev
           sync: false
-      - name: UNINSTALLISH
-        shell: powershell
-        run: |
-          Stop-Service -Name docker -Force
-          Remove-Item -Path (Get-Command docker).Source -Force
-          Get-Process
+      # - name: UNINSTALLISH
+      #   shell: powershell
+      #   run: |
+      #     Stop-Service -Name docker -Force
+      #     Remove-Item -Path (Get-Command docker).Source -Force
+      #     Get-Process
 
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v2
@@ -58,19 +58,19 @@ jobs:
           dependency-check: false
           setup: false
           telemetry: false
-      - name: SETUP
-        shell: bash
-        run: |
-          lando plugin-add "@lando/core@file:${{ github.workspace }}"
-          lando config
-          lando setup --skip-common-plugins -y --debug
+      # - name: SETUP
+      #   shell: bash
+      #   run: |
+      #     lando plugin-add "@lando/core@file:${{ github.workspace }}"
+      #     lando config
+      #     lando setup --skip-common-plugins -y --debug
 
-      # - name: Run Leia Tests
-      #   uses: lando/run-leia-action@v2
-      #   env:
-      #     CORE_PLUGIN_PATH: ${{ github.workspace }}
-      #   with:
-      #     leia-test: "./${{ matrix.leia-test }}/README.md"
-      #     cleanup-header: "Destroy tests"
-      #     shell: bash
-      #     stdin: true
+      - name: Run Leia Tests
+        uses: lando/run-leia-action@v2
+        env:
+          CORE_PLUGIN_PATH: ${{ github.workspace }}
+        with:
+          leia-test: "./${{ matrix.leia-test }}/README.md"
+          cleanup-header: "Destroy tests"
+          shell: powershell
+          stdin: true
