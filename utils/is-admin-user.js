@@ -11,7 +11,10 @@ module.exports = user => {
     case 'darwin':
       return require('./is-group-member')('admin', user);
     case 'linux':
-      return require('./is-group-member')('sudo', user);
+      return require('./is-group-member')('sudo', user)
+        || require('./is-group-member')('admin', user)
+        || require('./is-group-member')('wheel', user)
+        || require('./is-group-member')('adm', user);
     case 'win32':
       return require('./is-group-member')('administrators', user);
     default:

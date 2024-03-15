@@ -15,7 +15,7 @@ module.exports = (script, args = [], options = {}, stdout = '', stderr = '') => 
   // @TODO: error handling?
   // merge our options over the defaults
   options = merge({}, defaults, options);
-  const debug = options.debug;
+  const {debug} = options;
 
   // birth
   debug('running powershell script %o %o', script, args);
@@ -24,6 +24,7 @@ module.exports = (script, args = [], options = {}, stdout = '', stderr = '') => 
   return require('./merge-promise')(child, async () => {
     return new Promise((resolve, reject) => {
       child.on('error', error => {
+        debug('powershell script %o error %o', script, error?.message);
         stderr += error?.message ?? error;
       });
 
@@ -38,6 +39,7 @@ module.exports = (script, args = [], options = {}, stdout = '', stderr = '') => 
       });
 
       child.on('close', code => {
+        debug('powershell script %o done with code %o', script, code);
         // if code is non-zero and we arent ignoring then reject here
         if (code !== 0 && !options.ignoreReturnCode) {
           const error = new Error(stderr);

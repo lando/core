@@ -1,3 +1,5 @@
+
+
 'use strict';
 
 // Modules
@@ -16,19 +18,16 @@ module.exports = (command, args = [], options = {}, stdout = '', stderr = '') =>
   // @TODO: error handling?
   // merge our options over the defaults
   options = merge({}, defaults, options);
-  const debug = options.debug;
+  const {debug} = options;
 
-  // this is a weirdly odd and specific thing we need to do
-  // @TODO: scope to just command = wsl|wsl.exe?
-  if (process.platform === 'win32') options.env.WSL_UTF8 = 1;
   // birth
   debug('running command %o %o', command, args);
-
   const child = spawn(command, args, options);
 
   return require('./merge-promise')(child, async () => {
     return new Promise((resolve, reject) => {
       child.on('error', error => {
+        debug('command %o error %o', command, error?.message);
         stderr += error?.message ?? error;
       });
 
@@ -43,6 +42,7 @@ module.exports = (command, args = [], options = {}, stdout = '', stderr = '') =>
       });
 
       child.on('close', code => {
+        debug('command %o done with code %o', command, code);
         // if code is non-zero and we arent ignoring then reject here
         if (code !== 0 && !options.ignoreReturnCode) {
           const error = new Error(stderr);

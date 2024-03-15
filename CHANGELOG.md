@@ -1,8 +1,24 @@
 ## v3.21.0-beta.10 - [TBD](https://github.com/lando/core/releases/tag/v3.21.0-beta.10)
 
+### New Features
+
+* Introduced "Untested Docker Version" notice
+* Improved `sudo` user detection on Linux
+* Improved Docker compatibility messages
+* Improved `wsl` status detection
+* Improved `spawn` debugging output
+* Updated default Docker Compose version to `2.24.6`
+* Updated default Docker Desktop version to `4.28.0`
+* Updated supported Docker Desktop range to `>=4.0.0 <5`
+* Updated supported Docker Engine range to `<26`
+
 ### Fixes
 
+* Fixed `--debug` causing `lando setup -y` to hang in GitHub Actions `windows` runners
 * Fixed errors caused by "legacy" plugins [#127](https://github.com/lando/core/issues/127)
+* Fixed `lando setup` incorrectly reporting double the plugin installed total
+* Fixed `once` events running more than `once`
+* Fixed prompt showing in `non-interactive` environments
 * Updated `lando-experimental` to new plugin format
 
 ## v3.21.0-beta.9 - [March 10, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.9)

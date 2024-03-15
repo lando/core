@@ -8,17 +8,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       TERM: xterm
-      GITHUB_PAT: ${{ secrets.PIROG_TOKEN }}
-      GITHUB_KEY_NAME: "${{ github.sha }}${{ matrix.docker-compose-version }}"
     strategy:
       fail-fast: false
       matrix:
-        docker-compose-version:
-          - "2.24.5"
-        healthcheck:
-          - new
         lando-version:
-          - 3-dev-slim
+          - 3-slim
+          # uncomment to test against bleeding edge cli
+          # - 3-dev-slim
         leia-test:
           - examples/healthcheck
           - examples/networking
@@ -27,26 +23,15 @@ jobs:
         node-version:
           - "18"
         os:
+          # - macos-13
+          # - macos-14
           - ubuntu-22.04
-        scanner:
-          - new
-        include:
-          # run legacy scanner checks on dc2
-          - docker-compose-version: "2.21.0"
-            healthcheck: new
-            node-version: "18"
-            lando-version: 3-dev
-            leia-test: examples/scanner
-            os: ubuntu-22.04
-            scanner: legacy
-          # run legacy healthchecks on dc2
-          - docker-compose-version: "2.21.0"
-            healthcheck: legacy
-            node-version: "18"
-            lando-version: 3-dev
-            leia-test: examples/healthcheck
-            os: ubuntu-22.04
-            scanner: new
+          # - windows-2022
+        shell:
+          - bash
+
+        # TODO: includes for also running windows tests on cmd/powershell?
+
 
     steps:
       - name: Checkout code
@@ -70,19 +55,15 @@ jobs:
         uses: lando/setup-lando@v2
         with:
           lando-version: ${{ matrix.lando-version }}
+          dependency-check: false
           telemetry: false
           config: |
             setup.skipCommonPlugins=true
-            setup.plugins.@lando/core=/home/runner/work/core/core
-            setup.orchestrator=${{ matrix.docker-compose-version }}
-            orchestratorVersion=${{ matrix.docker-compose-version }}
+            setup.plugins.@lando/core=${{ github.workspace }}
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
-        env:
-          LANDO_SCANNER: ${{ matrix.scanner }}
-          LANDO_HEALTHCHECK: ${{ matrix.healthcheck }}
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"
-          shell: bash
+          shell: ${{ matrix.shell }}
           stdin: true

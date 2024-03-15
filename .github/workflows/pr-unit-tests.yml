@@ -10,9 +10,10 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - windows-2022
+          - macos-13
+          - macos-14
           - ubuntu-22.04
-          - macos-12
+          - windows-2022
         node-version:
           - "18"
     steps:

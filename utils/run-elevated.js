@@ -14,7 +14,7 @@ const defaults = {
   notify: true,
   debug: require('debug')('@lando/run-elevated'),
   ignoreReturnCode: false,
-  isInteractive: require('is-interactive'),
+  isInteractive: require('is-interactive')(),
   password: undefined,
   method: process.platform === 'win32' ? 'run-elevated' : 'sudo',
 };
@@ -39,6 +39,7 @@ module.exports = (command, options, stdout = '', stderr = '') => {
   // @TODO: handle string args with string-argv?
   // merge our options over the defaults
   options = merge({}, defaults, options);
+  const {debug} = options;
 
   // sudo
   if (options.method === 'sudo') {
@@ -60,23 +61,24 @@ module.exports = (command, options, stdout = '', stderr = '') => {
 
   // grab the child
   // @TODO: also debug the options?
-  options.debug('running elevated command %o %o %o', options.method, command);
+  debug('running elevated command %o %o %o', options.method, command);
   const child = getChild(command, options);
 
   // return the merged thingy
   return require('./merge-promise')(child, async () => {
     return new Promise((resolve, reject) => {
       child.on('error', error => {
+        debug('elevated command %o error %o', command, error?.message);
         stderr += error?.message ?? error;
       });
 
       child.stdout.on('data', data => {
-        options.debug('%o stdout %o', options.method, data.toString().trim());
+        debug('%o stdout %o', options.method, data.toString().trim());
         stdout += data;
       });
 
       child.stderr.on('data', data => {
-        options.debug('%o stderr %o', options.method, data.toString().trim());
+        debug('%o stderr %o', options.method, data.toString().trim());
         stderr += data;
       });
 
@@ -88,6 +90,7 @@ module.exports = (command, options, stdout = '', stderr = '') => {
       }
 
       child.on('close', code => {
+        debug('elevated command %o done with code %o', command, code);
         // with run-elevate we want to clean up stderr a bit if we can eg remove the powershell shit
         if (options.method === 'run-elevated') {
           stderr = stderr.split('. At line')[0];

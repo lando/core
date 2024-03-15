@@ -7,17 +7,20 @@ mode: cli
 dockerSupportedVersions:
   compose:
     satisfies: "1.x.x || 2.x.x"
+    tested: "<=2.24.6"
     link:
       linux: https://docs.docker.com/compose/install/#install-compose-on-linux-systems
       darwin: https://docs.docker.com/desktop/install/mac-install/
       win32: https://docs.docker.com/desktop/install/windows-install/
   desktop:
-    satisfies: ">=4.0.0 <4.28"
+    satisfies: ">=4.0.0 <5"
+    tested: "<=4.28.0"
     link:
       darwin: https://docs.docker.com/desktop/install/mac-install/
       win32: https://docs.docker.com/desktop/install/windows-install/
   engine:
     satisfies: ">=18 <26"
+    tested: "<=25.0.3"
     link:
       linux: https://docs.docker.com/engine/install/debian/#install-using-the-convenience-script
 

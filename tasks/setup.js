@@ -93,7 +93,7 @@ module.exports = lando => {
     'yes': {
       describe: 'Runs non-interactively with all accepted default answers',
       alias: ['y'],
-      default: !require('is-interactive'),
+      default: !lando.config.isInteractive,
       boolean: true,
     },
   };
