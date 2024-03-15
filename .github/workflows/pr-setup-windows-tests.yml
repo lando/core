@@ -62,7 +62,8 @@ jobs:
       - name: SETUP
         shell: bash
         run: |
-          lando setup -y --debug
+          lando setup
+          lando setup --skip-common-plugins -y --debug
 
       # - name: Run Leia Tests
       #   uses: lando/run-leia-action@v2
