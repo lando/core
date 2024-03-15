@@ -47,11 +47,13 @@ jobs:
       - name: DEBUG
         shell: powershell
         run: |
-          Get-Process
-          Get-Service
+
           # Get-Process -Name dockerd
           # Get-Process -Name dockerd | Stop-Process
-          # Stop-Service -Name docker -Force
+          Stop-Service -Name docker -Force
+
+          Get-Process
+          Get-Service
 
           Remove-Item -Path (Get-Command docker).Source -Force
 
