@@ -44,12 +44,12 @@ jobs:
           lando-plugin: true
           version: dev
           sync: false
-      # - name: UNINSTALLISH
-      #   shell: powershell
-      #   run: |
-      #     Stop-Service -Name docker -Force
-      #     Remove-Item -Path (Get-Command docker).Source -Force
-      #     Get-Process
+      - name: UNINSTALLISH
+        shell: powershell
+        run: |
+          Stop-Service -Name docker -Force
+          Remove-Item -Path (Get-Command docker).Source -Force
+          Get-Process
 
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v2
@@ -74,3 +74,4 @@ jobs:
           cleanup-header: "Destroy tests"
           shell: powershell
           stdin: true
+          debug: true

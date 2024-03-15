@@ -15,12 +15,17 @@ Run the following commands to validate things are rolling as they should.
 lando plugin-add "@lando/core@file:$CORE_PLUGIN_PATH"
 
 # Should "uninstall" docker engine for windows
-Stop-Service -Name docker -Force
-Remove-Item -Path (Get-Command docker).Source -Force
+# Stop-Service -Name docker -Force
+# Remove-Item -Path (Get-Command docker).Source -Force
+true
 
 # Should be able to run lando setup
 lando setup --skip-common-plugins -y --debug
 
 # Should be able to run lando start
 lando start --debug
+
+# Should be able to run powershell stuff
+Get-Process
+Get-Service
 ```
