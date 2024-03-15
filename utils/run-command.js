@@ -18,7 +18,7 @@ module.exports = (command, args = [], options = {}, stdout = '', stderr = '') =>
   // @TODO: error handling?
   // merge our options over the defaults
   options = merge({}, defaults, options);
-  const debug = options.debug;
+  const debug = {options};
 
   // birth
   debug('running command %o %o', command, args);

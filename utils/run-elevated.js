@@ -39,6 +39,7 @@ module.exports = (command, options, stdout = '', stderr = '') => {
   // @TODO: handle string args with string-argv?
   // merge our options over the defaults
   options = merge({}, defaults, options);
+  const {debug} = options;
 
   // sudo
   if (options.method === 'sudo') {
@@ -60,7 +61,7 @@ module.exports = (command, options, stdout = '', stderr = '') => {
 
   // grab the child
   // @TODO: also debug the options?
-  options.debug('running elevated command %o %o %o', options.method, command);
+  debug('running elevated command %o %o %o', options.method, command);
   const child = getChild(command, options);
 
   // return the merged thingy
@@ -72,12 +73,12 @@ module.exports = (command, options, stdout = '', stderr = '') => {
       });
 
       child.stdout.on('data', data => {
-        options.debug('%o stdout %o', options.method, data.toString().trim());
+        debug('%o stdout %o', options.method, data.toString().trim());
         stdout += data;
       });
 
       child.stderr.on('data', data => {
-        options.debug('%o stderr %o', options.method, data.toString().trim());
+        debug('%o stderr %o', options.method, data.toString().trim());
         stderr += data;
       });
 
