@@ -113,14 +113,13 @@ module.exports = async (lando, options) => {
     },
     requiresRestart: async () => {
       // if wsl is not installed then this requires a restart
-      const opts = {debug, ignoreReturnCode: true};
-      const {code, stdout} = await require('../utils/run-command')('powershell', ['-Command', 'wsl --status'], opts);
+      const {code, stdout} = await require('../utils/get-wsl-status')({debug});
       console.log(stdout);
       console.log(Buffer.from(stdout, 'utf8').toString('utf16le'));
 
       const hasFeaturesEnabled = !stdout.includes('"Virtual Machine Platform"') && !stdout.includes('"Windows Subsystem for Linux"'); // eslint-disable-line max-len
       const installed = code === 0 && hasFeaturesEnabled;
-      lando.log.debug('wsl installed=%o, restart %o', installed, installed ? 'not required' : 'required');
+      debug('wsl installed=%o, restart %o', installed, installed ? 'not required' : 'required');
       return !installed;
     },
     task: async (ctx, task) => {
