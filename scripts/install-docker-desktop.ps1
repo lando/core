@@ -35,13 +35,13 @@ if ([string]::IsNullOrEmpty($installer))
 # Start arg stuff
 $options = "--backend=wsl-2"
 # if debug mode is off then make the installer quiet
-# if ($debug -eq $false) {$options = "$options --quiet"}
+if ($debug -eq $false) {$options = "$options --quiet"}
 # if accept license is true then add that as well
 if ($acceptlicense -eq $true) {$options = "$options --accept-license"}
 
 # Install
 Write-Debug "Running $installer with 'install $options'"
-$p = Start-Process -FilePath "$installer" -ArgumentList "install $options --quiet" -Wait -PassThru
+$p = Start-Process -FilePath "$installer" -ArgumentList "install $options" -Wait -PassThru
 Write-Debug "Process finished with return code: $($p.ExitCode)"
 
 # If there is an error then throw here

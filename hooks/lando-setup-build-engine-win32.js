@@ -129,7 +129,7 @@ module.exports = async (lando, options) => {
         // args
         const args = ['-installer', ctx.download.dest];
         if (options.buildEngineAcceptLicense) args.push('-acceptlicense');
-        if (options.debug || options.verbose > 0) args.push('-debug');
+        if ((options.debug || options.verbose > 0) && lando.config.isInteractive) args.push('-debug');
 
         // run install command
         task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;
