@@ -60,7 +60,16 @@ jobs:
           lando plugin-add "@lando/core@file:${{ github.workspace }}"
 
       - name: Setup
-        shell: ${{ matrix.shell }}
+        if: matrix.shell == 'bash'
+        shell: bash
+        run: lando setup --skip-common-plugins --debug -y
+      - name: Setup
+        if: matrix.shell == 'cmd'
+        shell: cmd
+        run: lando setup --skip-common-plugins --debug -y
+      - name: Setup
+        if: matrix.shell == 'powershell'
+        shell: powershell
         run: lando setup --skip-common-plugins --debug -y
 
       # @TODO: for some reason the below refused to load anything but bash so we are just going to invoke leia
@@ -75,15 +84,15 @@ jobs:
       #     shell: powershell
       #     stdin: true
       #     debug: true
-      # - name: Run Leia Tests
-      #   shell: bash
-      #   run: |
-      #     npx leia --version
-      #     npx leia "./${{ matrix.leia-test }}/README.md" \
-      #       --setup-header=Start,Setup,This is the dawning \
-      #       --test-header=Test,Validat,Verif \
-      #       --cleanup-header=Destroy tests \
-      #       --shell=${{ matrix.shell }} \
-      #       --retry=1 \
-      #       --stdin \
-      #       --debug
+      - name: Run Leia Tests
+        shell: bash
+        run: |
+          npx leia --version
+          npx leia "./${{ matrix.leia-test }}/README.md" \
+            --setup-header=Start,Setup,This is the dawning \
+            --test-header=Test,Validat,Verif \
+            --cleanup-header=Destroy tests \
+            --shell=${{ matrix.shell }} \
+            --retry=1 \
+            --stdin \
+            --debug
