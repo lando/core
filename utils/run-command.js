@@ -20,7 +20,7 @@ module.exports = (command, args = [], options = {}, stdout = '', stderr = '') =>
 
   // this is a weirdly odd and specific thing we need to do
   // @TODO: do we need to scope this at all or is it fine to just set regardless?
-  options.env.WSL_UTF8 = 1;
+  // options.env.WSL_UTF8 = 1;
 
   // birth
   console.log(options);
