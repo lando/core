@@ -20,12 +20,10 @@ module.exports = (command, args = [], options = {}, stdout = '', stderr = '') =>
 
   // this is a weirdly odd and specific thing we need to do
   // @TODO: do we need to scope this at all or is it fine to just set regardless?
-  options.env.WSL_UTF8 = true;
+  options.env.WSL_UTF8 = 1;
 
   // birth
-  console.log(options);
   debug('running command %o %o', command, args);
-
   const child = spawn(command, args, options);
 
   return require('./merge-promise')(child, async () => {
@@ -35,9 +33,6 @@ module.exports = (command, args = [], options = {}, stdout = '', stderr = '') =>
       });
 
       child.stdout.on('data', data => {
-        console.log(Buffer.isBuffer(data));
-        console.log(typeof data);
-        console.log(data.toString('utf16le'));
         debug('stdout %o', data.toString().trim());
         stdout += data;
       });
