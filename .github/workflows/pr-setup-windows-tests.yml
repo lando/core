@@ -44,32 +44,33 @@ jobs:
           lando-plugin: true
           version: dev
           sync: false
-      - name: Uninstall Docker CE
+      - name: DEBUG
         shell: powershell
         run: |
-          # uninstall docker
-          Uninstall-Module -Name DockerMsftProvider
-      - name: Install Docker Desktop
-        shell: bash
-        run: |
-          choco install docker-desktop
-      - name: Docker Debug
-        shell: bash
-        run: |
-          docker version
-      - name: Setup lando ${{ matrix.lando-version }}
-        uses: lando/setup-lando@v2
-        with:
-          lando-version: ${{ matrix.lando-version }}
-          telemetry: false
-          setup: false
-          dependency-check: false
-      - name: Run Leia Tests
-        uses: lando/run-leia-action@v2
-        env:
-          CORE_PLUGIN_PATH: ${{ github.workspace }}
-        with:
-          leia-test: "./${{ matrix.leia-test }}/README.md"
-          cleanup-header: "Destroy tests"
-          shell: bash
-          stdin: true
+          (Get-Command docker).Source
+          Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, Publisher | Where-Object { $_.DisplayName -ne $null } | Sort-Object DisplayName
+
+      # - name: Install Docker Desktop
+      #   shell: bash
+      #   run: |
+      #     choco install docker-desktop
+      # - name: Docker Debug
+      #   shell: bash
+      #   run: |
+      #     docker version
+      # - name: Setup lando ${{ matrix.lando-version }}
+      #   uses: lando/setup-lando@v2
+      #   with:
+      #     lando-version: ${{ matrix.lando-version }}
+      #     telemetry: false
+      #     setup: false
+      #     dependency-check: false
+      # - name: Run Leia Tests
+      #   uses: lando/run-leia-action@v2
+      #   env:
+      #     CORE_PLUGIN_PATH: ${{ github.workspace }}
+      #   with:
+      #     leia-test: "./${{ matrix.leia-test }}/README.md"
+      #     cleanup-header: "Destroy tests"
+      #     shell: bash
+      #     stdin: true
