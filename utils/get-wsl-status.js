@@ -13,10 +13,22 @@ const defaults = {
 module.exports = async (options = {}) => {
   const args = ['-Command', 'wsl --status'];
   const opts = merge({}, defaults, options);
-  const {debug} = opts;
   const {code, stdout} = await require('./run-command')('powershell', args, opts);
-  debug('wsl status %O', opts.env);
+  console.log(opts.env);
 
-  return {code, stdout};
+  // if code is non zero we can return uninstalled
+  if (code !== 0) return {installed: false, features: false, version: undefined};
+
+  // otherwise lets try to sus things out by first making sure we have something parseable
+  const data = (!stdout.include('Default Version')) ? Buffer.from(stdout, 'utf8').toString('utf16le') : stdout;
+
+  // try to get version
+  const versionLine = data.split('\n').filter(line => line.includes('Default Version'))[0];
+  console.log(versionLine);
+
+  return {
+    installed: true,
+    features: !data.includes('"Virtual Machine Platform"') && !data.includes('"Windows Subsystem for Linux"'),
+  };
 };
 
