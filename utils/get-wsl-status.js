@@ -16,10 +16,7 @@ module.exports = async (options = {}) => {
   const {debug} = opts;
   const {code, stdout} = await require('./run-command')('powershell', args, opts);
 
-  // if code is non zero we can return uninstalled
-  if (code !== 0) return {installed: false, features: false, version: undefined};
-
-  // otherwise lets try to sus things out by first making sure we have something parseable
+  // lets try to sus things out by first making sure we have something parseable
   const data = !stdout.includes('Default Version') ? Buffer.from(stdout, 'utf8').toString('utf16le') : stdout;
 
   // try to get version
