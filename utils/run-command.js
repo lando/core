@@ -19,8 +19,9 @@ module.exports = (command, args = [], options = {}, stdout = '', stderr = '') =>
   const debug = options.debug;
 
   // this is a weirdly odd and specific thing we need to do
-  // @TODO: scope to just command = wsl|wsl.exe?
-  if (process.platform === 'win32') options.env.WSL_UTF8 = 1;
+  // @TODO: do we need to scope this at all or is it fine to just set regardless?
+  options.env.WSL_UTF8 = 1;
+
   // birth
   console.log(options);
   debug('running command %o %o', command, args);

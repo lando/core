@@ -55,14 +55,14 @@ jobs:
         uses: lando/setup-lando@v2
         with:
           lando-version: ${{ matrix.lando-version }}
-          telemetry: false
-          setup: false
           dependency-check: false
-
+          setup: false
+          telemetry: false
       - name: SETUP
         shell: bash
         run: |
-          lando setup
+          lando plugin-add "@lando/core@file:${{ github.workspace }}"
+          lando config
           lando setup --skip-common-plugins -y --debug
 
       # - name: Run Leia Tests

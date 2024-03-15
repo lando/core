@@ -45,9 +45,9 @@ jobs:
         uses: lando/setup-lando@v2
         with:
           lando-version: ${{ matrix.lando-version }}
-          telemetry: false
-          setup: false
           dependency-check: false
+          setup: false
+          telemetry: false
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         env:
