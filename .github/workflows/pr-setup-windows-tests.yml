@@ -76,6 +76,7 @@ jobs:
       #     stdin: true
       #     debug: true
       - name: Run Leia Tests
+        shell: bash
         env:
           CORE_PLUGIN_PATH: ${{ github.workspace }}
         run: |
