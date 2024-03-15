@@ -1,4 +1,4 @@
-## v3.21.0-beta.10 - [TBD](https://github.com/lando/core/releases/tag/v3.21.0-beta.10)
+## v3.21.0-beta.10 - [March 15, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.10)
 
 ### New Features
 
