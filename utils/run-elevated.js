@@ -67,6 +67,7 @@ module.exports = (command, options, stdout = '', stderr = '') => {
   return require('./merge-promise')(child, async () => {
     return new Promise((resolve, reject) => {
       child.on('error', error => {
+        debug('elevated command %o error %o', command, error?.message);
         stderr += error?.message ?? error;
       });
 
@@ -88,6 +89,7 @@ module.exports = (command, options, stdout = '', stderr = '') => {
       }
 
       child.on('close', code => {
+        debug('elevated command %o done with code %o', command, code);
         // with run-elevate we want to clean up stderr a bit if we can eg remove the powershell shit
         if (options.method === 'run-elevated') {
           stderr = stderr.split('. At line')[0];

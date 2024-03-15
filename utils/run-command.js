@@ -27,6 +27,7 @@ module.exports = (command, args = [], options = {}, stdout = '', stderr = '') =>
   return require('./merge-promise')(child, async () => {
     return new Promise((resolve, reject) => {
       child.on('error', error => {
+        debug('command %o error %o', command, error?.message);
         stderr += error?.message ?? error;
       });
 
@@ -41,6 +42,7 @@ module.exports = (command, args = [], options = {}, stdout = '', stderr = '') =>
       });
 
       child.on('close', code => {
+        debug('command %o done with code %o', command, code);
         // if code is non-zero and we arent ignoring then reject here
         if (code !== 0 && !options.ignoreReturnCode) {
           const error = new Error(stderr);
