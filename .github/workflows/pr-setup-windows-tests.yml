@@ -64,15 +64,15 @@ jobs:
       - name: Lando Setup - BASH
         if: matrix.shell == 'bash'
         shell: bash
-        run: lando setup --debug -y
+        run: lando setup -y
       - name: Lando Setup - CMD
         if: matrix.shell == 'cmd'
         shell: cmd
-        run: lando setup --debug -y
+        run: lando setup -y
       - name: Lando Setup - POWERSHELL
         if: matrix.shell == 'powershell'
         shell: powershell
-        run: lando setup --debug -y
+        run: lando setup -y
 
       # @TODO: for some reason the below refused to load anything but bash so we are just going to invoke leia
       # directly for now but eventually we need to find out why this is the case
