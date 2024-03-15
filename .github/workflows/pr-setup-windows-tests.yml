@@ -47,6 +47,7 @@ jobs:
       - name: DEBUG
         shell: powershell
         run: |
+          Get-Process
           (Get-Command docker).Source
           Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, Publisher | Where-Object { $_.DisplayName -ne $null } | Sort-Object DisplayName
 
