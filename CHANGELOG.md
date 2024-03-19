@@ -1,3 +1,9 @@
+## v3.21.0-beta.11 - [March 18, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.11)
+
+### Fixes
+
+* Fixed `lando shellenv` to remove duplicate `PATH` entries
+
 ## v3.21.0-beta.10 - [March 15, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.10)
 
 ### New Features
