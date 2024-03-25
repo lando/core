@@ -50,7 +50,7 @@ module.exports = (lando, app) => {
           // prefer appmount
           if (config.appMount) opts[1] = config.appMount;
           // fallback to working dir if available
-          if (!config.appMount && _.has(config, 'config.working_dir')) opts[0] = config.config.working_dir;
+          if (!config.appMount && _.has(config, 'working_dir')) opts[0] = config.working_dir;
         }
 
         // continue
