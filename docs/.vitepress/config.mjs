@@ -62,6 +62,15 @@ export default defineConfig({
       satisfies: '>=3.21.2',
     },
     sidebar: sidebar(),
+    sidebarEnder: {
+      text: `${landoPlugin}@v${version}`,
+      collapsed: true,
+      items: [
+        {text: 'Release Notes', link: `https://github.com/lando/core/releases/tag/v${version}`},
+        {text: 'Older Versions', link: 'https://github.com/lando/core/releases'},
+        {text: 'core@v4', link: 'https://docs.lando.dev/core/v4/'},
+      ],
+    },
   },
 });
 

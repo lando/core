@@ -5,3 +5,4 @@ _site
 coverage
 .nyc_output
 !.vitepress
+config.mjs.timestamp-*.mjs
