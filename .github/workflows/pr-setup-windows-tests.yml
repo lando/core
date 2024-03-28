@@ -50,13 +50,9 @@ jobs:
           auto-setup: false
           lando-version: ${{ matrix.lando-version }}
           telemetry: false
-      # we need to do this to avoid having multiple examples due to different shell considerations
-      - name: Prep for multishell
+      - name: Dogfood core plugin
         shell: powershell
-        run: |
-          Stop-Service -Name docker -Force
-          Remove-Item -Path (Get-Command docker).Source -Force
-          lando plugin-add "@lando/core@file:${{ github.workspace }}"
+        run: lando plugin-add "@lando/core@file:${{ github.workspace }}"
 
       # @TODO: we need to reimplement this with leia tests like the other os setup tests but ran out of time
       # becuse this one is a bit more involved since it tries three different shells

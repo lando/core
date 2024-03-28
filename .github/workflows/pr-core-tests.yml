@@ -79,7 +79,7 @@ jobs:
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         env:
-          GITHUB_PAT: ${{ secrets.RTFM47_COAXIUM_INJECTOR }}
+          GITHUB_PAT: ${{ secrets.KYBER_AMPLIFICATION_MATRIX }}
           GITHUB_KEY_NAME: "${{ github.sha }}${{ matrix.os }}"
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
