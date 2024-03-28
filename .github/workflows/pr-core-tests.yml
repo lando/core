@@ -69,10 +69,9 @@ jobs:
           version: dev
           sync: false
       - name: Setup lando ${{ matrix.lando-version }}
-        uses: lando/setup-lando@v2
+        uses: lando/setup-lando@v3
         with:
           lando-version: ${{ matrix.lando-version }}
-          dependency-check: false
           telemetry: false
           config: |
             setup.skipCommonPlugins=true
@@ -80,8 +79,7 @@ jobs:
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         env:
-          GH_PCKG_KEY: ${{ secrets.GH_PCKG_KEY }}
-          GITHUB_PAT: ${{ secrets.PIROG_TOKEN }}
+          GITHUB_PAT: ${{ secrets.KYBER_AMPLIFICATION_MATRIX }}
           GITHUB_KEY_NAME: "${{ github.sha }}${{ matrix.os }}"
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
