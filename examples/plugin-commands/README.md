@@ -47,7 +47,7 @@ lando config | grep -qv "plugins/@lando/php"
 lando plugin-add "lando/php#main"
 lando config | grep -q "plugins/@lando/php"
 lando plugin-remove "@lando/php"
-lando config | grep -qv "plugins/@lando/php" 
+lando config | grep -qv "plugins/@lando/php"
 
 # Should be able to add a plugin from a git repo URL.
 lando plugin-add "https://github.com/lando/php.git"
@@ -56,7 +56,7 @@ lando plugin-remove "@lando/php"
 lando config | grep -qv "plugins/@lando/php"
 
 # Should execute `lando plugin-login`
-lando plugin-login --registry "https://npm.pkg.github.com" --password "$GH_PCKG_KEY" --username "reynoldsalec" --scope "lando::registry=https://npm.pkg.github.com"
+lando plugin-login --registry "https://npm.pkg.github.com" --password "$GITHUB_PAT" --username "rtfm-47" --scope "lando::registry=https://npm.pkg.github.com"
 
 # Should be able to add and remove a private plugin via a registry string.
 lando config | grep -qv "plugins/@lando/lando-plugin-test"

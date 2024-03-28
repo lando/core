@@ -52,10 +52,9 @@ jobs:
           version: dev
           sync: false
       - name: Setup lando ${{ matrix.lando-version }}
-        uses: lando/setup-lando@v2
+        uses: lando/setup-lando@v3
         with:
           lando-version: ${{ matrix.lando-version }}
-          dependency-check: false
           telemetry: false
           config: |
             setup.skipCommonPlugins=true
