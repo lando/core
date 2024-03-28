@@ -42,11 +42,10 @@ jobs:
           version: dev
           sync: false
       - name: Setup lando ${{ matrix.lando-version }}
-        uses: lando/setup-lando@v2
+        uses: lando/setup-lando@v3
         with:
+          auto-setup: false
           lando-version: ${{ matrix.lando-version }}
-          dependency-check: false
-          setup: false
           telemetry: false
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
