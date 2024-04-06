@@ -35,9 +35,15 @@ services:
       - --silent
       - --execute
       - SHOW DATABASES;
+  disablebase:
+    api: 3
+    type: mariadb:10.4
+    healthcheck: false
 ```
 
 Note that these are equivalent `commands`. Also note that the `array` format can be used in either `healthcheck` or `healthcheck.command`.
+
+Also note that you can disable the healthcheck with `false`.
 
 ## User
 
