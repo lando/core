@@ -59,6 +59,7 @@ module.exports = async (app, lando) => {
   const healthchecks = _(newHealthchecks.concat(legacyHealthchecks))
     .groupBy('container')
     .map(checks => checks[0])
+    .filter(check => !require('../../../utils/is-disabled')(check.command))
     .value();
 
   // put into checks format
