@@ -49,7 +49,7 @@ function sidebar() {
     },
     {
       text: 'Configuration',
-      collapsed: true,
+      collapsed: false,
       items: [
         {text: 'Global', link: '/global'},
         {text: 'Environment', link: '/env'},
@@ -65,7 +65,7 @@ function sidebar() {
     },
     {
       text: 'Plugins',
-      collapsed: true,
+      collapsed: false,
       items: [
         {text: 'Healthcheck', link: '/healthcheck'},
         {text: 'Networking', link: '/networking'},
@@ -74,14 +74,14 @@ function sidebar() {
     },
     {
       text: 'Services',
-      collapsed: true,
+      collapsed: false,
       items: [
         {text: 'Lando Service', link: '/lando-service'},
       ],
     },
     {
       text: 'Contribution',
-      collapsed: true,
+      collapsed: false,
       items: [
         {text: 'Development', link: '/development'},
         {text: 'Team', link: '/team'},
@@ -89,13 +89,13 @@ function sidebar() {
     },
     {
       text: 'Help & Support',
-      collapsed: true,
+      collapsed: false,
       items: [
         {text: 'GitHub', link: 'https://github.com/lando/core/issues/new/choose'},
         {text: 'Slack', link: 'https://www.launchpass.com/devwithlando'},
         {text: 'Contact Us', link: '/support'},
+        {text: 'Examples', link: 'https://github.com/lando/core/tree/main/examples'},
       ],
     },
-    {text: 'Examples', link: 'https://github.com/lando/core/tree/main/examples'},
   ];
 };

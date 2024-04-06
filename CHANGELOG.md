@@ -1,3 +1,9 @@
+## v3.21.0-beta.13 - [April 6, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.13)
+
+### New Features
+
+* Improved `healthcheck` so it can now be disabled with `healthcheck: false`
+
 ## v3.21.0-beta.12 - [March 25, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.12)
 
 * This release has no content and exists so we can switch over to [@lando/setup-lando](https://github.com/lando/setup-lando) for POSIX install
