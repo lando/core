@@ -31,5 +31,5 @@ lando update -y
 lando version -c "@lando/php" | grep -qv "v0.9.0"
 
 # Should be able to run lando update with a bogus GITHUB_TOKEN
-GITHUB_TOKEN=nah lando update -y
+GITHUB_TOKEN="BROKEN TOKEN" lando update -y
 ```
