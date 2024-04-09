@@ -8,7 +8,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       TERM: xterm
-      GITHUB_TOKEN: DONTAUTHMEBRAH
     strategy:
       fail-fast: false
       matrix:
@@ -56,8 +55,16 @@ jobs:
           config: |
             setup.skipCommonPlugins=true
             setup.plugins.@lando/core=${{ github.workspace }}
+      - name: DEBUG
+        run: |
+          GITHUB_TOKEN="bad token" lando config --debug
+          GITHUB_TOKEN="bad token" lando update --debug
+
+
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
+        env:
+          GITHUB_TOKEN: DONTAUTHMEBRAH
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"
