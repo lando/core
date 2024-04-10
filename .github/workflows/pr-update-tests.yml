@@ -46,7 +46,6 @@ jobs:
           lando-plugin: true
           version: dev
           sync: false
-
       # note that we need a custom auto-setup command because dogfooding core can impact the
       # subsequent lando setup
       - name: Setup lando ${{ matrix.lando-version }}

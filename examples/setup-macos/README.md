@@ -12,7 +12,7 @@ Run the following commands to validate things are rolling as they should.
 
 ```bash
 # Should dogfood the core plugin we are testing against
-lando plugin-add "@lando/core@file:$CORE_PLUGIN_PATH"
+lando plugin-add "@lando/core@file:../.."
 
 # Should be able to uninstall docker engine succesfully
 brew uninstall --force --ignore-dependencies docker-desktop
