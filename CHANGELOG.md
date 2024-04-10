@@ -1,3 +1,14 @@
+## v3.21.0-beta.14 - [April 10, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.14)
+
+### Bug Fixes Features
+
+* Fixed bug where `lando update` check failures were failing silently
+* Fixed bug where `GITHUB_TOKEN` was being used, if set, to get `lando update` info
+
+### Internal
+
+* Changed `lando update` GitHub `@octokit/rest` auth to use `LANDO_GITHUB_TOKEN` instead of `GITHUB_TOKEN`
+
 ## v3.21.0-beta.13 - [April 6, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.13)
 
 ### New Features

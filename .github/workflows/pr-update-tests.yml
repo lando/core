@@ -1,4 +1,4 @@
-name: Core Tests
+name: Update Tests
 
 on:
   pull_request:
@@ -16,21 +16,7 @@ jobs:
           # uncomment to test against bleeding edge cli
           # - 3-dev-slim
         leia-test:
-          - examples/badname
-          - examples/base
-          - examples/events
-          - examples/experimental
-          - examples/init-github
-          - examples/init-remote
-          - examples/keys
-          - examples/l337
-          - examples/landofile-custom
-          - examples/long-name
-          - examples/no-services
-          - examples/orchestrator
-          - examples/plugin-commands
-          - examples/services
-          - examples/tooling
+          - examples/update
         node-version:
           - "18"
         os:
@@ -41,17 +27,9 @@ jobs:
         shell:
           - bash
 
-        # TODO: includes for also running windows tests on cmd/powershell?
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.DEPLOY_KEY }}
-          known_hosts: unnecessary
-          if_key_exists: replace
       - name: Install node ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
@@ -77,9 +55,6 @@ jobs:
             setup.plugins.@lando/core=${{ github.workspace }}
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
-        env:
-          GITHUB_PAT: ${{ secrets.KYBER_AMPLIFICATION_MATRIX }}
-          GITHUB_KEY_NAME: "${{ github.sha }}${{ matrix.os }}"
         with:
           leia-test: "./${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"
