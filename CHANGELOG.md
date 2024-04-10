@@ -2,6 +2,7 @@
 
 ### New Features
 
+* Added better messages on when and how to update Docker components
 * Updated default Docker Compose version to `2.26.1`
 * Updated default Docker Desktop version to `4.29.0`
 * Updated default Docker Engine version to `26.0.0`
