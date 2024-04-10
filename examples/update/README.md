@@ -29,4 +29,7 @@ lando version -c "@lando/php" | grep -q "v0.9.0"
 # Should be able to run lando update and update legacy plugin.
 lando update -y
 lando version -c "@lando/php" | grep -qv "v0.9.0"
+
+# Should be able to run lando update with a bogus GITHUB_TOKEN
+GITHUB_TOKEN="BROKEN TOKEN" lando update -y
 ```

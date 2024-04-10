@@ -144,6 +144,7 @@ module.exports = lando => {
 
       // resolve to unique and installable list of items
       const tasks = await lando.updates.getUpdateTasks();
+
       // try to update the plugins
       const {errors, results} = await lando.runTasks(tasks, {
         renderer: 'lando',
@@ -155,6 +156,13 @@ module.exports = lando => {
       // flush relevant caches
       lando.cli.clearTaskCaches();
       lando.cache.remove('updates-2');
+
+      // throw an error if there is an update error
+      if (items.filter(item => item.state === 'ERROR').length > 0) {
+        const badcheck = items.find(item => item.state === 'ERROR');
+        lando.log.debug('an update error check occured with %o', badcheck.update);
+        lando.exitCode = 14;
+      }
 
       // we didnt have to do anything
       if (errors.length === 0 && results.length === 0) {
