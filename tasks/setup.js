@@ -178,6 +178,7 @@ module.exports = lando => {
       }
 
       // reload with newyl installed plugins and clear caches
+      lando.cli.clearTaskCaches();
       await lando.reloadPlugins();
 
       // get setup status
