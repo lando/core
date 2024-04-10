@@ -28,7 +28,6 @@ module.exports = async (app, lando) => {
   app.v4.preLockfile = `${app.name}.v4.build.lock`;
   app.v4.postLockfile = `${app.name}.v4.build.lock`;
   app.v4.services = [];
-  app.v4.composeApi = '3.6';
   app.v4.composeCache = `${app.name}.compose.cache`;
 
   // front load top level networks
@@ -36,7 +35,7 @@ module.exports = async (app, lando) => {
     app.add({
       id: `v4-${nanoid()}`,
       info: {},
-      data: [{networks: data, version: app.v4.composeApi}],
+      data: [{networks: data}],
     }, true);
   };
   // front load top level volumes
@@ -44,7 +43,7 @@ module.exports = async (app, lando) => {
     app.add({
       id: `v4-${nanoid()}`,
       info: {},
-      data: [{volumes: data, version: app.v4.composeApi}],
+      data: [{volumes: data}],
     }, true);
   };
 

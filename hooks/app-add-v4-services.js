@@ -67,8 +67,5 @@ module.exports = async (app, lando) => {
       // Log da things
       app.log.debug('generated v4 %s service %s', service.type, service.name);
     });
-
-    // finish with the version, as long as we are mixing streams with v3 this cannot be updated until v3 is
-    app.add({id: 'version', info: {}, data: [{version: app.v4.composeApi}]}, true);
   });
 };
