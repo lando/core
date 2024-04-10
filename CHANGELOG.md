@@ -1,5 +1,13 @@
 ## v3.21.0-beta.14 - [April 10, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.14)
 
+### New Features
+
+* Updated default Docker Compose version to `2.26.1`
+* Updated default Docker Desktop version to `4.29.0`
+* Updated default Docker Engine version to `26.0.0`
+* Updated tested Docker Desktop range to `<=4.29`
+* Updated tested Docker Engine range to `<27`
+
 ### Bug Fixes Features
 
 * Fixed bug where `lando update` check failures were failing silently
