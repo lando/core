@@ -53,6 +53,12 @@ jobs:
           config: |
             setup.skipCommonPlugins=true
             setup.plugins.@lando/core=${{ github.workspace }}
+      - name: DEBUG
+        run: |
+          lando config
+          lando setup --help || true
+          lando setup
+
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         with:
