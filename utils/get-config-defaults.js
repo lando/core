@@ -8,7 +8,7 @@ const os = require('os');
 // Default config
 const defaultConfig = options => ({
   orchestratorSeparator: '_',
-  orchestratorVersion: '2.26.0',
+  orchestratorVersion: '2.26.1',
   configSources: [],
   disablePlugins: [],
   dockerBin: require('../utils/get-docker-x')(),
