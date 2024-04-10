@@ -38,6 +38,7 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile
+
       # bundle deps is needed so local plugin installation succeeds
       - name: Bundle Deps
         uses: lando/prepare-release-action@v3
@@ -45,14 +46,16 @@ jobs:
           lando-plugin: true
           version: dev
           sync: false
+      # note that we need a custom auto-setup command because dogfooding core can impact the
+      # subsequent lando setup
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v3
         with:
+          auto-setup: lando plugin-add @lando/core@file:${{ github.workspace }} && lando setup
           lando-version: ${{ matrix.lando-version }}
           telemetry: false
           config: |
             setup.skipCommonPlugins=true
-            setup.plugins.@lando/core=${{ github.workspace }}
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         with:
