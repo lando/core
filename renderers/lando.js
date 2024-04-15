@@ -54,7 +54,7 @@ class LandoRenderer extends DefaultRenderer {
         this.update();
       });
     }
-    this.events.on('SHOUD_REFRESH_RENDER', () => {
+    this.events.on('SHOULD_REFRESH_RENDER', () => {
       this.update();
     });
   }

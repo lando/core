@@ -9,20 +9,28 @@ const path = require('path');
 
 const {generateDockerFileFromArray} = require('dockerfile-generator/lib/dockerGenerator');
 const {nanoid} = require('nanoid');
+const {EventEmitter} = require('events');
 
 // @TODO: should these be methods as well? static or otherwise?
 const getMountMatches = require('../utils/get-mount-matches');
 const hasInstructions = require('../utils/has-instructions');
 
-class L337ServiceV4 {
+class L337ServiceV4 extends EventEmitter {
   #data
 
   static debug = require('debug')('l337-service-v4');
   static bengineConfig = {};
+  static builder = require('../utils/get-docker-x')();
+  static orchestrator = require('../utils/get-compose-x')();
 
-  static getBengine(config = L337ServiceV4.bengineConfig, {debug = L337ServiceV4.debug} = {}) {
+  static getBengine(config = L337ServiceV4.bengineConfig,
+    {
+      builder = L337ServiceV4.builder,
+      debug = L337ServiceV4.debug,
+      orchestrator = L337ServiceV4.orchestrator,
+    } = {}) {
     const DockerEngine = require('./docker-engine');
-    return new DockerEngine(config, {debug});
+    return new DockerEngine(config, {builder, debug, orchestrator});
   }
 
   #init() {
@@ -44,12 +52,25 @@ class L337ServiceV4 {
       imageInstructions: undefined,
       imageFileContext: undefined,
       sources: [],
+      states: {
+        IMAGE: 'UNBUILT',
+      },
       stages: {
         default: 'image',
         image: 'Instructions to help generate an image',
       },
       steps: [],
     };
+  }
+
+  set state(states) {
+    this.#data.states = merge(this.#data.states, states);
+    this.info.state = this.#data.states;
+    this.emit('state', this.#data.states);
+  }
+
+  get state() {
+    return this.#data.states;
   }
 
   constructor(id, {
@@ -62,6 +83,7 @@ class L337ServiceV4 {
     name = id,
     primary = false,
     stages = {},
+    states = {},
     tag = nanoid(),
     type = 'l337',
     legacy = {
@@ -70,9 +92,13 @@ class L337ServiceV4 {
       sport = '443',
     } = {},
   } = {}) {
+    // instantiate ee immedately
+    super();
+
     // set top level required stuff
     this.id = id;
     this.appRoot = appRoot;
+    this.buildx = true;
     this.config = config;
     this.context = context;
     this.debug = debug;
@@ -89,10 +115,16 @@ class L337ServiceV4 {
     fs.mkdirSync(this.context, {recursive: true});
 
     // initialize our private data
-    this.#data = merge(this.#init(), {groups}, {stages});
+    this.#data = merge(this.#init(), {groups}, {stages}, {states});
 
     // rework info based on whatever is passed in
-    this.info = merge({}, {service: id, api: 4, lastBuild: 'never', primary, type}, info);
+    this.info = merge({}, {
+      api: 4,
+      primary,
+      service: id,
+      state: this.#data.states,
+      type,
+    }, info);
 
     // add in the l337 spec config
     this.addServiceData(config);
@@ -161,6 +193,8 @@ class L337ServiceV4 {
     if (data.steps) this.addSteps(data.steps);
     // if we have a custom tag then set that
     if (data.tag) this.tag = data.tag;
+    // finally make sure we honor buildx disabling
+    if (require('../utils/is-disabled')(data.buildx ?? this.buildx)) this.buildx = false;
   }
 
   // just pushes the compose data directly into our thing
@@ -206,9 +240,7 @@ class L337ServiceV4 {
         if (!file.instructions) {
           file.instructions = file.url ? ['ADD'] : ['COPY'];
           if (file.owner) file.instructions.push(`--chown=${file.owner}`);
-          // @TODO: below not possible until we have BuildKit support in docekrode
-          // see: https://github.com/apocas/dockerode/issues/601
-          // if (file.permissions) file.instructions.push(`--chmod=${file.permissions}`);
+          if (file.permissions) file.instructions.push(`--chmod=${file.permissions}`);
           file.instructions.push(file.url || file.destination);
           file.instructions.push(path.resolve('/', file.destination));
           file.instructions = file.instructions.join(' ');
@@ -354,34 +386,49 @@ class L337ServiceV4 {
   // build the image
   async buildImage() {
     // get build func
-    const bengine = L337ServiceV4.getBengine(L337ServiceV4.bengineConfig, {debug: this.debug});
+    const bengine = L337ServiceV4.getBengine(L337ServiceV4.bengineConfig, {
+      builder: L337ServiceV4.builder,
+      debug: this.debug,
+      orchestrator: L337ServiceV4.orchestrator,
+    });
     // separate out imagefile and context
     const {imagefile, ...context} = this.generateBuildContext();
 
     try {
-      const success = await bengine.build(imagefile, context);
+      // set state
+      this.state = {IMAGE: 'BUILDING'};
+      // run with the appropriate builder
+      const success = this.buildx ? await bengine.buildx(imagefile, context) : await bengine.build(imagefile, context);
       // augment the success info
       success.context = {imagefile, ...context};
       // add the final compose data with the updated image tag on success
       // @NOTE: ideally its sufficient for this to happen ONLY here but in v3 its not
       this.addComposeData({services: {[context.id]: {image: context.tag}}});
-      // set the image into the info
+
+      // state
+      this.state = {IMAGE: 'BUILT'};
+      // set the image stuff into the info
       this.info.image = imagefile;
       this.info.tag = context.tag;
 
-      this.debug('built image %o successfully from %o', context.id, imagefile);
+      this.debug('image %o built successfully from %o', context.id, imagefile);
       return success;
 
     // failure
-    } catch (e) {
-      e.context = {imagefile, ...context};
-      this.debug('image %o build failed with error %o', context.id, e);
-      this.debug('image %o build failed, setting it back to use base image', context.id, this.#data.image);
+    } catch (error) {
+      error.context = {imagefile, ...context};
+      this.debug('image %o build failed with code %o error %o', context.id, error.code, error);
+      this.addComposeData({services: {[context.id]: {command: 'sleep infinity'}}});
 
-      // reset the info
-      this.info.image = this.#data.image;
+      // set the build failure
+      this.state = {IMAGE: 'BUILD FAILURE'};
+      // and remove a bunch of stuff
+      this.info.image = undefined;
+      this.info.tag = undefined;
+      this.tag = undefined;
 
-      throw e;
+      // then throw
+      throw error;
     }
   }
 
@@ -402,15 +449,15 @@ class L337ServiceV4 {
         .map(data => data.instructions)
         .map(data => Array.isArray(data) ? generateDockerFileFromArray(data) : data);
 
-      // if we have any rogue uncontexted COPY/ instructions then we need to add appropriate sources to make sure
+      // if we have any rogue uncontexted COPY/ADD instructions then we need to add appropriate sources to make sure
       // it all works seemlessly
       if (steps[group]
         .map((step, index) => ({index, step, contexted: data[index].contexted === true}))
         .filter(step => hasInstructions(step.step, ['COPY', 'ADD']))
         .map(step => step.contexted)
         .reduce((contexted, step) => contexted || !step, false)) {
-          this.#data.sources.push(({source: this.#data.imageFileContext || this.appRoot, destination: '.'}));
-        }
+        this.#data.sources.push(({source: this.#data.imageFileContext || this.appRoot, destination: '.'}));
+      }
 
       // attempt to normalize newling usage mostly for aesthetic considerations
       steps[group] = steps[group]
