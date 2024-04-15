@@ -77,6 +77,10 @@ jobs:
           telemetry: false
           config: |
             setup.skipCommonPlugins=true
+      - name: DEBUG
+        run: |
+          docker buildx version
+
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         env:
