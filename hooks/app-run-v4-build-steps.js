@@ -1,6 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
+const os = require('os');
+const path = require('path');
+const {nanoid} = require('nanoid');
 
 module.exports = async (app, lando) => {
   // get buildable services
@@ -40,6 +43,7 @@ module.exports = async (app, lando) => {
               await service.buildImage();
             } catch (error) {
               ctx.errors.push(error);
+              app.addMessage(require('../messages/image-build-v4-error')(error), error, true);
               throw error;
             }
           },
@@ -54,6 +58,7 @@ module.exports = async (app, lando) => {
           states: {
             COMPLETED: 'Built',
             STARTED: 'Building',
+            FAILED: 'FAILED',
           },
         },
       });
@@ -61,27 +66,16 @@ module.exports = async (app, lando) => {
       // write build lock if we have no failures
       if (_.isEmpty(errors)) lando.cache.set(app.v4.preLockfile, app.configHash, {persist: true});
 
-      // go through failures and add warnings as needed, rebase on base image
-      _.forEach(errors, error => {
-        app.addMessage({
-          title: `Could not build v4 image "${_.get(error, 'context.id')}!"`,
-          type: 'warning',
-          detail: [
-            `Failed with "${_.get(error, 'short')}"`,
-            `Rerun with "lando rebuild -vvv" to see the entire build log and look for errors. When fixed run:`,
-          ],
-          command: 'lando rebuild',
-        }, error);
-      });
-
       // merge rebuild success results into app.info for downstream usage for api 4 services
       _.forEach(services, service => {
+        service.error = errors.find(error => error?.context?.id === service.id);
         const info = _.find(app.info, {service: service.id, api: 4});
         if (info) {
           Object.assign(info, {
             image: service.info.image,
-            lastBuild: service.info.image === undefined ? 'failed' : 'succeeded',
+            state: service.state,
             tag: service.tag,
+            error: service.error,
           });
         }
       });
@@ -89,11 +83,22 @@ module.exports = async (app, lando) => {
 
     // at this point we should have the tags of successfull images and can iterate and app.add as needed
     _.forEach(app.info, service => {
-      if (service.api === 4 && service.lastBuild === 'succeeded' && service.image) {
+      if (service.api === 4) {
+        const data = {image: service.tag};
+
+        // if image build failed and has  an error lets change the data
+        if (service?.state?.IMAGE === 'BUILD FAILURE' && service.error) {
+          const dir = service?.error?.context?.context ?? os.tmpdir();
+          service.error.logfile = path.join(dir, `error-${nanoid()}.log`);
+          data.image = 'busybox';
+          data.command = require('../utils/get-v4-image-build-error-command')(service.error);
+          data.volumes = [`${service.error.logfile}:/tmp/error.log`];
+        }
+
         app.add({
           id: service.service,
           info: {},
-          data: [{services: {[service.service]: {image: service.tag}}}],
+          data: [{services: {[service.service]: data}}],
         });
       }
     });
@@ -102,17 +107,6 @@ module.exports = async (app, lando) => {
     app.compose = require('../utils/dump-compose-data')(app.composeData, app._dir);
 
     // and reset the compose cache as well
-    lando.cache.set(app.v4.composeCache, {
-      name: app.name,
-      project: app.project,
-      compose: app.compose,
-      containers: app.containers,
-      root: app.root,
-      info: app.info,
-      mounts: require('../utils/get-mounts')(_.get(app, 'v4.services', {})),
-      overrides: {
-        tooling: app._coreToolingOverrides,
-      },
-    }, {persist: true});
+    app.v4.updateComposeCache();
   });
 };

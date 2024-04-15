@@ -5,6 +5,19 @@ const LandoRenderer = require('./lando');
 const {EOL} = require('os');
 const {color} = require('listr2');
 
+const getDefaultColor = state => {
+  switch (state) {
+    case 'STARTED':
+    case 'COMPLETED':
+    case 'RETRY':
+      return 'green';
+    case 'FAILED':
+      return 'red';
+    default:
+      return 'dim';
+  }
+};
+
 class DC2Renderer extends LandoRenderer {
   constructor(tasks, options, $renderHook) {
     // force dc2 indentation
@@ -26,7 +39,7 @@ class DC2Renderer extends LandoRenderer {
 
     // normalize state data
     for (const [state, data] of Object.entries(options.states)) {
-      if (typeof data === 'string') options.states[state] = {message: data, color: 'green'};
+      if (typeof data === 'string') options.states[state] = {message: data, color: getDefaultColor(state)};
     }
 
     // super
@@ -85,10 +98,19 @@ class DC2Renderer extends LandoRenderer {
       if (task.hasTitle() && typeof task.initialTitle === 'string') {
         // get the spacer
         task.spacer = this.getSpacer(task.initialTitle.length, max);
+
         // update title based on state change
         for (const [state, data] of Object.entries(this.options.states)) {
           if (task.state === state) {
             task.title = `${task.initialTitle}${task.spacer}${color[data.color](data.message)}`;
+          }
+          // update error message on state fail
+          if (task.state === state
+            && task.state === 'FAILED'
+            && task?.message?.error
+            && !task.message.error.endsWith(color[data.color](data.message))
+          ) {
+            task.message.error = `${task.message.error}${task.spacer}${color[data.color](data.message)}`;
           }
         }
       }

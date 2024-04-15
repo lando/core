@@ -19,19 +19,27 @@ const mergePromise = require('../utils/merge-promise');
 class DockerEngine extends Dockerode {
   static name = 'docker-engine';
   static cspace = 'docker-engine';
-  static debug = require('debug')('docker-engine');
   static config = {};
+  static debug = require('debug')('docker-engine');
+  static builder = require('../utils/get-docker-x')();
+  static orchestrator = require('../utils/get-compose-x')();
   // @NOTE: is wsl accurate here?
   // static supportedPlatforms = ['linux', 'wsl'];
 
-  constructor(config, {debug = DockerEngine.debug} = {}) {
+  constructor(config, {
+    builder = DockerEngine.buildx,
+    debug = DockerEngine.debug,
+    orchestrator = DockerEngine.orchestrator,
+  } = {}) {
     super(config);
+    this.builder = builder;
     this.debug = debug;
+    this.orchestrator = orchestrator;
   }
 
   /*
-   * This is intended for building images
-   * This is a wrapper around Dockerode.build that provides either an await or return implementation.
+   * this is the legacy rest API image builder eg NOT buildx
+   * this is a wrapper around Dockerode.build that provides either an await or return implementation.
    *
    * @param {*} command
    * @param {*} param1
@@ -105,13 +113,13 @@ class DockerEngine extends Dockerode {
     // error if no dockerfile exits
     if (!fs.existsSync(dockerfile)) throw new Error(`${dockerfile} does not exist`);
 
+    // extend debugger in appropriate way
+    const debug = id ? this.debug.extend(id) : this.debug.extend('docker-engine:build');
     // collect some args we can merge into promise resolution
     // @TODO: obscure auth?
     const args = {command: 'dockerode buildImage', args: {dockerfile, tag, sources}};
     // create an event emitter we can pass into the promisifier
     const builder = new EventEmitter();
-    // extend debugger in appropriate way
-    const debug = id ? this.debug.extend(id) : this.debug.extend('docker-engine:build');
 
     // ensure context dir exists
     fs.mkdirSync(context, {recursive: true});
@@ -130,11 +138,122 @@ class DockerEngine extends Dockerode {
 
     // call the parent
     // @TODO: consider other opts? https://docs.docker.com/engine/api/v1.43/#tag/Image/operation/ImageBuild args?
-    this.debug('building image %o from %o', tag, context);
+    debug('building image %o from %o', tag, context);
     super.buildImage({context, src: fs.readdirSync(context)}, {forcerm: true, t: tag}, callbackHandler);
 
     // make this a hybrid async func and return
     return mergePromise(builder, awaitHandler);
+  }
+
+  /*
+   * this is the buildx image builder
+   *
+   * unfortunately dockerode does not have an endpoint for this
+   * see: https://github.com/apocas/dockerode/issues/601
+   *
+   * so we are invoking the cli directly
+   *
+   * @param {*} command
+   * @param {*} param1
+   */
+  buildx(dockerfile,
+    {
+      tag,
+      context = path.join(require('os').tmpdir(), nanoid()),
+      id = tag,
+      ignoreReturnCode = false,
+      sources = [],
+      stderr = '',
+      stdout = '',
+    } = {}) {
+    // handles the promisification of the merged return
+    const awaitHandler = async () => {
+      return new Promise((resolve, reject) => {
+        // handle resolve/reject
+        buildxer.on('done', ({code, stdout, stderr}) => {
+          debug('command %o done with code %o', args, code);
+          resolve(makeSuccess(merge({}, args, code, stdout, stderr)));
+        });
+        buildxer.on('error', error => {
+          debug('command %o error %o', args, error?.message);
+          reject(error);
+        });
+      });
+    };
+
+    // error if no dockerfile
+    if (!dockerfile) throw new Error('you must pass a dockerfile into buildx');
+    // error if no dockerfile exits
+    if (!fs.existsSync(dockerfile)) throw new Error(`${dockerfile} does not exist`);
+
+    // extend debugger in appropriate way
+    const debug = id ? this.debug.extend(id) : this.debug.extend('docker-engine:buildx');
+    // build initial buildx command
+    const args = {
+      command: this.builder,
+      args: [
+        'buildx',
+        'build',
+        `--file=${dockerfile}`,
+        '--progress=plain',
+        `--tag=${tag}`,
+        context,
+      ],
+    };
+
+    // @TODO: add in other args like
+    // `--ssh=default=${process.env.SSH_AUTH_SOCK}`,
+    // `--ssh=default=/Users/pirog/.ssh/id_nopw`,
+    // gha?
+    // build args?
+    // @TODO: consider other opts? https://docs.docker.com/reference/cli/docker/buildx/build/ args?
+
+    // get builder
+    const buildxer = require('../utils/run-command')(args.command, args.args, {debug});
+
+    // augment buildxer with more events so it has the same interface as build
+    buildxer.stdout.on('data', data => {
+      buildxer.emit('data', data);
+      buildxer.emit('progress', data);
+      for (const line of data.toString().trim().split('\n')) debug(line);
+      stdout += data;
+    });
+    buildxer.stderr.on('data', data => {
+      buildxer.emit('data', data);
+      buildxer.emit('progress', data);
+      for (const line of data.toString().trim().split('\n')) debug(line);
+      stderr += data;
+    });
+    buildxer.on('close', code => {
+      // if code is non-zero and we arent ignoring then reject here
+      if (code !== 0 && !ignoreReturnCode) {
+        buildxer.emit('error', require('../utils/get-buildx-error')({code, stdout, stderr}));
+      // otherwise return done
+      } else {
+        buildxer.emit('done', {code, stdout, stderr});
+        buildxer.emit('finished', {code, stdout, stderr});
+        buildxer.emit('success', {code, stdout, stderr});
+      }
+    });
+
+    // ensure context dir exists
+    fs.mkdirSync(context, {recursive: true});
+
+    // move other sources into the build context
+    for (const source of sources) {
+      fs.copySync(source.source, path.join(context, source.destination));
+      debug('copied %o into build context %o', source.source, path.join(context, source.destination));
+    }
+
+    // copy the dockerfile to the correct place
+    fs.copySync(dockerfile, path.join(context, 'Dockerfile'));
+    debug('copied Imagefile from %o to %o', dockerfile, path.join(context, 'Dockerfile'));
+
+    // debug
+    debug('buildxing image %o from %o', tag, context);
+
+    // return merger
+    return mergePromise(buildxer, awaitHandler);
   }
 
   /*

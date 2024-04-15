@@ -84,6 +84,7 @@ services:
     api: 4
     type: l337
     image:
+      buildx: false
       imagefile: "nginx:1.21.5"
       tag: "lando/nginx:powerman-5000"
   image-5:
@@ -99,6 +100,49 @@ services:
         FROM nginx:1.21.6
         ENV SERVICE image-6
         WORKDIR /usr/share/nginx/html
+
+  # buildx features
+  buildx:
+    api: 4
+    type: l337
+    image:
+      buildx: true
+      imagefile: |
+        # syntax=docker/dockerfile:1.7
+        ARG VERSION=bookworm
+        FROM alpine AS build-env
+        WORKDIR /app
+        RUN touch /app/me
+
+        FROM debian:$VERSION
+        ARG VERSION
+
+        RUN echo $VERSION > image_version
+        RUN <<EOF
+        apt-get update
+        apt-get install -y curl
+        EOF
+        # RUN --mount=type=secret,id=mysecret cat /run/secrets/mysecret
+        # RUN --mount=type=ssh git clone git@example.com:myrepo.git .
+
+        WORKDIR /app
+
+        ADD --keep-git-dir=true https://github.com/moby/buildkit.git#v0.10.1 /buildkit
+        ADD --checksum=sha256:24454f830cdb571e2c4ad15481119c43b3cafd48dd869a9b2945d1036d1dc68d https://mirrors.edge.kernel.org/pub/linux/kernel/Historic/linux-0.01.tar.gz /tmp
+        COPY * /tmp
+        COPY --from=build-env /app .
+        COPY --chown=55:mygroup file* /tmp/files
+        COPY --chown=bin file* /tmp/files2
+        COPY --chown=1 file* /tmp/files3
+        COPY --chown=10:11 file* /tmp/files3
+        COPY --chown=myuser:mygroup --chmod=644 file* /tmp/files4
+
+        CMD sleep infinity
+      context:
+        - source: "file1"
+          destination: "/file7"
+          owner: "nginx:nginx"
+          permissions: "775"
 
   # context features
   context-1:
@@ -136,6 +180,7 @@ services:
         - source: "file1"
           destination: "/file7"
           owner: "nginx:nginx"
+          permissions: "775"
         # COPY file1 to /file7 and set ownership to nginx:nginx
         - source: "file1"
           destination: "file8"
