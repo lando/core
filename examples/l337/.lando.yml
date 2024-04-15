@@ -128,7 +128,7 @@ services:
         WORKDIR /app
 
         # ADD --keep-git-dir=true https://github.com/moby/buildkit.git#v0.10.1 /buildkit
-        ADD --checksum=sha256:24454f830cdb571e2c4ad15481119c43b3cafd48dd869a9b2945d1036d1dc68d https://mirrors.edge.kernel.org/pub/linux/kernel/Historic/linux-0.01.tar.gz /tmp
+        # ADD --checksum=sha256:24454f830cdb571e2c4ad15481119c43b3cafd48dd869a9b2945d1036d1dc68d https://mirrors.edge.kernel.org/pub/linux/kernel/Historic/linux-0.01.tar.gz /tmp
         COPY * /tmp
         COPY --from=build-env /app .
         COPY --chown=55:mygroup file* /tmp/files
