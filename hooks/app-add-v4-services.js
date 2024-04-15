@@ -31,12 +31,14 @@ module.exports = async (app, lando) => {
 
     // get any cached info so we can set that as a base in the service
     const info = _(_.find(app.v4.cachedInfo, {service: config.name, api: 4}))
-      .pick(['image', 'lastBuild', 'tag'])
+      .pick(['healthy', 'image', 'state', 'tag'])
       .value();
 
     // retrieve the correct class and mimic-ish v4 patterns to ensure faster loads
     const Service = lando.factory.get(config.type, config.api);
     Service.bengineConfig = lando.config.engineConfig;
+    Service.builder = lando.config.dockerBin;
+    Service.orchestrator = lando.config.orchestratorBin;
 
     // instantiate
     const service = new Service(config.name, {

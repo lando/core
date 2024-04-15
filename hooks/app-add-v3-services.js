@@ -4,6 +4,7 @@ const _ = require('lodash');
 
 module.exports = async (app, lando) => {
   // add parsed services to app object so we can use them downstream
+  app.cachedInfo = _.get(lando.cache.get(app.composeCache), 'info', []);
   app.parsedServices = require('../utils/parse-v3-services')(_.get(app, 'config.services', {}), app);
   app.parsedV3Services = _(app.parsedServices).filter(service => service.api === 3).value();
   app.servicesList = app.parsedV3Services.map(service => service.name);
@@ -19,9 +20,12 @@ module.exports = async (app, lando) => {
     // Build da things
     const Service = lando.factory.get(service.type, service.api);
     const data = new Service(service.name, _.merge({}, service, {_app: app}), lando.factory);
+    const cachedInfo = _.find(app.cachedInfo, {service: service.name}) ?? {};
+    const info = _.merge({}, cachedInfo, data.info);
+
     // add da data
     app.add(data);
-    app.info.push(data.info);
+    app.info.push(info);
   });
 
   // we need to add any "managed" services stealth added by service builders

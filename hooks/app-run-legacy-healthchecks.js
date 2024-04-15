@@ -34,6 +34,7 @@ module.exports = async (app, lando) => {
     try {
       const options = {max: healthcheck.retry, backoff: healthcheck.delay};
       await lando.Promise.retry(async () => await runner(...healthcheck.args), options);
+      service.healthy = true;
     } catch (error) {
       // set the service info as unhealthy if we get here
       const service = _.find(app.info, {service: healthcheck.service});
