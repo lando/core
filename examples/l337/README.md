@@ -26,14 +26,15 @@ lando destroy -y
 # should have correct info when not built
 lando info -s db | grep api: | grep 4
 lando info -s db | grep type: | grep l337
-lando info -s db | grep lastBuild: | grep never
+lando info -s db | grep healthy: | grep unknown
+lando info -s db | grep state: | grep IMAGE: | grep UNBUILT
 lando info -s db | grep -z image: | grep core/examples/l337/Dockerfile
 lando info -s db | grep primary: | grep false
 lando info -s db | grep user: | grep www-data
 cat $(lando info -s db --path "[0].image" --format json | tr -d '"') | grep "ENV SERVICE=db"
 lando info -s web | grep api: | grep 4
 lando info -s web | grep type: | grep l337
-lando info -s web | grep lastBuild: | grep never
+lando info -s web | grep state: | grep IMAGE: | grep UNBUILT
 lando info -s web | grep -z image: | grep /Imagefile
 lando info -s web | grep primary: | grep true
 lando info -s web | grep appMount: | grep /site
@@ -60,14 +61,14 @@ lando restart
 lando rebuild -y
 
 # should have the correct info when built
-lando info -s db | grep lastBuild: | grep succeeded
-lando info -s web | grep lastBuild: | grep succeeded
-lando info -s image-1 | grep lastBuild: | grep succeeded
-lando info -s image-2 | grep lastBuild: | grep succeeded
-lando info -s image-3 | grep lastBuild: | grep succeeded
-lando info -s image-4 | grep lastBuild: | grep succeeded
-lando info -s image-5 | grep lastBuild: | grep succeeded
-lando info -s image-6 | grep lastBuild: | grep succeeded
+lando info -s db | grep state: | grep IMAGE: | grep BUILT
+lando info -s web |  grep state: | grep IMAGE: | grep BUILT
+lando info -s image-1 | grep state: | grep IMAGE: | grep BUILT
+lando info -s image-2 | grep state: | grep IMAGE: | grep BUILT
+lando info -s image-3 | grep state: | grep IMAGE: | grep BUILT
+lando info -s image-4 | grep state: | grep IMAGE: | grep BUILT
+lando info -s image-5 | grep state: | grep IMAGE: | grep BUILT
+lando info -s image-6 | grep state: | grep IMAGE: | grep BUILT
 lando info -s db | grep tag: | grep "lando/l337\-" | grep "\-db:latest"
 lando info -s web | grep tag: | grep "lando/l337\-" | grep "\-web:latest"
 lando info -s image-1 | grep tag: | grep "lando/l337\-" | grep "\-image-1:latest"
