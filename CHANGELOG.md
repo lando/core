@@ -1,3 +1,23 @@
+## v3.21.0-beta.15 - [April 20, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.15)
+
+### New Features
+
+* Added `buildx` toggle to `api: 4` service `image` key
+* Changed default `api: 4` service builder to `buildx`
+* Improved `api: 4` image build errors and handling
+
+### Bug Fixes
+
+* Fixed bug causing `healthy` info to not persist correctly
+* Fixed inconsistent container shutdown by switching from `kill` to `stop`
+* Fixed inconsistent error display in `dc2` `listr` renderer
+
+### Internal
+
+* Changed default `healthy` info from `true` to `unknown`
+* Changed `api: 4` service info to provide a `state` key
+* Added `app.updateComposeCache()` and `app.v4.updateComposeCache` for better metadata consistencu
+
 ## v3.21.0-beta.14 - [April 10, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.14)
 
 ### New Features
@@ -9,7 +29,7 @@
 * Updated tested Docker Desktop range to `<=4.29`
 * Updated tested Docker Engine range to `<27`
 
-### Bug Fixes Features
+### Bug Fixes
 
 * Fixed bug where `lando update` check failures were failing silently
 * Fixed bug where `GITHUB_TOKEN` was being used, if set, to get `lando update` info

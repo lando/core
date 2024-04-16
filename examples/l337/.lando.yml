@@ -176,7 +176,7 @@ services:
             ENV HALL OATES
         # COPY ./images/Dockerfile to /images/nginx/Dockerfile
         - source: "./images/nginx/Dockerfile"
-        # COPY file1 to /file6 and set ownership to nginx:nginx
+        # COPY file1 to /file6 and set ownership to nginx:nginx and perms 775
         - source: "file1"
           destination: "/file7"
           owner: "nginx:nginx"
