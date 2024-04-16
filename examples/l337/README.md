@@ -153,14 +153,14 @@ lando stat /tmp/stuff/file5
 lando stat /file6
 lando stat /images/nginx/Dockerfile
 lando stat /file7
-lando stat --command "%U:%G" /file7 | grep nginx:nginx
+lando stat -c "%U:%G" /file7 | grep nginx:nginx
 lando stat /file8
-lando stat --command "%U:%G" /file8 | grep nginx:dialout
+lando stat -c "%U:%G" /file8 | grep nginx:dialout
 lando stat /file9
-lando stat --command "%U:%G" /file9 | grep nginx:nginx
+lando stat -c "%U:%G" /file9 | grep nginx:nginx
 lando stat /SeaShanties/lyrics/main/shanties/HeresAHealthToTheCompany.json
 lando stat /etc/config/available-shanties.json
-lando stat --command "%U:%G" /etc/config/available-shanties.json | grep eddie-teach:eddie-teach
+lando stat -c "%U:%G" /etc/config/available-shanties.json | grep eddie-teach:eddie-teach
 lando env --service context-1 | grep HALL | grep OATES
 
 # should order build steps correctly
