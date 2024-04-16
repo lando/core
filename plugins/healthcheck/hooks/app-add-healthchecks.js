@@ -90,11 +90,10 @@ module.exports = async app => {
     retry: healthcheck.retry,
     task: async (ctx, task) => {
       // add the metadata
-      ctx.data = healthcheck;
-      ctx.service = healthcheck.service;
+      ctx.data[healthcheck.service] = healthcheck;
 
       try {
-        return await healthcheck.test(...healthcheck.args);
+        await healthcheck.test(...healthcheck.args);
       } catch (error) {
         // assess retry situation
         const {count} = task.isRetrying();
@@ -108,7 +107,10 @@ module.exports = async app => {
         throw error;
 
       // finally add a slight delay to help post-start events run without failure
+      // and to update the service info
       } finally {
+        const service = _.find(app.info, {service: healthcheck.service});
+        service.healthy = _.find(ctx.errors, {service: healthcheck.service}) === undefined;
         await require('delay')(1000);
       }
     },
@@ -121,15 +123,11 @@ module.exports = async app => {
     test: async (tasks, options) => {
       if (tasks && tasks.length > 0) {
         // run tasks
-        const {errors, service} = await app.runTasks(tasks, options);
-        // get info
-        const info = _.find(app.info, {service: service});
+        const {errors} = await app.runTasks(tasks, options);
 
         // if we have errors lets add relevant warnings
         if (errors && errors.length > 0) {
           _.forEach(errors, error => {
-            // set to unhealthy
-            info.healthy = false;
             // parse the message
             const message = _.trim(_.get(error, 'message', 'UNKNOWN ERROR'));
             // add the warning
@@ -143,9 +141,7 @@ module.exports = async app => {
               command: `lando logs -s ${error.service}`,
             }, error, true);
           });
-
-        // otherwise set to healthy
-        } else info.healthy = true;
+        }
 
         // reset compose caches with updated healthy info
         app.updateComposeCache();
