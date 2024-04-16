@@ -20,6 +20,9 @@ export default defineConfig({
     ['link', {rel: 'icon', href: '/cli/favicon.ico', size: 'any'}],
     ['link', {rel: 'icon', href: '/cli/favicon.svg', type: 'image/svg+xml'}],
   ],
+  rewrites: {
+    'lando-service.md': 'services/lando.md',
+  },
   themeConfig: {
     contributors: {
       merge: 'name',
