@@ -1,0 +1,4 @@
+ARG nginx=1.21.4
+FROM nginx:${nginx}
+ARG vibe
+ENV VIBE=${vibe}

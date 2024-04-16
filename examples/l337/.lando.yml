@@ -144,6 +144,33 @@ services:
           owner: "nginx:nginx"
           permissions: "775"
 
+  # build-arg features
+  build-args-1:
+    api: 4
+    type: l337
+    image:
+      args:
+        - nginx= 1.19.2
+        - vibe=rising
+        - something
+        -
+      buildx: true
+      dockerfile: "./images/nginx/Vibefile"
+  build-args-2:
+    api: 4
+    type: l337
+    image:
+      args:
+        nginx: 1.21.5
+        vibe: dialed
+        something:
+      buildx: false
+      imagefile: |
+        ARG nginx=1.21.4
+        FROM nginx:${nginx}
+        ARG vibe
+        ENV VIBE=${vibe}
+
   # context features
   context-1:
     api: 4
