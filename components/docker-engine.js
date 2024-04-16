@@ -47,6 +47,7 @@ class DockerEngine extends Dockerode {
   build(dockerfile,
     {
       tag,
+      buildArgs = {},
       attach = false,
       context = path.join(require('os').tmpdir(), nanoid()),
       id = tag,
@@ -138,8 +139,19 @@ class DockerEngine extends Dockerode {
 
     // call the parent
     // @TODO: consider other opts? https://docs.docker.com/engine/api/v1.43/#tag/Image/operation/ImageBuild args?
-    debug('building image %o from %o', tag, context);
-    super.buildImage({context, src: fs.readdirSync(context)}, {forcerm: true, t: tag}, callbackHandler);
+    debug('building image %o from %o writh build-args %o', tag, context, buildArgs);
+    super.buildImage(
+      {
+        context,
+        src: fs.readdirSync(context),
+      },
+      {
+        buildargs: JSON.stringify(buildArgs),
+        forcerm: true,
+        t: tag,
+      },
+      callbackHandler,
+    );
 
     // make this a hybrid async func and return
     return mergePromise(builder, awaitHandler);
@@ -159,6 +171,7 @@ class DockerEngine extends Dockerode {
   buildx(dockerfile,
     {
       tag,
+      buildArgs = {},
       context = path.join(require('os').tmpdir(), nanoid()),
       id = tag,
       ignoreReturnCode = false,
@@ -188,6 +201,7 @@ class DockerEngine extends Dockerode {
 
     // extend debugger in appropriate way
     const debug = id ? this.debug.extend(id) : this.debug.extend('docker-engine:buildx');
+
     // build initial buildx command
     const args = {
       command: this.builder,
@@ -201,14 +215,16 @@ class DockerEngine extends Dockerode {
       ],
     };
 
+    // add any needed build args into the command
+    for (const [key, value] of Object.entries(buildArgs)) args.args.push(`--build-arg=${key}=${value}`);
+
     // @TODO: add in other args like
     // `--ssh=default=${process.env.SSH_AUTH_SOCK}`,
     // `--ssh=default=/Users/pirog/.ssh/id_nopw`,
     // gha?
-    // build args?
-    // @TODO: consider other opts? https://docs.docker.com/reference/cli/docker/buildx/build/ args?
 
     // get builder
+    // @TODO: consider other opts? https://docs.docker.com/reference/cli/docker/buildx/build/ args?
     const buildxer = require('../utils/run-command')(args.command, args.args, {debug});
 
     // augment buildxer with more events so it has the same interface as build
@@ -250,7 +266,7 @@ class DockerEngine extends Dockerode {
     debug('copied Imagefile from %o to %o', dockerfile, path.join(context, 'Dockerfile'));
 
     // debug
-    debug('buildxing image %o from %o', tag, context);
+    debug('buildxing image %o from %o with build-args', tag, context, buildArgs);
 
     // return merger
     return mergePromise(buildxer, awaitHandler);

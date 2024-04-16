@@ -75,6 +75,7 @@ class L337ServiceV4 extends EventEmitter {
 
   constructor(id, {
     appRoot = path.join(os.tmpdir(), nanoid(), id),
+    buildArgs = {},
     context = path.join(os.tmpdir(), nanoid(), id),
     config = {},
     debug = L337ServiceV4.debug,
@@ -185,6 +186,9 @@ class L337ServiceV4 extends EventEmitter {
     if (hasInstructions(this.#data.imageInstructions, ['COPY', 'ADD']) && this.#data.imageFileContext) {
       this.#data.sources.push(({source: this.#data.imageFileContext, destination: '.'}));
     }
+
+    // if we have context data then lets pass that in as well
+    if (data.args) this.addBuildArgs(data.args);
     // if we have context data then lets pass that in as well
     if (data.context) this.addContext(data.context);
     // if we have groups data then
@@ -201,6 +205,33 @@ class L337ServiceV4 extends EventEmitter {
   addComposeData(data = {}) {
     this.#data.compose.push(data);
     this.debug('%o added top level compose data %o', this.id, data);
+  }
+
+  // passed in build args that can be used
+  addBuildArgs(args) {
+    // if args is an object lets make it into an array
+    if (isObject(args)) args = Object.entries(args);
+
+    // if args is a string then just arrayify it immediately
+    if (typeof args === 'string') args = [args];
+
+    // if we arent an array at this point something has gone amis so lets just set unset it and debug
+    if (!Array.isArray(args)) {
+      args = [];
+      this.debug('build-args cannot be translated into an array so resetting to empty');
+    }
+
+    // we should def be an array at this point so lets standardize as best we can
+    args = args
+      .map(arg => typeof arg === 'string' ? arg.split('=') : arg)
+      .filter(arg => arg !== null && arg !== undefined)
+      .filter(([key, value]) => key !== null && key !== undefined)
+      .map(([key, value]) => ([key, String(value)]))
+      .map(([key, value]) => ([key.trim(), value.trim()]));
+
+    // merge into build args
+    this.buildArgs = merge({}, this.buildArgs, Object.fromEntries(args));
+    this.debug('%o build-args are now %o', this.id, this.buildArgs);
   }
 
   // adds files/dirs to the build context
@@ -497,6 +528,7 @@ class L337ServiceV4 extends EventEmitter {
     // return the build context
     return {
       id: this.id,
+      buildArgs: this.buildArgs,
       context: this.context,
       imagefile: this.imagefile,
       sources: this.#data.sources.flat(Number.POSITIVE_INFINITY).filter(Boolean).filter(source => !source.url),
