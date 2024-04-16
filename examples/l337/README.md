@@ -3,7 +3,7 @@ L337 Example
 
 This example exists primarily to test the v3 runtime implementation of following documentation:
 
-* [Lando 4 l337 service](https://docs.lando.dev/core/v4/landofile/services.html#l-337--serviceervice)
+* [Lando 3 l337 service](https://docs.lando.dev/core/v3/services/l337.html)
 
 Start up tests
 --------------
@@ -141,10 +141,10 @@ lando ssh --command "test -w /file-ro" || echo $? | grep 1
 # should handle all context options correctly
 lando stat /folder
 lando stat /folder/stuff
-lando stat /folder/more--servicetuff
+lando stat /folder/more-stuff
 lando stat /thing
 lando stat /thing/stuff
-lando stat /thing/more--servicetuff
+lando stat /thing/more-stuff
 lando stat /file2
 lando stat /file3
 lando stat /tmp/file4
@@ -159,20 +159,20 @@ lando stat --command "%U:%G" /file8 | grep nginx:dialout
 lando stat /file9
 lando stat --command "%U:%G" /file9 | grep nginx:nginx
 lando stat /SeaShanties/lyrics/main/shanties/HeresAHealthToTheCompany.json
-lando stat /etc/config/available--servicehanties.json
-lando stat --command "%U:%G" /etc/config/available--servicehanties.json | grep eddie-teach:eddie-teach
+lando stat /etc/config/available-shanties.json
+lando stat --command "%U:%G" /etc/config/available-shanties.json | grep eddie-teach:eddie-teach
 lando env --service context-1 | grep HALL | grep OATES
 
 # should order build steps correctly
 lando groups | sed -n '1p' | grep root-default--99999999-root-root
-lando groups | sed -n '2p' | grep root--serviceystem-4--100000-root-root
-lando groups | sed -n '3p' | grep nginx--serviceystem--10010-nginx-nginx
-lando groups | sed -n '4p' | grep root--serviceystem--10000-root-root
-lando groups | sed -n '5p' | grep root--serviceystem--9998-root-root
-lando groups | sed -n '6p' | grep root--serviceystem--9997-root-root
-lando groups | sed -n '7p' | grep nginx--serviceystem--9996-nginx-nginx
-lando groups | sed -n '8p' | grep nginx--serviceystem--9995-nginx-nginx
-lando groups | sed -n '9p' | grep root--commandontext-0-root-root
+lando groups | sed -n '2p' | grep root-system-4--100000-root-root
+lando groups | sed -n '3p' | grep nginx-system--10010-nginx-nginx
+lando groups | sed -n '4p' | grep root-system--10000-root-root
+lando groups | sed -n '5p' | grep root-system--9998-root-root
+lando groups | sed -n '6p' | grep root-system--9997-root-root
+lando groups | sed -n '7p' | grep nginx-system--9996-nginx-nginx
+lando groups | sed -n '8p' | grep nginx-system--9995-nginx-nginx
+lando groups | sed -n '9p' | grep root-context-0-root-root
 lando groups | sed -n '10p' | grep nginx-user-10-nginx-nginx
 lando groups | sed -n '11p' | grep root-default-1000-root-root
 lando groups | sed -n '12p' | grep root-default-1000-root-root
@@ -187,14 +187,14 @@ lando groups | sed -n '20p' | grep root-val-jean-24701-root-root
 
 # should run build steps as the correct user
 lando groups | sed -n '1p' | grep root-default--99999999-root-root
-lando groups | sed -n '2p' | grep root--serviceystem-4--100000-root-root
-lando groups | sed -n '3p' | grep nginx--serviceystem--10010-nginx-nginx
-lando groups | sed -n '4p' | grep root--serviceystem--10000-root-root
-lando groups | sed -n '5p' | grep root--serviceystem--9998-root-root
-lando groups | sed -n '6p' | grep root--serviceystem--9997-root-root
-lando groups | sed -n '7p' | grep nginx--serviceystem--9996-nginx-nginx
-lando groups | sed -n '8p' | grep nginx--serviceystem--9995-nginx-nginx
-lando groups | sed -n '9p' | grep root--commandontext-0-root-root
+lando groups | sed -n '2p' | grep root-system-4--100000-root-root
+lando groups | sed -n '3p' | grep nginx-system--10010-nginx-nginx
+lando groups | sed -n '4p' | grep root-system--10000-root-root
+lando groups | sed -n '5p' | grep root-system--9998-root-root
+lando groups | sed -n '6p' | grep root-system--9997-root-root
+lando groups | sed -n '7p' | grep nginx-system--9996-nginx-nginx
+lando groups | sed -n '8p' | grep nginx-system--9995-nginx-nginx
+lando groups | sed -n '9p' | grep root-context-0-root-root
 lando groups | sed -n '10p' | grep nginx-user-10-nginx-nginx
 lando groups | sed -n '11p' | grep root-default-1000-root-root
 lando groups | sed -n '12p' | grep root-default-1000-root-root
