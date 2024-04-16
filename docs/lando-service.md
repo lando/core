@@ -139,7 +139,7 @@ One of the great features of Lando is its ability to destroy a single planet... 
 Note that build steps will **ONLY RUN THE FIRST TIME YOU SPIN UP YOUR APP.** That means if you change them, you will need to run `lando rebuild` for them to re-run. An exception to this is if one or more of your build steps error. When this happens Lando will run the build steps on every subsequent `lando start` until they complete without error.
 
 :::tip When should I use build steps?
-If you need additional on-server dependencies like php extensions or node modules, it sounds like a build step may be for you. If you have automation, you want to run **EVERY TIME** and you may want to consider using [events](./events.md) instead.
+If you need additional on-server dependencies like php extensions or node modules, it sounds like a build step may be for you. If you have automation, you want to run **EVERY TIME** and you may want to consider using [events](../events.md) instead.
 :::
 
 There are four major build steps.
@@ -277,7 +277,7 @@ Note that the above example will lose any Lando functionality that is provided b
 
 ## Healthcheck
 
-Since [Lando 3.20.0](https://github.com/lando/lando/releases/tag/v3.20.1) service URL scanning is [in its own plugin](./healthcheck).
+Since [Lando 3.20.0](https://github.com/lando/lando/releases/tag/v3.20.1) service URL scanning is [in its own plugin](../healthcheck).
 
 ## Localhost Assignment
 
@@ -302,7 +302,7 @@ Note that if you are adding additional `moreHttpPorts` you **must** also make su
 
 ## meUser
 
-For the purposes of things like [events](./events.md) and [tooling](./tooling.md) you may wish to set the "non-root" user to run commands as "you".
+For the purposes of things like [events](../events.md) and [tooling](../tooling.md) you may wish to set the "non-root" user to run commands as "you".
 
 **Landofile**
 ```yaml
@@ -347,7 +347,7 @@ Also note that cert creation requires running the service as the `root` user. To
 
 ## URL Scanning
 
-Since [Lando 3.14.0](https://github.com/lando/lando/releases/tag/v3.14.0) service URL scanning is [in its own plugin](./scanner).
+Since [Lando 3.14.0](https://github.com/lando/lando/releases/tag/v3.14.0) service URL scanning is [in its own plugin](../scanner).
 
 ## Overrides
 
