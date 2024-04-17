@@ -15,6 +15,7 @@
 ### Bug Fixes
 
 * Fixed bug causing `healthy` info to not persist correctly
+* Fixed bug causing proxy `502 Bad Gateway` when assiging duplicate `urls` with different `ports`
 * Fixed inconsistent container shutdown by switching from `kill` to `stop`
 * Fixed inconsistent error display in `dc2` `listr` renderer
 
