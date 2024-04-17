@@ -64,6 +64,8 @@ done
 # Get type-specific dump cpmmand
 if [[ ${POSTGRES_DB} != '' ]]; then
   DUMPER="pg_dump postgresql://$USER@localhost:$PORT/$DATABASE"
+elif [[ ${MARIADB_DATABASE} != '' && -x $(command -v mariadb-dump) ]]; then
+  DUMPER="mariadb-dump --opt --user=${USER} --host=${HOST} --port=${PORT} ${LANDO_EXTRA_DB_EXPORT_ARGS} ${DATABASE}"
 else
   DUMPER="mysqldump --opt --user=${USER} --host=${HOST} --port=${PORT} ${LANDO_EXTRA_DB_EXPORT_ARGS} ${DATABASE}"
 fi
