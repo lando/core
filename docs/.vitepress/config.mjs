@@ -80,7 +80,7 @@ function sidebar() {
       collapsed: false,
       items: [
         {text: 'Lando Service', link: '/services/lando'},
-        {text: 'L-337 Service', link: '/services/l337'},
+        {text: 'L-337 Service <small><strong>(BETA)</strong></small>', link: '/services/l337'},
       ],
     },
     {
