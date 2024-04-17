@@ -17,6 +17,7 @@ proxy:
     # - db.lndo.site:3306
     - "*-lando-proxy.lndo.site"
     - "wild.*.lando-proxy.lndo.site"
+    - web3.lndo.site/actually-web-2
   web3:
     - "lets.combine.*.lndo.site:8080/everything/for-real"
     - "*.more.web3.lndo.site:8080"

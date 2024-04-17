@@ -67,7 +67,7 @@ exports.getRule = rule => {
 exports.getUrlsCounts = config => _(config)
   .flatMap(service => service)
   .map(url => exports.parseUrl(url))
-  .map(data => `${data.host}${data.pathname}:${data.port}`)
+  .map(data => `${data.host}${data.pathname}`)
   .countBy()
   .value();
 
