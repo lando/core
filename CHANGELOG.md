@@ -3,7 +3,8 @@
 ### New Features
 
 * Added `buildx` toggle to `l337` service `image` key
-* Added build `args` support `l337` service `image` key
+* Added build `args` support to `l337` service `image` key
+* Added `ssh` support to `l337` service `image` key
 * Changed default `l337` service builder to `buildx`
 * Improved `api: 4` image build errors and handling
 
