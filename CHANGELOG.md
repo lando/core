@@ -6,6 +6,10 @@
 
 ## v3.22.0-beta.6 - [September 4, 2024](https://github.com/lando/cli/releases/tag/v3.22.0-beta.6)
 
+### Notes
+
+* Users can now try out the lowest level and first `api: 4` service. [Read more](https://docs.lando.dev/core/v3/services/l337.html)
+
 ### New Features
 
 * Updated `@lando/core` to [`v3.22.0-beta.6`](https://github.com/lando/core/releases/tag/v3.22.0-beta.6)
