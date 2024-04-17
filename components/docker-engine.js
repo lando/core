@@ -175,6 +175,8 @@ class DockerEngine extends Dockerode {
       context = path.join(require('os').tmpdir(), nanoid()),
       id = tag,
       ignoreReturnCode = false,
+      sshKeys = [],
+      sshSocket = false,
       sources = [],
       stderr = '',
       stdout = '',
@@ -218,13 +220,28 @@ class DockerEngine extends Dockerode {
     // add any needed build args into the command
     for (const [key, value] of Object.entries(buildArgs)) args.args.push(`--build-arg=${key}=${value}`);
 
-    // @TODO: add in other args like
-    // `--ssh=default=${process.env.SSH_AUTH_SOCK}`,
-    // `--ssh=default=/Users/pirog/.ssh/id_nopw`,
-    // gha?
+    // if we have sshKeys then lets pass those in
+    if (sshKeys.length > 0) {
+      // ensure we have good keys
+      sshKeys = require('../utils/get-passphraseless-keys')(sshKeys);
+      // first add all the keys with id "keys"
+      args.args.push(`--ssh=keys=${sshKeys.join(',')}`);
+      // then add each key separately with its name as the key
+      for (const key of sshKeys) args.args.push(`--ssh=${path.basename(key)}=${key}`);
+      // log
+      debug('passing in ssh keys %o', sshKeys);
+    }
+
+    // if we have an sshAuth socket then add that as well
+    if (sshSocket && fs.existsSync(sshSocket)) {
+      args.args.push(`--ssh=agent=${sshSocket}`);
+      debug('passing in ssh agent socket %o', sshSocket);
+    }
 
     // get builder
     // @TODO: consider other opts? https://docs.docker.com/reference/cli/docker/buildx/build/ args?
+    // secrets?
+    // gha cache-from/to?
     const buildxer = require('../utils/run-command')(args.command, args.args, {debug});
 
     // augment buildxer with more events so it has the same interface as build

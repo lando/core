@@ -107,6 +107,7 @@ services:
     type: l337
     image:
       buildx: true
+      ssh: true
       imagefile: |
         # syntax=docker/dockerfile:1.7
         ARG VERSION=bookworm
@@ -120,10 +121,10 @@ services:
         RUN echo $VERSION > image_version
         RUN <<EOF
         apt-get update
-        apt-get install -y curl
+        apt-get install -y curl git
         EOF
-        # RUN --mount=type=secret,id=mysecret cat /run/secrets/mysecret
-        # RUN --mount=type=ssh git clone git@example.com:myrepo.git .
+        RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
+        RUN --mount=type=ssh,id=keys git clone git@github.com:lando/lando.git /tmp
 
         # these are not universally supported yet
         # ADD --keep-git-dir=true https://github.com/moby/buildkit.git#v0.10.1 /buildkit
