@@ -65,6 +65,7 @@ curl -s -o /dev/null -I -w "%{http_code}" http://lets.see.what.happens.in.a.lndo
 curl -s -o /dev/null -I -w "%{http_code}" http://or.in.a.deeper.lndo.site/subdirectory/tree/ | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://lets.combine.really.lndo.site/everything/for-real | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://give.me.lots.lndo.site/more/subs | grep 200
+curl http://web3.lndo.site/actually-web-2 | grep "Welcome to nginx!"
 
 # Should load in custom middleware if specified
 curl http://object-format.lndo.site | grep X-Lando-Test | grep on
