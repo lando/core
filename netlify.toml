@@ -45,7 +45,3 @@
   from = "/core/v3/*"
   to = "/:splat"
   status = 200
-[[redirects]]
-  from = "/core/v3/lando-service.html"
-  to = "/core/v3/services/lando.html"
-  status = 301
