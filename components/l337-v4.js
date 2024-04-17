@@ -83,6 +83,8 @@ class L337ServiceV4 extends EventEmitter {
     info = {},
     name = id,
     primary = false,
+    sshKeys = [],
+    sshSocket = false,
     stages = {},
     states = {},
     tag = nanoid(),
@@ -105,6 +107,8 @@ class L337ServiceV4 extends EventEmitter {
     this.debug = debug;
     this.name = name || id;
     this.primary = primary;
+    this.sshKeys = sshKeys;
+    this.sshSocket = sshSocket;
     this.type = type;
     this.tag = tag;
 
@@ -193,10 +197,13 @@ class L337ServiceV4 extends EventEmitter {
     if (data.context) this.addContext(data.context);
     // if we have groups data then
     if (data.groups) this.addGroups(data.groups);
+    // if we have activated ssh then figure all of that out
+    if (data.ssh) this.addSSH(data.ssh);
     // handle steps data
     if (data.steps) this.addSteps(data.steps);
     // if we have a custom tag then set that
     if (data.tag) this.tag = data.tag;
+
     // finally make sure we honor buildx disabling
     if (require('../utils/is-disabled')(data.buildx ?? this.buildx)) this.buildx = false;
   }
@@ -226,6 +233,7 @@ class L337ServiceV4 extends EventEmitter {
       .map(arg => typeof arg === 'string' ? arg.split('=') : arg)
       .filter(arg => arg !== null && arg !== undefined)
       .filter(([key, value]) => key !== null && key !== undefined)
+      .filter(([key, value]) => value !== null && value !== undefined)
       .map(([key, value]) => ([key, String(value)]))
       .map(([key, value]) => ([key.trim(), value.trim()]));
 
@@ -414,6 +422,63 @@ class L337ServiceV4 extends EventEmitter {
     }
   }
 
+  // add agent info
+  // @TODO: should we throw an error if the socket does not exist or should we just rely on downstream errors?
+  addSSHAgent(agent = process.env.SSH_AUTH_SOCK) {
+    // if agent is true then reset it to $SSH_AUTH_SOCK
+    if (agent === true) agent = '$SSH_AUTH_SOCK';
+
+    // if ssh agent is a non false stringy value that does not exist on the fs then get the path from envvar
+    if (agent !== false && typeof agent === 'string' && !fs.existsSync(agent)) {
+      agent = agent.startsWith('$') ? agent = process.env[agent.slice(1)] : process.env[agent];
+    }
+
+    // @TODO: make this better?
+    this.sshSocket = agent;
+  }
+
+  addSSHKeys(keys = []) {
+    // if keys are explicitly set to false then reset keys to be empty
+    if (keys === false) {
+      this.sshKeys = [];
+      return;
+    }
+
+    // if ssh keys is true then set it to our default dirs'
+    if (keys === true) {
+      keys = [
+        path.join(os.homedir(), '.ssh'),
+        path.resolve(this.context, '..', '..', '..', '..', 'keys'),
+      ];
+    }
+
+    // if keys are a string then arrayify
+    if (typeof keys === 'string') keys = [keys];
+
+    // if keys are not an array at this point then do nothing
+    if (!Array.isArray(keys)) return;
+
+    // reset keys
+    this.sshKeys = [...new Set(this.sshKeys.concat(keys))];
+  }
+
+  // add/merge in ssh stuff for buildx
+  addSSH(ssh) {
+    // if ssh is explicitly true then that implies agent true and keys true
+    if (ssh === true) ssh = {agent: true, keys: true};
+
+    // if ssh is not an object at this point then we need to return false
+    if (!isObject(ssh)) {
+      this.debug('%o could not interpret ssh %o, must be boolean or object, setting to false', this.id, ssh);
+      return false;
+    }
+
+    // agent
+    this.addSSHAgent(ssh.agent);
+    // keys
+    this.addSSHKeys(ssh.keys);
+  }
+
   // build the image
   async buildImage() {
     // get build func
@@ -532,6 +597,8 @@ class L337ServiceV4 extends EventEmitter {
       context: this.context,
       imagefile: this.imagefile,
       sources: this.#data.sources.flat(Number.POSITIVE_INFINITY).filter(Boolean).filter(source => !source.url),
+      sshSocket: this.sshSocket,
+      sshKeys: require('../utils/get-passphraseless-keys')(this.sshKeys),
       tag: this.tag,
     };
   }
