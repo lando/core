@@ -100,6 +100,12 @@ certutil -addstore -f "ROOT" C:\Users\ME\.lando\certs\lndo.site.pem
 certutil -delstore "ROOT" serial-number-hex
 ```
 
+Note that if you want to trust the cert and are using Lando within a Linux environment on WSL2, you'll need to use the path to the cert used by that Linux environment. Ex:
+
+```bash
+certutil -addstore -f "ROOT" \\wsl.localhost\LINUX-DISTRIBUTION\home\LINUX-USER\.lando\certs\lndo.site.pem
+```
+
 ### Debian
 
 ```bash
