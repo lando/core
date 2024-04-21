@@ -8,6 +8,7 @@ module.exports = services => _(services)
   .map((service, name) => _.merge({}, {
     name,
     api: require('./get-service-api-version')(service.api),
+    builder: service.type.split(':')[0] ?? 'lando',
     config: _.omit(service, ['api', 'meUser', 'moreHttpPorts', 'primary', 'scanner', 'sport', 'type']),
     legacy: {
       meUser: service.meUser ?? 'www-data',
@@ -15,7 +16,8 @@ module.exports = services => _(services)
       sport: service.sport ?? '443',
     },
     primary: service.primary ?? false,
+    router: service.type.split(':')[1],
     scanner: service.scanner ?? false,
-    type: service.type ?? 'lando',
+    type: service.type,
   }))
   .value();

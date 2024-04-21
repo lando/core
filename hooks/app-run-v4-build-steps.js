@@ -18,7 +18,7 @@ module.exports = async (app, lando) => {
       if (_.isEmpty(data)) {
         lando.cache.remove(app.v4.preLockfile);
         lando.cache.remove(app.v4.postLockfile);
-        app.log.debug('removed v4 build locks');
+        app.log.debug('removed v4 image build locks');
       }
     });
   });
@@ -31,7 +31,7 @@ module.exports = async (app, lando) => {
         .filter(service => _.includes(buildV4Services, service.id))
         .value();
 
-      app.log.debug('going to build v4 services', services.map(service => service.id));
+      app.log.debug('going to build v4 images', services.map(service => service.id));
 
       // now build an array of promises with our services
       const tasks = services.map(service => {
@@ -91,6 +91,7 @@ module.exports = async (app, lando) => {
           const dir = service?.error?.context?.context ?? os.tmpdir();
           service.error.logfile = path.join(dir, `error-${nanoid()}.log`);
           data.image = 'busybox';
+          data.user = 'root';
           data.command = require('../utils/get-v4-image-build-error-command')(service.error);
           data.volumes = [`${service.error.logfile}:/tmp/error.log`];
         }
@@ -105,6 +106,35 @@ module.exports = async (app, lando) => {
 
     // and reset app.compose
     app.compose = require('../utils/dump-compose-data')(app.composeData, app._dir);
+
+    // and reset the compose cache as well
+    app.v4.updateComposeCache();
+  });
+
+  // run app build steps
+  app.events.on('pre-start', 110, async () => {
+    // get buildable services
+    const buildV4Services = _(app.v4.parsedConfig)
+      .filter(service => _.includes(_.get(app, 'opts.services', app.services), service.name))
+      .map(service => service.name)
+      .value();
+
+    // filter out any services that dont need to be built
+    const services = _(app.v4.services)
+      .filter(service => _.includes(buildV4Services, service.id))
+      .filter(service => typeof service.buildApp === 'function')
+      .filter(service => service?.info?.state?.IMAGE === 'BUILT')
+      .filter(service => service?.info?.state?.APP !== 'BUILT')
+      .value();
+
+    // and then run them in parallel
+    await Promise.all(services.map(async service => {
+      try {
+        await service.buildApp();
+      } catch (error) {
+        app.addMessage(require('../messages/app-build-v4-error')(error), error, true);
+      }
+    }));
 
     // and reset the compose cache as well
     app.v4.updateComposeCache();

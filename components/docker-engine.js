@@ -432,18 +432,39 @@ class DockerEngine extends Dockerode {
       stderro = '',
     } = {}) {
     const awaitHandler = async () => {
+      // stdin helpers
+      const resizer = container => {
+        const dimensions = {h: process.stdout.rows, w: process.stderr.columns};
+        if (dimensions.h != 0 && dimensions.w != 0) container.resize(dimensions, () => {});
+      };
+      const closer = (isRaw = process.isRaw) => {
+        process.stdout.removeListener('resize', resizer);
+        process.stdin.removeAllListeners();
+        process.stdin.setRawMode(isRaw);
+        process.stdin.resume();
+      };
+
       return new Promise((resolve, reject) => {
+        let prevkey;
+        const CTRL_P = '\u0010';
+        const CTRL_Q = '\u0011';
+
+        const aopts = {stream: true, stdout: true, stderr: true, hijack: interactive, stdin: interactive};
+        const isRaw = process.isRaw;
+        const stdout = new PassThrough();
+        const stderr = new PassThrough();
+
         runner.on('container', container => {
-          runner.on('stream', stream => {
-            const stdout = new PassThrough();
-            const stderr = new PassThrough();
+          container.attach(aopts, (error, stream) => {
+            if (error) runner.emit('error', error);
 
             // handle attach dynamics
             if (attach) {
               // if tty and just pipe everthing to stdout
-              if (copts.Tty) stream.pipe(process.stdout);
+              if (copts.Tty) {
+                stream.pipe(process.stdout);
               // otherwise we should be able to pipe both
-              else {
+              } else {
                 stdout.pipe(process.stdout);
                 stderr.pipe(process.stderr);
               }
@@ -456,6 +477,18 @@ class DockerEngine extends Dockerode {
               stdout.on('data', buffer => runner.emit('stdout', buffer));
               stderr.on('data', buffer => runner.emit('stderr', buffer));
               container.modem.demuxStream(stream, stdout, stderr);
+            }
+
+            // handle interactive
+            if (interactive) {
+              process.stdin.resume();
+              process.stdin.setEncoding('utf8');
+              process.stdin.setRawMode(true);
+              process.stdin.pipe(stream);
+              process.stdin.on('data', key => {
+                if (prevkey === CTRL_P && key === CTRL_Q) closer(stream, isRaw);
+                prevkey = key;
+              });
             }
 
             // make sure we close child streams when the parent is done
@@ -485,32 +518,29 @@ class DockerEngine extends Dockerode {
             allo += String(buffer);
             if (!attach) debug.extend('stderr')(String(buffer));
           });
-
-          runner.on('data', data => {
-            // emit error first
-            if (data.StatusCode !== 0) runner.emit('error', data);
-            // fire done no matter what?
-            runner.emit('done', data);
-            runner.emit('finished', data);
-            runner.emit('success', data);
-          });
         });
 
         // handle resolve/reject
         runner.on('done', data => {
-          // @TODO: what about data?
+          closer(stream, isRaw);
           resolve(makeSuccess(merge({}, data, {command: 'dockerode run', all: allo, stdout: stdouto, stderr: stderro}, {args: command})));
         });
         runner.on('error', error => {
+          closer(stream, isRaw);
           reject(makeError(merge({}, args, {command: 'dockerode run', all: allo, stdout: stdouto, stderr: stderro}, {args: command}, {error})));
         });
       });
     };
 
     // handles the callback to super.run
-    // we basically need this just to handle dockerode modem errors
-    const callbackHandler = error => {
+    const callbackHandler = (error, data) => {
+      // emit error first
       if (error) runner.emit('error', error);
+      if (data.StatusCode !== 0) runner.emit('error', data);
+      // fire done no matter what?
+      runner.emit('done', data);
+      runner.emit('finished', data);
+      runner.emit('success', data);
     };
 
     // error if no command
@@ -521,10 +551,14 @@ class DockerEngine extends Dockerode {
     // some good default createOpts
     const defaultCreateOptions = {
       AttachStdin: interactive,
+      AttachStdout: attach,
+      AttachStderr: attach,
       HostConfig: {AutoRemove: true},
       Tty: false || interactive || attach,
       OpenStdin: true,
+      StdinOnce: true,
     };
+
     // merge our create options over the defaults
     const copts = merge({}, defaultCreateOptions, createOptions);
     // collect some args we can merge into promise resolution

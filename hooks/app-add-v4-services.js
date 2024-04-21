@@ -24,10 +24,15 @@ module.exports = async (app, lando) => {
 
   // instantiate each service
   _.forEach(app.v4.parsedConfig, config => {
-    // Throw a warning if service is not supported
-    if (_.isEmpty(_.find(lando.factory.get(), {api: 4, name: config.type}))) {
-      app.log.warn('%s is not a supported v4 service type.', config.type);
+    // Throw a warning if builder is not supported
+    if (_.isEmpty(_.find(lando.factory.get(), {api: 4, name: config.builder}))) {
+      app.log.warn('%s is not a supported v4 builder.', config.builder);
     }
+
+    // @TODO:
+    // if we have routing information lets pass that through
+    // in v3 "type" was parsed into a builder and a version but in v4 we use a more generic "router"
+    // concept that lets the "entrypoint builder"
 
     // get any cached info so we can set that as a base in the service
     const info = _(_.find(app.v4.cachedInfo, {service: config.name, api: 4}))
@@ -35,7 +40,7 @@ module.exports = async (app, lando) => {
       .value();
 
     // retrieve the correct class and mimic-ish v4 patterns to ensure faster loads
-    const Service = lando.factory.get(config.type, config.api);
+    const Service = lando.factory.get(config.builder, config.api);
     Service.bengineConfig = lando.config.engineConfig;
     Service.builder = lando.config.dockerBin;
     Service.orchestrator = lando.config.orchestratorBin;

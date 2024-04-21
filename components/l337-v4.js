@@ -18,7 +18,7 @@ const hasInstructions = require('../utils/has-instructions');
 class L337ServiceV4 extends EventEmitter {
   #data
 
-  static debug = require('debug')('l337-service-v4');
+  static debug = require('debug')('@lando/l337-service-v4');
   static bengineConfig = {};
   static builder = require('../utils/get-docker-x')();
   static orchestrator = require('../utils/get-compose-x')();
@@ -71,6 +71,10 @@ class L337ServiceV4 extends EventEmitter {
 
   get state() {
     return this.#data.states;
+  }
+
+  get _data() {
+    return this.#data;
   }
 
   constructor(id, {
@@ -370,8 +374,9 @@ class L337ServiceV4 extends EventEmitter {
           volume.source = path.join(this.appRoot, volume.source);
         }
 
-        // if target exists then bind otherwise vol
-        volume.type = fs.existsSync(volume.source) ? 'bind' : 'volume';
+        // we make an "exception" for any /run/host-services things that are in the docker vm
+        if (volume.source.startsWith('/run/host-services')) volume.type = 'bind';
+        else volume.type = fs.existsSync(volume.source) ? 'bind' : 'volume';
 
         // return
         return volume;
