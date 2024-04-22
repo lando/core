@@ -1,6 +1,8 @@
 'use strict';
 
-const {bold} = require('color');
+const {color} = require('listr2');
+
+const {bold} = color;
 
 // checks to see if a setting is disabled
 module.exports = error => ({
