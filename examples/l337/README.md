@@ -10,6 +10,8 @@ Start up tests
 
 ```bash
 # should start successfully
+eval "$(ssh-agent -s)"
+ssh-add ~/.id_rsa
 lando poweroff
 lando start
 ```
@@ -226,6 +228,7 @@ Destroy tests
 
 ```bash
 # should destroy successfully
+killall ssh-agent && unset SSH_AUTH_SOCK
 lando destroy -y
 lando poweroff
 ```
