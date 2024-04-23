@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 'use strict';
 
-module.exports = (contents, user, mount = '/app') => `
+module.exports = (contents, user, gid, socket, mount = '/app') => `
 #!/bin/sh
 # clean up and setup ssh-auth
 rm -rf /run/ssh-${user}.sock

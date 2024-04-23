@@ -79,6 +79,8 @@ module.exports = {
       // add some upstream stuff and legacy stuff
       upstream.appMount = config['app-mount'].destination;
       upstream.legacy = merge({}, {meUser: username}, upstream.legacy ?? {});
+      // this will change but for right now i just need the image stuff to passthrough
+      upstream.config = {image: config.image};
 
       // add a user build group
       groups.user = {
@@ -135,7 +137,7 @@ module.exports = {
       // add a home folder persistent mount
       this.addComposeData({volumes: {[this.homevol]: {external: true}}});
       // add the usual DC stuff
-      this.addServiceData({user: this.username, volumes: [`${this.homevol}:/home/${this.username}`]});
+      this.addServiceData({user: config.user ?? this.username, volumes: [`${this.homevol}:/home/${this.username}`]});
     }
 
     // buildapp
