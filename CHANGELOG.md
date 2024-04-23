@@ -1,3 +1,7 @@
+## v3.21.0-beta.16 - [April 23, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.16)
+
+* Added dumb `linux` `ssh-agent` support for nascent `LandoService4`
+
 ## v3.21.0-beta.15 - [April 20, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.15)
 
 ### Notes
