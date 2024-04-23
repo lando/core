@@ -159,9 +159,8 @@ module.exports = {
       const buildScript = require('../utils/generate-build-script')(
         this.buildScript,
         this.username,
-        process.platform === 'linux' ? process.env.SSH_AUTH_SOCK : `/run/host-services/ssh-auth.sock`,
         this.gid,
-
+        process.platform === 'linux' ? process.env.SSH_AUTH_SOCK : `/run/host-services/ssh-auth.sock`,
         this.appMount,
       );
       const buildScriptPath = path.join(this.context, 'app-build.sh');
