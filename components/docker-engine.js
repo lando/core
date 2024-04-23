@@ -438,10 +438,12 @@ class DockerEngine extends Dockerode {
         if (dimensions.h != 0 && dimensions.w != 0) container.resize(dimensions, () => {});
       };
       const closer = (isRaw = process.isRaw) => {
-        process.stdout.removeListener('resize', resizer);
-        process.stdin.removeAllListeners();
-        process.stdin.setRawMode(isRaw);
-        process.stdin.resume();
+        if (interactive) {
+          process.stdout.removeListener('resize', resizer);
+          process.stdin.removeAllListeners();
+          process.stdin.setRawMode(isRaw);
+          process.stdin.resume();
+        }
       };
 
       return new Promise((resolve, reject) => {
