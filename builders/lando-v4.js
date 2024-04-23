@@ -245,17 +245,20 @@ module.exports = {
       const socket = process.platform === 'linux' ? process.env.SSH_AUTH_SOCK : `/run/host-services/ssh-auth.sock`;
       const socater = `/run/ssh-${this.username}.sock`;
 
-      this.addComposeData({services: {[this.id]: {
-        environment: {
-          SSH_AUTH_SOCK: socater,
-        },
-        volumes: [
-          `${socket}:${socket}`,
-        ],
-      }}});
+      // only add if we have a socket
+      if (socket) {
+        this.addComposeData({services: {[this.id]: {
+          environment: {
+            SSH_AUTH_SOCK: socater,
+          },
+          volumes: [
+            `${socket}:${socket}`,
+          ],
+        }}});
 
-      this.#appBuildOpts.environment.push(`SSH_AUTH_SOCK=${socater}`);
-      this.#appBuildOpts.mounts.push(`${socket}:${socket}`);
+        this.#appBuildOpts.environment.push(`SSH_AUTH_SOCK=${socater}`);
+        this.#appBuildOpts.mounts.push(`${socket}:${socket}`);
+      }
     }
 
     // @TODO: more powerful syntax eg go as many levels as you want and maybe ! syntax?
