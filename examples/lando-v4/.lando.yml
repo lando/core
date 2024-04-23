@@ -1,6 +1,6 @@
 name: "lando-v4"
 services:
-  debian:
+  web-1:
     api: 4
     image:
       imagefile: |
