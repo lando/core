@@ -156,7 +156,14 @@ module.exports = {
       });
 
       // generate the build script
-      const buildScript = require('../utils/generate-build-script')(this.buildScript, this.username, this.appMount);
+      const buildScript = require('../utils/generate-build-script')(
+        this.buildScript,
+        this.username,
+        process.platform === 'linux' ? process.env.SSH_AUTH_SOCK : `/run/host-services/ssh-auth.sock`,
+        this.gid,
+
+        this.appMount,
+      );
       const buildScriptPath = path.join(this.context, 'app-build.sh');
       fs.writeFileSync(buildScriptPath, buildScript);
 
