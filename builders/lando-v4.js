@@ -141,7 +141,10 @@ module.exports = {
     // buildapp
     async buildApp() {
       // bail if no script
-      if (!this.buildScript) this.debug('no build detected, skipping');
+      if (!this.buildScript) {
+        this.debug('no build detected, skipping');
+        return;
+      };
 
       // get build func
       const bengine = LandoServiceV4.getBengine(LandoServiceV4.bengineConfig, {
@@ -237,7 +240,7 @@ module.exports = {
     // 4. ssh-add (use the existing SSH agent, don't start a new one)
     // 5. docker run --rm --mount type=bind,src=/run/host-services/ssh-auth.sock,target=/run/host-services/ssh-auth.sock -e SSH_AUTH_SOCK="/run/host-services/ssh-auth.sock" --entrypoint /usr/bin/ssh-add alpine/git -l
     setSSHAgent() {
-      const socket = `/run/host-services/ssh-auth.sock`;
+      const socket = process.platform === 'linux' ? process.env.SSH_AUTH_SOCK : `/run/host-services/ssh-auth.sock`;
       const socater = `/run/ssh-${this.username}.sock`;
 
       this.addComposeData({services: {[this.id]: {
