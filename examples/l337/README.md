@@ -11,7 +11,7 @@ Start up tests
 ```bash
 # should start successfully
 eval "$(ssh-agent -s)"
-ssh-add ~/.id_rsa
+ssh-add ~/.ssh/id_rsa
 lando poweroff
 lando start
 ```
