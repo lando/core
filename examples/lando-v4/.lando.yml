@@ -11,6 +11,9 @@ services:
     user: root
     build:
       app: |
+        env
+        ssh-add -l
+        ls -lsa /run
         set -e
         git clone git@github.com:lando/lando.git /tmp/something
 
