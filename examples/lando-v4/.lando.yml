@@ -1,12 +1,21 @@
 name: "lando-v4"
 services:
-  debian:
+  web-1:
     api: 4
-    type: lando
-
-    # image should map directly to image.imagefile
-    image: |
-      FROM nginx:1.22.1
+    image:
+      imagefile: |
+        FROM nginx:1.22.1
+        RUN apt update -u
+        RUN apt install git ssh socat sudo -y
+        RUN ssh-keyscan github.com >> /etc/ssh/ssh_known_hosts
+    user: root
+    build:
+      app: |
+        env
+        ssh-add -l
+        ls -lsa /run
+        set -e
+        git clone git@github.com:lando/lando.git /tmp/something
 
     # appmount
     # support appMount but prefer app-mount
@@ -14,7 +23,7 @@ services:
     # easy setting, volume mount ./:/app
 
     # short forms:
-    app-mount: /usr/share/nginx/html
+    # app-mount: /usr/share/nginx/html
 
     # app-mount: /app:copy
     # app-mount: /app:bind

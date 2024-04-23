@@ -79,6 +79,8 @@ module.exports = {
       // add some upstream stuff and legacy stuff
       upstream.appMount = config['app-mount'].destination;
       upstream.legacy = merge({}, {meUser: username}, upstream.legacy ?? {});
+      // this will change but for right now i just need the image stuff to passthrough
+      upstream.config = {image: config.image};
 
       // add a user build group
       groups.user = {
@@ -135,7 +137,7 @@ module.exports = {
       // add a home folder persistent mount
       this.addComposeData({volumes: {[this.homevol]: {external: true}}});
       // add the usual DC stuff
-      this.addServiceData({user: this.username, volumes: [`${this.homevol}:/home/${this.username}`]});
+      this.addServiceData({user: config.user ?? this.username, volumes: [`${this.homevol}:/home/${this.username}`]});
     }
 
     // buildapp
@@ -154,7 +156,13 @@ module.exports = {
       });
 
       // generate the build script
-      const buildScript = require('../utils/generate-build-script')(this.buildScript, this.username, this.appMount);
+      const buildScript = require('../utils/generate-build-script')(
+        this.buildScript,
+        this.username,
+        this.gid,
+        process.platform === 'linux' ? process.env.SSH_AUTH_SOCK : `/run/host-services/ssh-auth.sock`,
+        this.appMount,
+      );
       const buildScriptPath = path.join(this.context, 'app-build.sh');
       fs.writeFileSync(buildScriptPath, buildScript);
 
@@ -243,17 +251,20 @@ module.exports = {
       const socket = process.platform === 'linux' ? process.env.SSH_AUTH_SOCK : `/run/host-services/ssh-auth.sock`;
       const socater = `/run/ssh-${this.username}.sock`;
 
-      this.addComposeData({services: {[this.id]: {
-        environment: {
-          SSH_AUTH_SOCK: socater,
-        },
-        volumes: [
-          `${socket}:${socket}`,
-        ],
-      }}});
+      // only add if we have a socket
+      if (socket) {
+        this.addComposeData({services: {[this.id]: {
+          environment: {
+            SSH_AUTH_SOCK: socater,
+          },
+          volumes: [
+            `${socket}:${socket}`,
+          ],
+        }}});
 
-      this.#appBuildOpts.environment.push(`SSH_AUTH_SOCK=${socater}`);
-      this.#appBuildOpts.mounts.push(`${socket}:${socket}`);
+        this.#appBuildOpts.environment.push(`SSH_AUTH_SOCK=${socater}`);
+        this.#appBuildOpts.mounts.push(`${socket}:${socket}`);
+      }
     }
 
     // @TODO: more powerful syntax eg go as many levels as you want and maybe ! syntax?
