@@ -26,8 +26,8 @@ Verification commands
 Run the following commands to verify things work as expected
 
 ```bash
-# Should have a landofile in the approot of the git clone
-cd git && cat .lando.yml
+# Should have a README in the approot of the git clone
+cd git && cat README.md
 
 # Should have a landofile in the approot of thee extracted tar
 cd tar && cat .lando.yml
