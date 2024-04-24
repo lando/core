@@ -97,3 +97,7 @@ tooling:
   npm:
     service: node
 ```
+
+::: warning
+It is inadvisable to modify the `type` attribute of existing services in recipes, since most recipes use specialized variants of Lando's services.
+:::
