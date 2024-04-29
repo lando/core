@@ -23,6 +23,9 @@ module.exports = async lando => {
               if (response.code !== 0) return response.stderr;
               return true;
             },
+            onCancel() {
+              process.emit('SIGINT');
+            },
           });
         }
 
