@@ -5,7 +5,7 @@ description: Lando services are a curated set of Docker containers like php, apa
 
 # Services
 
-Lando services are our distillation of Docker containers into their most important options combined with some *special sauce* to setup good [networking](./networking.md), [certificates](./security.md) and [SSH keys](./ssh.md) as well as options to run [build steps](./lando-service.md) and provide low level [overrides](./lando-service.md).
+Lando services are our distillation of Docker containers into their most important options combined with some *special sauce* to setup good [networking](./networking.md), [certificates](./security.md) and [SSH keys](./ssh.md) as well as options to run [build steps](services/lando.md#build-steps) and provide low level [overrides](services/lando.md#overrides).
 
 You can use the top-level `services` config in your [Landofile](./index.md) to define and configure a service.
 
@@ -34,7 +34,7 @@ However we **highly recommend** you **do not** omit it! :)
 
 #### type
 
-`type` is the kind of service. By default Lando 3 has one type: [`lando`](./lando-service.md)
+`type` is the kind of service. By default Lando 3 has one type: [`lando`](services/lando.md)
 
 However, you can install plugins to get more `types` such as `php:8.2` or `postgres:12`.
 
@@ -46,16 +46,16 @@ For these options you will want to consult the documentation for the specific se
 
 ## Lando Service
 
-As mentioned above Lando 3 core ships with a single general purpose service called [`lando`](./lando-service.md). This service is similar to and replaces the now **DEPRECATED** [compose service](https://docs.lando.dev/plugins/compose/).
+As mentioned above Lando 3 core ships with a single general purpose service called [`lando`](services/lando.md). This service is similar to and replaces the now **DEPRECATED** [compose service](https://docs.lando.dev/plugins/compose/).
 
 All other `api: 3` services are built on top of this service so it's worth examining its features as they are available in _all other_ downstream services. Some of its key features are:
 
-* [Application Mounting](./lando-service.md)
-* [Build Steps](./lando-service.md)
+* [Application Mounting](services/lando.md)
+* [Build Steps](services/lando.md)
 * [Healthcheck](./healthcheck.md)
-* [SSL and Certs](./lando-service.md)
+* [SSL and Certs](services/lando.md)
 * [URL Scanning](./scanner.md)
-* [Docker Compose Overrides](./lando-service.md)
+* [Docker Compose Overrides](services/lando.md)
 
 That said, it's almost always better to use a pre-built supported service.
 
