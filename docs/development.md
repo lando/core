@@ -166,6 +166,10 @@ npm install @lando/core
 npm install @lando/core@edge
 ```
 
+::: tip
+Documentation changes are deployed via Netlify upon merging into the `main` branch of a Lando project; they don't require separate releases. CHANGELOG.md updates should be considered optional for doc updates.
+:::
+
 ## Contribution
 
 If you want to contribute code then just follow [this flow](https://docs.github.com/en/get-started/using-github/github-flow).
