@@ -1,4 +1,4 @@
-## v3.21.0-beta.18 - [April 26, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.18)
+## v3.21.0-beta.18 - [April 29, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.18)
 
 * Fixed bug that prevented password prompts from rendering
 * Fixed inescapable password prompt when starting aborting a lando start
