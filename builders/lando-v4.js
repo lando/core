@@ -128,7 +128,7 @@ module.exports = {
         RUN sed -i '/GID_MAX/c\GID_MAX 600100000' /etc/login.defs
         RUN getent group ${this.gid} > /dev/null || groupadd -g ${this.gid} ${this.username}
         RUN useradd -l -u ${this.uid} -m -g ${this.gid} ${this.username}
-        RUN usermod -l -aG sudo ${this.username}
+        RUN usermod -aG sudo ${this.username}
         RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
       `});
 
