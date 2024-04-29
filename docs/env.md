@@ -96,4 +96,4 @@ For example, in `php` you will want to use something like the [`getenv()`](https
 
 ## Environment Configuration
 
-If you'd like to avoid broad strokes and only inject certain environment variables into particular services, we recommend you make use of [service overrides](./lando-service.md).
+If you'd like to avoid broad strokes and only inject certain environment variables into particular services, we recommend you make use of [service overrides](./services/lando.md).
