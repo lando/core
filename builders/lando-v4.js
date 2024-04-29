@@ -122,13 +122,13 @@ module.exports = {
 
       // @NOTE: setup dat user
       this.addSteps({group: 'setup-user', instructions: `
-        RUN sed -i '/UID_MIN/c\UID_MIN 500' /etc/login.defs
-        RUN sed -i '/UID_MAX/c\UID_MAX 600100000' /etc/login.defs
-        RUN sed -i '/GID_MIN/c\GID_MIN 20' /etc/login.defs
+        RUN sed -i '/UID_MIN/c\UID_MIN ${this.uid}' /etc/login.defs
+        RUN sed -i '/UID_MAX/c\UID_MAX ${parseInt(this.uid) + 10}' /etc/login.defs
+        RUN sed -i '/GID_MIN/c\GID_MIN ${parseInt(this.gid) + 10}' /etc/login.defs
         RUN sed -i '/GID_MAX/c\GID_MAX 600100000' /etc/login.defs
         RUN getent group ${this.gid} > /dev/null || groupadd -g ${this.gid} ${this.username}
-        RUN useradd -u ${this.uid} -m -g ${this.gid} ${this.username}
-        RUN usermod -aG sudo ${this.username}
+        RUN useradd -l -u ${this.uid} -m -g ${this.gid} ${this.username}
+        RUN usermod -l -aG sudo ${this.username}
         RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
       `});
 
