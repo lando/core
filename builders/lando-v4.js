@@ -1,19 +1,37 @@
 'use strict';
 
-const isObject = require('lodash/isPlainObject');
+const fs = require('fs');
 const merge = require('lodash/merge');
+const path = require('path');
+const uniq = require('lodash/uniq');
 
-const isDisabled = require('../utils/is-disabled');
-
-const normalizeAppMount = mount => {
-  // @TODO: are there any errors we should throw here?
-  // if mount is a string the parse into an object
-  if (typeof mount === 'string') mount = {target: mount.split(':')[0], type: mount.split(':')[1] || 'bind'};
-  // if we have dest|destination and not target then map them over
-  if (!mount.target && mount.dest) mount.target = mount.dest;
-  if (!mount.target && mount.destination) mount.target = mount.destination;
-  // return
-  return mount;
+const states = {APP: 'UNBUILT'};
+const groups = {
+  'boot': {
+    description: 'Required packages that every subsequent group needs',
+    weight: 100,
+    user: 'root',
+  },
+  'system': {
+    description: 'System level packages',
+    weight: 200,
+    user: 'root',
+  },
+  'setup-user': {
+    description: 'Host/container user mapping considerations',
+    weight: 300,
+    user: 'root',
+  },
+  'tooling': {
+    description: 'Installation of tooling',
+    weight: 400,
+    user: 'root',
+  },
+  'config': {
+    description: 'Configuration file stuff',
+    weight: 500,
+    user: 'root',
+  },
 };
 
 /*
@@ -22,120 +40,278 @@ const normalizeAppMount = mount => {
 module.exports = {
   api: 4,
   name: 'lando',
-  defaults: {
-    image: {
-      context: [],
-    },
-    volumes: [],
-  },
   parent: 'l337',
+  defaults: {
+    config: {
+      'app-mount': {
+        type: 'bind',
+        destination: '/app',
+        exclude: [],
+      },
+    },
+  },
+  router: () => ({}),
   builder: (parent, defaults) => class LandoServiceV4 extends parent {
-    #groups
-    #stages
+    static debug = require('debug')('@lando/l337-service-v4');
 
-    static debug = require('debug')('lando-service-v4');
+    #appMount = {
+      type: 'bind',
+      destination: '/app',
+      exclude: [],
+      volumes: [],
+      binds: [],
+    }
 
-    constructor(id, options) {
-      // merge configs ontop of defaults
-      const config = merge({}, defaults, options.config);
+    #appBuildOpts = {
+      environment: [],
+      mounts: [],
+    }
 
-      // normalize image data
-      // @TODO: normalize image func?
-      const image = isObject(config.image) ? config.image : {imagefile: config.image};
-      // @TODO: throw if imagefile/etc is not set
+    constructor(id, options, app, lando) {
+      // before we call super we need to separate things
+      const {config, ...upstream} = merge({}, defaults, options);
+      // @TODO: certs?
+      // @TODO: better appmount logix?
 
-      // normalize app-mount
-      if (!config.appMount) config.appMount = config['app-mount'];
-      // set to false if its disabled otherwise normalize
-      const appMount = isDisabled(config.appMount) ? false : normalizeAppMount(config.appMount);
-      // @TODO: throw if appmount.target is a string and not an absolute path
-      // put together the stuff we can pass directly into super and leverage l337
-      const l337 = {appMount, image};
-      // if a command is set then lets pass that through as well
-      if (config.command) l337.command = config.command;
+      // ger user info
+      const {gid, uid, username} = lando.config;
 
-      // appmount must be an absolute path
+      // add some upstream stuff and legacy stuff
+      upstream.appMount = config['app-mount'].destination;
+      upstream.legacy = merge({}, {meUser: username}, upstream.legacy ?? {});
+      // this will change but for right now i just need the image stuff to passthrough
+      upstream.config = {image: config.image};
 
-      // if we have a string appmount then standardize it into object format
-      // 3. app-mount
-      // 4. ports?
-      // 5. groups/stages
+      // add a user build group
+      groups.user = {
+        description: 'Catch all group for things that should be run as the user',
+        weight: 2000,
+        user: username,
+      };
 
-      // l337me
-      super(id, Object.assign(options, {config: l337}));
+      // get this
+      super(id, {...upstream, groups, states});
 
+      // helpful
+      this.project = app.project;
+      this.router = options.router;
+      this.isInteractive = lando.config.isInteractive;
 
-      // what stages do we
-      // how we run steps
-      // image
-      // app-build
-      // background-exec?
+      // userstuff
+      this.gid = gid;
+      this.uid = uid;
+      this.username = username;
+      this.homevol = `${this.project}-${username}-home`;
+      this.datavol = `${this.project}-${this.id}-data`;
 
-      // what build groups do we need?
-      // how we order steps
+      // build script
+      // @TODO: handle array content?
+      this.buildScript = config?.build?.app ?? `true`;
 
-      // what is the purpose of boot?
-      // ensure some minimal set of dependencies and map the user
-      // boot.context
-      // boot.install
-      // boot.user
+      // set some other stuff
+      if (config['app-mount']) this.setAppMount(config['app-mount']);
 
-      // system.context
-      // system.install
+      // auth stuff
+      this.setSSHAgent();
+      this.setNPMRC(lando.config.pluginConfigFile);
 
-      // user.context
-      // user.image
-      // user.app-build
-      // user.background-exec
+      // @NOTE: uh?
+      this.addSteps({group: 'boot', instructions: `
+        RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+      `});
 
-      // add build groups
+      // @NOTE: setup dat user
+      this.addSteps({group: 'setup-user', instructions: `
+        RUN sed -i '/UID_MIN/c\UID_MIN ${this.uid}' /etc/login.defs
+        RUN sed -i '/UID_MAX/c\UID_MAX ${parseInt(this.uid) + 10}' /etc/login.defs
+        RUN sed -i '/GID_MIN/c\GID_MIN ${parseInt(this.gid) + 10}' /etc/login.defs
+        RUN sed -i '/GID_MAX/c\GID_MAX 600100000' /etc/login.defs
+        RUN getent group ${this.gid} > /dev/null || groupadd -g ${this.gid} ${this.username}
+        RUN useradd -l -u ${this.uid} -m -g ${this.gid} ${this.username}
+        RUN usermod -aG sudo ${this.username}
+        RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+      `});
 
-      // @TODO:
-      // 2. boot?
-      // 3. overrides
+      // inject global npmrc if we can
 
-      // try to mock up some shit
-      // nginx/apache
-      // mariadb
-      // php
+      // add a home folder persistent mount
+      this.addComposeData({volumes: {[this.homevol]: {external: true}}});
+      // add the usual DC stuff
+      this.addServiceData({user: config.user ?? this.username, volumes: [`${this.homevol}:/home/${this.username}`]});
+    }
 
-      // drupal
-      // webserver: user, config, appmount, certs, ports, build.exec
-      // mariadb: user, config, ports, storage, healthcheck
-      // php: user, config, appmount, ports, build.image, build.app
+    // buildapp
+    async buildApp() {
+      // bail if no script
+      if (!this.buildScript) {
+        this.debug('no build detected, skipping');
+        return;
+      };
 
-      // othershit
-      // parent stuff
+      // get build func
+      const bengine = LandoServiceV4.getBengine(LandoServiceV4.bengineConfig, {
+        builder: LandoServiceV4.builder,
+        debug: this.debug,
+        orchestrator: LandoServiceV4.orchestrator,
+      });
 
-      // ssh-keys?
+      // generate the build script
+      const buildScript = require('../utils/generate-build-script')(
+        this.buildScript,
+        this.username,
+        this.gid,
+        process.platform === 'linux' ? process.env.SSH_AUTH_SOCK : `/run/host-services/ssh-auth.sock`,
+        this.appMount,
+      );
+      const buildScriptPath = path.join(this.context, 'app-build.sh');
+      fs.writeFileSync(buildScriptPath, buildScript);
 
-      // console.log('hellp there')
-      // console.log(this);
-      // process.exit(1)
+      try {
+        // set state
+        this.state = {APP: 'BUILDING'};
 
+        // stuff
+        const bs = `/home/${this.username}/app-build.sh`;
+        const command = `chmod +x ${bs} && sh ${bs}`;
 
-      // Envvars & Labels
-      // const environment = {
-      //   LANDO_SERVICE_API: 4,
-      //   LANDO_SERVICE_NAME: name,
-      //   LANDO_SERVICE_TYPE: type,
-      // };
-      // // should be state data that lando uses?
-      // // user/team that "owns" the image
-      // const labels = {
-      //   'dev.lando.api': 4,
-      // };
-      // // Set a reasonable log size
-      // const logging = {driver: 'json-file', options: {'max-file': '3', 'max-size': '10m'}};
-      // // basic docker compose file
-      // this.addComposeData({
-      //   services: _.set({}, name, {
-      //     environment,
-      //     labels,
-      //     logging,
-      //     ports: ['80'],
-      //   }),
-      // });
-    };
+        // run with the appropriate builder
+        const success = await bengine.run([command], {
+          image: this.tag,
+          attach: true,
+          interactive: this.isInteractive,
+          createOptions: {
+            User: this.username,
+            WorkingDir: this.appMount,
+            Entrypoint: ['/bin/sh', '-c'],
+            Env: uniq(this.#appBuildOpts.environment),
+            HostConfig: {
+              Binds: [
+                `${this.homevol}:/home/${this.username}`,
+                ...uniq(this.#appBuildOpts.mounts),
+                `${buildScriptPath}:${bs}`,
+              ],
+            },
+          },
+        });
+
+        // // augment the success info
+        success.context = {script: fs.readFileSync(buildScriptPath, {encoding: 'utf-8'})};
+        // state
+        this.state = {APP: 'BUILT'};
+        // log
+        this.debug('app %o built successfully from %o', `${this.project}-${this.id}`, buildScriptPath);
+        return success;
+
+      // failure
+      } catch (error) {
+        // augment error
+        error.id = this.id;
+        error.context = {script: fs.readFileSync(buildScriptPath, {encoding: 'utf-8'}), path: buildScriptPath};
+        this.debug('app %o build failed with code %o error %o', `${this.project}-${this.id}`, error.code, error);
+        // set the build failure
+        this.state = {APP: 'BUILD FAILURE'};
+        // then throw
+        throw error;
+      }
+    }
+
+    setNPMRC(data) {
+      // if a string that exists as a path assume its json
+      if (typeof data === 'string' && fs.existsSync(data)) data = require(data);
+
+      // convert to file contents
+      const contents = Object.entries(data).map(([key, value]) => `${key}=${value}`);
+      contents.push('');
+
+      // write to file
+      const npmauthfile = path.join(this.context, 'npmrc');
+      fs.writeFileSync(npmauthfile, contents.join('\n'));
+
+      // ensure mount
+      const mounts = [
+        `${npmauthfile}:/home/${this.username}/.npmrc`,
+        `${npmauthfile}:/root/.npmrc`,
+      ];
+      this.addServiceData({volumes: mounts});
+      this.#appBuildOpts.mounts.push(...mounts);
+      this.npmrc = contents.join('\n');
+      this.npmrcFile = npmauthfile;
+    }
+
+    // sets ssh agent and prepares for socating
+    // DD ssh-agent is a bit strange and we wont use it in v4 plugin but its easiest for demoing purposes
+    // if you have issues with it its best to do the below
+    // 0. Close Docker Desktop
+    // 1. killall ssh-agent
+    // 2. Start Docker Desktop
+    // 3. Open a terminal (after Docker Desktop starts)
+    // 4. ssh-add (use the existing SSH agent, don't start a new one)
+    // 5. docker run --rm --mount type=bind,src=/run/host-services/ssh-auth.sock,target=/run/host-services/ssh-auth.sock -e SSH_AUTH_SOCK="/run/host-services/ssh-auth.sock" --entrypoint /usr/bin/ssh-add alpine/git -l
+    setSSHAgent() {
+      const socket = process.platform === 'linux' ? process.env.SSH_AUTH_SOCK : `/run/host-services/ssh-auth.sock`;
+      const socater = `/run/ssh-${this.username}.sock`;
+
+      // only add if we have a socket
+      if (socket) {
+        this.addComposeData({services: {[this.id]: {
+          environment: {
+            SSH_AUTH_SOCK: socater,
+          },
+          volumes: [
+            `${socket}:${socket}`,
+          ],
+        }}});
+
+        this.#appBuildOpts.environment.push(`SSH_AUTH_SOCK=${socater}`);
+        this.#appBuildOpts.mounts.push(`${socket}:${socket}`);
+      }
+    }
+
+    // @TODO: more powerful syntax eg go as many levels as you want and maybe ! syntax?
+    setAppMount(config) {
+      // reset the destination
+      this.#appMount.destination = config.destination;
+
+      // its easy if we dont have any excludes
+      if (config.exclude.length === 0) {
+        this.#appMount.binds = [`${this.appRoot}:${config.destination}`];
+        this.#appBuildOpts.mounts.push(`${this.appRoot}:${config.destination}`);
+
+      // if we have excludes then we need to compute somethings
+      } else {
+        // named volumes for excludes
+        this.#appMount.volumes = config.exclude.map(vol => `app-mount-${vol}`);
+        // get all paths to be considered
+        const binds = [
+          ...fs.readdirSync(this.appRoot).filter(path => !config.exclude.includes(path)),
+          ...config.exclude,
+        ];
+        // map into bind mounts
+        this.#appMount.binds = binds.map(path => {
+          if (config.exclude.includes(path)) return `app-mount-${path}:${this.#appMount.destination}/${path}`;
+          else return `${this.appRoot}/${path}:${this.#appMount.destination}/${path}`;
+        });
+        // and again for appBuild stuff b w/ full mount name
+        binds.map(path => {
+          if (config.exclude.includes(path)) {
+            this.#appBuildOpts.mounts.push(`${this.project}_app-mount-${path}:${this.#appMount.destination}/${path}`);
+          } else {
+            this.#appBuildOpts.mounts.push(`${this.appRoot}/${path}:${this.#appMount.destination}/${path}`);
+          }
+        });
+      }
+
+      // add named volumes if we need to
+      if (this.#appMount.volumes.length > 0) {
+        this.addComposeData({volumes: Object.fromEntries(this.#appMount.volumes.map(vol => ([vol, {}])))});
+      }
+
+      // set bindz
+      this.addServiceData({volumes: this.#appMount.binds});
+
+      // set infp
+      this.appMount = config.destination;
+      this.info.appMount = this.appMount;
+    }
   },
 };

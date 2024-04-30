@@ -22,8 +22,8 @@ Verification commands
 Run the following commands to verify things work as expected
 
 ```bash
-# Should have a landofile in the approot
-cd github && cat .lando.yml
+# Should have the README.md in the approot
+cd github && cat README.md
 ```
 
 Destroy tests

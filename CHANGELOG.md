@@ -1,3 +1,44 @@
+## v3.21.0-beta.18 - [April 29, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.18)
+
+* Fixed bug that prevented password prompts from rendering
+* Fixed inescapable password prompt when starting aborting a lando start
+* Improved `MINMAX UID/GID` assignment to reduce exporting layers weirdness
+
+## v3.21.0-beta.17 - [April 23, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.17)
+
+* Fixed some stuff in nascent `LandoService4` for demoing puroses
+
+## v3.21.0-beta.16 - [April 23, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.16)
+
+* Added dumb `linux` `ssh-agent` support for nascent `LandoService4`
+
+## v3.21.0-beta.15 - [April 20, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.15)
+
+### Notes
+
+* Users can now try out the lowest level and first `api: 4` service. [Read more](https://docs.lando.dev/core/v3/services/l337.html)
+
+### New Features
+
+* Added `buildx` toggle to `l337` service `image` key
+* Added build `args` support to `l337` service `image` key
+* Added `ssh` support to `l337` service `image` key
+* Changed default `l337` service builder to `buildx`
+* Improved `api: 4` image build errors and handling
+
+### Bug Fixes
+
+* Fixed bug causing `healthy` info to not persist correctly
+* Fixed bug causing proxy `502 Bad Gateway` when assiging duplicate `urls` with different `ports`
+* Fixed inconsistent container shutdown by switching from `kill` to `stop`
+* Fixed inconsistent error display in `dc2` `listr` renderer
+
+### Internal
+
+* Changed default `healthy` info from `true` to `unknown`
+* Changed `api: 4` service info to provide a `state` key
+* Added `app.updateComposeCache()` and `app.v4.updateComposeCache` for better metadata consistencu
+
 ## v3.21.0-beta.14 - [April 10, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.14)
 
 ### New Features
@@ -9,7 +50,7 @@
 * Updated tested Docker Desktop range to `<=4.29`
 * Updated tested Docker Engine range to `<27`
 
-### Bug Fixes Features
+### Bug Fixes
 
 * Fixed bug where `lando update` check failures were failing silently
 * Fixed bug where `GITHUB_TOKEN` was being used, if set, to get `lando update` info

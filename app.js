@@ -20,6 +20,20 @@ module.exports = async (app, lando) => {
   // Build step locl files
   app.preLockfile = `${app.name}.build.lock`;
   app.postLockfile = `${app.name}.post-build.lock`;
+  // add compose cache updated
+  app.updateComposeCache = () => {
+    lando.cache.set(app.composeCache, {
+      name: app.name,
+      project: app.project,
+      compose: app.compose,
+      containers: app.containers,
+      root: app.root,
+      info: app.info,
+      overrides: {
+        tooling: app._coreToolingOverrides,
+      },
+    }, {persist: true});
+  };
 
   // Add v4 stuff to the app object
   app.v4 = {};
@@ -29,6 +43,23 @@ module.exports = async (app, lando) => {
   app.v4.postLockfile = `${app.name}.v4.build.lock`;
   app.v4.services = [];
   app.v4.composeCache = `${app.name}.compose.cache`;
+
+  // Add compose cache v4 updaters
+  // add compose cache updated
+  app.v4.updateComposeCache = () => {
+    lando.cache.set(app.v4.composeCache, {
+      name: app.name,
+      project: app.project,
+      compose: app.compose,
+      containers: app.containers,
+      root: app.root,
+      info: app.info,
+      mounts: require('./utils/get-mounts')(_.get(app, 'v4.services', {})),
+      overrides: {
+        tooling: app._coreToolingOverrides,
+      },
+    }, {persist: true});
+  };
 
   // front load top level networks
   app.v4.addNetworks = (data = {}) => {

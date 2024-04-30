@@ -7,6 +7,8 @@ module.exports = async (app, lando) => {
   const healthchecks = _.get(app, 'checks', []).filter(check => check.type === 'healthcheck');
   // map into promises
   const promises = healthchecks.map(async healthcheck => {
+    // get the info
+    const service = _.find(app.info, {service: healthcheck.service});
     // the runner command
     const runner = async (command, container, {service, user = 'root'} = {}) => {
       try {
@@ -34,9 +36,9 @@ module.exports = async (app, lando) => {
     try {
       const options = {max: healthcheck.retry, backoff: healthcheck.delay};
       await lando.Promise.retry(async () => await runner(...healthcheck.args), options);
+      service.healthy = true;
     } catch (error) {
       // set the service info as unhealthy if we get here
-      const service = _.find(app.info, {service: healthcheck.service});
       service.healthy = false;
       // parse the message
       const message = _.trim(_.get(error, 'message', 'UNKNOWN ERROR'));

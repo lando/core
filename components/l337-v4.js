@@ -9,20 +9,28 @@ const path = require('path');
 
 const {generateDockerFileFromArray} = require('dockerfile-generator/lib/dockerGenerator');
 const {nanoid} = require('nanoid');
+const {EventEmitter} = require('events');
 
 // @TODO: should these be methods as well? static or otherwise?
 const getMountMatches = require('../utils/get-mount-matches');
 const hasInstructions = require('../utils/has-instructions');
 
-class L337ServiceV4 {
+class L337ServiceV4 extends EventEmitter {
   #data
 
-  static debug = require('debug')('l337-service-v4');
+  static debug = require('debug')('@lando/l337-service-v4');
   static bengineConfig = {};
+  static builder = require('../utils/get-docker-x')();
+  static orchestrator = require('../utils/get-compose-x')();
 
-  static getBengine(config = L337ServiceV4.bengineConfig, {debug = L337ServiceV4.debug} = {}) {
+  static getBengine(config = L337ServiceV4.bengineConfig,
+    {
+      builder = L337ServiceV4.builder,
+      debug = L337ServiceV4.debug,
+      orchestrator = L337ServiceV4.orchestrator,
+    } = {}) {
     const DockerEngine = require('./docker-engine');
-    return new DockerEngine(config, {debug});
+    return new DockerEngine(config, {builder, debug, orchestrator});
   }
 
   #init() {
@@ -44,6 +52,9 @@ class L337ServiceV4 {
       imageInstructions: undefined,
       imageFileContext: undefined,
       sources: [],
+      states: {
+        IMAGE: 'UNBUILT',
+      },
       stages: {
         default: 'image',
         image: 'Instructions to help generate an image',
@@ -52,8 +63,23 @@ class L337ServiceV4 {
     };
   }
 
+  set state(states) {
+    this.#data.states = merge(this.#data.states, states);
+    this.info.state = this.#data.states;
+    this.emit('state', this.#data.states);
+  }
+
+  get state() {
+    return this.#data.states;
+  }
+
+  get _data() {
+    return this.#data;
+  }
+
   constructor(id, {
     appRoot = path.join(os.tmpdir(), nanoid(), id),
+    buildArgs = {},
     context = path.join(os.tmpdir(), nanoid(), id),
     config = {},
     debug = L337ServiceV4.debug,
@@ -61,7 +87,10 @@ class L337ServiceV4 {
     info = {},
     name = id,
     primary = false,
+    sshKeys = [],
+    sshSocket = false,
     stages = {},
+    states = {},
     tag = nanoid(),
     type = 'l337',
     legacy = {
@@ -70,14 +99,20 @@ class L337ServiceV4 {
       sport = '443',
     } = {},
   } = {}) {
+    // instantiate ee immedately
+    super();
+
     // set top level required stuff
     this.id = id;
     this.appRoot = appRoot;
+    this.buildx = true;
     this.config = config;
     this.context = context;
     this.debug = debug;
     this.name = name || id;
     this.primary = primary;
+    this.sshKeys = sshKeys;
+    this.sshSocket = sshSocket;
     this.type = type;
     this.tag = tag;
 
@@ -89,10 +124,16 @@ class L337ServiceV4 {
     fs.mkdirSync(this.context, {recursive: true});
 
     // initialize our private data
-    this.#data = merge(this.#init(), {groups}, {stages});
+    this.#data = merge(this.#init(), {groups}, {stages}, {states});
 
     // rework info based on whatever is passed in
-    this.info = merge({}, {service: id, api: 4, lastBuild: 'never', primary, type}, info);
+    this.info = merge({}, {
+      api: 4,
+      primary,
+      service: id,
+      state: this.#data.states,
+      type,
+    }, info);
 
     // add in the l337 spec config
     this.addServiceData(config);
@@ -153,20 +194,56 @@ class L337ServiceV4 {
     if (hasInstructions(this.#data.imageInstructions, ['COPY', 'ADD']) && this.#data.imageFileContext) {
       this.#data.sources.push(({source: this.#data.imageFileContext, destination: '.'}));
     }
+
+    // if we have context data then lets pass that in as well
+    if (data.args) this.addBuildArgs(data.args);
     // if we have context data then lets pass that in as well
     if (data.context) this.addContext(data.context);
     // if we have groups data then
     if (data.groups) this.addGroups(data.groups);
+    // if we have activated ssh then figure all of that out
+    if (data.ssh) this.addSSH(data.ssh);
     // handle steps data
     if (data.steps) this.addSteps(data.steps);
     // if we have a custom tag then set that
     if (data.tag) this.tag = data.tag;
+
+    // finally make sure we honor buildx disabling
+    if (require('../utils/is-disabled')(data.buildx ?? this.buildx)) this.buildx = false;
   }
 
   // just pushes the compose data directly into our thing
   addComposeData(data = {}) {
     this.#data.compose.push(data);
     this.debug('%o added top level compose data %o', this.id, data);
+  }
+
+  // passed in build args that can be used
+  addBuildArgs(args) {
+    // if args is an object lets make it into an array
+    if (isObject(args)) args = Object.entries(args);
+
+    // if args is a string then just arrayify it immediately
+    if (typeof args === 'string') args = [args];
+
+    // if we arent an array at this point something has gone amis so lets just set unset it and debug
+    if (!Array.isArray(args)) {
+      args = [];
+      this.debug('build-args cannot be translated into an array so resetting to empty');
+    }
+
+    // we should def be an array at this point so lets standardize as best we can
+    args = args
+      .map(arg => typeof arg === 'string' ? arg.split('=') : arg)
+      .filter(arg => arg !== null && arg !== undefined)
+      .filter(([key, value]) => key !== null && key !== undefined)
+      .filter(([key, value]) => value !== null && value !== undefined)
+      .map(([key, value]) => ([key, String(value)]))
+      .map(([key, value]) => ([key.trim(), value.trim()]));
+
+    // merge into build args
+    this.buildArgs = merge({}, this.buildArgs, Object.fromEntries(args));
+    this.debug('%o build-args are now %o', this.id, this.buildArgs);
   }
 
   // adds files/dirs to the build context
@@ -206,9 +283,7 @@ class L337ServiceV4 {
         if (!file.instructions) {
           file.instructions = file.url ? ['ADD'] : ['COPY'];
           if (file.owner) file.instructions.push(`--chown=${file.owner}`);
-          // @TODO: below not possible until we have BuildKit support in docekrode
-          // see: https://github.com/apocas/dockerode/issues/601
-          // if (file.permissions) file.instructions.push(`--chmod=${file.permissions}`);
+          if (file.permissions) file.instructions.push(`--chmod=${file.permissions}`);
           file.instructions.push(file.url || file.destination);
           file.instructions.push(path.resolve('/', file.destination));
           file.instructions = file.instructions.join(' ');
@@ -299,8 +374,9 @@ class L337ServiceV4 {
           volume.source = path.join(this.appRoot, volume.source);
         }
 
-        // if target exists then bind otherwise vol
-        volume.type = fs.existsSync(volume.source) ? 'bind' : 'volume';
+        // we make an "exception" for any /run/host-services things that are in the docker vm
+        if (volume.source.startsWith('/run/host-services')) volume.type = 'bind';
+        else volume.type = fs.existsSync(volume.source) ? 'bind' : 'volume';
 
         // return
         return volume;
@@ -351,37 +427,109 @@ class L337ServiceV4 {
     }
   }
 
+  // add agent info
+  // @TODO: should we throw an error if the socket does not exist or should we just rely on downstream errors?
+  addSSHAgent(agent = process.env.SSH_AUTH_SOCK) {
+    // if agent is true then reset it to $SSH_AUTH_SOCK
+    if (agent === true) agent = '$SSH_AUTH_SOCK';
+
+    // if ssh agent is a non false stringy value that does not exist on the fs then get the path from envvar
+    if (agent !== false && typeof agent === 'string' && !fs.existsSync(agent)) {
+      agent = agent.startsWith('$') ? agent = process.env[agent.slice(1)] : process.env[agent];
+    }
+
+    // @TODO: make this better?
+    this.sshSocket = agent;
+  }
+
+  addSSHKeys(keys = []) {
+    // if keys are explicitly set to false then reset keys to be empty
+    if (keys === false) {
+      this.sshKeys = [];
+      return;
+    }
+
+    // if ssh keys is true then set it to our default dirs'
+    if (keys === true) {
+      keys = [
+        path.join(os.homedir(), '.ssh'),
+        path.resolve(this.context, '..', '..', '..', '..', 'keys'),
+      ];
+    }
+
+    // if keys are a string then arrayify
+    if (typeof keys === 'string') keys = [keys];
+
+    // if keys are not an array at this point then do nothing
+    if (!Array.isArray(keys)) return;
+
+    // reset keys
+    this.sshKeys = [...new Set(this.sshKeys.concat(keys))];
+  }
+
+  // add/merge in ssh stuff for buildx
+  addSSH(ssh) {
+    // if ssh is explicitly true then that implies agent true and keys true
+    if (ssh === true) ssh = {agent: true, keys: true};
+
+    // if ssh is not an object at this point then we need to return false
+    if (!isObject(ssh)) {
+      this.debug('%o could not interpret ssh %o, must be boolean or object, setting to false', this.id, ssh);
+      return false;
+    }
+
+    // agent
+    this.addSSHAgent(ssh.agent);
+    // keys
+    this.addSSHKeys(ssh.keys);
+  }
+
   // build the image
   async buildImage() {
     // get build func
-    const bengine = L337ServiceV4.getBengine(L337ServiceV4.bengineConfig, {debug: this.debug});
+    const bengine = L337ServiceV4.getBengine(L337ServiceV4.bengineConfig, {
+      builder: L337ServiceV4.builder,
+      debug: this.debug,
+      orchestrator: L337ServiceV4.orchestrator,
+    });
     // separate out imagefile and context
     const {imagefile, ...context} = this.generateBuildContext();
 
     try {
-      const success = await bengine.build(imagefile, context);
+      // set state
+      this.state = {IMAGE: 'BUILDING'};
+      // run with the appropriate builder
+      const success = this.buildx ? await bengine.buildx(imagefile, context) : await bengine.build(imagefile, context);
       // augment the success info
       success.context = {imagefile, ...context};
       // add the final compose data with the updated image tag on success
       // @NOTE: ideally its sufficient for this to happen ONLY here but in v3 its not
       this.addComposeData({services: {[context.id]: {image: context.tag}}});
-      // set the image into the info
+
+      // state
+      this.state = {IMAGE: 'BUILT'};
+      // set the image stuff into the info
       this.info.image = imagefile;
       this.info.tag = context.tag;
 
-      this.debug('built image %o successfully from %o', context.id, imagefile);
+      this.debug('image %o built successfully from %o', context.id, imagefile);
       return success;
 
     // failure
-    } catch (e) {
-      e.context = {imagefile, ...context};
-      this.debug('image %o build failed with error %o', context.id, e);
-      this.debug('image %o build failed, setting it back to use base image', context.id, this.#data.image);
+    } catch (error) {
+      error.context = {imagefile, ...context};
+      this.debug('image %o build failed with code %o error %o', context.id, error.code, error);
+      this.addComposeData({services: {[context.id]: {command: 'sleep infinity'}}});
 
-      // reset the info
-      this.info.image = this.#data.image;
+      // set the build failure
+      this.state = {IMAGE: 'BUILD FAILURE'};
+      // and remove a bunch of stuff
+      this.info.image = undefined;
+      this.info.tag = undefined;
+      this.tag = undefined;
 
-      throw e;
+      // then throw
+      throw error;
     }
   }
 
@@ -402,15 +550,15 @@ class L337ServiceV4 {
         .map(data => data.instructions)
         .map(data => Array.isArray(data) ? generateDockerFileFromArray(data) : data);
 
-      // if we have any rogue uncontexted COPY/ instructions then we need to add appropriate sources to make sure
+      // if we have any rogue uncontexted COPY/ADD instructions then we need to add appropriate sources to make sure
       // it all works seemlessly
       if (steps[group]
         .map((step, index) => ({index, step, contexted: data[index].contexted === true}))
         .filter(step => hasInstructions(step.step, ['COPY', 'ADD']))
         .map(step => step.contexted)
         .reduce((contexted, step) => contexted || !step, false)) {
-          this.#data.sources.push(({source: this.#data.imageFileContext || this.appRoot, destination: '.'}));
-        }
+        this.#data.sources.push(({source: this.#data.imageFileContext || this.appRoot, destination: '.'}));
+      }
 
       // attempt to normalize newling usage mostly for aesthetic considerations
       steps[group] = steps[group]
@@ -450,9 +598,12 @@ class L337ServiceV4 {
     // return the build context
     return {
       id: this.id,
+      buildArgs: this.buildArgs,
       context: this.context,
       imagefile: this.imagefile,
       sources: this.#data.sources.flat(Number.POSITIVE_INFINITY).filter(Boolean).filter(source => !source.url),
+      sshSocket: this.sshSocket,
+      sshKeys: require('../utils/get-passphraseless-keys')(this.sshKeys),
       tag: this.tag,
     };
   }

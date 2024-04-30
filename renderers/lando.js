@@ -1,7 +1,7 @@
 'use strict';
 
 const {EOL} = require('os');
-const {DefaultRenderer} = require('listr2');
+const {DefaultRenderer, ListrEventType} = require('listr2');
 
 class LandoRenderer extends DefaultRenderer {
   constructor(tasks, options, $renderHook) {
@@ -54,7 +54,7 @@ class LandoRenderer extends DefaultRenderer {
         this.update();
       });
     }
-    this.events.on('SHOUD_REFRESH_RENDER', () => {
+    this.events.on(ListrEventType.SHOULD_REFRESH_RENDER, () => {
       this.update();
     });
   }

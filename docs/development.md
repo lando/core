@@ -1,11 +1,11 @@
 ---
 title: Development
-description: Learn how to develop and contribute to Lando Core 
+description: Learn how to develop and contribute to Lando Core
 ---
 
 # Development
 
-This guide contains information to help onboard developers to work on Lando Core. 
+This guide contains information to help onboard developers to work on Lando Core.
 
 ## Requirements
 
@@ -17,7 +17,7 @@ At the very least you will need to have the following installed:
 
 ## Installation
 
-Working on Lando Core requires that you have both the [Lando CLI](https://github.com/lando/cli) and [Lando Core][(](https://github.com/lando/core)) installed [from source](https://docs.lando.dev/install/source.html). You can then symlink (or use `npm link`) to have `@lando/cli` utilize your locally installed source copy of `@lando/core`:
+Working on Lando Core requires that you have both the [Lando CLI](https://github.com/lando/cli) and [Lando Core](https://github.com/lando/core) installed [from source](https://docs.lando.dev/install/source.html). You can then symlink (or use `npm link`) to have `@lando/cli` utilize your locally installed source copy of `@lando/core`:
 
 
 ```sh
@@ -165,6 +165,10 @@ npm install @lando/core
 # Will pull the most recent GitHub pre-release
 npm install @lando/core@edge
 ```
+
+::: tip
+Documentation changes are deployed via Netlify upon merging into the `main` branch of a Lando project; they don't require separate releases. CHANGELOG.md updates should be considered optional for doc updates.
+:::
 
 ## Contribution
 

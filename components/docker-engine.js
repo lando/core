@@ -19,19 +19,27 @@ const mergePromise = require('../utils/merge-promise');
 class DockerEngine extends Dockerode {
   static name = 'docker-engine';
   static cspace = 'docker-engine';
-  static debug = require('debug')('docker-engine');
   static config = {};
+  static debug = require('debug')('docker-engine');
+  static builder = require('../utils/get-docker-x')();
+  static orchestrator = require('../utils/get-compose-x')();
   // @NOTE: is wsl accurate here?
   // static supportedPlatforms = ['linux', 'wsl'];
 
-  constructor(config, {debug = DockerEngine.debug} = {}) {
+  constructor(config, {
+    builder = DockerEngine.buildx,
+    debug = DockerEngine.debug,
+    orchestrator = DockerEngine.orchestrator,
+  } = {}) {
     super(config);
+    this.builder = builder;
     this.debug = debug;
+    this.orchestrator = orchestrator;
   }
 
   /*
-   * This is intended for building images
-   * This is a wrapper around Dockerode.build that provides either an await or return implementation.
+   * this is the legacy rest API image builder eg NOT buildx
+   * this is a wrapper around Dockerode.build that provides either an await or return implementation.
    *
    * @param {*} command
    * @param {*} param1
@@ -39,6 +47,7 @@ class DockerEngine extends Dockerode {
   build(dockerfile,
     {
       tag,
+      buildArgs = {},
       attach = false,
       context = path.join(require('os').tmpdir(), nanoid()),
       id = tag,
@@ -105,13 +114,13 @@ class DockerEngine extends Dockerode {
     // error if no dockerfile exits
     if (!fs.existsSync(dockerfile)) throw new Error(`${dockerfile} does not exist`);
 
+    // extend debugger in appropriate way
+    const debug = id ? this.debug.extend(id) : this.debug.extend('docker-engine:build');
     // collect some args we can merge into promise resolution
     // @TODO: obscure auth?
     const args = {command: 'dockerode buildImage', args: {dockerfile, tag, sources}};
     // create an event emitter we can pass into the promisifier
     const builder = new EventEmitter();
-    // extend debugger in appropriate way
-    const debug = id ? this.debug.extend(id) : this.debug.extend('docker-engine:build');
 
     // ensure context dir exists
     fs.mkdirSync(context, {recursive: true});
@@ -130,11 +139,154 @@ class DockerEngine extends Dockerode {
 
     // call the parent
     // @TODO: consider other opts? https://docs.docker.com/engine/api/v1.43/#tag/Image/operation/ImageBuild args?
-    this.debug('building image %o from %o', tag, context);
-    super.buildImage({context, src: fs.readdirSync(context)}, {forcerm: true, t: tag}, callbackHandler);
+    debug('building image %o from %o writh build-args %o', tag, context, buildArgs);
+    super.buildImage(
+      {
+        context,
+        src: fs.readdirSync(context),
+      },
+      {
+        buildargs: JSON.stringify(buildArgs),
+        forcerm: true,
+        t: tag,
+      },
+      callbackHandler,
+    );
 
     // make this a hybrid async func and return
     return mergePromise(builder, awaitHandler);
+  }
+
+  /*
+   * this is the buildx image builder
+   *
+   * unfortunately dockerode does not have an endpoint for this
+   * see: https://github.com/apocas/dockerode/issues/601
+   *
+   * so we are invoking the cli directly
+   *
+   * @param {*} command
+   * @param {*} param1
+   */
+  buildx(dockerfile,
+    {
+      tag,
+      buildArgs = {},
+      context = path.join(require('os').tmpdir(), nanoid()),
+      id = tag,
+      ignoreReturnCode = false,
+      sshKeys = [],
+      sshSocket = false,
+      sources = [],
+      stderr = '',
+      stdout = '',
+    } = {}) {
+    // handles the promisification of the merged return
+    const awaitHandler = async () => {
+      return new Promise((resolve, reject) => {
+        // handle resolve/reject
+        buildxer.on('done', ({code, stdout, stderr}) => {
+          debug('command %o done with code %o', args, code);
+          resolve(makeSuccess(merge({}, args, code, stdout, stderr)));
+        });
+        buildxer.on('error', error => {
+          debug('command %o error %o', args, error?.message);
+          reject(error);
+        });
+      });
+    };
+
+    // error if no dockerfile
+    if (!dockerfile) throw new Error('you must pass a dockerfile into buildx');
+    // error if no dockerfile exits
+    if (!fs.existsSync(dockerfile)) throw new Error(`${dockerfile} does not exist`);
+
+    // extend debugger in appropriate way
+    const debug = id ? this.debug.extend(id) : this.debug.extend('docker-engine:buildx');
+
+    // build initial buildx command
+    const args = {
+      command: this.builder,
+      args: [
+        'buildx',
+        'build',
+        `--file=${dockerfile}`,
+        '--progress=plain',
+        `--tag=${tag}`,
+        context,
+      ],
+    };
+
+    // add any needed build args into the command
+    for (const [key, value] of Object.entries(buildArgs)) args.args.push(`--build-arg=${key}=${value}`);
+
+    // if we have sshKeys then lets pass those in
+    if (sshKeys.length > 0) {
+      // ensure we have good keys
+      sshKeys = require('../utils/get-passphraseless-keys')(sshKeys);
+      // first add all the keys with id "keys"
+      args.args.push(`--ssh=keys=${sshKeys.join(',')}`);
+      // then add each key separately with its name as the key
+      for (const key of sshKeys) args.args.push(`--ssh=${path.basename(key)}=${key}`);
+      // log
+      debug('passing in ssh keys %o', sshKeys);
+    }
+
+    // if we have an sshAuth socket then add that as well
+    if (sshSocket && fs.existsSync(sshSocket)) {
+      args.args.push(`--ssh=agent=${sshSocket}`);
+      debug('passing in ssh agent socket %o', sshSocket);
+    }
+
+    // get builder
+    // @TODO: consider other opts? https://docs.docker.com/reference/cli/docker/buildx/build/ args?
+    // secrets?
+    // gha cache-from/to?
+    const buildxer = require('../utils/run-command')(args.command, args.args, {debug});
+
+    // augment buildxer with more events so it has the same interface as build
+    buildxer.stdout.on('data', data => {
+      buildxer.emit('data', data);
+      buildxer.emit('progress', data);
+      for (const line of data.toString().trim().split('\n')) debug(line);
+      stdout += data;
+    });
+    buildxer.stderr.on('data', data => {
+      buildxer.emit('data', data);
+      buildxer.emit('progress', data);
+      for (const line of data.toString().trim().split('\n')) debug(line);
+      stderr += data;
+    });
+    buildxer.on('close', code => {
+      // if code is non-zero and we arent ignoring then reject here
+      if (code !== 0 && !ignoreReturnCode) {
+        buildxer.emit('error', require('../utils/get-buildx-error')({code, stdout, stderr}));
+      // otherwise return done
+      } else {
+        buildxer.emit('done', {code, stdout, stderr});
+        buildxer.emit('finished', {code, stdout, stderr});
+        buildxer.emit('success', {code, stdout, stderr});
+      }
+    });
+
+    // ensure context dir exists
+    fs.mkdirSync(context, {recursive: true});
+
+    // move other sources into the build context
+    for (const source of sources) {
+      fs.copySync(source.source, path.join(context, source.destination));
+      debug('copied %o into build context %o', source.source, path.join(context, source.destination));
+    }
+
+    // copy the dockerfile to the correct place
+    fs.copySync(dockerfile, path.join(context, 'Dockerfile'));
+    debug('copied Imagefile from %o to %o', dockerfile, path.join(context, 'Dockerfile'));
+
+    // debug
+    debug('buildxing image %o from %o with build-args', tag, context, buildArgs);
+
+    // return merger
+    return mergePromise(buildxer, awaitHandler);
   }
 
   /*
@@ -280,18 +432,41 @@ class DockerEngine extends Dockerode {
       stderro = '',
     } = {}) {
     const awaitHandler = async () => {
+      // stdin helpers
+      const resizer = container => {
+        const dimensions = {h: process.stdout.rows, w: process.stderr.columns};
+        if (dimensions.h != 0 && dimensions.w != 0) container.resize(dimensions, () => {});
+      };
+      const closer = (isRaw = process.isRaw) => {
+        if (interactive) {
+          process.stdout.removeListener('resize', resizer);
+          process.stdin.removeAllListeners();
+          process.stdin.setRawMode(isRaw);
+          process.stdin.resume();
+        }
+      };
+
       return new Promise((resolve, reject) => {
+        let prevkey;
+        const CTRL_P = '\u0010';
+        const CTRL_Q = '\u0011';
+
+        const aopts = {stream: true, stdout: true, stderr: true, hijack: interactive, stdin: interactive};
+        const isRaw = process.isRaw;
+        const stdout = new PassThrough();
+        const stderr = new PassThrough();
+
         runner.on('container', container => {
-          runner.on('stream', stream => {
-            const stdout = new PassThrough();
-            const stderr = new PassThrough();
+          container.attach(aopts, (error, stream) => {
+            if (error) runner.emit('error', error);
 
             // handle attach dynamics
             if (attach) {
               // if tty and just pipe everthing to stdout
-              if (copts.Tty) stream.pipe(process.stdout);
+              if (copts.Tty) {
+                stream.pipe(process.stdout);
               // otherwise we should be able to pipe both
-              else {
+              } else {
                 stdout.pipe(process.stdout);
                 stderr.pipe(process.stderr);
               }
@@ -304,6 +479,18 @@ class DockerEngine extends Dockerode {
               stdout.on('data', buffer => runner.emit('stdout', buffer));
               stderr.on('data', buffer => runner.emit('stderr', buffer));
               container.modem.demuxStream(stream, stdout, stderr);
+            }
+
+            // handle interactive
+            if (interactive) {
+              process.stdin.resume();
+              process.stdin.setEncoding('utf8');
+              process.stdin.setRawMode(true);
+              process.stdin.pipe(stream);
+              process.stdin.on('data', key => {
+                if (prevkey === CTRL_P && key === CTRL_Q) closer(stream, isRaw);
+                prevkey = key;
+              });
             }
 
             // make sure we close child streams when the parent is done
@@ -333,32 +520,29 @@ class DockerEngine extends Dockerode {
             allo += String(buffer);
             if (!attach) debug.extend('stderr')(String(buffer));
           });
-
-          runner.on('data', data => {
-            // emit error first
-            if (data.StatusCode !== 0) runner.emit('error', data);
-            // fire done no matter what?
-            runner.emit('done', data);
-            runner.emit('finished', data);
-            runner.emit('success', data);
-          });
         });
 
         // handle resolve/reject
         runner.on('done', data => {
-          // @TODO: what about data?
+          closer(stream, isRaw);
           resolve(makeSuccess(merge({}, data, {command: 'dockerode run', all: allo, stdout: stdouto, stderr: stderro}, {args: command})));
         });
         runner.on('error', error => {
+          closer(stream, isRaw);
           reject(makeError(merge({}, args, {command: 'dockerode run', all: allo, stdout: stdouto, stderr: stderro}, {args: command}, {error})));
         });
       });
     };
 
     // handles the callback to super.run
-    // we basically need this just to handle dockerode modem errors
-    const callbackHandler = error => {
+    const callbackHandler = (error, data) => {
+      // emit error first
       if (error) runner.emit('error', error);
+      if (data.StatusCode !== 0) runner.emit('error', data);
+      // fire done no matter what?
+      runner.emit('done', data);
+      runner.emit('finished', data);
+      runner.emit('success', data);
     };
 
     // error if no command
@@ -369,10 +553,14 @@ class DockerEngine extends Dockerode {
     // some good default createOpts
     const defaultCreateOptions = {
       AttachStdin: interactive,
+      AttachStdout: attach,
+      AttachStderr: attach,
       HostConfig: {AutoRemove: true},
       Tty: false || interactive || attach,
       OpenStdin: true,
+      StdinOnce: true,
     };
+
     // merge our create options over the defaults
     const copts = merge({}, defaultCreateOptions, createOptions);
     // collect some args we can merge into promise resolution

@@ -3,13 +3,15 @@ L337 Example
 
 This example exists primarily to test the v3 runtime implementation of following documentation:
 
-* [Lando 4 l337 service](https://docs.lando.dev/core/v4/landofile/services.html#l-337-service)
+* [Lando 3 l337 service](https://docs.lando.dev/core/v3/services/l337.html)
 
 Start up tests
 --------------
 
 ```bash
 # should start successfully
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_rsa
 lando poweroff
 lando start
 ```
@@ -24,27 +26,28 @@ Run the following commands to verify things work as expected
 lando destroy -y
 
 # should have correct info when not built
-lando info -s db | grep api: | grep 4
-lando info -s db | grep type: | grep l337
-lando info -s db | grep lastBuild: | grep never
-lando info -s db | grep -z image: | grep core/examples/l337/Dockerfile
-lando info -s db | grep primary: | grep false
-lando info -s db | grep user: | grep www-data
-cat $(lando info -s db --path "[0].image" --format json | tr -d '"') | grep "ENV SERVICE=db"
-lando info -s web | grep api: | grep 4
-lando info -s web | grep type: | grep l337
-lando info -s web | grep lastBuild: | grep never
-lando info -s web | grep -z image: | grep /Imagefile
-lando info -s web | grep primary: | grep true
-lando info -s web | grep appMount: | grep /site
-lando info -s web | grep user: | grep nginx
-cat $(lando info -s web --path "[0].image" --format json | tr -d '"') | grep ENV | grep SERVICE | grep web
-lando info -s image-1 | grep image: | grep nginx:1.21.6
-lando info -s image-2 | grep -z image: | grep core/examples/l337/images/nginx/Dockerfile
-lando info -s image-3 | grep -z image: | grep /Imagefile
-lando info -s image-4 | grep image: | grep nginx:1.21.5
-lando info -s image-5 | grep -z image: | grep core/examples/l337/images/nginx/Dockerfile2
-lando info -s image-6 | grep -z image: | grep /Imagefile
+lando info --service db | grep api: | grep 4
+lando info --service db | grep type: | grep l337
+lando info --service db | grep healthy: | grep unknown
+lando info --service db | grep state: | grep IMAGE: | grep UNBUILT
+lando info --service db | grep -z image: | grep core/examples/l337/Dockerfile
+lando info --service db | grep primary: | grep false
+lando info --service db | grep user: | grep www-data
+cat $(lando info --service db --path "[0].image" --format json | tr -d '"') | grep "ENV SERVICE=db"
+lando info --service web | grep api: | grep 4
+lando info --service web | grep type: | grep l337
+lando info --service web | grep state: | grep IMAGE: | grep UNBUILT
+lando info --service web | grep -z image: | grep /Imagefile
+lando info --service web | grep primary: | grep true
+lando info --service web | grep appMount: | grep /site
+lando info --service web | grep user: | grep nginx
+cat $(lando info --service web --path "[0].image" --format json | tr -d '"') | grep ENV | grep SERVICE | grep web
+lando info --service image-1 | grep image: | grep nginx:1.21.6
+lando info --service image-2 | grep -z image: | grep core/examples/l337/images/nginx/Dockerfile
+lando info --service image-3 | grep -z image: | grep /Imagefile
+lando info --service image-4 | grep image: | grep nginx:1.21.5
+lando info --service image-5 | grep -z image: | grep core/examples/l337/images/nginx/Dockerfile2
+lando info --service image-6 | grep -z image: | grep /Imagefile
 
 # should start again successfully
 lando start
@@ -60,25 +63,25 @@ lando restart
 lando rebuild -y
 
 # should have the correct info when built
-lando info -s db | grep lastBuild: | grep succeeded
-lando info -s web | grep lastBuild: | grep succeeded
-lando info -s image-1 | grep lastBuild: | grep succeeded
-lando info -s image-2 | grep lastBuild: | grep succeeded
-lando info -s image-3 | grep lastBuild: | grep succeeded
-lando info -s image-4 | grep lastBuild: | grep succeeded
-lando info -s image-5 | grep lastBuild: | grep succeeded
-lando info -s image-6 | grep lastBuild: | grep succeeded
-lando info -s db | grep tag: | grep "lando/l337\-" | grep "\-db:latest"
-lando info -s web | grep tag: | grep "lando/l337\-" | grep "\-web:latest"
-lando info -s image-1 | grep tag: | grep "lando/l337\-" | grep "\-image-1:latest"
-lando info -s image-2 | grep tag: | grep "lando/l337\-" | grep "\-image-2:latest"
-lando info -s image-3 | grep tag: | grep "lando/l337\-" | grep "\-image-3:latest"
-lando info -s image-4 | grep tag: | grep "lando/nginx:powerman-5000"
-lando info -s image-5 | grep tag: | grep "lando/l337\-" | grep "\-image-5:latest"
-lando info -s image-6 | grep tag: | grep "lando/l337\-" | grep "\-image-6:latest"
+lando info --service db | grep state: | grep IMAGE: | grep BUILT
+lando info --service web |  grep state: | grep IMAGE: | grep BUILT
+lando info --service image-1 | grep state: | grep IMAGE: | grep BUILT
+lando info --service image-2 | grep state: | grep IMAGE: | grep BUILT
+lando info --service image-3 | grep state: | grep IMAGE: | grep BUILT
+lando info --service image-4 | grep state: | grep IMAGE: | grep BUILT
+lando info --service image-5 | grep state: | grep IMAGE: | grep BUILT
+lando info --service image-6 | grep state: | grep IMAGE: | grep BUILT
+lando info --service db | grep tag: | grep "lando/l337\-" | grep "\-db:latest"
+lando info --service web | grep tag: | grep "lando/l337\-" | grep "\-web:latest"
+lando info --service image-1 | grep tag: | grep "lando/l337\-" | grep "\-image-1:latest"
+lando info --service image-2 | grep tag: | grep "lando/l337\-" | grep "\-image-2:latest"
+lando info --service image-3 | grep tag: | grep "lando/l337\-" | grep "\-image-3:latest"
+lando info --service image-4 | grep tag: | grep "lando/nginx:powerman-5000"
+lando info --service image-5 | grep tag: | grep "lando/l337\-" | grep "\-image-5:latest"
+lando info --service image-6 | grep tag: | grep "lando/l337\-" | grep "\-image-6:latest"
 
 # should use web as the primary service for tooling and events
-lando ssh -c "env" | grep SERVICE | grep web
+lando ssh --command "env" | grep SERVICE | grep web
 lando env | grep SERVICE | grep web
 
 # should allow legacy meUser to work like it does for v3
@@ -96,6 +99,12 @@ docker volume ls | grep l337_my-data
 # should allow top level network creation
 docker network ls | grep l337_my-network
 
+# should correctly pass in build args to build and buildx
+lando env --service build-args-1 | grep NGINX_VERSION | grep "1.19.2"
+lando env --service build-args-1 | grep VIBE | grep rising
+lando env --service build-args-2 | grep NGINX_VERSION | grep "1.21.5"
+lando env --service build-args-2 | grep VIBE | grep dialed
+
 # should handle different image build formats
 lando env | grep SERVICE | grep web
 lando env --service db | grep SERVICE | grep db
@@ -107,29 +116,29 @@ lando env --service image-5 | grep SERVICE | grep image-5
 lando env --service image-6 | grep SERVICE | grep image-6
 
 # should handle COPY instructions correctly
-lando ssh --service web -c "curl localhost:8888" | grep "look you wanna be L337"
-lando ssh --service db -c "stat /thing"
-lando ssh --service db -c "stat /itworked"
-lando ssh --service image-2 -c "stat /file10"
-lando ssh --service image-3 -c "stat /file1"
+lando ssh --service web --command "curl localhost:8888" | grep "look you wanna be L337"
+lando ssh --service db --command "stat /thing"
+lando ssh --service db --command "stat /itworked"
+lando ssh --service image-2 --command "stat /file10"
+lando ssh --service image-3 --command "stat /file1"
 
 # should run in working_dir if appMount is not set
 lando pwd --service db | grep /tmp
-lando ssh --service db -c "pwd" | grep /tmp
+lando ssh --service db --command "pwd" | grep /tmp
 cd folder
 lando pwd --service db | grep -w /tmp
-lando ssh --service db -c "pwd" | grep /tmp
+lando ssh --service db --command "pwd" | grep /tmp
 cd ..
 
 # should run in image working_dir as fallback
 lando pwd --service image-1 | grep -w /
-lando ssh --service image-1 -c "pwd" | grep -w /
+lando ssh --service image-1 --command "pwd" | grep -w /
 lando pwd --service image-6 | grep /usr/share/nginx/html
-lando ssh --service image-6 -c "pwd" | grep /usr/share/nginx/html
+lando ssh --service image-6 --command "pwd" | grep /usr/share/nginx/html
 
 # should correctly mount read-only volumes
-lando ssh -c "test -r /file-ro"
-lando ssh -c "test -w /file-ro" || echo $? | grep 1
+lando ssh --command "test -r /file-ro"
+lando ssh --command "test -w /file-ro" || echo $? | grep 1
 
 # should handle all context options correctly
 lando stat /folder
@@ -206,12 +215,12 @@ lando env --service steps-1 | grep KIRK | grep wesley
 lando env --service steps-1 | grep SPOCK | grep peck
 
 # Should run unknown groups as the default group
-lando ssh --service steps-1 -c "cat /tmp/val-jean-group" | grep default-1000-root
+lando ssh --service steps-1 --command "cat /tmp/val-jean-group" | grep default-1000-root
 
 # Should order detached groups by weight
-lando ssh --service steps-1 -c "cat /stuff" | sed -n '1p' | grep first
-lando ssh --service steps-1 -c "cat /stuff" | sed -n '2p' | grep middle
-lando ssh --service steps-1 -c "cat /stuff" | sed -n '3p' | grep last
+lando ssh --service steps-1 --command "cat /stuff" | sed -n '1p' | grep first
+lando ssh --service steps-1 --command "cat /stuff" | sed -n '2p' | grep middle
+lando ssh --service steps-1 --command "cat /stuff" | sed -n '3p' | grep last
 ```
 
 Destroy tests
@@ -219,6 +228,7 @@ Destroy tests
 
 ```bash
 # should destroy successfully
+killall ssh-agent && unset SSH_AUTH_SOCK
 lando destroy -y
 lando poweroff
 ```

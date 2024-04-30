@@ -19,6 +19,9 @@ export default defineConfig({
     ['link', {rel: 'icon', href: '/core/favicon.ico', size: 'any'}],
     ['link', {rel: 'icon', href: '/core/favicon.svg', type: 'image/svg+xml'}],
   ],
+  rewrites: {
+    'lando-service.md': 'services/lando.md',
+  },
   themeConfig: {
     sidebar: sidebar(),
     sidebarEnder: {
@@ -76,7 +79,8 @@ function sidebar() {
       text: 'Services',
       collapsed: false,
       items: [
-        {text: 'Lando Service', link: '/lando-service'},
+        {text: 'Lando Service', link: '/services/lando'},
+        {text: 'L-337 Service <small><strong>(BETA)</strong></small>', link: '/services/l337'},
       ],
     },
     {

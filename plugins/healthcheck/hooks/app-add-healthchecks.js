@@ -3,7 +3,9 @@
 const _ = require('lodash');
 const debug = require('debug')('@lando/core:healthcheck');
 
-module.exports = async (app, lando) => {
+const {color} = require('listr2');
+
+module.exports = async app => {
   const exec = (command, container, {service, log = debug, user = 'root'} = {}) => {
     log('running %o healthcheck %o...', service, command);
     return app.engine.run({
@@ -21,7 +23,7 @@ module.exports = async (app, lando) => {
     })
     .then(response => {
       log('%o healthcheck passed with output %o', service, command, response);
-      return response;
+      return {service, command, response};
     })
     .catch(error => {
       error.code = 1;
@@ -87,6 +89,9 @@ module.exports = async (app, lando) => {
     title: `Healthcheck ${healthcheck.container}`,
     retry: healthcheck.retry,
     task: async (ctx, task) => {
+      // add the metadata
+      ctx.data[healthcheck.service] = healthcheck;
+
       try {
         await healthcheck.test(...healthcheck.args);
       } catch (error) {
@@ -102,7 +107,10 @@ module.exports = async (app, lando) => {
         throw error;
 
       // finally add a slight delay to help post-start events run without failure
+      // and to update the service info
       } finally {
+        const service = _.find(app.info, {service: healthcheck.service});
+        service.healthy = _.find(ctx.errors, {service: healthcheck.service}) === undefined;
         await require('delay')(1000);
       }
     },
@@ -116,12 +124,10 @@ module.exports = async (app, lando) => {
       if (tasks && tasks.length > 0) {
         // run tasks
         const {errors} = await app.runTasks(tasks, options);
+
         // if we have errors lets add relevant warnings
         if (errors && errors.length > 0) {
           _.forEach(errors, error => {
-            // set the service info to unhealthy
-            const service = _.find(app.info, {service: error.service});
-            service.healthy = false;
             // parse the message
             const message = _.trim(_.get(error, 'message', 'UNKNOWN ERROR'));
             // add the warning
@@ -129,13 +135,17 @@ module.exports = async (app, lando) => {
               title: `The service "${error.service}" failed its healthcheck`,
               type: 'warning',
               detail: [
-                `Failed with "${message}"`,
+                `Failed with ${color.yellow(message)}`,
                 'This may be ok but we recommend you run the command below to investigate:',
               ],
               command: `lando logs -s ${error.service}`,
-            }, error);
+            }, error, true);
           });
         }
+
+        // reset compose caches with updated healthy info
+        app.updateComposeCache();
+        app.v4.updateComposeCache();
       }
     },
     args: [tasks, {
@@ -146,6 +156,7 @@ module.exports = async (app, lando) => {
           COMPLETED: 'Passed',
           STARTED: 'Running',
           RETRY: 'Running',
+          FAILED: 'FAILED',
         },
       },
     }],

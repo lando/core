@@ -33,7 +33,7 @@ You will then need to `lando rebuild` your service for the changes to take effec
 
 ### 2. Overridding a particular service
 
-If you [override](./lando-service.md) a particular service and specify the external IP then Lando will honor that choice and not force override with the `bindAddress`.
+If you [override](./services/lando.md) a particular service and specify the external IP then Lando will honor that choice and not force override with the `bindAddress`.
 
 ```yaml
 # This will find a random port on 0.0.0.0
@@ -98,6 +98,12 @@ certutil -addstore -f "ROOT" C:\Users\ME\.lando\certs\lndo.site.pem
 
 # Remove Lando CA
 certutil -delstore "ROOT" serial-number-hex
+```
+
+Note that if you want to trust the cert and are using Lando within a Linux environment on WSL2, you'll need to use the path to the cert used by that Linux environment. Ex:
+
+```bash
+certutil -addstore -f "ROOT" \\wsl.localhost\LINUX-DISTRIBUTION\home\LINUX-USER\.lando\certs\lndo.site.pem
 ```
 
 ### Debian

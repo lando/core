@@ -7,7 +7,7 @@ description: If you've ever tried to run a site with a shload of files using Doc
 
 If you've ever tried to run a site with a shload of files using Docker Desktop then you've likely experienced some of the [very well documented](https://forums.docker.com/t/file-access-in-mounted-volumes-extremely-slow-cpu-bound/8076/89) performance issues associated with doing so. Usually, these performance issues manifest themselves in slow page load times, or exceptionally long cli operations like installing a dependency or clearing an application's cache.
 
-Similarly, since Lando is built on top of these technologies, you likely have experienced them while running big sites on Lando as well; despite the fact that we already [optimize our app mounts](./lando-service.md).
+Similarly, since Lando is built on top of these technologies, you likely have experienced them while running big sites on Lando as well; despite the fact that we already [optimize our app mounts](./services/lando.md).
 
 There are, however, a few different things you can do to improve performance.
 
@@ -25,12 +25,11 @@ rm -rf ~/.lando/scripts
 
 ## 2. WSL2 on Windows
 
-While you _can_ use Lando on your host Windows machine and have it talk to the Docker Desktop WSL2 backend it's probably _best_ to spin up another Linux distribution like Ubuntu, also install Lando there and do all your development there. This avoids most file sharing misery and as you might expect is almost as fast as running on Linux natively.
+While you _can_ use Lando on your host Windows machine and have it talk to the Docker Desktop WSL2 backend it's probably _best_ to spin up another Linux distribution like Ubuntu and install Lando there. This avoids most file sharing misery and as you might expect is almost as fast as running on Linux natively.
 
 In this model the user can usually use something like Windows Terminal to directly interface with the WSL2 machine or something like the [WSL2 Extension in VSCODE](https://code.visualstudio.com/docs/remote/wsl) to directly edit their files on the same machine.
 
-
-Here is a good [third-party guide](https://alexanderallen.medium.com/installing-lando-in-wsl-2-f965c47a8f03) on setting most of the above up.
+To install Lando on your Linux environment in WSL2, follow the appropriate [Linux installation instructions](https://docs.lando.dev/install/linux.html).
 
 ## 3. Excluding directories
 
