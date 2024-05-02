@@ -61,7 +61,7 @@ while (( "$#" )); do
   esac
 done
 
-# Get type-specific dump cpmmand
+# Get type-specific dump command
 if [[ ${POSTGRES_DB} != '' ]]; then
   DUMPER="pg_dump postgresql://$USER@localhost:$PORT/$DATABASE"
 elif [[ ${MARIADB_DATABASE} != '' && -x $(command -v mariadb-dump) ]]; then
