@@ -13,8 +13,12 @@ module.exports = async lando => {
         delay: 1000,
       },
       task: async (ctx, task) => {
-        // prompt for password if interactive and we dont have it
-        if (process.platform === 'linux' && lando.config.isInteractive) {
+        // Prompt for sudo password if interactive and not Docker Desktop WSL2 integration
+        if (
+          process.platform === 'linux'
+          && lando.config.isInteractive
+          && !require('../utils/is-wsl-interop')(lando.engine.daemon.docker)
+        ) {
           ctx.password = await task.prompt({
             type: 'password',
             name: 'password',
