@@ -23,6 +23,7 @@ const defaultConfig = options => ({
     platform: os.platform(),
     release: os.release(),
     arch: os.arch(),
+    isWsl: os.release().toLowerCase().includes('microsoft'),
   },
   pluginDirs: [{path: path.join(__dirname, '..'), subdir: 'plugins', namespace: '@lando'}],
   plugins: [{name: '@lando/core', path: path.join(__dirname, '..'), type: 'local'}],
