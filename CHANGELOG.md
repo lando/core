@@ -1,3 +1,7 @@
+## Unreleased
+
+* Updated `sql-export.sh` to use `mariadb-dump` command (if available). [#148](https://github.com/lando/core/pull/148)
+
 ## v3.21.0-beta.18 - [April 29, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.18)
 
 * Fixed bug that prevented password prompts from rendering
