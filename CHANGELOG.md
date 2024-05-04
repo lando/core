@@ -1,6 +1,9 @@
 ## Unreleased
 
 * Updated `sql-export.sh` to use `mariadb-dump` command (if available). [#148](https://github.com/lando/core/pull/148)
+* Added ability to autostart Docker Desktop for Windows from within WSL instances
+* Improved method for locating and starting Docker Desktop on Windows
+* Fixed bug that caused Lando to be too impatient when starting Docker Desktop
 
 ## v3.21.0-beta.18 - [April 29, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.18)
 
