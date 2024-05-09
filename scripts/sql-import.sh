@@ -95,28 +95,20 @@ echo "Preparing to import $FILE into database '$DATABASE' on service '$SERVICE' 
 
 # Wipe the database if set
 if [ "$WIPE" == "true" ]; then
-  echo ""
-  echo "Emptying $DATABASE... "
+  lando_pink "\nEmptying $DATABASE... "
   lando_yellow "NOTE: See the --no-wipe flag to avoid this step!"
 
   # DO db specific wiping
   if [[ ${POSTGRES_DB} != '' ]]; then
     # Drop and recreate database
-    lando_yellow "\t\tDropping database ...\n\n"
-    psql postgresql://$USER@$HOST:$PORT/postgres -c "DROP DATABASE IF EXISTS $DATABASE"
-
-    lando_green "\t\tCreating database ...\n\n"
-    psql postgresql://$USER@$HOST:$PORT/postgres -c "CREATE DATABASE $DATABASE"
+    psql postgresql://$USER@$HOST:$PORT/postgres -c "DROP DATABASE IF EXISTS $DATABASE" --quiet --echo-errors
+    psql postgresql://$USER@$HOST:$PORT/postgres -c "CREATE DATABASE $DATABASE" --quiet --echo-errors
   else
     # Connection string
     SQLSTART="mysql -h $HOST -P $PORT -u $USER ${LANDO_EXTRA_DB_IMPORT_ARGS}"
 
-    lando_yellow "\t\tDropping database ...\n\n"
-    # Drop the database
+    # Drop and recreate database
     $SQLSTART -e "DROP DATABASE IF EXISTS ${DATABASE}"
-
-    lando_green "\t\tCreating database ...\n\n"
-    # Create the database
     $SQLSTART -e "CREATE DATABASE ${DATABASE}"
   fi
 fi
@@ -146,7 +138,7 @@ fi
 
 # Build DB specific import command
 if [[ ${POSTGRES_DB} != '' ]]; then
-  CMD="$CMD | psql postgresql://$USER@$HOST:$PORT/$DATABASE"
+  CMD="$CMD | psql --quiet --echo-errors postgresql://$USER@$HOST:$PORT/$DATABASE"
 else
   CMD="$CMD | mysql -h $HOST -P $PORT -u $USER ${LANDO_EXTRA_DB_IMPORT_ARGS} $DATABASE"
 fi
