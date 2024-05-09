@@ -1,0 +1,54 @@
+name: lando-sqlhelpers
+services:
+  mariadb:
+    api: 3
+    type: lando
+    services:
+      image: bitnami/mariadb:10.4
+      command: /opt/bitnami/scripts/mariadb/entrypoint.sh /opt/bitnami/scripts/mariadb/run.sh
+      environment:
+        ALLOW_EMPTY_PASSWORD: yes
+        MARIADB_DATABASE: lando_test
+        MYSQL_DATABASE: lando_test
+        MARIADB_USER: test
+        MARIADB_PASSWORD: test
+
+  mysql57:
+    api: 3
+    type: lando
+    services:
+      image: bitnami/mysql:5.7
+      command: /opt/bitnami/scripts/mysql/entrypoint.sh /opt/bitnami/scripts/mysql/run.sh
+      environment:
+        ALLOW_EMPTY_PASSWORD: yes
+        MYSQL_AUTHENTICATION_PLUGIN: mysql_native_password
+        MYSQL_DATABASE: lando_test
+        MYSQL_PASSWORD: test
+        MYSQL_USER: test
+
+  mysql80:
+    api: 3
+    type: lando
+    services:
+      image: bitnami/mysql:8.0
+      command: /opt/bitnami/scripts/mysql/entrypoint.sh /opt/bitnami/scripts/mysql/run.sh
+      environment:
+        ALLOW_EMPTY_PASSWORD: yes
+        MYSQL_AUTHENTICATION_PLUGIN: caching_sha2_password
+        MYSQL_DATABASE: lando_test
+        MYSQL_PASSWORD: test
+        MYSQL_USER: test
+
+  postgres16:
+    api: 3
+    type: lando
+    services:
+      image: bitnami/postgresql:16
+      command: /opt/bitnami/scripts/postgresql/entrypoint.sh /opt/bitnami/scripts/postgresql/run.sh
+      environment:
+        ALLOW_EMPTY_PASSWORD: yes
+        POSTGRESQL_DATABASE: lando_test
+        POSTGRES_DB: lando_test
+
+plugins:
+  "@lando/core": "../../.."

@@ -31,6 +31,7 @@ jobs:
           - examples/orchestrator
           - examples/plugin-commands
           - examples/services
+          - examples/sql-helpers
           - examples/tooling
         node-version:
           - "18"
