@@ -1,7 +1,9 @@
-## Unreleased
+## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
+
+* Added `leia` tests for `sql-import.sh` and `sql-export.sh`
+* Improved `sql-import.sh` to drop and recreate `mysql` and `mariadb` tables before importing
 
 * Updated `sql-export.sh` to use `mariadb-dump` command (if available). [#148](https://github.com/lando/core/pull/148)
-* Added `leia` tests for `sql-import.sh` and `sql-export.sh`
 
 ## v3.21.0-beta.18 - [April 29, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.18)
 
