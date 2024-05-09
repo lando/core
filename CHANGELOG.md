@@ -17,6 +17,7 @@
 
 * Added `buildkit` as an alias for `buildx` in `l337` service `image` key
 * Changed `download-x` to prefer `ipv4` [#165](https://github.com/lando/core/pull/165)
+* Changed `rebuild` to `kill` instead of `stop`
 * Improved error handling on `download-x` [#165](https://github.com/lando/core/pull/165)
 
 ## v3.21.0-beta.18 - [April 29, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.18)
