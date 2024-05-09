@@ -103,17 +103,20 @@ if [ "$WIPE" == "true" ]; then
   if [[ ${POSTGRES_DB} != '' ]]; then
     # Drop and recreate database
     lando_yellow "\t\tDropping database ...\n\n"
-    psql postgresql://$USER@$HOST:$PORT/postgres -c "drop database $DATABASE"
+    psql postgresql://$USER@$HOST:$PORT/postgres -c "DROP DATABASE IF EXISTS $DATABASE"
 
     lando_green "\t\tCreating database ...\n\n"
-    psql postgresql://$USER@$HOST:$PORT/postgres -c "create database $DATABASE"
+    psql postgresql://$USER@$HOST:$PORT/postgres -c "CREATE DATABASE $DATABASE"
   else
-    # Drop and recreate database
-    SQLSTART="mysql -h $HOST -P $PORT -u $USER ${LANDO_EXTRA_DB_IMPORT_ARGS} $DATABASE"
+    # Connection string
+    SQLSTART="mysql -h $HOST -P $PORT -u $USER ${LANDO_EXTRA_DB_IMPORT_ARGS}"
+
     lando_yellow "\t\tDropping database ...\n\n"
+    # Drop the database
     $SQLSTART -e "DROP DATABASE IF EXISTS ${DATABASE}"
 
     lando_green "\t\tCreating database ...\n\n"
+    # Create the database
     $SQLSTART -e "CREATE DATABASE ${DATABASE}"
   fi
 fi
