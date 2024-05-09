@@ -3,6 +3,7 @@ services:
   mariadb:
     api: 3
     type: lando
+    healthcheck: mysqladmin ping -h mariadb -u test -ptest
     services:
       image: bitnami/mariadb:10.4
       command: /opt/bitnami/scripts/mariadb/entrypoint.sh /opt/bitnami/scripts/mariadb/run.sh
@@ -16,6 +17,7 @@ services:
   mysql57:
     api: 3
     type: lando
+    healthcheck: mysqladmin ping -h mysql57 -u test -ptest
     services:
       image: bitnami/mysql:5.7
       command: /opt/bitnami/scripts/mysql/entrypoint.sh /opt/bitnami/scripts/mysql/run.sh
@@ -29,6 +31,7 @@ services:
   mysql80:
     api: 3
     type: lando
+    healthcheck: mysqladmin ping -h mysql80 -u test -ptest
     services:
       image: bitnami/mysql:8.0
       command: /opt/bitnami/scripts/mysql/entrypoint.sh /opt/bitnami/scripts/mysql/run.sh
@@ -42,6 +45,7 @@ services:
   postgres16:
     api: 3
     type: lando
+    healthcheck: pg_isready -h postgres16 -U postgres
     services:
       image: bitnami/postgresql:16
       command: /opt/bitnami/scripts/postgresql/entrypoint.sh /opt/bitnami/scripts/postgresql/run.sh
