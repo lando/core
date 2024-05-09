@@ -1,12 +1,19 @@
 'use strict';
 
-const axios = require('axios');
 const fs = require('fs');
+const http = require('http');
+const https = require('https');
 const os = require('os');
 const path = require('path');
 
 const {EventEmitter} = require('events');
+const {create} = require('axios');
 const {nanoid} = require('nanoid');
+
+const axios = create({
+  httpsAgent: new https.Agent({rejectUnauthorized: false, family: 4}),
+  httpAgent: new http.Agent({family: 4}),
+});
 
 // helper to get a platform spec tmpfile
 const tmpfile = () => {
@@ -50,9 +57,11 @@ module.exports = (url, {
 
   // an error has occured
   .catch(error => {
-    error.message = `could not download ${url} [${error.response.status}] ${error.response.statusText}`;
-    debug(error.message);
-    // debug('%o', error);
+    // if error has a status code then rewrite message
+    if (error?.response?.status) {
+      error.message = `could not download ${url} [${error.response.status}] ${error.response.statusText}`;
+    }
+
     download.error = error;
     download.emit('error', download.error);
   })
