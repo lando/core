@@ -105,7 +105,7 @@ class L337ServiceV4 extends EventEmitter {
     // set top level required stuff
     this.id = id;
     this.appRoot = appRoot;
-    this.buildx = true;
+    this.buildkit = true;
     this.config = config;
     this.context = context;
     this.debug = debug;
@@ -208,8 +208,8 @@ class L337ServiceV4 extends EventEmitter {
     // if we have a custom tag then set that
     if (data.tag) this.tag = data.tag;
 
-    // finally make sure we honor buildx disabling
-    if (require('../utils/is-disabled')(data.buildx ?? this.buildx)) this.buildx = false;
+    // finally make sure we honor buildkit disabling
+    if (require('../utils/is-disabled')((data.buildkit || data.buildx) ?? this.buildkit)) this.buildkit = false;
   }
 
   // just pushes the compose data directly into our thing
@@ -467,7 +467,7 @@ class L337ServiceV4 extends EventEmitter {
     this.sshKeys = [...new Set(this.sshKeys.concat(keys))];
   }
 
-  // add/merge in ssh stuff for buildx
+  // add/merge in ssh stuff for buildkit
   addSSH(ssh) {
     // if ssh is explicitly true then that implies agent true and keys true
     if (ssh === true) ssh = {agent: true, keys: true};
@@ -499,7 +499,7 @@ class L337ServiceV4 extends EventEmitter {
       // set state
       this.state = {IMAGE: 'BUILDING'};
       // run with the appropriate builder
-      const success = this.buildx ? await bengine.buildx(imagefile, context) : await bengine.build(imagefile, context);
+      const success = this.buildkit ? await bengine.buildx(imagefile, context) : await bengine.build(imagefile, context); // eslint-disable-line max-len
       // augment the success info
       success.context = {imagefile, ...context};
       // add the final compose data with the updated image tag on success
