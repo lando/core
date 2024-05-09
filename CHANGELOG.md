@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.21.0-beta.19 - [May 9, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.19)
+
 ### New Features
 
 * Added ability to autostart Docker Desktop for Windows from within WSL instances [#164](https://github.com/lando/core/pull/164)
