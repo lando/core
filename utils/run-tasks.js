@@ -42,6 +42,7 @@ module.exports = async (tasks, {
     exitOnError: false,
     fallbackRenderer,
     fallbackRendererOptions,
+    registerSignalListeners: false,
     renderer,
     rendererOptions: {
       log: require('debug')('task-runner'),
@@ -72,6 +73,7 @@ module.exports = async (tasks, {
 
   // get results
   const results = await runner.run();
+
   // update results and then return
   results.skipped = tasks.filter(task => !task.enabled).length;
   results.ran = tasks.filter(task => task.enabled).length;
