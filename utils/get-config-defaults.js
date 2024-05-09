@@ -8,7 +8,7 @@ const os = require('os');
 // Default config
 const defaultConfig = options => ({
   orchestratorSeparator: '_',
-  orchestratorVersion: '2.26.1',
+  orchestratorVersion: '2.27.0',
   configSources: [],
   disablePlugins: [],
   dockerBin: require('../utils/get-docker-x')(),
@@ -23,6 +23,7 @@ const defaultConfig = options => ({
     platform: os.platform(),
     release: os.release(),
     arch: os.arch(),
+    isWsl: os.release().toLowerCase().includes('microsoft'),
   },
   pluginDirs: [{path: path.join(__dirname, '..'), subdir: 'plugins', namespace: '@lando'}],
   plugins: [{name: '@lando/core', path: path.join(__dirname, '..'), type: 'local'}],
@@ -31,7 +32,7 @@ const defaultConfig = options => ({
   // this governs both autosetup and the defaults of lando setup
   // @TODO: orchestrator works a bit differently because it predates lando.setup() we set it elsewhere
   setup: {
-    buildEngine: process.platform === 'linux' ? '26.0.0' : '4.29.0',
+    buildEngine: process.platform === 'linux' ? '26.1.1' : '4.30.0',
     buildEngineAcceptLicense: !require('is-interactive')(),
     commonPlugins: {
       '@lando/acquia': 'latest',

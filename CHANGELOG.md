@@ -3,7 +3,30 @@
 * Added `leia` tests for `sql-import.sh` and `sql-export.sh`
 * Improved `sql-import.sh` to drop and recreate `mysql` and `mariadb` tables before importing
 
+## v3.21.0-beta.19 - [May 9, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.19)
+
+### New Features
+
+* Added ability to autostart Docker Desktop for Windows from within WSL instances [#164](https://github.com/lando/core/pull/164)
+* Improved method for locating and starting Docker Desktop on Windows [#164](https://github.com/lando/core/pull/164)
+* Updated default Docker Compose version to `2.27.0`
+* Updated default Docker Desktop version to `4.30.0`
+* Updated default Docker Engine version to `26.1.1`
+* Updated tested Docker Desktop range to `<=4.30`
+* Updated tested Docker Engine range to `<27`
 * Updated `sql-export.sh` to use `mariadb-dump` command (if available). [#148](https://github.com/lando/core/pull/148)
+
+### Bug Fixes
+
+* Fixed bug that caused Lando to be too impatient when starting Docker Desktop [#164](https://github.com/lando/core/pull/164)
+* Fixed unclear error when cancelling certain prompts
+
+### Internal
+
+* Added `buildkit` as an alias for `buildx` in `l337` service `image` key
+* Changed `download-x` to prefer `ipv4` [#165](https://github.com/lando/core/pull/165)
+* Changed `rebuild` to `kill` instead of `stop`
+* Improved error handling on `download-x` [#165](https://github.com/lando/core/pull/165)
 
 ## v3.21.0-beta.18 - [April 29, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.18)
 

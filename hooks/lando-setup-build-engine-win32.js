@@ -8,6 +8,7 @@ const {color} = require('listr2');
 const {nanoid} = require('nanoid');
 
 const buildIds = {
+  '4.30.0': '149282',
   '4.29.0': '145265',
   '4.28.0': '139021',
   '4.27.2': '137060',
