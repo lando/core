@@ -15,6 +15,7 @@
 
 ### Internal
 
+* Added `buildkit` as an alias for `buildx` in `l337` service `image` key
 * Changed `download-x` to prefer `ipv4` [#165](https://github.com/lando/core/pull/165)
 * Improved error handling on `download-x` [#165](https://github.com/lando/core/pull/165)
 
