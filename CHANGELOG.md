@@ -1,5 +1,6 @@
-## Unreleased
+## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed unclear error when cancelling certain prompts
 * Updated `sql-export.sh` to use `mariadb-dump` command (if available). [#148](https://github.com/lando/core/pull/148)
 
 ## v3.21.0-beta.18 - [April 29, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.18)
