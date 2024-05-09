@@ -95,34 +95,21 @@ echo "Preparing to import $FILE into database '$DATABASE' on service '$SERVICE' 
 
 # Wipe the database if set
 if [ "$WIPE" == "true" ]; then
-  echo ""
-  echo "Emptying $DATABASE... "
+  lando_pink "\nEmptying $DATABASE... "
   lando_yellow "NOTE: See the --no-wipe flag to avoid this step!"
 
   # DO db specific wiping
   if [[ ${POSTGRES_DB} != '' ]]; then
     # Drop and recreate database
-    lando_yellow "\t\tDropping database ...\n\n"
-    psql postgresql://$USER@$HOST:$PORT/postgres -c "drop database $DATABASE"
-
-    lando_green "\t\tCreating database ...\n\n"
-    psql postgresql://$USER@$HOST:$PORT/postgres -c "create database $DATABASE"
+    psql postgresql://$USER@$HOST:$PORT/postgres -c "DROP DATABASE IF EXISTS $DATABASE" --quiet --echo-errors
+    psql postgresql://$USER@$HOST:$PORT/postgres -c "CREATE DATABASE $DATABASE" --quiet --echo-errors
   else
-    # Build the SQL prefix
-    SQLSTART="mysql -h $HOST -P $PORT -u $USER ${LANDO_EXTRA_DB_IMPORT_ARGS} $DATABASE"
+    # Connection string
+    SQLSTART="mysql -h $HOST -P $PORT -u $USER ${LANDO_EXTRA_DB_IMPORT_ARGS}"
 
-    # Gather and destroy tables
-    TABLES=$($SQLSTART -e 'SHOW TABLES' | awk '{ print $1}' | grep -v '^Tables' || true)
-
-    # PURGE IT ALL! Drop views and tables as needed
-    for t in $TABLES; do
-      echo "Dropping $t from $DATABASE database..."
-      $SQLSTART <<-EOF
-        SET FOREIGN_KEY_CHECKS=0;
-        DROP VIEW IF EXISTS \`$t\`;
-        DROP TABLE IF EXISTS \`$t\`;
-EOF
-    done
+    # Drop and recreate database
+    $SQLSTART -e "DROP DATABASE IF EXISTS ${DATABASE}"
+    $SQLSTART -e "CREATE DATABASE ${DATABASE}"
   fi
 fi
 
@@ -151,7 +138,7 @@ fi
 
 # Build DB specific import command
 if [[ ${POSTGRES_DB} != '' ]]; then
-  CMD="$CMD | psql postgresql://$USER@$HOST:$PORT/$DATABASE"
+  CMD="$CMD | psql --quiet --echo-errors postgresql://$USER@$HOST:$PORT/$DATABASE"
 else
   CMD="$CMD | mysql -h $HOST -P $PORT -u $USER ${LANDO_EXTRA_DB_IMPORT_ARGS} $DATABASE"
 fi
