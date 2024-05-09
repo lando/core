@@ -8,11 +8,17 @@ module.exports = async lando => {
     const debug = require('../utils/debug-shim')(lando.log);
     const tasks = [{
       title: 'It seems Docker is not running, trying to start it up...',
-      retry: 25,
-      delay: 1000,
+      retry: {
+        tries: 25,
+        delay: 1000,
+      },
       task: async (ctx, task) => {
-        // prompt for password if interactive and we dont have it
-        if (process.platform === 'linux' && lando.config.isInteractive) {
+        // Prompt for sudo password if interactive and not Docker Desktop WSL2 integration
+        if (
+          process.platform === 'linux'
+          && lando.config.isInteractive
+          && !require('../utils/is-wsl-interop')(lando.engine.daemon.docker)
+        ) {
           ctx.password = await task.prompt({
             type: 'password',
             name: 'password',
@@ -38,6 +44,11 @@ module.exports = async lando => {
         }
       },
     }];
-    await lando.runTasks(tasks, {listrOptions: {exitOnError: true}});
+    await lando.runTasks(tasks, {
+      listrOptions: {exitOnError: true},
+      rendererOptions: {
+        pausedTimer: {condition: false},
+      },
+    });
   }
 };

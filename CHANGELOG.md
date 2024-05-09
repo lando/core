@@ -1,8 +1,11 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
-### New Feature
+### New Features
 
 * Updated `sql-export.sh` to use `mariadb-dump` command (if available). [#148](https://github.com/lando/core/pull/148)
+
+* Added ability to autostart Docker Desktop for Windows from within WSL instances
+* Improved method for locating and starting Docker Desktop on Windows
 * Updated default Docker Compose version to `2.27.0`
 * Updated default Docker Desktop version to `4.30.0`
 * Updated default Docker Engine version to `26.1.1`
@@ -11,6 +14,7 @@
 
 ### Bug Fixes
 
+* Fixed bug that caused Lando to be too impatient when starting Docker Desktop
 * Fixed unclear error when cancelling certain prompts
 
 ### Internal
