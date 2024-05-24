@@ -31,6 +31,23 @@ services:
         THING: STUFF
       volumes:
         - "./test.txt:/var/www/test.txt"
+  nginx2:
+    api: 4
+    image:
+      context:
+        - ./healthcheck.sh:/usr/local/bin/healthcheck
+      imagefile: |
+        FROM nginx:1.22.1
+        RUN apt update -u
+        RUN apt install git ssh socat sudo -y
+        RUN ssh-keyscan github.com >> /etc/ssh/ssh_known_hosts
+      steps:
+        - instructions: RUN chmod +x /usr/local/bin/healthcheck
+    user: root
+    healthcheck:
+      command: healthcheck
+      retry: 100
+      delay: 1000
   database1:
     api: 3
     type: lando
@@ -72,7 +89,6 @@ services:
         MARIADB_USER: test
         MARIADB_PASSWORD: test
         MARIADB_AUTO_UPGRADE: da
-
   disablebase:
     api: 3
     type: lando

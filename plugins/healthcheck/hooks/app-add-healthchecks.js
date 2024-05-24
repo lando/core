@@ -46,9 +46,18 @@ module.exports = async app => {
     .value();
 
   // now get "new" healthchecks
-  // @NOTE: v4 healthchecks will be different? or not?
-  const newHealthchecks = _(_.get(app, 'parsedV3Services', []))
+  const newV3Healthchecks = _(_.get(app, 'parsedV3Services', []))
     .filter(service => _.has(service, 'healthcheck'))
+    .map(service => ({
+      container: app.containers[service.name],
+      name: service.name,
+      service: service.name,
+      ...require('../utils/normalize-healthcheck')(service.healthcheck),
+    }))
+    .value();
+  const newV4Healthchecks = _(_.get(app, 'v4.services', []))
+    .filter(service => _.has(service, 'healthcheck'))
+    .filter(service => service.canHealthcheck)
     .map(service => ({
       container: app.containers[service.name],
       name: service.name,
@@ -58,7 +67,7 @@ module.exports = async app => {
     .value();
 
   // now combine the two but give priority to the new one
-  const healthchecks = _(newHealthchecks.concat(legacyHealthchecks))
+  const healthchecks = _([...newV3Healthchecks, ...newV4Healthchecks, ...legacyHealthchecks])
     .groupBy('container')
     .map(checks => checks[0])
     .filter(check => !require('../../../utils/is-disabled')(check.command))

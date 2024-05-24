@@ -250,6 +250,8 @@ class L337ServiceV4 extends EventEmitter {
   addContext(context, group = 'context') {
     // if we have context info as a string then lets translate into an array
     if (context && typeof context === 'string') context = [context];
+    // if we have context info as an object then lets translate into an array
+    if (context && isObject(context)) context = [context];
     // if we have an array of context data then lets normalize it
     if (context && context.length > 0) {
       this.#data.sources.push(context.map(file => {
