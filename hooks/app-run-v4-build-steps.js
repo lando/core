@@ -132,6 +132,8 @@ module.exports = async (app, lando) => {
       try {
         await service.buildApp();
       } catch (error) {
+        // @TODO: improve this?
+        app.log.debug('app build error %o %o', error.message, error);
         app.addMessage(require('../messages/app-build-v4-error')(error), error, true);
       }
     }));
