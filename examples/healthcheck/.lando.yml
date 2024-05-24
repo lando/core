@@ -44,10 +44,6 @@ services:
       steps:
         - instructions: RUN chmod +x /usr/local/bin/healthcheck
     user: root
-    build:
-      app: |
-        set -e
-        chmod +x /usr/local/bin/healthcheck
     healthcheck:
       command: healthcheck
       retry: 100
