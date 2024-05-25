@@ -110,7 +110,7 @@ module.exports = {
 
       // build script
       // @TODO: handle array content?
-      this.buildScript = config?.build?.app ?? `true`;
+      this.buildScript = config?.build?.app ?? false;
 
       // set some other stuff
       if (config['app-mount']) this.setAppMount(config['app-mount']);
@@ -136,12 +136,12 @@ module.exports = {
         RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
       `});
 
-      // inject global npmrc if we can
-
       // add a home folder persistent mount
-      this.addComposeData({volumes: {[this.homevol]: {external: true}}});
+      this.addComposeData({volumes: {[this.homevol]: {}}});
       // add the usual DC stuff
       this.addServiceData({user: config.user ?? this.username, volumes: [`${this.homevol}:/home/${this.username}`]});
+      // add build vols
+      this.addAppBuildVolume(`${this.homevol}:/home/${this.username}`);
     }
 
     addAppBuildVolume(volumes) {
@@ -156,7 +156,7 @@ module.exports = {
     async buildApp() {
       // bail if no script
       if (!this.buildScript) {
-        this.debug('no build detected, skipping');
+        this.debug(`no build detected for ${this.id}, skipping`);
         return;
       };
 
@@ -187,7 +187,7 @@ module.exports = {
         const command = `chmod +x ${bs} && sh ${bs}`;
 
         // add build vols
-        this.addAppBuildVolume([`${buildScriptPath}:${bs}`, `${this.homevol}:/home/${this.username}`]);
+        this.addAppBuildVolume(`${buildScriptPath}:${bs}`);
 
         // run with the appropriate builder
         const success = await bengine.run([command], {
