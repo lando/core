@@ -110,7 +110,7 @@ module.exports = {
 
       // build script
       // @TODO: handle array content?
-      this.buildScript = config?.build?.app ?? `true`;
+      this.buildScript = config?.build?.app ?? false;
 
       // set some other stuff
       if (config['app-mount']) this.setAppMount(config['app-mount']);
