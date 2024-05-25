@@ -136,10 +136,8 @@ module.exports = {
         RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
       `});
 
-      // inject global npmrc if we can
-
       // add a home folder persistent mount
-      this.addComposeData({volumes: {[this.homevol]: {external: true}}});
+      this.addComposeData({volumes: {[this.homevol]: {}}});
       // add the usual DC stuff
       this.addServiceData({user: config.user ?? this.username, volumes: [`${this.homevol}:/home/${this.username}`]});
       // add build vols
@@ -158,7 +156,7 @@ module.exports = {
     async buildApp() {
       // bail if no script
       if (!this.buildScript) {
-        this.debug('no build detected, skipping');
+        this.debug(`no build detected for ${this.id}, skipping`);
         return;
       };
 
