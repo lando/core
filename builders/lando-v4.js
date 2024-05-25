@@ -142,6 +142,8 @@ module.exports = {
       this.addComposeData({volumes: {[this.homevol]: {external: true}}});
       // add the usual DC stuff
       this.addServiceData({user: config.user ?? this.username, volumes: [`${this.homevol}:/home/${this.username}`]});
+      // add build vols
+      this.addAppBuildVolume(`${this.homevol}:/home/${this.username}`);
     }
 
     addAppBuildVolume(volumes) {
@@ -187,7 +189,7 @@ module.exports = {
         const command = `chmod +x ${bs} && sh ${bs}`;
 
         // add build vols
-        this.addAppBuildVolume([`${buildScriptPath}:${bs}`, `${this.homevol}:/home/${this.username}`]);
+        this.addAppBuildVolume(`${buildScriptPath}:${bs}`);
 
         // run with the appropriate builder
         const success = await bengine.run([command], {
