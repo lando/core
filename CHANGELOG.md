@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.21.0 - [May 25, 2024](https://github.com/lando/core/releases/tag/v3.21.0)
+
 ### Bug Fixes
 
 * Fixed `Could not find suitable download url` CLI update error caused by a release posted before assets are available
