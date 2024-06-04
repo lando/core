@@ -47,6 +47,11 @@ module.exports = async (lando, options) => {
   // get stuff from config/opts
   const {orchestratorBin, userConfRoot} = lando.config;
   const {orchestrator} = options;
+
+  // if orchestrator engine is set to false allow it to be skipped
+  // @NOTE: this is mostly for internal stuff
+  if (orchestrator === false) return;
+
   const dest = getComposeDownloadDest(path.join(userConfRoot, 'bin'), orchestrator);
   const url = getComposeDownloadUrl(orchestrator);
 

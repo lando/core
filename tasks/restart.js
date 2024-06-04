@@ -15,9 +15,19 @@ module.exports = lando => {
       if (app) {
         console.log(lando.cli.makeArt('appRestart', {name: app.name, phase: 'pre'}));
 
+        // run any setup if we need to but without common plugins or build engine
+        const sopts = lando?.config?.setup;
+        sopts.buildEngine = false;
+        sopts.skipCommonPlugins = true;
+        sopts.yes = true;
+        const setupTasks = await lando.getSetupStatus(sopts);
+
         // Normal bootup
         try {
-          await app.restart();
+          // run a limited setup if needed
+          if (setupTasks.length > 0) await lando.setup(sopts);
+          // then start up
+          await app.start();
           // determine legacy settings
           const legacyScanner = _.get(lando, 'config.scanner', true) === 'legacy';
           // get scanner stuff

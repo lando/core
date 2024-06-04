@@ -25,6 +25,10 @@ const downloadDockerEngine = (url = 'https://get.docker.com', {debug, task, ctx}
 
 module.exports = async (lando, options) => {
   const debug = require('../utils/debug-shim')(lando.log);
+  // if build engine is set to false allow it to be skipped
+  // @NOTE: this is mostly for internal stuff
+  if (options.buildEngine === false) return;
+
   const version = options.buildEngine;
   // set out of scope password so we can reuse it
   let password = undefined;

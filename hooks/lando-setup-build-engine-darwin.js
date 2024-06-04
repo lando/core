@@ -24,6 +24,8 @@ const buildIds = {
  * Helper to get build engine id
  */
 const getId = version => {
+  // if false return false
+
   // if version is an integer then assume its already the id
   if (semver.valid(version) === null && Number.isInteger(parseInt(version))) return version;
   // otherwise return that corresponding build-id
@@ -67,9 +69,14 @@ const downloadDockerDesktop = (url, {debug, task, ctx}) => new Promise((resolve,
 
 module.exports = async (lando, options) => {
   const debug = require('../utils/debug-shim')(lando.log);
+  // if build engine is set to false allow it to be skipped
+  // @NOTE: this is mostly for internal stuff
+  if (options.buildEngine === false) return;
+
   // get stuff from config/opts
   const build = getId(options.buildEngine);
   const version = getVersion(options.buildEngine);
+
   // cosmetics
   const install = version ? `v${version}` : `build ${build}`;
 
