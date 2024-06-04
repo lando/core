@@ -75,6 +75,10 @@ module.exports = async (lando, options) => {
   const debug = require('../utils/debug-shim')(lando.log);
   debug.enabled = lando.debuggy;
 
+  // if build engine is set to false allow it to be skipped
+  // @NOTE: this is mostly for internal stuff
+  if (options.buildEngine === false) return;
+
   // get stuff from config/opts
   const build = getId(options.buildEngine);
   const version = getVersion(options.buildEngine);
