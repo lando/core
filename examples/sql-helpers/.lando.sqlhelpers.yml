@@ -22,9 +22,10 @@ services:
       command: /opt/bitnami/scripts/mariadb/entrypoint.sh /opt/bitnami/scripts/mariadb/run.sh
       environment:
         ALLOW_EMPTY_PASSWORD: yes
+        MARIADB_DATABASE: database
         MYSQL_DATABASE: database
-        MYSQL_USER: test
-        MYSQL_PASSWORD: test
+        MARIADB_USER: test
+        MARIADB_PASSWORD: test
 
   mysql57:
     api: 3
@@ -42,7 +43,7 @@ services:
   mysql57-default:
     api: 3
     type: lando
-    healthcheck: mysqladmin ping -h mysql57 -u test -ptest
+    healthcheck: mysqladmin ping -h mysql57-default -u test -ptest
     services:
       image: bitnami/mysql:5.7
       command: /opt/bitnami/scripts/mysql/entrypoint.sh /opt/bitnami/scripts/mysql/run.sh
@@ -69,7 +70,7 @@ services:
   mysql80-default:
     api: 3
     type: lando
-    healthcheck: mysqladmin ping -h mysql80 -u test -ptest
+    healthcheck: mysqladmin ping -h mysql80-default -u test -ptest
     services:
       image: bitnami/mysql:8.0
       command: /opt/bitnami/scripts/mysql/entrypoint.sh /opt/bitnami/scripts/mysql/run.sh
@@ -94,7 +95,7 @@ services:
   postgres16-default:
     api: 3
     type: lando
-    healthcheck: pg_isready -h postgres16 -U postgres
+    healthcheck: pg_isready -h postgres16-default -U postgres
     services:
       image: bitnami/postgresql:16
       command: /opt/bitnami/scripts/postgresql/entrypoint.sh /opt/bitnami/scripts/postgresql/run.sh
