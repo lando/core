@@ -108,7 +108,6 @@ if [ "$WIPE" == "true" ]; then
     SQLSTART="mysql -h $HOST -P $PORT -u $USER ${LANDO_EXTRA_DB_IMPORT_ARGS}"
 
     # Drop and recreate database
-    echo ${SQLSTART} ${DATABASE}
     $SQLSTART -e "DROP DATABASE IF EXISTS \`${DATABASE}\`"
     $SQLSTART -e "CREATE DATABASE \`${DATABASE}\`"
   fi

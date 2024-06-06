@@ -29,7 +29,7 @@ lando ssh -s mariadb -c "mysql -utest -ptest lando_test -e 'select * from lando_
 # Should import test data into mariadb-default
 cd sqlhelpers
 lando ssh -s mariadb-default -c "/helpers/sql-import.sh testdata1.sql"
-lando ssh -s mariadb-default -c "mysql -utest -ptest \`database\` -e 'select * from lando_test'" | grep "lando_original"
+lando ssh -s mariadb-default -c "mysql -utest -ptest database -e 'select * from lando_test'" | grep "lando_original"
 
 # Should import test data into mysql57
 cd sqlhelpers
@@ -39,7 +39,7 @@ lando ssh -s mysql57 -c "mysql -utest -ptest lando_test -e 'select * from lando_
 # Should import test data into mysql57-default
 cd sqlhelpers
 lando ssh -s mysql57-default -c "/helpers/sql-import.sh testdata1.sql"
-lando ssh -s mysql57-default -c "mysql -utest -ptest \`database\` -e 'select * from lando_test'" | grep "lando_original"
+lando ssh -s mysql57-default -c "mysql -utest -ptest database -e 'select * from lando_test'" | grep "lando_original"
 
 # Should import test data into mysql80
 cd sqlhelpers
@@ -49,7 +49,7 @@ lando ssh -s mysql80 -c "mysql -utest -ptest lando_test -e 'select * from lando_
 # Should import test data into mysql80-default
 cd sqlhelpers
 lando ssh -s mysql80-default -c "/helpers/sql-import.sh testdata1.sql"
-lando ssh -s mysql80-default -c "mysql -utest -ptest \`database\` -e 'select * from lando_test'" | grep "lando_original"
+lando ssh -s mysql80-default -c "mysql -utest -ptest database -e 'select * from lando_test'" | grep "lando_original"
 
 # Should import test data into postgres16
 cd sqlhelpers
