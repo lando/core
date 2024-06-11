@@ -93,6 +93,9 @@ module.exports = async lando => {
   // autostart docker if we need to
   lando.events.once('engine-autostart', async () => await require('./hooks/lando-autostart-engine')(lando));
 
+  // move v3 scripts directories as needed
+  lando.events.on('pre-engine-start', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
+
   // Return some default things
   return _.merge({}, defaults, uc(), {config: {
     appEnv: {
