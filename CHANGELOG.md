@@ -1,5 +1,11 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Updated default Docker Compose version to `2.27.1`
+* Updated default Docker Desktop for MacOS version to `4.31.0`
+* Updated default Docker Desktop for Windows version to `4.31.1`
+* Updated default Docker Engine version to `26.1.4`
+* Updated tested Docker Desktop range to `<=4.31`
+
 ## v3.21.0 - [May 25, 2024](https://github.com/lando/core/releases/tag/v3.21.0)
 
 ### Bug Fixes
