@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+### New Features
+
 * Updated default Docker Compose version to `2.27.1`
 * Updated default Docker Desktop for MacOS version to `4.31.0`
 * Updated default Docker Desktop for Windows version to `4.31.1`
