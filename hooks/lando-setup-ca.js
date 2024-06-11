@@ -68,19 +68,19 @@ module.exports = async (lando, options) => {
   // skip the installation of the CA if set
   if (options.skipInstallCA) return;
 
-  // download mkcert
-  options.tasks.push({
-    title: `Installing Lando Development CA`,
-    id: 'install-ca',
-    dependsOn: ['create-ca'],
-    description: '@lando/install-ca',
-    hasRun: async () => {
-      debug('stuff');
-      return false;
-    },
-    canRun: async () => {
-      return true;
-    },
-    task: async (ctx, task) => {},
-  });
+  // install ca
+  // options.tasks.push({
+  //   title: `Installing Lando Development CA`,
+  //   id: 'install-ca',
+  //   dependsOn: ['create-ca'],
+  //   description: '@lando/install-ca',
+  //   hasRun: async () => {
+  //     debug('stuff');
+  //     return false;
+  //   },
+  //   canRun: async () => {
+  //     return true;
+  //   },
+  //   task: async (ctx, task) => {},
+  // });
 };
