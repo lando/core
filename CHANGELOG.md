@@ -2,11 +2,20 @@
 
 ### New Features
 
+* Added limited auto setup to app start-y events
+* Added `LANDO_SERVICE_CERT` and `LANDO_SERVICE_KEY` envvars
+* Improved CA and cert generation
+* Improved `v3` plugin script automoving
 * Updated default Docker Compose version to `2.27.1`
 * Updated default Docker Desktop for MacOS version to `4.31.0`
 * Updated default Docker Desktop for Windows version to `4.31.1`
 * Updated default Docker Engine version to `26.1.4`
 * Updated tested Docker Desktop range to `<=4.31`
+
+### Internal
+
+* Moved Lando Development Certificate Authority creation to `setup` framework
+* Moved Landonet 2 upgrade to `setup` framework
 
 ## v3.21.0 - [May 25, 2024](https://github.com/lando/core/releases/tag/v3.21.0)
 
