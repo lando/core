@@ -15,7 +15,36 @@ module.exports = async (lando, options) => {
     comments: {
       'NOT INSTALLED': 'Will create Lando Development Certificate Authority (CA)',
     },
-    hasRun: async () => [caCert, caKey].every(file => fs.existsSync(file)),
+    hasRun: async () => {
+      const forge = require('node-forge');
+      const read = require('../utils/read-file');
+
+      if ([caCert, caKey].some(file => !fs.existsSync(file))) return false;
+
+      // check if the ca is valid and has a matching key
+      try {
+        const ca = forge.pki.certificateFromPem(read(caCert));
+        const key = forge.pki.privateKeyFromPem(read(caKey));
+
+        // verify the signature using the public key in the CA certificate
+        const md = forge.md.sha256.create();
+        md.update('taanab', 'utf8');
+        const signature = key.sign(md);
+
+        // if they dont match then throw
+        if (!ca.publicKey.verify(md.digest().bytes(), signature)) {
+          throw new Error('CA and its private key do not match');
+        }
+
+        // @TODO: throw error if CA has expired?
+
+        return true;
+      } catch (error) {
+        debug('Something is wrong with the CA %o %o', error.message, error.stack);
+        [caCert, caKey].some(file => !fs.unlinkSync(file));
+        return false;
+      }
+    },
     task: async (ctx, task) => {
       const write = require('../utils/write-file');
       const {createCA} = require('mkcert');
