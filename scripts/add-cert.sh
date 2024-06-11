@@ -24,10 +24,10 @@ if [ $(id -u) != 0 ]; then
 fi
 
 # Vars and defaults
-: ${LANDO_CA_CERT:="/lando/certs/lndo.site.pem"}
-: ${LANDO_CA_KEY:="/lando/certs/lndo.site.key"}
+: ${LANDO_CA_CERT:="/lando/certs/LandoCA.crt"}
+: ${LANDO_CA_KEY:="/lando/certs/LandoCA.key"}
 : ${CA_DIR:="/usr/share/ca-certificates"}
-: ${CA_CERT_FILENAME:="LandoCA.pem"}
+: ${CA_CERT_FILENAME:="LandoCA.crt"}
 : ${CA_CERT_CONTAINER:="$CA_DIR/$CA_CERT_FILENAME"}
 
 # Make sure our cert directories exists
@@ -57,8 +57,8 @@ cp -f /certs/cert.crt /certs/server.crt
 cp -f /certs/cert.key /certs/server.key
 
 # Set the cert and key on host to host-uid/gid ownership
-chown "$LANDO_HOST_UID:$LANDO_HOST_GID" "/lando/certs/${LANDO_SERVICE_NAME}.${LANDO_APP_PROJECT}.crt"
-chown "$LANDO_HOST_UID:$LANDO_HOST_GID" "/lando/certs/${LANDO_SERVICE_NAME}.${LANDO_APP_PROJECT}.key"
+chown "$LANDO_HOST_UID:$LANDO_HOST_GID" "$LANDO_SERVICE_CERT"
+chown "$LANDO_HOST_UID:$LANDO_HOST_GID" "$LANDO_SERVICE_KEY"
 
 # Trust our root CA
 if [ ! -f "$CA_CERT_CONTAINER" ]; then
