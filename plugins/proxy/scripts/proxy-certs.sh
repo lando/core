@@ -56,8 +56,8 @@ if [ -f "$LANDO_PROXY_CERT" ] && [ -f "$LANDO_PROXY_KEY" ]; then
   cat > "$LANDO_PROXY_CONFIG_FILE" <<EOF
 tls:
   certificates:
-    - certFile: "/lando/certs/${LANDO_SERVICE_NAME}.${LANDO_APP_PROJECT}.crt"
-      keyFile: "/lando/certs/${LANDO_SERVICE_NAME}.${LANDO_APP_PROJECT}.key"
+    - certFile: "$LANDO_SERVICE_CERT"
+      keyFile: "$LANDO_SERVICE_KEY"
 EOF
 
   # Log

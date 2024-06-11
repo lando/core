@@ -50,8 +50,6 @@ module.exports = async lando => {
   const caDomain = lando.config.domain;
   const caCert = path.join(caDir, `${caName}.crt`);
   const caKey = path.join(caDir, `${caName}.key`);
-  // const mkcertCACert = path.join(caDir, 'rootCA.pem');
-  // const mkcertCAKey = path.join(caDir, 'rootCA-key.pem');
 
   // Ensure some dirs exist before we start
   _.forEach([binDir, caDir, sshDir], dir => fs.mkdirSync(dir, {recursive: true}));
