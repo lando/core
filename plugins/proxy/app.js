@@ -91,9 +91,14 @@ module.exports = (app, lando) => {
       _.forEach(files, file => lando.yaml.dump(file.path, file.data));
     });
 
-
     // Start and setup the proxy and services
-    app.events.on('pre-start', 1, () => {
+    app.events.on('pre-start', 1, async () => {
+      // generate proxy cert
+      await lando.generateCert('proxy._lando_', {domains: [
+        `*.${lando.config.proxyDomain}`,
+        'proxy._lando_.internal',
+      ]});
+
       // Determine what ports we need to discover
       const protocolStatus = utils.needsProtocolScan(lando.config.proxyCurrentPorts, lando.config.proxyLastPorts);
       // And then discover!

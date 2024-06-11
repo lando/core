@@ -21,7 +21,7 @@ const getStatusGroups = (status = {}) => {
 
 // get not installed message
 const getNotInstalledMessage = item => {
-  // start with the action and fallbacks
+  // start with the action and fallbacks`
   const message = [item.comment || `Will install ${item.version}` || 'Will install'];
   // add a restart message if applicable
   if (item.restart) message.push('[Requires restart]');
@@ -75,6 +75,12 @@ module.exports = lando => {
       default: defaults.buildEngine,
       string: true,
     },
+    'mkcert': {
+      describe: 'The version of the mkcert to install',
+      default: defaults.mkcert,
+      string: true,
+      hidden: true,
+    },
     'orchestrator': {
       describe: 'The version of the orchestrator (docker-compose) to install',
       default: defaults.orchestrator,
@@ -84,6 +90,11 @@ module.exports = lando => {
       describe: 'Additional plugin(s) to install',
       default: require('../utils/parse-to-plugin-strings')(defaults.plugins),
       array: true,
+    },
+    'skip-install-ca': {
+      describe: 'Disables the installation of the Lando Certificate Authority (CA)',
+      default: defaults.skipInstallCA,
+      boolean: true,
     },
     'skip-common-plugins': {
       describe: 'Disables the installation of common Lando plugins',

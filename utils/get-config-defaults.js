@@ -73,8 +73,10 @@ const defaultConfig = options => ({
     },
     installPlugins: true,
     installTasks: true,
+    mkcert: '1.4.4',
     plugins: {},
     tasks: [],
+    skipInstallCA: false,
     skipCommonPlugins: _.get(options, 'fatcore', false),
   },
 });
