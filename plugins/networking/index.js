@@ -43,42 +43,57 @@ const cleanNetworks = lando => lando.engine.getNetworks()
   });
 
 module.exports = lando => {
+  const debug = require('../../utils/debug-shim')(lando.log);
+
   // Preemptively make sure we have enough networks and if we don't smartly prune some of them
   lando.events.on('pre-engine-start', 1, () => cleanNetworks(lando));
 
-  // Assess whether we need to upgrade the lando network or not
-  lando.events.on('pre-engine-start', 2, () => {
-    if (lando.versions.networking === 1) {
-      lando.log.warn('Version %s Landonet detected, attempting upgrade...', lando.versions.networking);
-      const landonet = lando.engine.getNetwork(lando.config.networkBridge);
-      // Remove the old network
-      return landonet.inspect()
-      .then(data => _.keys(data.Containers))
-      .each(id => landonet.disconnect({Container: id, Force: true}))
-      .then(() => landonet.remove())
-      .catch(err => {
-        lando.log.verbose('Error inspecting lando_bridge_network, probably does not exit yet');
-        lando.log.debug(err);
-      });
-    }
-  });
-
-  // Make sure we have a lando bridge network
-  // We do this here so we can take advantage of docker up assurancs in engine.js
-  // and to make sure it covers all non-app services
-  lando.events.on('pre-engine-start', 3, () => {
-    // Let's get a list of network
-    return lando.engine.getNetworks()
-    // Try to find our net
-    .then(networks => _.some(networks, network => network.Name === lando.config.networkBridge))
-    // Create if needed and set our network version number
-    .then(exists => {
-      if (!exists) {
-        return lando.engine.createNetwork(lando.config.networkBridge).then(() => {
-          lando.cache.set('versions', _.merge({}, lando.versions, {networking: 2}), {persist: true});
-          lando.versions = lando.cache.get('versions');
-        });
-      }
+  // Add network add task
+  lando.events.once('pre-setup', async options => {
+    options.tasks.push({
+      title: `Upgrading Landonet`,
+      id: 'create-landonet',
+      dependsOn: ['setup-build-engine'],
+      description: '@lando/create-landonet',
+      comments: {
+        'NOT INSTALLED': 'Will create Landonet',
+      },
+      hasRun: async () => {
+        try {
+          lando.engine.getNetwork(lando.config.networkBridge);
+          return lando.versions.networking > 1;
+        } catch (error) {
+          debug('looks like there isnt a landonet yet %o %o', error.message, error.stack);
+          return false;
+        }
+      },
+      task: async (ctx, task) => {
+        if (lando.versions.networking === 1) {
+          const landonet = lando.engine.getNetwork(lando.config.networkBridge);
+          // Remove the old network
+          landonet.inspect()
+            .then(data => _.keys(data.Containers))
+            .each(id => landonet.disconnect({Container: id, Force: true}))
+            .then(() => landonet.remove())
+            .catch(error => {
+              debug('error disconnecting from old landonet %o %o', error.message, error.stack);
+            })
+            .finally(() => {
+              return lando.engine.getNetworks()
+                .then(networks => _.some(networks, network => network.Name === lando.config.networkBridge))
+                .then(exists => {
+                  if (!exists) {
+                    return lando.engine.createNetwork(lando.config.networkBridge).then(() => {
+                      lando.cache.set('versions', _.merge({}, lando.versions, {networking: 2}), {persist: true});
+                      lando.versions = lando.cache.get('versions');
+                      debug('created %o with version info %o', lando.config.networkBridge, lando.versions.networking);
+                    });
+                  }
+                });
+            });
+        }
+        task.title = 'Upgraded Landonet';
+      },
     });
   });
 
