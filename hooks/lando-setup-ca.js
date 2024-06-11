@@ -9,7 +9,7 @@ module.exports = async (lando, options) => {
 
   // create CA
   options.tasks.push({
-    title: `Creating Lando Development CA`,
+    title: 'Creating Lando Development CA',
     id: 'create-ca',
     description: '@lando/create-ca',
     comments: {
@@ -61,6 +61,7 @@ module.exports = async (lando, options) => {
       // write the cert and key
       write(caCert, cert);
       write(caKey, key);
+      task.title = 'Created Lando Development CA';
     },
   });
 
