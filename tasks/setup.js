@@ -75,12 +75,6 @@ module.exports = lando => {
       default: defaults.buildEngine,
       string: true,
     },
-    'mkcert': {
-      describe: 'The version of the mkcert to install',
-      default: defaults.mkcert,
-      string: true,
-      hidden: true,
-    },
     'orchestrator': {
       describe: 'The version of the orchestrator (docker-compose) to install',
       default: defaults.orchestrator,

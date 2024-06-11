@@ -26,8 +26,8 @@ module.exports = lando => {
         try {
           // run a limited setup if needed
           if (setupTasks.length > 0) await lando.setup(sopts);
-          // then start up
-          await app.start();
+          // then restart
+          await app.restart();
           // determine legacy settings
           const legacyScanner = _.get(lando, 'config.scanner', true) === 'legacy';
           // get scanner stuff
