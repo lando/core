@@ -16,11 +16,6 @@ fi
 # Set the module
 LANDO_MODULE="refreshcerts"
 
-# Run add certs if we need to
-if [ ! -f "/certs/cert.pem" ]; then
-  /helpers/add-cert.sh
-fi
-
 # Check if update-ca-certificates is installed, if not install it and update our trusted certs
 #
 # The logic here is not 100% solid. We are assuming if you don't have update-ca-certificates available

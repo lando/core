@@ -46,20 +46,18 @@ module.exports = async lando => {
 
   // certs stuff
   // @TODO: should this end up elsewhere?
+  const caName = `${_.capitalize(lando.config.product)}CA`;
   const caDomain = lando.config.domain;
-  const caCert = path.join(caDir, `${caDomain}.pem`);
-  const caKey = path.join(caDir, `${caDomain}.key`);
-  const caProject = `landocasetupkenobi38ahsoka${lando.config.instance}`;
-  const certData = {caCert, caDir, caDomain, caKey, caProject};
+  const caCert = path.join(caDir, `${caName}.crt`);
+  const caKey = path.join(caDir, `${caName}.key`);
+  // const mkcertCACert = path.join(caDir, 'rootCA.pem');
+  // const mkcertCAKey = path.join(caDir, 'rootCA-key.pem');
 
   // Ensure some dirs exist before we start
   _.forEach([binDir, caDir, sshDir], dir => fs.mkdirSync(dir, {recursive: true}));
 
   // Ensure we munge plugin stuff together appropriately
   lando.events.once('pre-install-plugins', async options => await require('./hooks/lando-setup-common-plugins')(lando, options)); // eslint-disable-line max-len
-
-  // Ensure we setup docker-compose if needed
-  lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-orchestrator')(lando, options)); // eslint-disable-line max-len
 
   // Ensure we setup docker if needed
   lando.events.once('pre-setup', async options => {
@@ -72,6 +70,12 @@ module.exports = async lando => {
         return await require('./hooks/lando-setup-build-engine-win32')(lando, options);
     }
   });
+
+  // Ensure we setup ca if needed
+  lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-ca')(lando, options));
+
+  // Ensure we setup docker-compose if needed
+  lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-orchestrator')(lando, options));
 
   // make sure Lando Specification 337 is available to all
   lando.events.on('post-bootstrap-app', async () => await require('./hooks/lando-add-l337-spec')(lando));
@@ -90,14 +94,6 @@ module.exports = async lando => {
 
   // autostart docker if we need to
   lando.events.once('engine-autostart', async () => await require('./hooks/lando-autostart-engine')(lando));
-
-  // Make sure we have a host-exposed root ca if we don't already
-  // NOTE: we don't run this on the caProject otherwise infinite loop happens!
-  lando.events.on('pre-engine-start', 2, async data => await require('./hooks/lando-setup-ca')(lando, data, certData));
-
-  // Let's also make a copy of caCert with the standarized .crt ending for better linux compat
-  // See: https://github.com/lando/lando/issues/1550
-  lando.events.on('pre-engine-start', 3, async () => await require('./hooks/lando-copy-ca')(lando, certData));
 
   // Return some default things
   return _.merge({}, defaults, uc(), {config: {
@@ -119,7 +115,6 @@ module.exports = async lando => {
     caCert,
     caDomain,
     caKey,
-    caProject,
     maxKeyWarning: 10,
   }});
 };

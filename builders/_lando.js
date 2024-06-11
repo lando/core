@@ -36,7 +36,7 @@ module.exports = {
         patchesSupported = false,
         pinPairs = {},
         ports = [],
-        project = '',
+        project = '_lando_',
         overrides = {},
         refreshCerts = false,
         remoteFiles = {},
@@ -77,6 +77,20 @@ module.exports = {
       const addCertsScript = path.join(scriptsDir, 'add-cert.sh');
       const refreshCertsScript = path.join(scriptsDir, 'refresh-certs.sh');
 
+      // Handle Environment
+      const environment = {
+        LANDO_SERVICE_NAME: name,
+        LANDO_SERVICE_TYPE: type,
+      };
+
+      // Handle labels
+      const labels = {
+        'io.lando.http-ports': _.uniq(['80', '443'].concat(moreHttpPorts)).join(','),
+        'io.lando.https-ports': _.uniq(['443'].concat([sport])).join(','),
+      };
+      // Set a reasonable log size
+      const logging = {driver: 'json-file', options: {'max-file': '3', 'max-size': '10m'}};
+
       // Handle volumes
       const volumes = [
         `${userConfRoot}:/lando:cached`,
@@ -87,8 +101,17 @@ module.exports = {
 
       // Handle ssl
       if (ssl) {
-        volumes.push(`${addCertsScript}:/scripts/000-add-cert`);
+        // also expose the sport
         if (sslExpose) ports.push(sport);
+
+        // certs
+        const certname = `${id}.${project}.crt`;
+        const keyname = `${id}.${project}.key`;
+        environment.LANDO_SERVICE_CERT = `/lando/certs/${certname}`;
+        environment.LANDO_SERVICE_KEY = `/lando/certs/${keyname}`;
+        volumes.push(`${addCertsScript}:/scripts/000-add-cert`);
+        volumes.push(`${path.join(userConfRoot, 'certs', certname)}:/certs/cert.crt`);
+        volumes.push(`${path.join(userConfRoot, 'certs', keyname)}:/certs/cert.key`);
       }
 
       // Add in some more dirz if it makes sense
@@ -113,16 +136,6 @@ module.exports = {
           volumes.push(`${local}:${remote}`);
         }
       });
-
-      // Handle Environment
-      const environment = {LANDO_SERVICE_NAME: name, LANDO_SERVICE_TYPE: type};
-      // Handle http/https ports
-      const labels = {
-        'io.lando.http-ports': _.uniq(['80', '443'].concat(moreHttpPorts)).join(','),
-        'io.lando.https-ports': _.uniq(['443'].concat([sport])).join(','),
-      };
-      // Set a reasonable log size
-      const logging = {driver: 'json-file', options: {'max-file': '3', 'max-size': '10m'}};
 
       // Add named volumes and other thingz into our primary service
       const namedVols = {};

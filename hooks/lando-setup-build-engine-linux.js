@@ -30,8 +30,6 @@ module.exports = async (lando, options) => {
   if (options.buildEngine === false) return;
 
   const version = options.buildEngine;
-  // set out of scope password so we can reuse it
-  let password = undefined;
 
   // darwin install task
   options.tasks.push({
@@ -65,8 +63,8 @@ module.exports = async (lando, options) => {
         ctx.download = await downloadDockerEngine('https://get.docker.com', {ctx, debug, task});
 
         // prompt for password if interactive and we dont have it
-        if (password === undefined && lando.config.isInteractive) {
-          password = await task.prompt({
+        if (ctx.password === undefined && lando.config.isInteractive) {
+          ctx.password = await task.prompt({
             type: 'password',
             name: 'password',
             message: `Enter computer password for ${lando.config.usernam} to add them to docker group`,
@@ -116,8 +114,8 @@ module.exports = async (lando, options) => {
       if (require('../utils/is-group-member')('docker')) return {code: 0};
 
       // prompt for password if interactive and we dont have it
-      if (password === undefined && lando.config.isInteractive) {
-        password = await task.prompt({
+      if (ctx.password === undefined && lando.config.isInteractive) {
+        ctx.password = await task.prompt({
           type: 'password',
           name: 'password',
           message: `Enter computer password for ${lando.config.usernam} to install build engine`,
@@ -132,7 +130,7 @@ module.exports = async (lando, options) => {
 
       try {
         const command = ['usermod', '-aG', 'docker', lando.config.username];
-        const response = await require('../utils/run-elevated')(command, {debug});
+        const response = await require('../utils/run-elevated')(command, {debug, password: ctx.password});
         task.title = `Added ${lando.config.username} to docker group`;
         return response;
       } catch (error) {

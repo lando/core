@@ -4,6 +4,8 @@ const fs = require('fs');
 const merge = require('lodash/merge');
 const path = require('path');
 const uniq = require('lodash/uniq');
+const read = require('../utils/read-file');
+const write = require('../utils/write-file');
 
 const states = {APP: 'UNBUILT'};
 const groups = {
@@ -176,7 +178,7 @@ module.exports = {
         this.appMount,
       );
       const buildScriptPath = path.join(this.context, 'app-build.sh');
-      fs.writeFileSync(buildScriptPath, buildScript);
+      write(buildScriptPath, buildScript);
 
       try {
         // set state
@@ -206,7 +208,7 @@ module.exports = {
         });
 
         // // augment the success info
-        success.context = {script: fs.readFileSync(buildScriptPath, {encoding: 'utf-8'})};
+        success.context = {script: read(buildScriptPath)};
         // state
         this.state = {APP: 'BUILT'};
         // log
@@ -217,7 +219,7 @@ module.exports = {
       } catch (error) {
         // augment error
         error.id = this.id;
-        error.context = {script: fs.readFileSync(buildScriptPath, {encoding: 'utf-8'}), path: buildScriptPath};
+        error.context = {script: read(buildScriptPath), path: buildScriptPath};
         this.debug('app %o build failed with code %o error %o', `${this.project}-${this.id}`, error.code, error);
         // set the build failure
         this.state = {APP: 'BUILD FAILURE'};
@@ -236,7 +238,7 @@ module.exports = {
 
       // write to file
       const npmauthfile = path.join(this.context, 'npmrc');
-      fs.writeFileSync(npmauthfile, contents.join('\n'));
+      write(npmauthfile, contents.join('\n'));
 
       // ensure mount
       const mounts = [

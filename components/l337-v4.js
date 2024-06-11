@@ -6,6 +6,8 @@ const isObject = require('lodash/isPlainObject');
 const os = require('os');
 const merge = require('lodash/merge');
 const path = require('path');
+const read = require('../utils/read-file');
+const write = require('../utils/write-file');
 
 const {generateDockerFileFromArray} = require('dockerfile-generator/lib/dockerGenerator');
 const {nanoid} = require('nanoid');
@@ -595,7 +597,7 @@ class L337ServiceV4 extends EventEmitter {
     // throw new Error('NO NO NO')
 
     // write the imagefile
-    fs.writeFileSync(this.imagefile, content);
+    write(this.imagefile, content);
 
     // return the build context
     return {
@@ -675,7 +677,7 @@ class L337ServiceV4 extends EventEmitter {
       const content = image;
       image = path.join(require('os').tmpdir(), nanoid(), 'Imagefile');
       fs.mkdirSync(path.dirname(image), {recursive: true});
-      fs.writeFileSync(image, content);
+      write(image, content);
       this.#data.imageFileContext = this.appRoot;
     }
 
@@ -690,7 +692,7 @@ class L337ServiceV4 extends EventEmitter {
 
     // and then generate the image instructions and set info
     this.#data.imageInstructions = fs.existsSync(image)
-      ? fs.readFileSync(image, 'utf8') : generateDockerFileFromArray([{from: {baseImage: image}}]);
+      ? read(image) : generateDockerFileFromArray([{from: {baseImage: image}}]);
     this.info.image = image;
 
     // finally lets reset the relevant build key if applicable
