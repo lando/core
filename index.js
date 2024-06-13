@@ -57,20 +57,15 @@ module.exports = async lando => {
   // Ensure we munge plugin stuff together appropriately
   lando.events.once('pre-install-plugins', async options => await require('./hooks/lando-setup-common-plugins')(lando, options)); // eslint-disable-line max-len
 
-  // Ensure we setup docker if needed
-  lando.events.once('pre-setup', async options => {
-    switch (process.platform) {
-      case 'darwin':
-        return await require('./hooks/lando-setup-build-engine-darwin')(lando, options);
-      case 'linux':
-        return await require('./hooks/lando-setup-build-engine-linux')(lando, options);
-      case 'win32':
-        return await require('./hooks/lando-setup-build-engine-win32')(lando, options);
-    }
-  });
+  // move v3 scripts directories as needed
+  lando.events.on('pre-setup', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
 
-  // Ensure we setup ca if needed
-  lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-ca')(lando, options));
+  // Ensure we setup docker if needed
+  lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-build-engine-${process.platform}`)(lando, options)); // eslint-disable-line max-len
+
+  // Ensure we create and install ca if needed
+  lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-create-ca')(lando, options));
+  lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-install-ca-${process.platform}`)(lando, options)); // eslint-disable-line max-len
 
   // Ensure we setup docker-compose if needed
   lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-orchestrator')(lando, options));

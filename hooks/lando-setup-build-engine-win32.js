@@ -133,9 +133,9 @@ module.exports = async (lando, options) => {
         // script
         const script = [path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1')];
         // args
-        const args = ['-installer', ctx.download.dest];
-        if (options.buildEngineAcceptLicense) args.push('-acceptlicense');
-        if ((options.debug || options.verbose > 0) && lando.config.isInteractive) args.push('-debug');
+        const args = ['-Installer', ctx.download.dest];
+        if (options.buildEngineAcceptLicense) args.push('-AcceptLicense');
+        if ((options.debug || options.verbose > 0 || lando.debuggy) && lando.config.isInteractive) args.push('-Debug');
 
         // run install command
         task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;

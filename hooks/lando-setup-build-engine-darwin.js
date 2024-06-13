@@ -147,7 +147,7 @@ module.exports = async (lando, options) => {
 
         // add optional args
         if (options.buildEngineAcceptLicense) command.push('--accept-license');
-        if (options.debug || options.verbose > 0) command.push('--debug');
+        if (options.debug || options.verbose > 0 || lando.debuggy) command.push('--debug');
 
         // run
         const result = await require('../utils/run-elevated')(command, {debug, password: ctx.password});
