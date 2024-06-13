@@ -83,7 +83,7 @@ module.exports = async (lando, options) => {
         const command = [script, '--installer', ctx.download.dest, '--version', version];
 
         // add optional args
-        if (options.debug || options.verbose > 0) command.push('--debug');
+        if (options.debug || options.verbose > 0 || lando.debuggy) command.push('--debug');
 
         // run
         const result = await require('../utils/run-elevated')(command, {debug, password: ctx.password});

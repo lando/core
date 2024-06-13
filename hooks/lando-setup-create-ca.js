@@ -64,23 +64,4 @@ module.exports = async (lando, options) => {
       task.title = 'Created Lando Development CA';
     },
   });
-
-  // skip the installation of the CA if set
-  if (options.skipInstallCA) return;
-
-  // install ca
-  // options.tasks.push({
-  //   title: `Installing Lando Development CA`,
-  //   id: 'install-ca',
-  //   dependsOn: ['create-ca'],
-  //   description: '@lando/install-ca',
-  //   hasRun: async () => {
-  //     debug('stuff');
-  //     return false;
-  //   },
-  //   canRun: async () => {
-  //     return true;
-  //   },
-  //   task: async (ctx, task) => {},
-  // });
 };

@@ -29,7 +29,7 @@ Write-Debug "DEBUG: $debug"
 # @TODO: check if installer exists on fs?
 if ([string]::IsNullOrEmpty($installer))
 {
-  throw "You must pass in an -installer!"
+  throw "You must pass in an -Installer!"
 }
 
 # Start arg stuff
