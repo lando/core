@@ -30,13 +30,6 @@ module.exports = async (lando, options) => {
       }
     },
     canRun: async () => {
-      if (!await require('../utils/is-admin-user')()) {
-        throw new Error([
-          `User "${os.userInfo().username}" does not have permission to install the Lando Development Certificate Authority (CA)!`, // eslint-disable-line
-          'Contact your system admin for permission and then rerun setup.',
-        ].join(os.EOL));
-      }
-
       return true;
     },
     task: async (ctx, task) => {
