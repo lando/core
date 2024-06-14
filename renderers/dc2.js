@@ -3,7 +3,7 @@
 const LandoRenderer = require('./lando');
 
 const {EOL} = require('os');
-const {color} = require('listr2');
+const {color, ListrTaskEventType} = require('listr2');
 
 const getDefaultColor = state => {
   switch (state) {
@@ -28,6 +28,7 @@ class DC2Renderer extends LandoRenderer {
     options.icon = {...options.icon, DOCKER_COMPOSE_HEADER: '[+]'};
     options.taskCount = options.taskCount || 0;
     options.showErrorMessage = false;
+    options.spacer = options.spacer ?? 3;
 
     // dc2 state changes
     options.states = {
@@ -44,6 +45,15 @@ class DC2Renderer extends LandoRenderer {
 
     // super
     super(tasks, options, $renderHook);
+
+    // normalize output data
+    for (const task of this.tasks) {
+      task.on(ListrTaskEventType.MESSAGE, message => {
+        if (message?.error && typeof message.error === 'string') {
+          message.error = message.error.trim();
+        }
+      });
+    }
   }
 
   create(options) {
@@ -78,46 +88,45 @@ class DC2Renderer extends LandoRenderer {
     return render.join(EOL);
   }
 
-  getSpacer(size, max) {
-    if (!max || max === 0 || !Number.isInteger(max)) return '  ';
-    return require('lodash/range')(max - size + 3).map(s => '').join(' ');
+  getMax(tasks = [], spacer = this.options.spacer) {
+    if (tasks.length === 0) return 0;
+
+    const lengths = tasks
+      .flatMap(task => task)
+      .filter(task => task.hasTitle() && typeof task.initialTitle === 'string')
+      .flatMap(task => ([
+        task.initialTitle,
+        task?.title,
+        task?.message?.error,
+      ]))
+      .filter(data => typeof data === 'string')
+      .map(data => data.split(spacer)[0])
+      .map(data => data.trim())
+      .map(data => data.length);
+
+    return Math.max(...lengths);
   }
 
-  renderer(tasks, level, max) {
-    // figure out the max if there is one
-    if (Array.isArray(tasks) && tasks.length > 1) {
-      const lengths = tasks
-        .flatMap(task => task)
-        .filter(task => task.hasTitle() && typeof task.initialTitle === 'string')
-        .map(task => task.initialTitle.length);
-      max = Math.max(...lengths);
-    }
+  getSpacer(data = '', max = 0) {
+    data = require('strip-ansi')(data);
+    if (!max || max === 0 || !Number.isInteger(max)) return '  ';
+    return require('lodash/range')(max - data.trim().length + this.options.spacer).map(s => '').join(' ');
+  }
 
-    // loop through tasks and add our listener stuff
-    tasks.flatMap(task => {
-      if (task.hasTitle() && typeof task.initialTitle === 'string') {
-        // get the spacer
-        task.spacer = this.getSpacer(task.initialTitle.length, max);
+  renderer(tasks, level, max = 0) {
+    // get output
+    const output = super.renderer(tasks, level);
 
-        // update title based on state change
-        for (const [state, data] of Object.entries(this.options.states)) {
-          if (task.state === state) {
-            task.title = `${task.initialTitle}${task.spacer}${color[data.color](data.message)}`;
-          }
-          // update error message on state fail
-          if (task.state === state
-            && task.state === 'FAILED'
-            && task?.message?.error
-            && !task.message.error.endsWith(color[data.color](data.message))
-          ) {
-            task.message.error = `${task.message.error}${task.spacer}${color[data.color](data.message)}`;
-          }
-        }
-      }
+    // hack output to emulate DC style stuff
+    output.flatMap((line, index) => {
+      const task = tasks.filter(task => task.enabled)[index];
+      const vibe = this.options.states[task.state] ?? this.options.states['STARTED'];
+      task.spacer = this.getSpacer(task?.message?.error ?? task.title, this.getMax(tasks));
+      task.status = color[vibe.color](vibe.message);
+      output[index] = `${line}${task.spacer}${task.status}`;
     });
 
-    // pass up
-    return super.renderer(tasks, level);
+    return output;
   }
 
   renderHeader(header, count) {

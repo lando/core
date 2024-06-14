@@ -17,15 +17,17 @@ module.exports = async (lando, options) => {
     dependsOn: ['create-ca'],
     description: '@lando/install-ca',
     comments: {
-      'NOT INSTALLED': 'Will install Lando Development Certificate Authority (CA) to relevant stores',
+      'NOT INSTALLED': 'Will install Lando Development Certificate Authority (CA) to system store',
     },
     hasRun: async () => {
-      // get CA SHA1 fingerprint
-      const fingerprint = require('../utils/get-fingerprint')(caCert);
-      debug('computed sha1 fingerprint %o for ca %o', fingerprint, caCert);
-
-      // compute
-      return require('../utils/get-system-cas')().includes(fingerprint);
+      try {
+        const fingerprint = require('../utils/get-fingerprint')(caCert);
+        debug('computed sha1 fingerprint %o for ca %o', fingerprint, caCert);
+        return require('../utils/get-system-cas')().includes(fingerprint);
+      } catch (error) {
+        debug('error determining fingerprint of %o: %o %o', caCert, error.message, error.stack);
+        return false;
+      }
     },
     canRun: async () => {
       if (!await require('../utils/is-admin-user')()) {
