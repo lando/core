@@ -11,7 +11,7 @@ module.exports = async (lando, options) => {
   options.tasks.push({
     title: 'Creating Lando Development CA',
     id: 'create-ca',
-    description: '@lando/create-ca',
+    description: '@lando/ca',
     comments: {
       'NOT INSTALLED': 'Will create Lando Development Certificate Authority (CA)',
     },

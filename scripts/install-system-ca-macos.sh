@@ -79,9 +79,9 @@ if [[ "$NONINTERACTIVE" == "1" ]]; then
   sudo security authorizationdb write com.apple.trust-settings.admin allow
 fi
 
-# add CA as user
+# add CA to default login keychain
 security add-trusted-cert \
   -r trustRoot \
   -k "$KEYCHAIN" \
   "$CA" \
-  || security delete-certificate -Z "$FINGERPRINT" -t "$KEYCHAIN"
+  || (security delete-certificate -Z "$FINGERPRINT" -t "$KEYCHAIN" && exit 1)

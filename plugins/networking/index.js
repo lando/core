@@ -54,13 +54,14 @@ module.exports = lando => {
       title: `Upgrading Landonet`,
       id: 'create-landonet',
       dependsOn: ['setup-build-engine'],
-      description: '@lando/create-landonet',
+      description: '@lando/landonet',
       comments: {
         'NOT INSTALLED': 'Will create Landonet',
       },
       hasRun: async () => {
         try {
-          lando.engine.getNetwork(lando.config.networkBridge);
+          const landonet = lando.engine.getNetwork(lando.config.networkBridge);
+          await landonet.inspect();
           return lando.versions.networking > 1;
         } catch (error) {
           debug('looks like there isnt a landonet yet %o %o', error.message, error.stack);
@@ -70,28 +71,26 @@ module.exports = lando => {
       task: async (ctx, task) => {
         if (lando.versions.networking === 1) {
           const landonet = lando.engine.getNetwork(lando.config.networkBridge);
-          // Remove the old network
-          landonet.inspect()
+          await landonet.inspect()
             .then(data => _.keys(data.Containers))
             .each(id => landonet.disconnect({Container: id, Force: true}))
             .then(() => landonet.remove())
             .catch(error => {
               debug('error disconnecting from old landonet %o %o', error.message, error.stack);
-            })
-            .finally(() => {
-              return lando.engine.getNetworks()
-                .then(networks => _.some(networks, network => network.Name === lando.config.networkBridge))
-                .then(exists => {
-                  if (!exists) {
-                    return lando.engine.createNetwork(lando.config.networkBridge).then(() => {
-                      lando.cache.set('versions', _.merge({}, lando.versions, {networking: 2}), {persist: true});
-                      lando.versions = lando.cache.get('versions');
-                      debug('created %o with version info %o', lando.config.networkBridge, lando.versions.networking);
-                    });
-                  }
-                });
             });
         }
+
+        await lando.engine.getNetworks()
+          .then(networks => _.some(networks, network => network.Name === lando.config.networkBridge))
+          .then(exists => {
+            if (!exists) {
+              return lando.engine.createNetwork(lando.config.networkBridge).then(() => {
+                lando.cache.set('versions', _.merge({}, lando.versions, {networking: 2}), {persist: true});
+                lando.versions = lando.cache.get('versions');
+                debug('created %o with version info %o', lando.config.networkBridge, lando.versions.networking);
+              });
+            }
+          });
         task.title = 'Upgraded Landonet';
       },
     });
