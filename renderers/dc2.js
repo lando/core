@@ -13,6 +13,8 @@ const getDefaultColor = state => {
       return 'green';
     case 'FAILED':
       return 'red';
+    case 'WAITING':
+      return 'yellow';
     default:
       return 'dim';
   }
@@ -35,6 +37,7 @@ class DC2Renderer extends LandoRenderer {
       COMPLETED: {message: 'Done', color: 'green'},
       FAILED: {message: 'ERROR', color: 'red'},
       STARTED: {message: 'Waiting', color: 'green'},
+      WAITING: {message: 'Waiting', color: 'yellow'},
       ...options.states,
     };
 
@@ -88,7 +91,7 @@ class DC2Renderer extends LandoRenderer {
     return render.join(EOL);
   }
 
-  getMax(tasks = [], spacer = this.options.spacer) {
+  getMax(tasks = []) {
     if (tasks.length === 0) return 0;
 
     const lengths = tasks
@@ -100,8 +103,6 @@ class DC2Renderer extends LandoRenderer {
         task?.message?.error,
       ]))
       .filter(data => typeof data === 'string')
-      .map(data => data.split(spacer)[0])
-      .map(data => data.trim())
       .map(data => data.length);
 
     return Math.max(...lengths);
@@ -121,7 +122,7 @@ class DC2Renderer extends LandoRenderer {
     output.flatMap((line, index) => {
       const task = tasks.filter(task => task.enabled)[index];
       const vibe = this.options.states[task.state] ?? this.options.states['STARTED'];
-      task.spacer = this.getSpacer(task?.message?.error ?? task.title, this.getMax(tasks));
+      task.spacer = this.getSpacer(task?.message?.error ?? task.title ?? task.initialTitle, this.getMax(tasks));
       task.status = color[vibe.color](vibe.message);
       output[index] = `${line}${task.spacer}${task.status}`;
     });

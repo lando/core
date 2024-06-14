@@ -51,7 +51,7 @@ module.exports = lando => {
   // Add network add task
   lando.events.once('pre-setup', async options => {
     options.tasks.push({
-      title: `Upgrading Landonet`,
+      title: `Creating Landonet`,
       id: 'create-landonet',
       dependsOn: ['setup-build-engine'],
       description: '@lando/landonet',
@@ -59,8 +59,13 @@ module.exports = lando => {
         'NOT INSTALLED': 'Will create Landonet',
       },
       hasRun: async () => {
+        // if docker isnt even installed then this is easy
+        if (lando.engine.dockerInstalled === false) return false;
+
+        // otherwise attempt to sus things out
         try {
           const landonet = lando.engine.getNetwork(lando.config.networkBridge);
+          await lando.engine.daemon.up();
           await landonet.inspect();
           return lando.versions.networking > 1;
         } catch (error) {
@@ -69,6 +74,14 @@ module.exports = lando => {
         }
       },
       task: async (ctx, task) => {
+        // we reinstantiate instead of using lando.engine.daemon so we can ensure an up-to-date docker bin
+        const LandoDaemon = require('../../lib/daemon');
+        const daemon = new LandoDaemon(lando.cache, lando.events, undefined, lando.log);
+
+        // we need docker up for this
+        await daemon.up();
+
+        // if we are v1 then disconnect and remove for upgrade
         if (lando.versions.networking === 1) {
           const landonet = lando.engine.getNetwork(lando.config.networkBridge);
           await landonet.inspect()
@@ -80,6 +93,7 @@ module.exports = lando => {
             });
         }
 
+        // create landonet2
         await lando.engine.getNetworks()
           .then(networks => _.some(networks, network => network.Name === lando.config.networkBridge))
           .then(exists => {
@@ -91,7 +105,7 @@ module.exports = lando => {
               });
             }
           });
-        task.title = 'Upgraded Landonet';
+        task.title = 'Created Landonet';
       },
     });
   });
