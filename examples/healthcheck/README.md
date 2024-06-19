@@ -26,9 +26,12 @@ Run the following commands to validate things are rolling as they should.
 lando destroy -y
 lando info -s appserver | grep healthy: | grep unknown
 lando info -s nginx | grep healthy: | grep unknown
+lando info -s nginx2 | grep healthy: | grep unknown
 lando info -s database1 | grep healthy: | grep unknown
 lando info -s database2 | grep healthy: | grep unknown
 lando info -s disablebase | grep healthy: | grep unknown
+
+# Should run healthchecks sucessfully
 lando start
 
 # Should have passed all the healthchecks
@@ -39,6 +42,7 @@ lando ssh -s database2 -c "mysql -uroot --silent --execute \"SHOW DATABASES;\""
 # Should set healthy status to true if applicable
 lando info -s appserver | grep healthy: | grep true
 lando info -s nginx | grep healthy: | grep unknown
+lando info -s nginx2 | grep healthy: | grep true
 lando info -s database1 | grep healthy: | grep true
 lando info -s database2 | grep healthy: | grep true
 lando info -s disablebase | grep healthy: | grep unknown

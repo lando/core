@@ -2,6 +2,12 @@
 
 ### Bug Fixes
 
+* Fixed issue with importing databases to a service with the "default" `database` named database. [lando/mysql#53](https://github.com/lando/mysql/issues/53)
+
+## v3.21.0 - [May 25, 2024](https://github.com/lando/core/releases/tag/v3.21.0)
+
+### Bug Fixes
+
 * Fixed `Could not find suitable download url` CLI update error caused by a release posted before assets are available
 
 ## v3.21.0-beta.20 - [May 9, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.20)

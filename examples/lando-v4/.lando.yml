@@ -16,6 +16,24 @@ services:
         ls -lsa /run
         set -e
         git clone git@github.com:lando/lando.git /tmp/something
+        touch /app/initfile
+    healthcheck:
+      command: stat /app/initfile
+      retry: 100
+      delay: 1000
+
+  web-2:
+    api: 4
+    user: root
+    image: nginx:1.22.1
+  web-3:
+    api: 4
+    user: root
+    image: nginx:1.22.1
+    build:
+      app: |
+        set -e
+        echo "stuff"
 
     # appmount
     # support appMount but prefer app-mount

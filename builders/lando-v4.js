@@ -90,12 +90,16 @@ module.exports = {
       };
 
       // get this
-      super(id, {...upstream, groups, states});
+      super(id, merge({}, {groups}, {states}, upstream));
 
       // helpful
       this.project = app.project;
       this.router = options.router;
       this.isInteractive = lando.config.isInteractive;
+
+      // healthcheck stuff
+      this.canHealthcheck = true;
+      this.healthcheck = config.healthcheck ?? false;
 
       // userstuff
       this.gid = gid;
@@ -106,7 +110,7 @@ module.exports = {
 
       // build script
       // @TODO: handle array content?
-      this.buildScript = config?.build?.app ?? `true`;
+      this.buildScript = config?.build?.app ?? false;
 
       // set some other stuff
       if (config['app-mount']) this.setAppMount(config['app-mount']);
@@ -132,19 +136,27 @@ module.exports = {
         RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
       `});
 
-      // inject global npmrc if we can
-
       // add a home folder persistent mount
-      this.addComposeData({volumes: {[this.homevol]: {external: true}}});
+      this.addComposeData({volumes: {[this.homevol]: {}}});
       // add the usual DC stuff
       this.addServiceData({user: config.user ?? this.username, volumes: [`${this.homevol}:/home/${this.username}`]});
+      // add build vols
+      this.addAppBuildVolume(`${this.homevol}:/home/${this.username}`);
+    }
+
+    addAppBuildVolume(volumes) {
+      if (Array.isArray(volumes)) {
+        this.#appBuildOpts.mounts.push(...volumes);
+      } else {
+        this.#appBuildOpts.mounts.push(volumes);
+      }
     }
 
     // buildapp
     async buildApp() {
       // bail if no script
       if (!this.buildScript) {
-        this.debug('no build detected, skipping');
+        this.debug(`no build detected for ${this.id}, skipping`);
         return;
       };
 
@@ -171,8 +183,11 @@ module.exports = {
         this.state = {APP: 'BUILDING'};
 
         // stuff
-        const bs = `/home/${this.username}/app-build.sh`;
+        const bs = `/etc/lando/build/app.sh`;
         const command = `chmod +x ${bs} && sh ${bs}`;
+
+        // add build vols
+        this.addAppBuildVolume(`${buildScriptPath}:${bs}`);
 
         // run with the appropriate builder
         const success = await bengine.run([command], {
@@ -185,11 +200,7 @@ module.exports = {
             Entrypoint: ['/bin/sh', '-c'],
             Env: uniq(this.#appBuildOpts.environment),
             HostConfig: {
-              Binds: [
-                `${this.homevol}:/home/${this.username}`,
-                ...uniq(this.#appBuildOpts.mounts),
-                `${buildScriptPath}:${bs}`,
-              ],
+              Binds: [...uniq(this.#appBuildOpts.mounts)],
             },
           },
         });
@@ -233,7 +244,7 @@ module.exports = {
         `${npmauthfile}:/root/.npmrc`,
       ];
       this.addServiceData({volumes: mounts});
-      this.#appBuildOpts.mounts.push(...mounts);
+      this.addAppBuildVolume(mounts);
       this.npmrc = contents.join('\n');
       this.npmrcFile = npmauthfile;
     }
@@ -263,7 +274,7 @@ module.exports = {
         }}});
 
         this.#appBuildOpts.environment.push(`SSH_AUTH_SOCK=${socater}`);
-        this.#appBuildOpts.mounts.push(`${socket}:${socket}`);
+        this.addAppBuildVolume(`${socket}:${socket}`);
       }
     }
 
@@ -275,7 +286,7 @@ module.exports = {
       // its easy if we dont have any excludes
       if (config.exclude.length === 0) {
         this.#appMount.binds = [`${this.appRoot}:${config.destination}`];
-        this.#appBuildOpts.mounts.push(`${this.appRoot}:${config.destination}`);
+        this.addAppBuildVolume(`${this.appRoot}:${config.destination}`);
 
       // if we have excludes then we need to compute somethings
       } else {
@@ -294,9 +305,9 @@ module.exports = {
         // and again for appBuild stuff b w/ full mount name
         binds.map(path => {
           if (config.exclude.includes(path)) {
-            this.#appBuildOpts.mounts.push(`${this.project}_app-mount-${path}:${this.#appMount.destination}/${path}`);
+            this.addAppBuildVolume(`${this.project}_app-mount-${path}:${this.#appMount.destination}/${path}`);
           } else {
-            this.#appBuildOpts.mounts.push(`${this.appRoot}/${path}:${this.#appMount.destination}/${path}`);
+            this.addAppBuildVolume(`${this.appRoot}/${path}:${this.#appMount.destination}/${path}`);
           }
         });
       }
