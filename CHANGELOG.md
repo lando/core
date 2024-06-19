@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.21.1 - [June 19, 2024](https://github.com/lando/core/releases/tag/v3.21.1)
+
 ### Bug Fixes
 
 * Fixed issue with importing databases to a service with the "default" `database` named database. [lando/mysql#53](https://github.com/lando/mysql/issues/53)
