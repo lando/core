@@ -78,7 +78,7 @@ module.exports = {
 
       // add some upstream stuff and legacy stuff
       upstream.appMount = config['app-mount'].destination;
-      upstream.legacy = merge({}, {meUser: username}, upstream.legacy ?? {});
+      upstream.legacy = merge({}, upstream.legacy ?? {}, {meUser: username});
       // this will change but for right now i just need the image stuff to passthrough
       upstream.config = {image: config.image};
 
