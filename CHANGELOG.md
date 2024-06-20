@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.21.2 - [June 20, 2024](https://github.com/lando/core/releases/tag/v3.21.2)
+
 ### Bug Fixes
 
 * Fixed bug causing legacy `meUser` auto detection to fail in some situation for new Lando 4 service [#178](https://github.com/lando/core/pull/178)
