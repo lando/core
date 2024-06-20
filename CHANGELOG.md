@@ -1,5 +1,9 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+### Bug Fixes
+
+* Fixed bug causing legacy `meUser` auto detection to fail in some situation for new Lando 4 service [#178](https://github.com/lando/core/pull/178)
+
 ## v3.21.1 - [June 19, 2024](https://github.com/lando/core/releases/tag/v3.21.1)
 
 ### Bug Fixes
