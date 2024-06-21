@@ -10,7 +10,6 @@ const path = require('path');
 const defaults = {
   config: {
     appEnv: {
-      COLUMNS: 256,
       LANDO: 'ON',
       LANDO_WEBROOT_USER: 'www-data',
       LANDO_WEBROOT_GROUP: 'www-data',
