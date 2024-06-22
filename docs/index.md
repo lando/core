@@ -34,6 +34,8 @@ On the flip side, you might have some user-specific configuration you'd like to 
 .lando.local.yml
 ```
 
+Any changes to your `.lando.local.yml` file take effect after doing a `lando rebuild`. If the basic `config` is overridden, a `lando destroy` is also needed to fully reset the configuration.
+
 ## Configuration
 
 The base override and Landofile itself are all configurable via the Lando [global config](./global.md). The default values are shown below:
