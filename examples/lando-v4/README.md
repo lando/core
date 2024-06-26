@@ -24,6 +24,9 @@ Run the following commands to verify things work as expected
 ```bash
 # should do something
 true
+
+# should run container operations as the host user
+true
 ```
 
 Destroy tests

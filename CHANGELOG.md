@@ -17,6 +17,18 @@
 * Moved Lando Development Certificate Authority creation to `setup` framework
 * Moved Landonet 2 upgrade to `setup` framework
 
+## v3.21.2 - [June 20, 2024](https://github.com/lando/core/releases/tag/v3.21.2)
+
+### Bug Fixes
+
+* Fixed bug causing legacy `meUser` auto detection to fail in some situation for new Lando 4 service [#178](https://github.com/lando/core/pull/178)
+
+## v3.21.1 - [June 19, 2024](https://github.com/lando/core/releases/tag/v3.21.1)
+
+### Bug Fixes
+
+* Fixed issue with importing databases to a service with the "default" `database` named database. [lando/mysql#53](https://github.com/lando/mysql/issues/53)
+
 ## v3.21.0 - [May 25, 2024](https://github.com/lando/core/releases/tag/v3.21.0)
 
 ### Bug Fixes
