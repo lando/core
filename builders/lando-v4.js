@@ -50,6 +50,11 @@ module.exports = {
         destination: '/app',
         exclude: [],
       },
+      'command': 'sleep infinity || tail -f /dev/null',
+      'packages': {
+        bash: true,
+        sudo: true,
+      },
     },
   },
   router: () => ({}),
@@ -94,10 +99,13 @@ module.exports = {
       // get this
       super(id, merge({}, {groups}, {states}, upstream));
 
-      // helpful
+      // meta
       this.project = app.project;
       this.router = options.router;
       this.isInteractive = lando.config.isInteractive;
+
+      // command
+      this.command = config.command;
 
       // healthcheck stuff
       this.canHealthcheck = true;
@@ -121,12 +129,41 @@ module.exports = {
       this.setSSHAgent();
       this.setNPMRC(lando.config.pluginConfigFile);
 
-      // @NOTE: uh?
+      // boot stuff from v4-scripty
+      // @TODO: clean up logging and echos?
+      // @TODO: set DEBUG/LANDO_DEBUG from --debug
+      // @TODO: method to add to /etc/lando?
+      // @TODO: some kind of package installer method that drops the file into hook dir eg boot.d?
+      // @TODO: intro "packages" in the landofile that pushes down into ^
+      // @TODO: setup-user stuff
+      // @TODO: cert-install stuff
+      // @TODO: change lando literal to "lando product"
+      // @TODO:
+      this.addContext([
+        `${path.join(__dirname, '..', 'scripts', 'boot.sh')}:/etc/lando/boot.sh`,
+        `${path.join(__dirname, '..', 'scripts', 'run-hooks.sh')}:/etc/lando/run-hooks.sh`,
+        `${path.join(__dirname, '..', 'scripts', 'lash')}:/bin/lash`,
+        `${path.join(__dirname, '..', 'scripts', 'landorc')}:/etc/lando/landorc`,
+        `${path.join(__dirname, '..', 'scripts', 'utils.sh')}:/etc/lando/lando-utils.sh`,
+        `${path.join(__dirname, '..', 'scripts', 'env.sh')}:/etc/lando/lando-env.sh`,
+        `${path.join(__dirname, '..', 'scripts', 'utils.sh')}:/etc/lando/lash.d/000-lando-utils.sh`,
+        `${path.join(__dirname, '..', 'scripts', 'env.sh')}:/etc/lando/lash.d/001-env.sh`,
+        `${path.join(__dirname, '..', 'scripts', 'install-updates.sh')}:/etc/lando/install-updates.sh`,
+        `${path.join(__dirname, '..', 'scripts', 'install-bash.sh')}:/etc/lando/install-bash.sh`,
+        `${path.join(__dirname, '..', 'scripts', 'install-sudo.sh')}:/etc/lando/boot.d/install-sudo.sh`,
+      ], 'boot');
+
+      // boot stuff
+      // @TODO: set DEBUG/LANDO_DEBUG from --debug
       this.addSteps({group: 'boot', instructions: `
-        RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+        ENV DEBUG 1
+        ENV LANDO_DEBUG 1
+        RUN mkdir -p /etc/lando/lash.d /etc/lando/boot.d
+        RUN /etc/lando/boot.sh
       `});
 
-      // @NOTE: setup dat user
+      // setup user
+      // @TODO: figure out the options for this?
       this.addSteps({group: 'setup-user', instructions: `
         RUN sed -i '/UID_MIN/c\UID_MIN ${this.uid}' /etc/login.defs
         RUN sed -i '/UID_MAX/c\UID_MAX ${parseInt(this.uid) + 10}' /etc/login.defs
@@ -144,6 +181,10 @@ module.exports = {
       this.addServiceData({user: config.user ?? this.username, volumes: [`${this.homevol}:/home/${this.username}`]});
       // add build vols
       this.addAppBuildVolume(`${this.homevol}:/home/${this.username}`);
+      // add main dc stuff
+      this.addServiceData({
+        command: this.command,
+      });
     }
 
     addAppBuildVolume(volumes) {
