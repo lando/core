@@ -1,0 +1,12 @@
+#!/bin/bash
+set -eo pipefail
+
+# if arg 1 is a file then eval its contents
+if [ -f "$1" ]; then
+  . /etc/lando/landorc
+  eval "$(cat "$1")"
+# otherwise pass everything through
+else
+  export BASH_ENV="/etc/lando/landorc"
+  exec /bin/bash -c "$*"
+fi

@@ -1,33 +1,13 @@
 name: lando-certs
-proxy:
-  appserver:
-    - lando-certs.lndo.site
 services:
-  appserver:
-    api: 3
-    type: lando
-    ssl: true
-    healthcheck: curl -I http://localhost
-    services:
-      image: php:8.2-apache
-      command: docker-php-entrypoint apache2-foreground
-      volumes:
-        - ./apache.conf:/etc/apache2/sites-enabled/000-default.conf
-      ports:
-        - 80
-  database:
-    api: 3
-    type: lando
-    services:
-      image: mariadb:10.4
-      command: docker-entrypoint.sh mysqld
-      environment:
-        MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: da
-        MARIADB_MYSQL_LOCALHOST_USER: da
-        MARIADB_DATABASE: test
-        MARIADB_USER: test
-        MARIADB_PASSWORD: test
-        MARIADB_AUTO_UPGRADE: da
+  debian:
+    api: 4
+    image: debian:bookworm-slim
+    certs: true
+  # alpine:
+  #   api: 4
+  #   image: alpine:3.20
+  #   certs: true
 
 plugins:
   "@lando/core": "../.."
