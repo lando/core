@@ -1,11 +1,12 @@
 #!/bin/lash
+set -eo pipefail
 
 # if sudo exists then we can skip
 if [ -x "$(command -v sudo)" ]; then
   exit 0
 fi
 
-case $PACKAGE_MANAGER in
+case $LANDO_LINUX_PACKAGE_MANAGER in
   apk)
     apk add sudo
     ;;
@@ -22,6 +23,6 @@ case $PACKAGE_MANAGER in
     yum install -y sudo
     ;;
   *)
-    abort "$PACKAGE_MANAGER not supported! Could not install sudo!"
+    abort "$LANDO_LINUX_PACKAGE_MANAGER not supported! Could not install sudo!"
     ;;
 esac

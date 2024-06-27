@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const isObject = require('lodash/isPlainObject');
 const merge = require('lodash/merge');
 const path = require('path');
 const uniq = require('lodash/uniq');
@@ -53,6 +54,7 @@ module.exports = {
       'command': 'sleep infinity || tail -f /dev/null',
       'packages': {
         sudo: true,
+        useradd: true,
       },
     },
   },
@@ -73,18 +75,61 @@ module.exports = {
       mounts: [],
     }
 
+    #installers = {
+      createuser: {
+        type: 'script',
+        script: path.join(__dirname, '..', 'scripts', 'add-user.sh'),
+        group: 'setup-user',
+      },
+      sudo: {
+        type: 'hook',
+        script: path.join(__dirname, '..', 'scripts', 'install-sudo.sh'),
+        group: 'boot',
+        instructions: {
+          'setup-user-1-after': (data, {user}) => `
+            RUN touch /etc/sudoers
+            RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+            RUN getent group sudo > /dev/null || groupadd sudo
+            RUN usermod -aG sudo ${user.name}
+          `,
+        },
+      },
+      useradd: {
+        type: 'hook',
+        script: path.join(__dirname, '..', 'scripts', 'install-useradd.sh'),
+        group: 'boot',
+        priority: 10,
+      },
+    };
+
+    #setupBootScripts() {
+      this.addContext(`${path.join(__dirname, '..', 'scripts', 'lash')}:/bin/lash`);
+      this.addLashRC(path.join(__dirname, '..', 'scripts', 'utils.sh'), {priority: '000'});
+      this.addLashRC(path.join(__dirname, '..', 'scripts', 'env.sh'), {priority: '001'});
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'boot.sh'));
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'run-hooks.sh'));
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'landorc'));
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'utils.sh'), 'lando-utils.sh');
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'env.sh'), 'lando-env.sh');
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'install-updates.sh'));
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'install-bash.sh'));
+    }
+
     constructor(id, options, app, lando) {
+      // @TODO: better appmount logix?
+      // @TODO: allow additonal users to be installed in config.users?
+      // @TODO: socat package?
+
       // before we call super we need to separate things
       const {config, ...upstream} = merge({}, defaults, options);
-      // @TODO: certs?
-      // @TODO: better appmount logix?
-
       // ger user info
       const {gid, uid, username} = lando.config;
+      // consolidate user info with any incoming stuff
+      const user = merge({}, {gid, uid, name: username}, require('../utils/parse-v4-user')(config.user));
 
       // add some upstream stuff and legacy stuff
       upstream.appMount = config['app-mount'].destination;
-      upstream.legacy = merge({}, upstream.legacy ?? {}, {meUser: username});
+      upstream.legacy = merge({}, upstream.legacy ?? {}, {meUser: user.name});
       // this will change but for right now i just need the image stuff to passthrough
       upstream.config = {image: config.image};
 
@@ -92,7 +137,7 @@ module.exports = {
       groups.user = {
         description: 'Catch all group for things that should be run as the user',
         weight: 2000,
-        user: username,
+        user: user.name,
       };
 
       // get this
@@ -111,15 +156,14 @@ module.exports = {
       this.healthcheck = config.healthcheck ?? false;
 
       // userstuff
-      this.gid = gid;
-      this.uid = uid;
-      this.username = username;
-      this.homevol = `${this.project}-${username}-home`;
+      this.user = user;
+      this.homevol = `${this.project}-${this.user.name}-home`;
       this.datavol = `${this.project}-${this.id}-data`;
 
       // build script
       // @TODO: handle array content?
       this.buildScript = config?.build?.app ?? false;
+      this.packages = config.packages ?? {};
 
       // set some other stuff
       if (config['app-mount']) this.setAppMount(config['app-mount']);
@@ -128,22 +172,25 @@ module.exports = {
       this.setSSHAgent();
       this.setNPMRC(lando.config.pluginConfigFile);
 
-      // boot stuff from v4-scripty
-      // @TODO: intro "packages" in the landofile that pushes down into ^
-      // @TODO: setup-user stuff
+      // setup user
+      // @TODO: move createuser to a special thing since its not a package?
+      this.packages.createuser = this.user;
+
+      // @TODO: try alpine?
       // @TODO: cert-install stuff
+        // 1. generate certs on host
+        // 2. install cert package
+        // 3. put cert in correct location(s)?
+        // 4. refresh cert store
+
+      // @TODO: add debugging and improve logix
       // @TODO: change lando literal to "lando product"
-      this.addLSF(path.join(__dirname, '..', 'scripts', 'boot.sh'));
-      this.addLSF(path.join(__dirname, '..', 'scripts', 'run-hooks.sh'));
-      this.addLSF(path.join(__dirname, '..', 'scripts', 'landorc'));
-      this.addLSF(path.join(__dirname, '..', 'scripts', 'utils.sh'), 'lando-utils.sh');
-      this.addLSF(path.join(__dirname, '..', 'scripts', 'env.sh'), 'lando-env.sh');
-      this.addLSF(path.join(__dirname, '..', 'scripts', 'install-updates.sh'));
-      this.addLSF(path.join(__dirname, '..', 'scripts', 'install-bash.sh'));
-      this.addContext(`${path.join(__dirname, '..', 'scripts', 'lash')}:/bin/lash`);
 
       // boot stuff
+      // @TODO: consolidate all of this elsewhere so constructor isnt SFB?
+      this.#setupBootScripts();
       this.addSteps({group: 'boot', instructions: `
+        ENV RUNNER 1
         ENV DEBUG ${lando.debuggy ? 1 : 0}
         ENV LANDO_DEBUG ${lando.debuggy ? 1 : 0}
         RUN mkdir -p /etc/lando
@@ -152,45 +199,87 @@ module.exports = {
       `});
 
       // go through all groups except boot and add run-hook stuffs
-      for (const hook of Object.keys(this._data.groups).filter(group => group !== 'boot')) {
+      for (const hook of Object.keys(this._data.groups).filter(group => parseInt(group.weight) <= 100)) {
         this.addSteps({group: hook, instructions: `
           RUN mkdir -p /etc/lando/${hook}.d
           RUN /etc/lando/run-hooks.sh ${hook}
         `});
       }
 
-      // add some hook files
-      this.addHookFile(path.join(__dirname, '..', 'scripts', 'utils.sh'), {hook: 'lash', priority: '000'});
-      this.addHookFile(path.join(__dirname, '..', 'scripts', 'env.sh'), {hook: 'lash', priority: '001'});
-      this.addHookFile(path.join(__dirname, '..', 'scripts', 'install-sudo.sh'));
-
-      // setup user
-      // @TODO: figure out the options for this?
-      this.addSteps({group: 'setup-user', instructions: `
-        RUN sed -i '/UID_MIN/c\UID_MIN ${this.uid}' /etc/login.defs
-        RUN sed -i '/UID_MAX/c\UID_MAX ${parseInt(this.uid) + 10}' /etc/login.defs
-        RUN sed -i '/GID_MIN/c\GID_MIN ${parseInt(this.gid) + 10}' /etc/login.defs
-        RUN sed -i '/GID_MAX/c\GID_MAX 600100000' /etc/login.defs
-        RUN getent group ${this.gid} > /dev/null || groupadd -g ${this.gid} ${this.username}
-        RUN useradd -l -u ${this.uid} -m -g ${this.gid} ${this.username}
-        RUN usermod -aG sudo ${this.username}
-        RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-      `});
+      // go through all packages and add them
+      for (const [id, data] of Object.entries(this.packages)) {
+        if (!require('../utils/is-disabled')(data)) {
+          this.addPackage(id, data);
+        }
+      }
 
       // add a home folder persistent mount
       this.addComposeData({volumes: {[this.homevol]: {}}});
-      // add the usual DC stuff
-      this.addServiceData({user: config.user ?? this.username, volumes: [`${this.homevol}:/home/${this.username}`]});
       // add build vols
-      this.addAppBuildVolume(`${this.homevol}:/home/${this.username}`);
+      this.addAppBuildVolume(`${this.homevol}:/home/${this.user.name}`);
       // add main dc stuff
       this.addServiceData({
         command: this.command,
+        user: this.user.name,
+        volumes: [
+          `${this.homevol}:/home/${this.user.name}`,
+        ],
       });
     }
 
     addHookFile(file, {hook = 'boot', priority = '100'} = {}) {
-      this.addContext(`${file}:/etc/lando/${hook}.d/${priority}-${path.basename(file)}`, hook);
+      this.addContext(`${file}:/etc/lando/${hook}.d/${priority}-${path.basename(file)}`, `${hook}-1000-before`);
+    }
+
+    addLashRC(file, {priority = '100'} = {}) {
+      this.addContext(`${file}:/etc/lando/lash.d/${priority}-${path.basename(file)}`);
+    }
+
+    addPackageInstaller(id, data) {
+      this.#installers[id] = data;
+    }
+
+    addPackage(id, data = []) {
+      // check if we have an package installer
+      // TODO: should this throw or just log?
+      if (this.#installers[id] === undefined) throw new Error(`Could not find a package installer for ${id}!`);
+
+      // normalize data
+      if (!Array.isArray(data)) data = [data];
+
+      // get installer
+      const installer = this.#installers[id];
+
+      // do different stuff based on type
+      switch (installer.type) {
+        case 'hook':
+          this.addHookFile(installer.script, {hook: installer.group, priority: installer.priority});
+          break;
+        case 'script':
+          // @TODO: loop through data and add multiple ones?
+          // @TODO: parse data into options
+          this.addLSF(installer.script, `installers/${path.basename(installer.script)}`);
+          for (const options of data) {
+            this.addSteps({group: installer.group, instructions: `
+              RUN /etc/lando/installers/${path.basename(installer.script)} ${require('../utils/parse-v4-pkginstall-opts')(options)}`, // eslint-disable-line max-len
+            });
+          }
+          break;
+      }
+
+      // handle additional instructions function if its just a single thing
+      if (installer.instructions && typeof installer.instructions === 'function') {
+        installer.instructions = {[installer.group]: installer.instructions};
+      }
+
+      // handle additional instructions if its an object of group functions
+      if (installer.instructions && isObject(installer.instructions)) {
+        for (const [group, instructFunc] of Object.entries(installer.instructions)) {
+          if (instructFunc && typeof instructFunc === 'function') {
+            this.addSteps({group, instructions: instructFunc(data, this)});
+          }
+        }
+      }
     }
 
     addLSF(source, dest, {context = 'context'} = {}) {
@@ -224,8 +313,8 @@ module.exports = {
       // generate the build script
       const buildScript = require('../utils/generate-build-script')(
         this.buildScript,
-        this.username,
-        this.gid,
+        this.user.name,
+        this.user.gid,
         process.platform === 'linux' ? process.env.SSH_AUTH_SOCK : `/run/host-services/ssh-auth.sock`,
         this.appMount,
       );
@@ -249,7 +338,7 @@ module.exports = {
           attach: true,
           interactive: this.isInteractive,
           createOptions: {
-            User: this.username,
+            User: this.user.name,
             WorkingDir: this.appMount,
             Entrypoint: ['/bin/sh', '-c'],
             Env: uniq(this.#appBuildOpts.environment),
@@ -294,7 +383,7 @@ module.exports = {
 
       // ensure mount
       const mounts = [
-        `${npmauthfile}:/home/${this.username}/.npmrc`,
+        `${npmauthfile}:/home/${this.user.name}/.npmrc`,
         `${npmauthfile}:/root/.npmrc`,
       ];
       this.addServiceData({volumes: mounts});
@@ -314,7 +403,7 @@ module.exports = {
     // 5. docker run --rm --mount type=bind,src=/run/host-services/ssh-auth.sock,target=/run/host-services/ssh-auth.sock -e SSH_AUTH_SOCK="/run/host-services/ssh-auth.sock" --entrypoint /usr/bin/ssh-add alpine/git -l
     setSSHAgent() {
       const socket = process.platform === 'linux' ? process.env.SSH_AUTH_SOCK : `/run/host-services/ssh-auth.sock`;
-      const socater = `/run/ssh-${this.username}.sock`;
+      const socater = `/run/ssh-${this.user.name}.sock`;
 
       // only add if we have a socket
       if (socket) {
