@@ -1,5 +1,7 @@
-#! /bin/sh
+#!/bin/sh
 set -e
+
+true
 
 # this is pre-lash so we need to source directly
 . /etc/lando/lando-utils.sh
@@ -15,4 +17,4 @@ fi
 # Run /etc/lando/boot.d scripts
 /etc/lando/run-hooks.sh boot
 
-log boot completed
+log "boot completed"

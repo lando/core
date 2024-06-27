@@ -6,7 +6,7 @@ set -e
 . /etc/lando/lando-utils.sh
 . /etc/lando/lando-env.sh
 
-case $PACKAGE_MANAGER in
+case $LANDO_LINUX_PACKAGE_MANAGER in
   apk)
     apk update
     ;;
@@ -23,6 +23,6 @@ case $PACKAGE_MANAGER in
     yum -y update
     ;;
   *)
-    abort "$PACKAGE_MANAGER not supported! Could not run package updates!"
+    abort "$LANDO_LINUX_PACKAGE_MANAGER not supported! Could not run package updates!"
     ;;
 esac
