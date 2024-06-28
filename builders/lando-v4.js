@@ -246,6 +246,7 @@ module.exports = {
       // @NOTE: we use an event here because we generateCert is async and we cannot do it in the constructor
       // @TODO: do we have better hostnames at this point?
       // @TODO: generate pem as well?
+      // @TODO: only run if we have a CA? fails when CA does not exist?
       app.events.on('pre-services-generate', async services => {
         const {certPath, keyPath} = await lando.generateCert(`${this.id}.${this.project}`, {domains: this.hostnames});
         this.addServiceData({

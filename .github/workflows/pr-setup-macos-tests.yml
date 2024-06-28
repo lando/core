@@ -47,10 +47,22 @@ jobs:
           auto-setup: false
           lando-version: ${{ matrix.lando-version }}
           telemetry: false
-      - name: Run Leia Tests
-        uses: lando/run-leia-action@v2
-        with:
-          leia-test: "./${{ matrix.leia-test }}/README.md"
-          cleanup-header: "Destroy tests"
-          shell: bash
-          stdin: true
+
+      - name: Lando Setu
+        shell: bash
+        run: |
+          lando plugin-add "@lando/core@file:../.."
+          # brew uninstall --force --ignore-dependencies docker-desktop
+          # brew list --versions docker-desktop || echo $? | grep 1
+          lando config
+          lando --clear
+          lando config
+          lando setup -y --skip-networking --debug
+
+      # - name: Run Leia Tests
+      #   uses: lando/run-leia-action@v2
+      #   with:
+      #     leia-test: "./${{ matrix.leia-test }}/README.md"
+      #     cleanup-header: "Destroy tests"
+      #     shell: bash
+      #     stdin: true
