@@ -95,6 +95,7 @@ class L337ServiceV4 extends EventEmitter {
     states = {},
     tag = nanoid(),
     type = 'l337',
+    user = undefined,
   } = {}) {
     // instantiate ee immedately
     super();
@@ -146,7 +147,7 @@ class L337ServiceV4 extends EventEmitter {
     }}});
 
     // set user into info
-    this.info.user = config.user ?? 'root';
+    this.info.user = user ?? config.user ?? 'root';
 
     // if we do not have an appmount yet and we have volumes information then try to infer it
     if (this.config && this.config.volumes && this.config.volumes.length > 0) {
