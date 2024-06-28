@@ -87,6 +87,7 @@ fi
 if [[ -n "${CI-}" ]]; then
   debug "SUDO"
   sudo security add-trusted-cert \
+    -d \
     -r trustRoot \
     -k "$KEYCHAIN" \
     "$CA" \
