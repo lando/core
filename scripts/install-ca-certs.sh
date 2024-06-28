@@ -21,6 +21,9 @@ if [ ! -x "$(command -v update-ca-trust)" ]; then
     dnf)
       dnf install -y ca-certificates
       ;;
+    microdnf)
+      microdnf install ca-certificates
+      ;;
     yum)
       yum install -y ca-certificates
       ;;
@@ -34,7 +37,7 @@ fi
 
 # move all cas to the correct place and update trust
 case $LANDO_LINUX_PACKAGE_MANAGER in
-  dnf|yum)
+  dnf|microdnf|yum)
     cp -r /etc/lando/ca-certificates/.  /etc/pki/ca-trust/source/anchors/
     update-ca-trust
     ;;

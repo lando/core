@@ -20,6 +20,9 @@ case $LANDO_LINUX_PACKAGE_MANAGER in
   dnf)
     dnf install -y bash
     ;;
+  microdnf)
+    microdnf install bash
+    ;;
   pacman)
     pacman -Sy --noconfirm bash
     ;;
