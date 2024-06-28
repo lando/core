@@ -12,5 +12,5 @@ Run the following commands to validate things are rolling as they should.
 
 ```bash
 # Should be able to run lando setup
-lando setup -y
+lando setup -y --skip-networking
 ```

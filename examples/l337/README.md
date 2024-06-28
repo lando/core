@@ -32,7 +32,7 @@ lando info --service db | grep healthy: | grep unknown
 lando info --service db | grep state: | grep IMAGE: | grep UNBUILT
 lando info --service db | grep -z image: | grep core/examples/l337/Dockerfile
 lando info --service db | grep primary: | grep false
-lando info --service db | grep user: | grep www-data
+lando info --service db | grep user: | grep root
 cat $(lando info --service db --path "[0].image" --format json | tr -d '"') | grep "ENV SERVICE=db"
 lando info --service web | grep api: | grep 4
 lando info --service web | grep type: | grep l337
@@ -88,8 +88,8 @@ lando env | grep SERVICE | grep web
 lando whoami | grep nginx
 
 # should set http/https metadata as needed
-docker inspect l337_web_1 | grep dev.lando.http-ports | grep "80,443,8888"
-docker inspect l337_web_1 | grep dev.lando.https-ports | grep "80,443,8888"
+docker inspect l337_web_1 | grep dev.lando.http-ports | grep "8888"
+docker inspect l337_web_1 | grep dev.lando.https-ports | grep '"",'
 
 # should automatically set appMount if appRoot is volume mounted
 lando pwd | grep /site

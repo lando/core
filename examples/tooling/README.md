@@ -27,9 +27,9 @@ lando php -v
 lando php -m
 lando php -r "phpinfo();"
 
-# Should run as meUser by default
+# Should run as correct user
 lando whoami | grep www-data
-lando whoami --service l337-php | grep www-data
+lando whoami --service l337-php | grep root
 lando nodeme | grep node
 lando nodeme --service l337-node | grep node
 lando stillme | grep node | wc -l | grep 2

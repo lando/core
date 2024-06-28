@@ -4,11 +4,12 @@ services:
     api: 4
     image:
       imagefile: |
-        FROM nginx:1.22.1
+        FROM nginxinc/nginx-unprivileged:1.26.1
+        USER root
         RUN apt update -u
         RUN apt install git ssh socat sudo -y
         RUN ssh-keyscan github.com >> /etc/ssh/ssh_known_hosts
-    user: root
+    user: nginx
     build:
       app: |
         env
@@ -24,12 +25,12 @@ services:
 
   web-2:
     api: 4
-    user: root
-    image: nginx:1.22.1
+    user: nginx
+    image: nginxinc/nginx-unprivileged:1.26.1
   web-3:
     api: 4
-    user: root
-    image: nginx:1.22.1
+    user: nginx
+    image: nginxinc/nginx-unprivileged:1.26.1
     build:
       app: |
         set -e

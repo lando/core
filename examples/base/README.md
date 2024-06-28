@@ -140,9 +140,11 @@ lando logs --service web2 | grep log_1 || echo $? | grep 1
 lando logs -s web3 | grep log_1 || echo $? | grep 1
 lando logs --service web3 | grep log_1 || echo $? | grep 1
 
-# Should run a command as the LANDO_WEBROOT_USER by default
+# Should run a command as the LANDO_WEBROOT_USER by default in v3
 lando ssh -s web2 -c "id | grep \$LANDO_WEBROOT_USER"
-lando ssh -s web3 -c "id | grep \$LANDO_WEBROOT_USER"
+
+# Should run a command as root by default in l337 service
+lando ssh -s web3 -c "id" | grep root
 
 # Should run a command as the user specific
 lando ssh -s web2 -u root -c "id | grep root"

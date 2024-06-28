@@ -11,7 +11,7 @@ const getHttpPorts = data => {
 };
 const getHttpsPorts = data => {
   return _.uniq([
-    ..._.get(data, 'Config.Labels["io.lando.https-ports"]', '80,443').split(','),
+    ..._.get(data, 'Config.Labels["io.lando.https-ports"]', '443').split(','),
     ..._.get(data, 'Config.Labels["dev.lando.https-ports"]', '').split(','),
   ]);
 };

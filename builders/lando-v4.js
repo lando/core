@@ -133,17 +133,28 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
+      // @TODO: skip networking?
+
       // @TODO: fix tests first?
+      // @TODO: add in/fix relevant networking tests, move out cert stuff?
+      // @TODO: add in cert tests
+
       // @TODO: add debugging and improve logix/grouping of stuff
+      // @TODO: reconsider root disallow?
+
       // @TODO: consolidate hostname/urls/etc?
       // @TODO: move createuser to a special thing since its not a package?
       // @TODO: overrides?
 
-      // @TODO: separate out tests into specific features eg lando-v4-certs lando-v4-users
       // @TODO: better appmount logix?
       // @TODO: allow additonal users to be installed in config.users?
       // @TODO: socat package?
       // @TODO: change lando literal to "lando product"
+      // @TODO: separate out tests into specific features eg lando-v4-certs lando-v4-users
+
+      // @TODO: dynamic environment stuff? /etc/lando/environment?
+        // @TODO: requires a command wrapper script?
+        // @TODO: added to lashrc?
 
       // get stuff from config
       const {caCert, caDomain, gid, uid, username} = lando.config;

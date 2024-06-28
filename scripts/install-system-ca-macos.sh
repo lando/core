@@ -68,8 +68,8 @@ debug "FINGERPRINT: $FINGERPRINT"
 debug "KEYCHAIN: $KEYCHAIN"
 debug "NONINTERACTIVE: $NONINTERACTIVE"
 
-# for noninteractive in CI
-if [[ -n "${CI-}" &&  "$NONINTERACTIVE" == "0" ]]; then
+# force noninteractive in CI
+if [[ -n "${CI-}" && "$NONINTERACTIVE" == "0" ]]; then
   debug 'running in non-interactive mode because `$CI` is set.'
   NONINTERACTIVE=1
 fi
@@ -80,8 +80,19 @@ if [[ "$NONINTERACTIVE" == "1" ]]; then
 fi
 
 # add CA to default login keychain
-security add-trusted-cert \
-  -r trustRoot \
-  -k "$KEYCHAIN" \
-  "$CA" \
-  || (security delete-certificate -Z "$FINGERPRINT" -t "$KEYCHAIN" && exit 1)
+# in CI we need to sudo add to the store to avoid the password popup
+if [[ -n "${CI-}" ]]; then
+  sudo security add-trusted-cert \
+    -r trustRoot \
+    -k "$KEYCHAIN" \
+    "$CA" \
+    || (security delete-certificate -Z "$FINGERPRINT" -t "$KEYCHAIN" && exit 1)
+
+# otherwise prompt the user
+else
+  security add-trusted-cert \
+    -r trustRoot \
+    -k "$KEYCHAIN" \
+    "$CA" \
+    || (security delete-certificate -Z "$FINGERPRINT" -t "$KEYCHAIN" && exit 1)
+fi

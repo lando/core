@@ -17,7 +17,7 @@ services:
     type: l337
     image: nginx
     ports:
-      - '80'
+      - '80/http'
     volumes:
     - ./:/usr/share/nginx/html
 

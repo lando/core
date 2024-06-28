@@ -86,8 +86,9 @@ const defaultConfig = options => ({
     installTasks: true,
     plugins: {},
     tasks: [],
-    skipInstallCA: false,
     skipCommonPlugins: _.get(options, 'fatcore', false),
+    skipInstallCA: false,
+    skipNetworking: false,
   },
 });
 
