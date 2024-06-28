@@ -2,9 +2,19 @@
 
 const _ = require('lodash');
 
-// Helper to get http ports
-const getHttpPorts = data => _.get(data, 'Config.Labels["io.lando.http-ports"]', '80,443').split(',');
-const getHttpsPorts = data => _.get(data, 'Config.Labels["io.lando.https-ports"]', '443').split(',');
+// Helper to get http/https ports
+const getHttpPorts = data => {
+  return _.uniq([
+    ..._.get(data, 'Config.Labels["io.lando.http-ports"]', '80,443').split(','),
+    ..._.get(data, 'Config.Labels["dev.lando.http-ports"]', '').split(','),
+  ]);
+};
+const getHttpsPorts = data => {
+  return _.uniq([
+    ..._.get(data, 'Config.Labels["io.lando.https-ports"]', '80,443').split(','),
+    ..._.get(data, 'Config.Labels["dev.lando.https-ports"]', '').split(','),
+  ]);
+};
 
 module.exports = async (app, lando) => {
   app.log.verbose('attempting to find open services...');
@@ -17,7 +27,8 @@ module.exports = async (app, lando) => {
     .map(container => app.engine.scan(container))
     // Scan all the http ports
     .map(data => require('../utils/get-exposed-localhosts')(
-      data, getHttpPorts(data),
+      data,
+      _.uniq([...getHttpPorts(data), ...getHttpsPorts(data)]),
       getHttpsPorts(data),
       lando.config.bindAddress,
     ))
