@@ -24,7 +24,7 @@ services:
     type: l337
     image: node:16
     command: sleep infinity
-    meUser: node
+    user: node
     volumes:
       - "./:/app"
     environment:
@@ -40,7 +40,7 @@ services:
     type: l337
     command: sleep infinity
     image: alpine:3.18.3
-    meUser: root
+    user: root
     working_dir: /tmp
 
 tooling:

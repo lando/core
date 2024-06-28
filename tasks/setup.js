@@ -95,6 +95,12 @@ module.exports = lando => {
       default: defaults.skipCommonPlugins,
       boolean: true,
     },
+    'skip-networking': {
+      describe: 'Disables the installation of the Landonet',
+      default: defaults.skipNetworking,
+      boolean: true,
+      hidden: true,
+    },
     'yes': {
       describe: 'Runs non-interactively with all accepted default answers',
       alias: ['y'],

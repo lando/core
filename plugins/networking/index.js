@@ -50,6 +50,9 @@ module.exports = lando => {
 
   // Add network add task
   lando.events.once('pre-setup', async options => {
+    // skip the installation of the network if set
+    if (options.skipNetworking) return;
+
     options.tasks.push({
       title: `Creating Landonet`,
       id: 'create-landonet',
