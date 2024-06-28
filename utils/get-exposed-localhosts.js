@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const url = require('url');
 
-module.exports = (data, scan = ['80, 443'], secured = ['443'], bindAddress = '127.0.0.1') => {
+module.exports = (data, scan = ['80', '443'], secured = ['443'], bindAddress = '127.0.0.1') => {
   return _(_.merge(_.get(data, 'Config.ExposedPorts', []), {'443/tcp': {}}))
   .map((value, port) => ({
     port: _.head(port.split('/')),

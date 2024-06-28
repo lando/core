@@ -36,6 +36,12 @@ const getAllPorts = (noHttp = false, noHttps = false, config) => {
   return _.flatten(ports).join(', ');
 };
 
+const hasCerts = (app, id) => {
+  const info = app.info.find(service => service.service === id);
+  const v4 = _.get(app, 'v4.services', []).find(service => service.id === id);
+  return info?.hasCerts === true || v4?.certs === true;
+};
+
 /*
  * Helper to scanPorts
  */
@@ -128,7 +134,7 @@ module.exports = (app, lando) => {
         }
 
         // Get list of services that *should* have certs for SSL
-        const sslReady = _(_.get(app, 'config.services', {}))
+        const sslReady = _(_.get(app, 'config.services', []))
           .map((data, name) => _.merge({}, data, {name}))
           .filter(data => data.ssl)
           .map(data => data.name)
@@ -148,8 +154,14 @@ module.exports = (app, lando) => {
           service.hasCerts = true;
         });
 
+        // get new v4 ssl ready services
+        const sslReadyV4 = _(_.get(app, 'v4.services', []))
+          .filter(data => data.certs)
+          .map(data => data.id)
+          .value();
+
         // Parse config
-        return utils.parseConfig(app.config.proxy, _.compact(_.flatten([sslReady, servedBy])));
+        return utils.parseConfig(app.config.proxy, _.compact(_.flatten([sslReady, servedBy, sslReadyV4])));
       })
 
       // Map to docker compose things
@@ -206,7 +218,7 @@ module.exports = (app, lando) => {
             .flatMap(s => s.urls = _.uniq(s.urls.concat(utils.parse2Info(
               app.config.proxy[s.service],
               ports,
-              _.get(s, 'hasCerts', false),
+              hasCerts(app, s.service),
             ))))
             .value();
         }

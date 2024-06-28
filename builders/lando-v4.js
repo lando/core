@@ -37,6 +37,19 @@ const groups = {
   },
 };
 
+// @TODO: move this into utils and reuse in app-generate-certs.js?
+const parseUrls = (urls = []) => {
+  return urls.map(url => {
+    try {
+      url = new URL(url);
+      return url.hostname;
+    } catch {
+      return undefined;
+    }
+  })
+  .filter(hostname => hostname !== undefined);
+};
+
 /*
  * The lowest level lando service, this is where a lot of the deep magic lives
  */
@@ -51,11 +64,14 @@ module.exports = {
         destination: '/app',
         exclude: [],
       },
-      'command': 'sleep infinity || tail -f /dev/null',
+      'environment': {},
+      'certs': true,
       'packages': {
-        sudo: true,
-        useradd: true,
+        'ca-certs': true,
+        'sudo': true,
+        'useradd': true,
       },
+      'ports': [],
     },
   },
   router: () => ({}),
@@ -76,12 +92,17 @@ module.exports = {
     }
 
     #installers = {
-      createuser: {
+      'ca-certs': {
+        type: 'hook',
+        script: path.join(__dirname, '..', 'scripts', 'install-ca-certs.sh'),
+        group: 'boot',
+      },
+      'createuser': {
         type: 'script',
         script: path.join(__dirname, '..', 'scripts', 'add-user.sh'),
         group: 'setup-user',
       },
-      sudo: {
+      'sudo': {
         type: 'hook',
         script: path.join(__dirname, '..', 'scripts', 'install-sudo.sh'),
         group: 'boot',
@@ -94,7 +115,7 @@ module.exports = {
           `,
         },
       },
-      useradd: {
+      'useradd': {
         type: 'hook',
         script: path.join(__dirname, '..', 'scripts', 'install-useradd.sh'),
         group: 'boot',
@@ -116,22 +137,35 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
+      // @TODO: _.get(s, 'hasCerts', false) needs to handle V4 stuff
+      // @TODO: sslReady
+
+      // @TODO: proxy-certs stuff?
+      // @TODO: localhost assignment?
+
+      // @TODO: add debugging and improve logix/grouping of stuff
+      // @TODO: what about user: root? not allow?
+      // @TODO: what about disabling the user stuff altogether?
+      // @TODO: consolidate hostname/urls/etc?
+      // @TODO: move createuser to a special thing since its not a package?
+      // @TODO: overrides?
+
+      // @TODO: separate out tests into specific features eg lando-v4-certs lando-v4-users
       // @TODO: better appmount logix?
       // @TODO: allow additonal users to be installed in config.users?
       // @TODO: socat package?
-
+      // @TODO: change lando literal to "lando product"
+      // get stuff from config
+      const {caCert, caDomain, gid, uid, username} = lando.config;
       // before we call super we need to separate things
       const {config, ...upstream} = merge({}, defaults, options);
-      // ger user info
-      const {gid, uid, username} = lando.config;
       // consolidate user info with any incoming stuff
       const user = merge({}, {gid, uid, name: username}, require('../utils/parse-v4-user')(config.user));
 
       // add some upstream stuff and legacy stuff
       upstream.appMount = config['app-mount'].destination;
-      upstream.legacy = merge({}, upstream.legacy ?? {}, {meUser: user.name});
       // this will change but for right now i just need the image stuff to passthrough
-      upstream.config = {image: config.image};
+      upstream.config = {image: config.image, ports: config.ports};
 
       // add a user build group
       groups.user = {
@@ -173,18 +207,41 @@ module.exports = {
       this.setNPMRC(lando.config.pluginConfigFile);
 
       // setup user
-      // @TODO: move createuser to a special thing since its not a package?
       this.packages.createuser = this.user;
 
-      // @TODO: try alpine?
-      // @TODO: cert-install stuff
-        // 1. generate certs on host
-        // 2. install cert package
-        // 3. put cert in correct location(s)?
-        // 4. refresh cert store
+      // ca stuff
+      this.cas = [caCert, path.join(path.dirname(caCert), `${caDomain}.pem`)];
+      for (const ca of this.cas) {
+        if (fs.existsSync(ca)) this.addLSF(ca, `ca-certificates/${path.basename(ca)}`);
+      }
 
-      // @TODO: add debugging and improve logix
-      // @TODO: change lando literal to "lando product"
+      // certs stuff
+      // @TODO: make this configurable? allow different certs etc?
+      // @TODO: add additional hostnames?
+      // @TODO: allow for custom paths, multiple paths etc
+      this.certs = config.certs;
+      const routes = app?.config?.proxy?.[id] ?? [];
+      const urls = routes
+        .map(route => route?.hostname ?? route?.host ?? route)
+        .map(route => `http://${route}`);
+      this.hostnames = [
+        ...parseUrls(urls),
+        `${this.id}.${this.project}.internal`,
+        this.id,
+        'localhost',
+      ];
+      // @NOTE: we use an event here because we generateCert is async and we cannot do it in the constructor
+      // @TODO: do we have better hostnames at this point?
+      // @TODO: generate pem as well?
+      app.events.on('pre-services-generate', async services => {
+        const {certPath, keyPath} = await lando.generateCert(`${this.id}.${this.project}`, {domains: this.hostnames});
+        this.addServiceData({
+          volumes: [
+            `${certPath}:/certs/cert.crt`,
+            `${keyPath}:/certs/cert.key`,
+          ],
+        });
+      });
 
       // boot stuff
       // @TODO: consolidate all of this elsewhere so constructor isnt SFB?
@@ -217,9 +274,16 @@ module.exports = {
       this.addComposeData({volumes: {[this.homevol]: {}}});
       // add build vols
       this.addAppBuildVolume(`${this.homevol}:/home/${this.user.name}`);
+      // add command if we have one
+      if (this.command) this.addServiceData({command: this.command});
+
       // add main dc stuff
+      // @TODO: other good lando envvars/labels/logs would be good to put in the ones from v3 even if
+      // they are duplicated so this is portable and consistent?
       this.addServiceData({
-        command: this.command,
+        environment: {
+          ...config.environment,
+        },
         user: this.user.name,
         volumes: [
           `${this.homevol}:/home/${this.user.name}`,
@@ -241,7 +305,7 @@ module.exports = {
 
     addPackage(id, data = []) {
       // check if we have an package installer
-      // TODO: should this throw or just log?
+      // @TODO: should this throw or just log?
       if (this.#installers[id] === undefined) throw new Error(`Could not find a package installer for ${id}!`);
 
       // normalize data
@@ -256,8 +320,6 @@ module.exports = {
           this.addHookFile(installer.script, {hook: installer.group, priority: installer.priority});
           break;
         case 'script':
-          // @TODO: loop through data and add multiple ones?
-          // @TODO: parse data into options
           this.addLSF(installer.script, `installers/${path.basename(installer.script)}`);
           for (const options of data) {
             this.addSteps({group: installer.group, instructions: `

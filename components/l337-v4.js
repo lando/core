@@ -95,11 +95,6 @@ class L337ServiceV4 extends EventEmitter {
     states = {},
     tag = nanoid(),
     type = 'l337',
-    legacy = {
-      meUser = 'www-data',
-      moreHttpPorts = [],
-      sport = '443',
-    } = {},
   } = {}) {
     // instantiate ee immedately
     super();
@@ -137,18 +132,21 @@ class L337ServiceV4 extends EventEmitter {
       type,
     }, info);
 
+    // do some special undocumented things to "ports"
+    const {ports, http, https} = require('../utils/parse-v4-ports')(config.ports);
+
     // add in the l337 spec config
-    this.addServiceData(config);
+    this.addServiceData({...config, ports});
 
     // handle legacy and deprecated settings in lando-v4 and above services
     this.addComposeData({services: {[this.id]: {labels: {
-      'io.lando.http-ports': ['80', '443'].concat(legacy.moreHttpPorts).join(','),
-      'io.lando.https-ports': ['443'].concat([legacy.sport]).join(','),
+      'dev.lando.http-ports': http.join(','),
+      'dev.lando.https-ports': https.join(','),
       },
     }}});
 
-    // handle legacy "meUser" setting
-    this.info.user = legacy.meUser;
+    // set user into info
+    this.info.user = config.user ?? 'root';
 
     // if we do not have an appmount yet and we have volumes information then try to infer it
     if (this.config && this.config.volumes && this.config.volumes.length > 0) {
