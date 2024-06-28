@@ -70,18 +70,22 @@ debug "NONINTERACTIVE: $NONINTERACTIVE"
 
 # force noninteractive in CI
 if [[ -n "${CI-}" && "$NONINTERACTIVE" == "0" ]]; then
-  debug 'running in non-interactive mode because `$CI` is set.'
+  debug "running in non-interactive mode because CI=${CI} is set."
   NONINTERACTIVE=1
 fi
 
+debug "more debug."
+
 # suppress GUI prompt in non interactive situations
 if [[ "$NONINTERACTIVE" == "1" ]]; then
+  debug "allowing sudo to write to trust store without popup."
   sudo security authorizationdb write com.apple.trust-settings.admin allow
 fi
 
 # add CA to default login keychain
 # in CI we need to sudo add to the store to avoid the password popup
 if [[ -n "${CI-}" ]]; then
+  debug "SUDO"
   sudo security add-trusted-cert \
     -r trustRoot \
     -k "$KEYCHAIN" \
@@ -90,6 +94,7 @@ if [[ -n "${CI-}" ]]; then
 
 # otherwise prompt the user
 else
+  ebug "NORMAL"
   security add-trusted-cert \
     -r trustRoot \
     -k "$KEYCHAIN" \
