@@ -138,6 +138,7 @@ class L337ServiceV4 extends EventEmitter {
 
     // add in the l337 spec config
     this.addServiceData({...config, ports});
+    this.addServiceData({ports});
 
     // handle legacy and deprecated settings in lando-v4 and above services
     this.addComposeData({services: {[this.id]: {labels: {
