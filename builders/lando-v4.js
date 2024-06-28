@@ -133,11 +133,23 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
-      // @TODO: skip networking?
-
+      // @TODO: rework networking tests
+      // @TODO: groupadd failure?
       // @TODO: fix tests first?
-      // @TODO: add in/fix relevant networking tests, move out cert stuff?
       // @TODO: add in cert tests
+      /*
+      # Should have the correct entries in /certs/cert.ext
+      cd lamp
+      lando ssh -s appserver -c "cat /certs/cert.ext" | grep DNS.1 | grep -w appserver.landolamp.internal
+      lando ssh -s appserver -c "cat /certs/cert.ext" | grep DNS.2 | grep -w appserver
+      lando ssh -s appserver -c "cat /certs/cert.ext" | grep DNS.3 | grep -w localhost
+      lando ssh -s appserver -c "cat /certs/cert.ext" | grep lando-lamp.lndo.site
+      cd .. && cd lemp
+      lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.1 | grep -w placeholder.landolemp.internal
+      lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.2 | grep -w placeholder
+      lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.3 | grep -w localhost
+      lando ssh -s placeholder -c "cat /certs/cert.ext" | grep placeholder.lando-lemp.lndo.site
+      */
 
       // @TODO: add debugging and improve logix/grouping of stuff
       // @TODO: reconsider root disallow?

@@ -1,34 +1,22 @@
 name: lando-lemp
 proxy:
   appserver_nginx:
-    - lando-lemp.lndo.site
-  placeholder:
-    - placeholder.lando-lemp.lndo.site
+    - lando-lemp.lndo.site:8080
 services:
-  placeholder:
-    api: 3
-    type: lando
-    ssl: true
-    healthcheck: curl -I http://localhost
-    services:
-      image: php:8.2-apache
-      command: docker-php-entrypoint apache2-foreground
-      volumes:
-        - ./apache.conf:/etc/apache2/sites-enabled/000-default.conf
-      ports:
-        - 80
-        - 443
   appserver_nginx:
     api: 4
-    type: l337
+    type: lando
+    user: nginx
+    healthcheck: curl -I https://lando-lemp.lndo.site
     image:
-      imagefile: nginx:1.22.1
+      imagefile: nginxinc/nginx-unprivileged:1.26.1
       context:
         - ./nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
-      - 80
-    volumes:
-      - ./:/var/www/html
+      - 8080/http
+      - 8443/https
+    app-mount:
+      destination: /var/www/html
     links:
       - appserver
     depends_on:

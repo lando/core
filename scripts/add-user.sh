@@ -90,7 +90,7 @@ fi
 # Add group if GID is provided and group does not exist
 if [ -n "${LANDO_GID}" ]; then
   if ! getent group "$LANDO_GID" > /dev/null; then
-    groupadd -g "$LANDO_GID" "$LANDO_USER"
+    groupadd -g "$LANDO_GID" "$LANDO_USER" || groupadd -g "$LANDO_GID" lando
   fi
 fi
 
