@@ -51,7 +51,7 @@ jobs:
       - name: Lando Setu
         shell: bash
         run: |
-          lando plugin-add "@lando/core@file:../.."
+          lando plugin-add "@lando/core@file:${{ github.workspace }}"
           # brew uninstall --force --ignore-dependencies docker-desktop
           # brew list --versions docker-desktop || echo $? | grep 1
           lando config
