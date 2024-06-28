@@ -16,6 +16,9 @@ case $LANDO_LINUX_PACKAGE_MANAGER in
   dnf)
     dnf -y update
     ;;
+  microdnf)
+    microdnf update
+    ;;
   pacman)
     pacman -Syu
     ;;

@@ -13,6 +13,9 @@ if [ ! -x "$(command -v useradd)" ]; then
     dnf)
       dnf install -y shadow-utils
       ;;
+    microdnf)
+      microdnf install shadow-utils
+      ;;
     pacman)
       pacman -Sy --noconfirm shadow
       ;;

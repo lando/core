@@ -16,6 +16,9 @@ case $LANDO_LINUX_PACKAGE_MANAGER in
   dnf)
     dnf install -y sudo
     ;;
+  microdnf)
+    microdnf install sudo
+    ;;
   pacman)
     pacman -Sy --noconfirm sudo
     ;;
