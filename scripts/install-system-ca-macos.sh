@@ -79,26 +79,24 @@ debug "more debug."
 # suppress GUI prompt in non interactive situations
 if [[ "$NONINTERACTIVE" == "1" ]]; then
   debug "allowing sudo to write to trust store without popup."
-  sudo security authorizationdb write com.apple.trust-settings.admin allow
+  sudo security authorizationdb write com.apple.trust-settings.user allow
 fi
 
 # add CA to default login keychain
 # in CI we need to sudo add to the store to avoid the password popup
-if [[ -n "${CI-}" ]]; then
-  debug "SUDO"
-  sudo security add-trusted-cert \
-    -d \
-    -r trustRoot \
-    -k "$KEYCHAIN" \
-    "$CA" \
-    || (security delete-certificate -Z "$FINGERPRINT" -t "$KEYCHAIN" && exit 1)
+# if [[ -n "${CI-}" ]]; then
+#   debug "SUDO"
+#   sudo security add-trusted-cert \
+#     -d \
+#     -r trustRoot \
+#     -k "/Library/Keychains/System.keychain" \
+#     "$CA" \
+#     || (security delete-certificate -Z "$FINGERPRINT" -t "$KEYCHAIN" && exit 1)
 
 # otherwise prompt the user
-else
-  ebug "NORMAL"
-  security add-trusted-cert \
-    -r trustRoot \
-    -k "$KEYCHAIN" \
-    "$CA" \
-    || (security delete-certificate -Z "$FINGERPRINT" -t "$KEYCHAIN" && exit 1)
-fi
+debug "NORMAL"
+security add-trusted-cert \
+  -r trustRoot \
+  -k "$KEYCHAIN" \
+  "$CA" \
+  || (security delete-certificate -Z "$FINGERPRINT" -t "$KEYCHAIN" && exit 1)
