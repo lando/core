@@ -97,11 +97,6 @@ module.exports = {
         script: path.join(__dirname, '..', 'scripts', 'install-ca-certs.sh'),
         group: 'boot',
       },
-      'createuser': {
-        type: 'script',
-        script: path.join(__dirname, '..', 'scripts', 'add-user.sh'),
-        group: 'setup-user',
-      },
       'sudo': {
         type: 'hook',
         script: path.join(__dirname, '..', 'scripts', 'install-sudo.sh'),
@@ -132,20 +127,13 @@ module.exports = {
       this.addLSF(path.join(__dirname, '..', 'scripts', 'landorc'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'utils.sh'), 'lando-utils.sh');
       this.addLSF(path.join(__dirname, '..', 'scripts', 'env.sh'), 'lando-env.sh');
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'add-user.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'install-updates.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'install-bash.sh'));
     }
 
     constructor(id, options, app, lando) {
-      // @TODO: _.get(s, 'hasCerts', false) needs to handle V4 stuff
-      // @TODO: sslReady
-
-      // @TODO: proxy-certs stuff?
-      // @TODO: localhost assignment?
-
       // @TODO: add debugging and improve logix/grouping of stuff
-      // @TODO: what about user: root? not allow?
-      // @TODO: what about disabling the user stuff altogether?
       // @TODO: consolidate hostname/urls/etc?
       // @TODO: move createuser to a special thing since its not a package?
       // @TODO: overrides?
@@ -155,6 +143,7 @@ module.exports = {
       // @TODO: allow additonal users to be installed in config.users?
       // @TODO: socat package?
       // @TODO: change lando literal to "lando product"
+
       // get stuff from config
       const {caCert, caDomain, gid, uid, username} = lando.config;
       // before we call super we need to separate things
@@ -166,6 +155,8 @@ module.exports = {
       upstream.appMount = config['app-mount'].destination;
       // this will change but for right now i just need the image stuff to passthrough
       upstream.config = {image: config.image, ports: config.ports};
+      // make sure we also pass the user
+      upstream.user = user.name;
 
       // add a user build group
       groups.user = {
@@ -193,21 +184,19 @@ module.exports = {
       this.user = user;
       this.homevol = `${this.project}-${this.user.name}-home`;
       this.datavol = `${this.project}-${this.id}-data`;
+      if (!require('../utils/is-disabled')(this.user)) this.addUser(this.user);
 
       // build script
       // @TODO: handle array content?
+      // @TODO: halfbaked
       this.buildScript = config?.build?.app ?? false;
-      this.packages = config.packages ?? {};
 
-      // set some other stuff
+      // volumes
       if (config['app-mount']) this.setAppMount(config['app-mount']);
 
       // auth stuff
       this.setSSHAgent();
       this.setNPMRC(lando.config.pluginConfigFile);
-
-      // setup user
-      this.packages.createuser = this.user;
 
       // ca stuff
       this.cas = [caCert, path.join(path.dirname(caCert), `${caDomain}.pem`)];
@@ -264,6 +253,7 @@ module.exports = {
       }
 
       // go through all packages and add them
+      this.packages = config.packages ?? {};
       for (const [id, data] of Object.entries(this.packages)) {
         if (!require('../utils/is-disabled')(data)) {
           this.addPackage(id, data);
@@ -347,6 +337,12 @@ module.exports = {
     addLSF(source, dest, {context = 'context'} = {}) {
       if (dest === undefined) dest = path.basename(source);
       this.addContext(`${source}:/etc/lando/${dest}`, context);
+    }
+
+    addUser(user) {
+      this.addSteps({group: 'setup-user', instructions: `
+        RUN /etc/lando/add-user.sh ${require('../utils/parse-v4-pkginstall-opts')(user)}`,
+      });
     }
 
     addAppBuildVolume(volumes) {

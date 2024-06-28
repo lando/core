@@ -43,8 +43,14 @@ done
 
 # if we have no LANDOUSER then throw an error
 if [ -z "${LANDO_USER+x}" ]; then
-  abort "You must provide at least a username!"
+  abort "ou must provide at least a username!"
 fi
+
+# do not allow root user
+if [ "${LANDO_USER}" == 'root' ] || [ "${LANDO_UID}" == '1' ]; then
+  abort "You cannot run as root!"
+fi
+
 # Set min and max UID/GID values
 LANDO_GIDMIN="$LANDO_GID"
 LANDO_GIDMAX="600100000"
