@@ -261,13 +261,18 @@ module.exports = {
       // @TODO: consolidate all of this elsewhere so constructor isnt SFB?
       this.#setupBootScripts();
       this.addSteps({group: 'boot', instructions: `
-        ENV RUNNER 1
-        ENV DEBUG ${lando.debuggy ? 1 : 0}
-        ENV LANDO_DEBUG ${lando.debuggy ? 1 : 0}
         RUN mkdir -p /etc/lando
         RUN chmod 777 /etc/lando
         RUN /etc/lando/boot.sh
       `});
+
+      // debug stuff
+      if (lando.debuggy) {
+        this.addSteps({group: 'boot', instructions: `
+          ENV DEBUG 1
+          ENV LANDO_DEBUG 1
+        `});
+      }
 
       // go through all groups except boot and add run-hook stuffs
       for (const hook of Object.keys(this._data.groups).filter(group => parseInt(group.weight) <= 100)) {

@@ -28,8 +28,10 @@ module.exports = ({code = 1, stderr = '', stdout = '', messages = ''} = {}) => {
     code = typeof errorcode === 'string' ? parseInt(errorcode.trim()) : code;
   }
 
-  // now generate a string of the most relevant errors
-  messages = faillines.map(line => line.split(' ').slice(2).join(' '));
+  // now generate a string of the most relevant errors and strip any debug messages
+  messages = faillines
+    .map(line => line.split(' ').slice(2).join(' '))
+    .filter(line => !line.startsWith('debug'));
 
   // return a lando error
   return new LandoError(messages.join(' '), {code, stdout, stderr});

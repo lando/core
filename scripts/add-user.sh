@@ -43,7 +43,7 @@ done
 
 # if we have no LANDOUSER then throw an error
 if [ -z "${LANDO_USER+x}" ]; then
-  abort "ou must provide at least a username!"
+  abort "You must provide at least a username!"
 fi
 
 # do not allow root user

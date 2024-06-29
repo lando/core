@@ -37,16 +37,17 @@ services:
       context:
         - ./healthcheck.sh:/usr/local/bin/healthcheck
       imagefile: |
-        FROM nginx:1.22.1
-        RUN apt update -u
+        FROM nginxinc/nginx-unprivileged:1.26.1
+        USER root
+        RUN apt update -y
         RUN apt install git ssh socat sudo -y
         RUN ssh-keyscan github.com >> /etc/ssh/ssh_known_hosts
       steps:
         - instructions: RUN chmod +x /usr/local/bin/healthcheck
-    user: root
+    user: nginx
     healthcheck:
       command: healthcheck
-      retry: 100
+      retry: 1
       delay: 1000
   database1:
     api: 3
