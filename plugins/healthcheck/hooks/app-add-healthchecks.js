@@ -73,7 +73,7 @@ module.exports = async app => {
     .filter(check => !require('../../../utils/is-disabled')(check.command))
     .filter(check => {
       const info = app.info.find(data => data.service === check.service);
-      return info.healthy !== false;
+      return info.error === undefined;
     })
     .value();
 

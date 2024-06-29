@@ -47,7 +47,7 @@ services:
     user: nginx
     healthcheck:
       command: healthcheck
-      retry: 1
+      retry: 10
       delay: 1000
   database1:
     api: 3
