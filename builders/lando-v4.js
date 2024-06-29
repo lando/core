@@ -133,10 +133,10 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
-      // @TODO: rework networking tests
-      // @TODO: groupadd failure?
-      // @TODO: fix tests first?
       // @TODO: add in cert tests
+      // @TODO: generate pem as well?
+      // @TODO: only run if we have a CA? fails when CA does not exist?
+
       /*
       # Should have the correct entries in /certs/cert.ext
       cd lamp
@@ -150,6 +150,11 @@ module.exports = {
       lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.3 | grep -w localhost
       lando ssh -s placeholder -c "cat /certs/cert.ext" | grep placeholder.lando-lemp.lndo.site
       */
+      // @TODO: make this configurable? allow different certs etc?
+      // @TODO: add additional hostnames?
+      // @TODO: allow for custom paths, multiple paths etc
+
+      // @TODO: do we have better hostnames at this point?
 
       // @TODO: add debugging and improve logix/grouping of stuff
       // @TODO: reconsider root disallow?
@@ -229,9 +234,6 @@ module.exports = {
       }
 
       // certs stuff
-      // @TODO: make this configurable? allow different certs etc?
-      // @TODO: add additional hostnames?
-      // @TODO: allow for custom paths, multiple paths etc
       this.certs = config.certs;
       const routes = app?.config?.proxy?.[id] ?? [];
       const urls = routes
@@ -243,10 +245,8 @@ module.exports = {
         this.id,
         'localhost',
       ];
+
       // @NOTE: we use an event here because we generateCert is async and we cannot do it in the constructor
-      // @TODO: do we have better hostnames at this point?
-      // @TODO: generate pem as well?
-      // @TODO: only run if we have a CA? fails when CA does not exist?
       app.events.on('pre-services-generate', async services => {
         const {certPath, keyPath} = await lando.generateCert(`${this.id}.${this.project}`, {domains: this.hostnames});
         this.addServiceData({
