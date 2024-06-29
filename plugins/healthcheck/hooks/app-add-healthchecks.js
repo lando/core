@@ -71,6 +71,10 @@ module.exports = async app => {
     .groupBy('container')
     .map(checks => checks[0])
     .filter(check => !require('../../../utils/is-disabled')(check.command))
+    .filter(check => {
+      const info = app.info.find(data => data.service === check.service);
+      return info.healthy !== false;
+    })
     .value();
 
   // put into checks format
