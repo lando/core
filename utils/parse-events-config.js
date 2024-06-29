@@ -50,7 +50,10 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
 
   // Validate the service if we can
   // @NOTE fast engine runs might not have this data yet
-  if (app.services && !_.includes(app.services, service)) {
+  if (
+    (Array.isArray(app.services) && !_.includes(app.services, service)) &&
+    (Array.isArray(v4s) && !_.includes(v4s, service))
+  ) {
     throw new Error(`This app has no service called ${service}`);
   }
   // Add the build command

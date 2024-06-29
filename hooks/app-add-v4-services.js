@@ -62,17 +62,7 @@ module.exports = async (app, lando) => {
     app.info.push(service.info);
   });
 
-  // emit an event so other plugins can augment the servies with additonal things before we get their data
-  return app.events.emit('pre-services-generate', app.v4.services).then(services => {
-    // handle top level volumes and networks here
-    if (!_.isEmpty(app.config.volumes)) app.v4.addVolumes(app.config.volumes);
-    if (!_.isEmpty(app.config.networks)) app.v4.addNetworks(app.config.networks);
-
-    // then generate the orchestrator files for each service
-    _.forEach(app.v4.services, service => {
-      app.add(service.generateOrchestorFiles());
-      // Log da things
-      app.log.debug('generated v4 %s service %s', service.type, service.name);
-    });
-  });
+  // handle top level volumes and networks here
+  if (!_.isEmpty(app.config.volumes)) app.v4.addVolumes(app.config.volumes);
+  if (!_.isEmpty(app.config.networks)) app.v4.addNetworks(app.config.networks);
 };
