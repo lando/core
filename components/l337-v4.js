@@ -18,6 +18,7 @@ const getMountMatches = require('../utils/get-mount-matches');
 const hasInstructions = require('../utils/has-instructions');
 
 class L337ServiceV4 extends EventEmitter {
+  #app
   #data
 
   static debug = require('debug')('@lando/l337-service-v4');
@@ -37,7 +38,6 @@ class L337ServiceV4 extends EventEmitter {
 
   #init() {
     return {
-      compose: [],
       groups: {
         context: {
           description: 'A group for adding and copying sources to the image',
@@ -96,7 +96,7 @@ class L337ServiceV4 extends EventEmitter {
     tag = nanoid(),
     type = 'l337',
     user = undefined,
-  } = {}) {
+  } = {}, app, lando) {
     // instantiate ee immedately
     super();
 
@@ -122,6 +122,7 @@ class L337ServiceV4 extends EventEmitter {
     fs.mkdirSync(this.context, {recursive: true});
 
     // initialize our private data
+    this.#app = app;
     this.#data = merge(this.#init(), {groups}, {stages}, {states});
 
     // rework info based on whatever is passed in
@@ -216,7 +217,16 @@ class L337ServiceV4 extends EventEmitter {
 
   // just pushes the compose data directly into our thing
   addComposeData(data = {}) {
-    this.#data.compose.push(data);
+    // should we try to consolidate this
+    this.#app.add({
+      id: `${this.id}-${nanoid()}`,
+      info: this.info,
+      data: [data],
+    });
+
+    // update app with new stuff
+    this.#app.compose = require('../utils/dump-compose-data')(this.#app.composeData, this.#app._dir);
+    this.#app.v4.updateComposeCache();
     this.debug('%o added top level compose data %o', this.id, data);
   }
 
@@ -388,7 +398,7 @@ class L337ServiceV4 extends EventEmitter {
     }
 
     // add the data
-    this.#data.compose.push({services: {[this.id]: compose}});
+    this.addComposeData({services: {[this.id]: compose}});
   }
 
   addSteps(steps) {
@@ -506,6 +516,7 @@ class L337ServiceV4 extends EventEmitter {
       const success = this.buildkit ? await bengine.buildx(imagefile, context) : await bengine.build(imagefile, context); // eslint-disable-line max-len
       // augment the success info
       success.context = {imagefile, ...context};
+
       // add the final compose data with the updated image tag on success
       // @NOTE: ideally its sufficient for this to happen ONLY here but in v3 its not
       this.addComposeData({services: {[context.id]: {image: context.tag}}});
@@ -521,9 +532,18 @@ class L337ServiceV4 extends EventEmitter {
 
     // failure
     } catch (error) {
+      // augment error
       error.context = {imagefile, ...context};
+      error.logfile = path.join(context.context ?? os.tmpdir(), `error-${nanoid()}.log`);
       this.debug('image %o build failed with code %o error %o', context.id, error.code, error);
-      this.addComposeData({services: {[context.id]: {command: 'sleep infinity'}}});
+
+      // inject helpful failing stuff to compose
+      this.addComposeData({services: {[context.id]: {
+        command: require('../utils/get-v4-image-build-error-command')(error),
+        image: 'busybox',
+        user: 'root',
+        volumes: [`${error.logfile}:/tmp/error.log`],
+      }}});
 
       // set the build failure
       this.state = {IMAGE: 'BUILD FAILURE'};
@@ -612,14 +632,6 @@ class L337ServiceV4 extends EventEmitter {
     };
   }
 
-  generateOrchestorFiles() {
-    return {
-      id: this.id,
-      info: this.info,
-      data: this.#data.compose.map(element => merge({}, element)),
-    };
-  }
-
   getSteps(stage) {
     // if we have a stage then filter by that
     if (stage) return this.#data.steps.filter(step => step.stage === stage);
@@ -700,8 +712,11 @@ class L337ServiceV4 extends EventEmitter {
       this.addComposeData({services: {[this.id]: {
         build: merge({}, buildArgs, {dockerfile: path.basename(image), context: path.dirname(image)}),
       }}});
+
     // or the image one if its that one
-    } else this.addComposeData({services: {[this.id]: {image}}});
+    } else {
+      this.addComposeData({services: {[this.id]: {image}}});
+    }
 
     // log
     this.debug('%o set base image to %o with instructions %o', this.id, this.#data.image, this.#data.imageInstructions);

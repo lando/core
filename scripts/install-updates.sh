@@ -20,7 +20,7 @@ case $LANDO_LINUX_PACKAGE_MANAGER in
     microdnf update
     ;;
   pacman)
-    pacman -Syu
+    pacman -Syu --noconfirm
     ;;
   yum)
     yum -y update

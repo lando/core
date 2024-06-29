@@ -133,9 +133,21 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
-      // @TODO: add in cert tests
+      // -> push image inspect data into success
+
+      // @TODO: some kind of system to modify docker compose after image build so we can
+      //  -> use async/await
+      //  -> get image detail to reset teh command?
+      //  -> @shell-escape
+
       // @TODO: generate pem as well?
-      // @TODO: only run if we have a CA? fails when CA does not exist?
+      // @TODO: only run if we have a CA? fails when CA does not exist? gaurd and better event?
+      // @TODO: add in cert tests
+
+
+      // @TODO: /etc/lando/environment?
+      // lash should load the above as well?
+      // env file loading stuff only works for BASH_ENV or sourced directly? can we wrap CMD?
 
       /*
       # Should have the correct entries in /certs/cert.ext
@@ -150,10 +162,10 @@ module.exports = {
       lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.3 | grep -w localhost
       lando ssh -s placeholder -c "cat /certs/cert.ext" | grep placeholder.lando-lemp.lndo.site
       */
+
       // @TODO: make this configurable? allow different certs etc?
       // @TODO: add additional hostnames?
       // @TODO: allow for custom paths, multiple paths etc
-
       // @TODO: do we have better hostnames at this point?
 
       // @TODO: add debugging and improve logix/grouping of stuff
@@ -168,6 +180,7 @@ module.exports = {
       // @TODO: socat package?
       // @TODO: change lando literal to "lando product"
       // @TODO: separate out tests into specific features eg lando-v4-certs lando-v4-users
+      // @TODO: switch shell to bash?
 
       // @TODO: dynamic environment stuff? /etc/lando/environment?
         // @TODO: requires a command wrapper script?
@@ -195,7 +208,7 @@ module.exports = {
       };
 
       // get this
-      super(id, merge({}, {groups}, {states}, upstream));
+      super(id, merge({}, {groups}, {states}, upstream), app, lando);
 
       // meta
       this.isInteractive = lando.config.isInteractive;
@@ -263,7 +276,9 @@ module.exports = {
       this.addSteps({group: 'boot', instructions: `
         RUN mkdir -p /etc/lando
         RUN chmod 777 /etc/lando
+        ENV BASH_ENV /etc/lando/environment
         RUN /etc/lando/boot.sh
+        RUN rm /bin/sh && ln -sf /bin/bash /bin/sh
       `});
 
       // debug stuff

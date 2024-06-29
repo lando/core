@@ -5,14 +5,26 @@ proxy:
     - hostname: lando-certs-2.lndo.site
       port: 8080
 services:
-  # debian:
-  #   api: 4
-  #   image: debian:bookworm-slim
-  #   certs: true
-  # alpine:
-  #   api: 4
-  #   image: alpine:3.20
-  #   certs: true
+  alpine:
+    api: 4
+    image: alpine:3.20
+    command: env
+  centos:
+    api: 4
+    image: centos:7
+    command: sleep infinity
+  debian:
+    api: 4
+    image: debian:bookworm-slim
+    command: sleep infinity
+  fedora:
+    api: 4
+    image: fedora:40
+    command: sleep infinity
+  ol:
+    api: 4
+    image: oraclelinux:9-slim
+    command: sleep infinity
   nginx:
     api: 4
     image:

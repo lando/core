@@ -46,3 +46,6 @@ case $LANDO_LINUX_PACKAGE_MANAGER in
     update-ca-certificates
     ;;
 esac
+
+touch /etc/lando/environment
+echo "export LANDO_THING=BOB" >> /etc/lando/environment
