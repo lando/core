@@ -11,6 +11,10 @@ module.exports = async (app, lando) => {
 
   const containers = await lando.engine.list({project: app.project, all: true})
     .filter(container => buildV4Services.includes(container.service))
+    .filter(container => {
+      const info = app.info.find(service => service.service === container.service);
+      return info?.state?.IMAGE === 'BUILT';
+    })
     .filter(container => !container.running);
 
   if (containers.length > 0) {

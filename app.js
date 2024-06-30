@@ -187,6 +187,7 @@ module.exports = async (app, lando) => {
 
   // remove compose cache
   app.events.on('post-uninstall', async () => await require('./hooks/app-purge-compose-cache')(app, lando));
+  app.events.on('post-destroy', async () => await require('./hooks/app-purge-compose-cache')(app, lando));
 
   // remove tooling cache
   app.events.on('post-uninstall', async () => await require('./hooks/app-purge-tooling-cache')(app, lando));

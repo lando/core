@@ -25,39 +25,47 @@ module.exports = lando => {
       // Try to get our app
       const app = lando.getApp(options._app.root);
 
-      // run any setup if we need to but without common plugins or build engine
-      const sopts = lando?.config?.setup;
-      sopts.buildEngine = false;
-      sopts.skipCommonPlugins = true;
-      sopts.yes = true;
-      const setupTasks = await lando.getSetupStatus(sopts);
-
       // Rebuild the app
       if (app) {
-        // run a limited setup if needed
-        if (setupTasks.length > 0) await lando.setup(sopts);
-        // If user has given us options then set those
-        if (!_.isEmpty(options.service)) app.opts = _.merge({}, app.opts, {services: options.service});
-        // rebuild hero
         console.log(lando.cli.makeArt('appRebuild', {name: app.name, phase: 'pre'}));
-        // rebuild
-        await app.rebuild();
-        // determine legacy settings
-        const legacyScanner = _.get(lando, 'config.scanner', true) === 'legacy';
-        // get scanner stuff
-        const type = !_.isEmpty(app.messages) ? 'report' : 'post';
-        const phase = legacyScanner ? `${type}_legacy` : type;
-        const scans = _.find(app.checks, {type: 'url-scan-tasks'});
 
-        // rebuold tables
-        console.log(lando.cli.makeArt('appRebuild', {name: app.name, phase, messages: app.messages}));
-        console.log(lando.cli.formatData(utils.startTable(app, {legacyScanner}), {format: 'table'}, {border: false}));
+        // run any setup if we need to but without common plugins or build engine
+        const sopts = lando?.config?.setup;
+        sopts.buildEngine = false;
+        sopts.skipCommonPlugins = true;
+        sopts.yes = true;
+        const setupTasks = await lando.getSetupStatus(sopts);
 
-        // if we are not in legacy scanner mode then run the scans
-        if (!legacyScanner && scans) await scans.test(...scans.args);
+        try {
+          // run a limited setup if needed
+          if (setupTasks.length > 0) await lando.setup(sopts);
+          // If user has given us options then set those
+          if (!_.isEmpty(options.service)) app.opts = _.merge({}, app.opts, {services: options.service});
+          // rebuild hero
+          await app.rebuild();
+          // determine legacy settings
+          const legacyScanner = _.get(lando, 'config.scanner', true) === 'legacy';
+          // get scanner stuff
+          const type = !_.isEmpty(app.messages) ? 'report' : 'post';
+          const phase = legacyScanner ? `${type}_legacy` : type;
+          const scans = _.find(app.checks, {type: 'url-scan-tasks'});
 
-        // aesthetics, consistency
-        console.log('');
+          // rebuold tables
+          console.log(lando.cli.makeArt('appRebuild', {name: app.name, phase, messages: app.messages}));
+          console.log(lando.cli.formatData(utils.startTable(app, {legacyScanner}), {format: 'table'}, {border: false}));
+
+          // if we are not in legacy scanner mode then run the scans
+          if (!legacyScanner && scans) await scans.test(...scans.args);
+        // print error message and reject
+        } catch (error) {
+          app.log.error(error.message, error);
+          console.log(lando.cli.makeArt('appStart', {phase: 'error'}));
+          return lando.Promise.reject(error);
+
+        // plenty of gapp
+        } finally {
+          console.log(' ');
+        }
       }
     },
   };
