@@ -53,10 +53,13 @@ class L337ServiceV4 extends EventEmitter {
       image: undefined,
       imageInstructions: undefined,
       imageFileContext: undefined,
-      sources: [],
-      states: {
-        IMAGE: 'UNBUILT',
+      info: {
+        api: 4,
+        state: {
+          IMAGE: 'UNBUILT',
+        },
       },
+      sources: [],
       stages: {
         default: 'image',
         image: 'Instructions to help generate an image',
@@ -65,14 +68,19 @@ class L337ServiceV4 extends EventEmitter {
     };
   }
 
-  set state(states) {
-    this.#data.states = merge(this.#data.states, states);
-    this.info.state = this.#data.states;
-    this.emit('state', this.#data.states);
+  set info(data) {
+    this.#data.info = merge(this.#data.info, data);
+    // if we have app.info then merge into that
+    if (this.#app.info.find(service => service.service === this.id)) {
+      merge(this.#app.info.find(service => service.service === this.id) ?? {}, data);
+    }
+    this.emit('state', this.#data.info);
+    this.#app.v4.updateComposeCache();
+    this.debug('updated app info to %o', this.#data.info);
   }
 
-  get state() {
-    return this.#data.states;
+  get info() {
+    return this.#data.info;
   }
 
   get _data() {
@@ -123,16 +131,10 @@ class L337ServiceV4 extends EventEmitter {
 
     // initialize our private data
     this.#app = app;
-    this.#data = merge(this.#init(), {groups}, {stages}, {states});
+    this.#data = merge(this.#init(), {groups}, {stages});
 
     // rework info based on whatever is passed in
-    this.info = merge({}, {
-      api: 4,
-      primary,
-      service: id,
-      state: this.#data.states,
-      type,
-    }, info);
+    this.info = merge({}, {state: states}, {primary, service: id, type}, info);
 
     // do some special undocumented things to "ports"
     const {ports, http, https} = require('../utils/parse-v4-ports')(config.ports);
@@ -149,7 +151,7 @@ class L337ServiceV4 extends EventEmitter {
     }}});
 
     // set user into info
-    this.info.user = user ?? config.user ?? 'root';
+    this.info = {user: user ?? config.user ?? 'root'};
 
     // if we do not have an appmount yet and we have volumes information then try to infer it
     if (this.config && this.config.volumes && this.config.volumes.length > 0) {
@@ -158,7 +160,7 @@ class L337ServiceV4 extends EventEmitter {
       // if we have one then set it
       if (appMounts.length > 0) {
         this.appMount = appMounts.pop();
-        this.info.appMount = this.appMount;
+        this.info = {appMount: this.appMount};
       }
       // debug
       this.debug('%o autoset appmount to %o, did not select %o', this.id, this.appMount, appMounts);
@@ -520,12 +522,8 @@ class L337ServiceV4 extends EventEmitter {
       // add the final compose data with the updated image tag on success
       // @NOTE: ideally its sufficient for this to happen ONLY here but in v3 its not
       this.addComposeData({services: {[context.id]: {image: context.tag}}});
-
-      // state
-      this.state = {IMAGE: 'BUILT'};
       // set the image stuff into the info
-      this.info.image = imagefile;
-      this.info.tag = context.tag;
+      this.info = {image: imagefile, state: {IMAGE: 'BUILT'}, tag: context.tag};
 
       this.debug('image %o built successfully from %o', context.id, imagefile);
       return success;
@@ -545,11 +543,8 @@ class L337ServiceV4 extends EventEmitter {
         volumes: [`${error.logfile}:/tmp/error.log`],
       }}});
 
-      // set the build failure
-      this.state = {IMAGE: 'BUILD FAILURE'};
-      // and remove a bunch of stuff
-      this.info.image = undefined;
-      this.info.tag = undefined;
+      // set the image stuff into the info
+      this.info = {error: error.short, image: undefined, state: {IMAGE: 'BUILD FAILURE'}, tag: undefined};
       this.tag = undefined;
 
       // then throw

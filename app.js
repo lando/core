@@ -171,7 +171,7 @@ module.exports = async (app, lando) => {
   app.events.on('post-start', async () => await require('./hooks/app-check-docker-compat')(app, lando));
 
   // throw service not start errors
-  app.events.on('post-start', 9999, async () => await require('./hooks/app-check-v4-service-running')(app, lando));
+  app.events.on('post-start', 1, async () => await require('./hooks/app-check-v4-service-running')(app, lando));
 
   // Reset app info on a stop, this helps prevent wrong/duplicate information being reported on a restart
   app.events.on('post-stop', async () => require('./utils/get-app-info-defaults')(app));

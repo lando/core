@@ -16,6 +16,8 @@ module.exports = async (app, lando) => {
   if (containers.length > 0) {
     for (const container of containers) {
       const err = new Error(`Service ${container.service} not running: ${container.status}`);
+      const info = app.info.find(service => service.service === container.service);
+      info.error = err.message;
       app.addMessage(require('../messages/service-not-running-error')(container.service), err);
     }
   }
