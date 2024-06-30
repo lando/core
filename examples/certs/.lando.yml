@@ -8,7 +8,7 @@ services:
   alpine:
     api: 4
     image: alpine:3.20
-    command: env
+    command: sleep infinity
   centos:
     api: 4
     image: centos:7

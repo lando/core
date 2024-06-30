@@ -259,8 +259,8 @@ module.exports = {
         'localhost',
       ];
 
-      // @NOTE: we use an event here because we generateCert is async and we cannot do it in the constructor
-      app.events.on('pre-services-generate', async services => {
+      // @TODO: this can now be moved
+      app.events.on('pre-start', 90, async services => {
         const {certPath, keyPath} = await lando.generateCert(`${this.id}.${this.project}`, {domains: this.hostnames});
         this.addServiceData({
           volumes: [
@@ -568,7 +568,7 @@ module.exports = {
 
       // set infp
       this.appMount = config.destination;
-      this.info.appMount = this.appMount;
+      this.info = {appMount: this.appMount};
     }
   },
 };
