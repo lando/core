@@ -133,6 +133,7 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
+      // -> fix app build stuff and sync with new image build stuff
       // -> push image inspect data into success
 
       // @TODO: some kind of system to modify docker compose after image build so we can
@@ -426,7 +427,7 @@ module.exports = {
 
       try {
         // set state
-        this.state = {APP: 'BUILDING'};
+        this.info = {state: {APP: 'BUILDING'}};
 
         // stuff
         const bs = `/etc/lando/build/app.sh`;
@@ -454,7 +455,7 @@ module.exports = {
         // // augment the success info
         success.context = {script: read(buildScriptPath)};
         // state
-        this.state = {APP: 'BUILT'};
+        this.info = {state: {APP: 'BUILT'}};
         // log
         this.debug('app %o built successfully from %o', `${this.project}-${this.id}`, buildScriptPath);
         return success;
@@ -466,7 +467,7 @@ module.exports = {
         error.context = {script: read(buildScriptPath), path: buildScriptPath};
         this.debug('app %o build failed with code %o error %o', `${this.project}-${this.id}`, error.code, error);
         // set the build failure
-        this.state = {APP: 'BUILD FAILURE'};
+        this.info = {state: {APP: 'BUILD FAILURE'}};
         // then throw
         throw error;
       }
