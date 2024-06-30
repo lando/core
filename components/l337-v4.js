@@ -64,11 +64,17 @@ class L337ServiceV4 extends EventEmitter {
         default: 'image',
         image: 'Instructions to help generate an image',
       },
+      states: {
+        IMAGE: 'UNBUILT',
+      },
       steps: [],
     };
   }
 
   set info(data) {
+    // reset state info
+    if (data === undefined) data = {state: this.#data.states, tag: undefined};
+    // merge
     this.#data.info = merge(this.#data.info, data);
     // if we have app.info then merge into that
     if (this.#app.info.find(service => service.service === this.id)) {
@@ -131,7 +137,7 @@ class L337ServiceV4 extends EventEmitter {
 
     // initialize our private data
     this.#app = app;
-    this.#data = merge(this.#init(), {groups}, {stages});
+    this.#data = merge(this.#init(), {groups}, {stages}, {states});
 
     // rework info based on whatever is passed in
     this.info = merge({}, {state: states}, {primary, service: id, type}, info);
@@ -512,19 +518,24 @@ class L337ServiceV4 extends EventEmitter {
     const {imagefile, ...context} = this.generateBuildContext();
 
     try {
-      // set state
-      this.state = {IMAGE: 'BUILDING'};
-      // run with the appropriate builder
-      const success = this.buildkit ? await bengine.buildx(imagefile, context) : await bengine.build(imagefile, context); // eslint-disable-line max-len
-      // augment the success info
-      success.context = {imagefile, ...context};
+      const success = {imagefile, ...context};
+
+      // only build if image is not already built
+      if (this?.info?.state?.IMAGE !== 'BUILT') {
+        // set state
+        this.info = {state: {IMAGE: 'BUILDING'}};
+        // run with the appropriate builder
+        const result = this.buildkit
+          ? await bengine.buildx(imagefile, context) : await bengine.build(imagefile, context);
+        // augment the success info
+        Object.assign(success, result);
+      }
 
       // add the final compose data with the updated image tag on success
       // @NOTE: ideally its sufficient for this to happen ONLY here but in v3 its not
       this.addComposeData({services: {[context.id]: {image: context.tag}}});
       // set the image stuff into the info
       this.info = {image: imagefile, state: {IMAGE: 'BUILT'}, tag: context.tag};
-
       this.debug('image %o built successfully from %o', context.id, imagefile);
       return success;
 
