@@ -9,10 +9,10 @@ services:
     api: 4
     image: alpine:3.20
     command: sleep infinity
-  centos:
-    api: 4
-    image: centos:7
-    command: sleep infinity
+  # centos:
+  #   api: 4
+  #   image: centos:7
+  #   command: sleep infinity
   debian:
     api: 4
     image: debian:bookworm-slim
@@ -20,7 +20,9 @@ services:
   fedora:
     api: 4
     image: fedora:40
-    command: sleep infinity
+    command:
+      - sleep
+      - infinity
   ol:
     api: 4
     image: oraclelinux:9-slim

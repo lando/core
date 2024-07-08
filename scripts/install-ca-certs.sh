@@ -1,6 +1,9 @@
 #!/bin/lash
 set -eo pipefail
 
+# add envfile
+touch /etc/lando/env.d/install-ca-certs.sh
+
 # make sure we have needed commandz
 if [ ! -x "$(command -v update-ca-certificates)" ]; then
   case $LANDO_LINUX_PACKAGE_MANAGER in
@@ -39,13 +42,12 @@ fi
 case $LANDO_LINUX_PACKAGE_MANAGER in
   dnf|microdnf|yum)
     cp -r /etc/lando/ca-certificates/.  /etc/pki/ca-trust/source/anchors/
+    echo "export LANDO_CERTS_DIR=/etc/pki/ca-trust/source/anchors" >> /etc/lando/env.d/install-ca-certs.sh
     update-ca-trust
     ;;
   *)
     cp -r /etc/lando/ca-certificates/.  /usr/local/share/ca-certificates/
+    echo "export LANDO_CERTS_DIR=/usr/local/share/ca-certificates" >> /etc/lando/env.d/install-ca-certs.sh
     update-ca-certificates
     ;;
 esac
-
-touch /etc/lando/environment
-echo "export LANDO_THING=BOB" >> /etc/lando/environment

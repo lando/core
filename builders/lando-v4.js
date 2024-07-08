@@ -8,6 +8,8 @@ const uniq = require('lodash/uniq');
 const read = require('../utils/read-file');
 const write = require('../utils/write-file');
 
+const sargv = require('string-argv').parseArgsStringToArgv;
+
 const states = {APP: 'UNBUILT'};
 const groups = {
   'boot': {
@@ -120,21 +122,22 @@ module.exports = {
 
     #setupBootScripts() {
       this.addContext(`${path.join(__dirname, '..', 'scripts', 'lash')}:/bin/lash`);
-      this.addLashRC(path.join(__dirname, '..', 'scripts', 'utils.sh'), {priority: '000'});
-      this.addLashRC(path.join(__dirname, '..', 'scripts', 'env.sh'), {priority: '001'});
       this.addLSF(path.join(__dirname, '..', 'scripts', 'boot.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'run-hooks.sh'));
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'start.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'landorc'));
-      this.addLSF(path.join(__dirname, '..', 'scripts', 'utils.sh'), 'lando-utils.sh');
-      this.addLSF(path.join(__dirname, '..', 'scripts', 'env.sh'), 'lando-env.sh');
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'utils.sh'));
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'environment.sh'), 'environment');
       this.addLSF(path.join(__dirname, '..', 'scripts', 'add-user.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'install-updates.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'install-bash.sh'));
     }
 
     constructor(id, options, app, lando) {
-      // -> fix app build stuff and sync with new image build stuff
       // -> push image inspect data into success
+
+      // full fledged /etc/lando/environment.sh that sources /etc/lando/env.d?
+      // symlink /etc/lando/environment.sh -> /etc/profile.d?, consolidate these with env.sh?
 
       // @TODO: some kind of system to modify docker compose after image build so we can
       //  -> use async/await
@@ -145,10 +148,10 @@ module.exports = {
       // @TODO: only run if we have a CA? fails when CA does not exist? gaurd and better event?
       // @TODO: add in cert tests
 
-
       // @TODO: /etc/lando/environment?
       // lash should load the above as well?
       // env file loading stuff only works for BASH_ENV or sourced directly? can we wrap CMD?
+      // -> fix app build stuff and sync with new image build stuff
 
       /*
       # Should have the correct entries in /certs/cert.ext
@@ -275,11 +278,10 @@ module.exports = {
       // @TODO: consolidate all of this elsewhere so constructor isnt SFB?
       this.#setupBootScripts();
       this.addSteps({group: 'boot', instructions: `
-        RUN mkdir -p /etc/lando
+        RUN mkdir -p /etc/lando /etc/lando/env.d
         RUN chmod 777 /etc/lando
-        ENV BASH_ENV /etc/lando/environment
+        RUN ln -sf /etc/lando/environment /etc/profile.d/lando.sh
         RUN /etc/lando/boot.sh
-        RUN rm /bin/sh && ln -sf /bin/bash /bin/sh
       `});
 
       // debug stuff
@@ -471,6 +473,18 @@ module.exports = {
         // then throw
         throw error;
       }
+    }
+
+    async buildImage() {
+      // build the image
+      const image = await super.buildImage();
+      // determine the command and normalize it for wrapper
+      let command = this.command ?? image?.info?.Config?.Cmd ?? image?.info?.ContainerConfig?.Cmd;
+      // @TODO: fix letter?
+      if (typeof command === 'string') command = sargv(command);
+
+      this.addServiceData({command: ['/etc/lando/start.sh', ...command]});
+      return image;
     }
 
     setNPMRC(data) {

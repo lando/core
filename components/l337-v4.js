@@ -531,6 +531,9 @@ class L337ServiceV4 extends EventEmitter {
         Object.assign(success, result);
       }
 
+      // get the inspect data so we can do other things
+      success.info = await bengine.getImage(context.tag).inspect();
+
       // add the final compose data with the updated image tag on success
       // @NOTE: ideally its sufficient for this to happen ONLY here but in v3 its not
       this.addComposeData({services: {[context.id]: {image: context.tag}}});
@@ -592,7 +595,8 @@ class L337ServiceV4 extends EventEmitter {
 
       // attempt to normalize newling usage mostly for aesthetic considerations
       steps[group] = steps[group]
-        .map(instructions => instructions.split('\n').filter(instruction => instruction && instruction !== ''))
+        .map(instructions => instructions.split('\n')
+        .filter(instruction => instruction && instruction !== ''))
         .flat(Number.POSITIVE_INFINITY);
 
       // prefix user and comment data and some helpful envvars
@@ -603,7 +607,7 @@ class L337ServiceV4 extends EventEmitter {
       // and add a newline for readability
       steps[group].push('');
       // and then finally put it all together
-      steps[group] = steps[group].join('\n');
+      steps[group] = steps[group].map(line => line.trimStart()).join('\n');
     }
 
     // we should have raw instructions data now

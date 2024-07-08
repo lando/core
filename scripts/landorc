@@ -1,11 +1,13 @@
 #!/bin/bash
 set -eo pipefail
 
+source /etc/lando/environment
+
 # Execute sh scripts in /etc/lando/boot.d
 for script in /etc/lando/lash.d/*.sh; do
   if [ -e "$script" ]; then
     if [ -r "$script" ] && [ -f "$script" ]; then
-      . "$script"
+      source "$script"
     fi
   fi
 done

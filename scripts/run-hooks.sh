@@ -2,7 +2,7 @@
 set -eo pipefail
 
 # this is pre-lash so we need to source directly
-. /etc/lando/lando-utils.sh
+. /etc/lando/utils.sh
 
 # get the hook
 HOOK="${1:-boot}"

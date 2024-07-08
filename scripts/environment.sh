@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-. /etc/lando/lando-utils.sh
+. /etc/lando/utils.sh
 
 # Path to the os-release file
 OS_RELEASE_FILE="/etc/os-release"
@@ -49,3 +49,13 @@ fi
 debug LANDO_LINUX_DISTRO="$LANDO_LINUX_DISTRO"
 debug LANDO_LINUX_DISTRO_LIKE="$LANDO_LINUX_DISTRO_LIKE"
 debug LANDO_LINUX_PACKAGE_MANAGER="$LANDO_LINUX_PACKAGE_MANAGER"
+
+# Execute sh scripts in /etc/lando/env.d
+for script in /etc/lando/env.d/*.sh; do
+  if [ -e "$script" ]; then
+    if [ -r "$script" ] && [ -f "$script" ]; then
+      debug "Sourcing $script"
+      . "$script"
+    fi
+  fi
+done
