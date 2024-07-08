@@ -4,7 +4,7 @@
 const _ = require('lodash');
 
 // Other things
-const bashme = ['/bin/sh', '-c', 'if ! type bash > /dev/null; then sh; else bash; fi'];
+const bashme = ['/bin/sh', '-c', 'if ! type bash > /dev/null; then sh; else LANDO_DEBUG= DEBUG= bash --login; fi'];
 const task = {
   command: 'ssh',
   describe: 'Drops into a shell on a service, runs commands',

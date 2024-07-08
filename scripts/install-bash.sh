@@ -2,8 +2,7 @@
 set -e
 
 # this is pre-lash so we need to source directly
-. /etc/lando/lando-utils.sh
-. /etc/lando/lando-env.sh
+. /etc/lando/environment
 
 # if bash exists then we can skip
 if [ -x "$(command -v bash)" ]; then

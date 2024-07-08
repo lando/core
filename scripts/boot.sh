@@ -1,10 +1,8 @@
 #!/bin/sh
 set -e
 
-true
-
 # this is pre-lash so we need to source directly
-. /etc/lando/lando-utils.sh
+. /etc/lando/utils.sh
 
 # run updates
 /etc/lando/install-updates.sh

@@ -3,8 +3,7 @@
 set -e
 
 # this is pre-lash so we need to source directly
-. /etc/lando/lando-utils.sh
-. /etc/lando/lando-env.sh
+. /etc/lando/environment
 
 case $LANDO_LINUX_PACKAGE_MANAGER in
   apk)
