@@ -12,7 +12,7 @@ if [ ! -x "$(command -v bash)" ]; then
   /etc/lando/install-bash.sh
 fi
 
-# Run /etc/lando/boot.d scripts
-/etc/lando/run-hooks.sh boot
+# Run /etc/lando/build/image/boot.d scripts
+/etc/lando/run-hooks.sh image boot
 
 log "boot completed"

@@ -29,6 +29,7 @@ services:
     command: sleep infinity
   nginx:
     api: 4
+    certs: /certs/cert.crt
     image:
       imagefile: nginxinc/nginx-unprivileged:1.26.1
       context:

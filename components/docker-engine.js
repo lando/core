@@ -525,11 +525,11 @@ class DockerEngine extends Dockerode {
         // handle resolve/reject
         runner.on('done', data => {
           closer(stream, isRaw);
-          resolve(makeSuccess(merge({}, data, {command: 'dockerode run', all: allo, stdout: stdouto, stderr: stderro}, {args: command})));
+          resolve(makeSuccess(merge({}, data, {command: copts.Entrypoint, all: allo, stdout: stdouto, stderr: stderro}, {args: command})));
         });
         runner.on('error', error => {
           closer(stream, isRaw);
-          reject(makeError(merge({}, args, {command: 'dockerode run', all: allo, stdout: stdouto, stderr: stderro}, {args: command}, {error})));
+          reject(makeError(merge({}, args, {command: copts.Entrypoint, all: allo, stdout: stdouto, stderr: stderro}, {args: command}, {error})));
         });
       });
     };
@@ -538,7 +538,7 @@ class DockerEngine extends Dockerode {
     const callbackHandler = (error, data) => {
       // emit error first
       if (error) runner.emit('error', error);
-      if (data.StatusCode !== 0) runner.emit('error', data);
+      else if (data.StatusCode !== 0) runner.emit('error', data);
       // fire done no matter what?
       runner.emit('done', data);
       runner.emit('finished', data);
@@ -549,7 +549,6 @@ class DockerEngine extends Dockerode {
     if (!command) throw new Error('you must pass a command into engine.run');
     // arrayify commands that are strings
     if (typeof command === 'string') command = stringArgv(command);
-
     // some good default createOpts
     const defaultCreateOptions = {
       AttachStdin: interactive,
@@ -568,7 +567,7 @@ class DockerEngine extends Dockerode {
     // call the parent with clever stuff
     const runner = super.run(image, command, stream, copts, {}, callbackHandler);
     // log
-    this.debug('running command %o on image %o with create opts %o', command, image, copts);
+    this.debug('running command %o on image %o with create opts %o', [copts.Entrypoint, command].flat(), image, copts);
     // make this a hybrid async func and return
     return mergePromise(runner, awaitHandler);
   }

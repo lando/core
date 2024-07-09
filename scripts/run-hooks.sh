@@ -4,18 +4,18 @@ set -eo pipefail
 # this is pre-lash so we need to source directly
 . /etc/lando/utils.sh
 
-# get the hook
-HOOK="${1:-boot}"
+# get the stage and hook
+STAGE="${1:-image}"
+HOOK="${2:-boot}"
 
-# Run $1 hooks scripts
-if [ -d "/etc/lando/${HOOK}.d" ]; then
-  debug "running /etc/lando/${HOOK}.d scripts"
-
-  # Execute sh scripts in /etc/lando/boot.d
-  for script in /etc/lando/${HOOK}.d/*.sh; do
+# run hook scripts
+if [ -d "/etc/lando/build/${STAGE}/${HOOK}.d" ]; then
+  debug "running /etc/lando/build/${STAGE}/${HOOK}.d scripts"
+  for script in /etc/lando/build/${STAGE}/${HOOK}.d/*.sh; do
     if [ -e "$script" ]; then
       if [ -r "$script" ] && [ -f "$script" ]; then
         debug "running hook $script"
+        chmod +x "$script" >/dev/null
         "$script"
       else
         debug "skipping hook $script, not readable or not a file"
@@ -25,6 +25,5 @@ if [ -d "/etc/lando/${HOOK}.d" ]; then
 
   # Unset the variable after use
   unset script
+  debug "completed $STAGE $HOOK hooks"
 fi
-
-log "completed $HOOK hooks"

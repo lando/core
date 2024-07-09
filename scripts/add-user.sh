@@ -46,9 +46,10 @@ if [ -z "${LANDO_USER+x}" ]; then
   abort "You must provide at least a username!"
 fi
 
-# do not allow root user
-if [ "${LANDO_USER}" == 'root' ] || [ "${LANDO_UID}" == '1' ]; then
-  abort "You cannot run as root!"
+# special dispensation
+if [ "${LANDO_USER}" == 'root' ] || [ "${LANDO_UID}" == '0' ]; then
+  debug "Running as root, no need for creation or map!"
+  exit 0
 fi
 
 # Set min and max UID/GID values
