@@ -5,7 +5,6 @@ const isObject = require('lodash/isPlainObject');
 const merge = require('lodash/merge');
 const path = require('path');
 const uniq = require('lodash/uniq');
-const read = require('../utils/read-file');
 const write = require('../utils/write-file');
 
 const sargv = require('string-argv').parseArgsStringToArgv;
@@ -52,6 +51,19 @@ const parseUrls = (urls = []) => {
   .filter(hostname => hostname !== undefined);
 };
 
+// get hostnames
+const getHostnames = ({app, id, project}) => {
+  const routes = app?.config?.proxy?.[id] ?? [];
+  const urls = routes
+    .map(route => route?.hostname ?? route?.host ?? route)
+    .map(route => `http://${route}`);
+  return [
+    ...parseUrls(urls),
+    `${id}.${project}.internal`,
+    id,
+  ];
+};
+
 /*
  * The lowest level lando service, this is where a lot of the deep magic lives
  */
@@ -66,14 +78,22 @@ module.exports = {
         destination: '/app',
         exclude: [],
       },
-      'environment': {},
       'certs': true,
+      'environment': {},
+      'hostnames': [],
       'packages': {
-        'ca-certs': true,
+        'git': true,
+        'proxy': true,
+        'ssh-agent': true,
         'sudo': true,
-        'useradd': true,
       },
       'ports': [],
+      'security': {
+        'ca': [],
+        'certificate-authority': [],
+        'cas': [],
+        'certificate-authorities': [],
+      },
     },
   },
   router: () => ({}),
@@ -88,39 +108,41 @@ module.exports = {
       binds: [],
     }
 
-    #appBuildOpts = {
+    #run = {
       environment: [],
+      labels: {},
       mounts: [],
     }
 
     #installers = {
-      'ca-certs': {
-        type: 'hook',
-        script: path.join(__dirname, '..', 'scripts', 'install-ca-certs.sh'),
-        group: 'boot',
-      },
-      'sudo': {
-        type: 'hook',
-        script: path.join(__dirname, '..', 'scripts', 'install-sudo.sh'),
-        group: 'boot',
-        instructions: {
-          'setup-user-1-after': (data, {user}) => `
-            RUN touch /etc/sudoers
-            RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-            RUN getent group sudo > /dev/null || groupadd sudo
-            RUN usermod -aG sudo ${user.name}
-          `,
-        },
-      },
-      'useradd': {
-        type: 'hook',
-        script: path.join(__dirname, '..', 'scripts', 'install-useradd.sh'),
-        group: 'boot',
-        priority: 10,
-      },
+      'git': require('../packages/git/git'),
+      'proxy': require('../packages/proxy/proxy'),
+      'sudo': require('../packages/sudo/sudo'),
+
+      // @TODO: this is a temp implementation until we have an ssh-agent container
+      'ssh-agent': require('../packages/ssh-agent/ssh-agent'),
     };
 
-    #setupBootScripts() {
+    #addRunEnvironment(data) {
+      // if data is an object we need to put into array format
+      if (isObject(data)) data = Object.entries(data).map(([key, value]) => `${key}=${value}`);
+      // if data is an array then lets concat and uniq to #env
+      if (Array.isArray(data)) this.#run.environment = uniq([...this.#run.environment, ...data]);
+    }
+
+    #addRunLabels(data = {}) {
+      // if data is an array we need to put into object format
+      if (Array.isArray(data)) data = Object.fromEntries(data).map(datum => datum.split('='));
+      // if data is an object then we can merge to #labels
+      if (isObject(data)) this.#run.labels = merge(this.#run.labels, data);
+    }
+
+    #addRunVolumes(data = []) {
+      // if data is an array then lets concat and uniq to #mounts
+      if (Array.isArray(data)) this.#run.mounts = uniq([...this.#run.mounts, ...data]);
+    }
+
+    #setupBoot() {
       this.addContext(`${path.join(__dirname, '..', 'scripts', 'lash')}:/bin/lash`);
       this.addLSF(path.join(__dirname, '..', 'scripts', 'boot.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'run-hooks.sh'));
@@ -128,30 +150,58 @@ module.exports = {
       this.addLSF(path.join(__dirname, '..', 'scripts', 'landorc'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'utils.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'environment.sh'), 'environment');
-      this.addLSF(path.join(__dirname, '..', 'scripts', 'add-user.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'install-updates.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'install-bash.sh'));
+      this.addSteps({group: 'boot', instructions: `
+        RUN mkdir -p /etc/lando /etc/lando/env.d /etc/lando/build/image
+        RUN chmod 777 /etc/lando
+        RUN ln -sf /etc/lando/environment /etc/profile.d/lando.sh
+        RUN /etc/lando/boot.sh
+        SHELL ["/bin/bash", "-c"]
+      `});
+    }
+
+    #setupHooks() {
+      for (const hook of Object.keys(this._data.groups).filter(group => parseInt(group.weight) <= 100)) {
+        this.addSteps({group: hook, instructions: `
+          RUN mkdir -p /etc/lando/build/image/${hook}.d
+          RUN /etc/lando/run-hooks.sh image ${hook}
+        `});
+      }
+    }
+
+    #setupSecurity(security) {
+      // right now this is mostly just CA setup, lets munge it all together and normalize and whatever
+      const cas = [security.ca, security.cas, security['certificate-authority'], security['certificate-authorities']]
+        .flat(Number.POSITIVE_INFINITY)
+        .filter(cert => fs.existsSync(cert))
+        .map(cert => path.isAbsolute(cert) ? cert : path.resolve(this.appRoot, cert));
+
+      // add ca-cert install hook if we have some to add
+      if (cas.length > 0) {
+        this.addHookFile(path.join(__dirname, '..', 'scripts', 'install-ca-certs.sh'), {hook: 'boot'});
+      }
+
+      // inject them
+      for (const ca of cas) this.addLSF(ca, `ca-certificates/${path.basename(ca)}`);
     }
 
     constructor(id, options, app, lando) {
-      // -> push image inspect data into success
+      // @TODO: hostname stuff?
+        // add hostnames?
+        // better wrapper stuff around proxy?
 
-      // full fledged /etc/lando/environment.sh that sources /etc/lando/env.d?
-      // symlink /etc/lando/environment.sh -> /etc/profile.d?, consolidate these with env.sh?
+        // @TODO: add additional hostnames?
+        // @TODO: do we have better hostnames at this point?
 
-      // @TODO: some kind of system to modify docker compose after image build so we can
-      //  -> use async/await
-      //  -> get image detail to reset teh command?
-      //  -> @shell-escape
-
-      // @TODO: generate pem as well?
-      // @TODO: only run if we have a CA? fails when CA does not exist? gaurd and better event?
+      // @TODO: better CA/cert envvars?
       // @TODO: add in cert tests
 
-      // @TODO: /etc/lando/environment?
-      // lash should load the above as well?
-      // env file loading stuff only works for BASH_ENV or sourced directly? can we wrap CMD?
-      // -> fix app build stuff and sync with new image build stuff
+      // @TODO: add debugging and improve logix/grouping of stuff
+      // @TODO: consolidate hostname/urls/etc?
+      // @TODO: overrides for run and compose?
+      // @TODO: other good lando envvars/labels/logs would be good to put in the ones from v3 even if
+      // we do have appenv and applabel on lando.config?
 
       /*
       # Should have the correct entries in /certs/cert.ext
@@ -167,28 +217,11 @@ module.exports = {
       lando ssh -s placeholder -c "cat /certs/cert.ext" | grep placeholder.lando-lemp.lndo.site
       */
 
-      // @TODO: make this configurable? allow different certs etc?
-      // @TODO: add additional hostnames?
-      // @TODO: allow for custom paths, multiple paths etc
-      // @TODO: do we have better hostnames at this point?
-
-      // @TODO: add debugging and improve logix/grouping of stuff
-      // @TODO: reconsider root disallow?
-
-      // @TODO: consolidate hostname/urls/etc?
-      // @TODO: move createuser to a special thing since its not a package?
-      // @TODO: overrides?
-
       // @TODO: better appmount logix?
       // @TODO: allow additonal users to be installed in config.users?
-      // @TODO: socat package?
       // @TODO: change lando literal to "lando product"
       // @TODO: separate out tests into specific features eg lando-v4-certs lando-v4-users
-      // @TODO: switch shell to bash?
-
-      // @TODO: dynamic environment stuff? /etc/lando/environment?
-        // @TODO: requires a command wrapper script?
-        // @TODO: added to lashrc?
+      // @TODO: debug/lando_debug should be set with env?
 
       // get stuff from config
       const {caCert, caDomain, gid, uid, username} = lando.config;
@@ -214,23 +247,50 @@ module.exports = {
       // get this
       super(id, merge({}, {groups}, {states}, upstream), app, lando);
 
-      // meta
+      // more this
+      this.canHealthcheck = true;
+      this.certs = config.certs;
+      this.command = config.command;
+      this.generateCert = lando.generateCert.bind(lando);
+      this.healthcheck = config.healthcheck ?? false;
+      this.hostnames = uniq([...getHostnames({app, ...this}), ...config.hostnames]);
       this.isInteractive = lando.config.isInteractive;
+      this.packages = config.packages;
       this.project = app.project;
       this.router = options.router;
-
-      // command
-      this.command = config.command;
-
-      // healthcheck stuff
-      this.canHealthcheck = true;
-      this.healthcheck = config.healthcheck ?? false;
-
-      // userstuff
+      this.security = config.security;
+      this.security.cas.push(caCert, path.join(path.dirname(caCert), `${caDomain}.pem`));
       this.user = user;
+
+      // computed this
       this.homevol = `${this.project}-${this.user.name}-home`;
       this.datavol = `${this.project}-${this.id}-data`;
-      if (!require('../utils/is-disabled')(this.user)) this.addUser(this.user);
+
+      // debug stuff must come first
+      if (lando.debuggy) {
+        this.addSteps({group: 'boot', instructions: `
+          ENV DEBUG 1
+          ENV LANDO_DEBUG 1
+        `});
+      }
+
+      // boot stuff
+      this.#setupBoot();
+      // hook system
+      this.#setupHooks();
+      // handle security considerations
+      this.#setupSecurity(this.security);
+      // userstuff
+      this.addUser(this.user);
+
+      // if the proxy package and proxy config is on then reset its config
+      if (!require('../utils/is-disabled')(config?.packages?.proxy) && lando.config?.proxy === 'ON') {
+        config.packages.proxy = {
+          id: this.id,
+          volume: `${lando.config.proxyName}_proxy_config`,
+          project: this.project,
+        };
+      }
 
       // build script
       // @TODO: handle array content?
@@ -241,68 +301,12 @@ module.exports = {
       if (config['app-mount']) this.setAppMount(config['app-mount']);
 
       // auth stuff
-      this.setSSHAgent();
+      // @TODO: make this into a package?
       this.setNPMRC(lando.config.pluginConfigFile);
 
-      // ca stuff
-      this.cas = [caCert, path.join(path.dirname(caCert), `${caDomain}.pem`)];
-      for (const ca of this.cas) {
-        if (fs.existsSync(ca)) this.addLSF(ca, `ca-certificates/${path.basename(ca)}`);
-      }
-
-      // certs stuff
-      this.certs = config.certs;
-      const routes = app?.config?.proxy?.[id] ?? [];
-      const urls = routes
-        .map(route => route?.hostname ?? route?.host ?? route)
-        .map(route => `http://${route}`);
-      this.hostnames = [
-        ...parseUrls(urls),
-        `${this.id}.${this.project}.internal`,
-        this.id,
-        'localhost',
-      ];
-
-      // @TODO: this can now be moved
-      app.events.on('pre-start', 90, async services => {
-        const {certPath, keyPath} = await lando.generateCert(`${this.id}.${this.project}`, {domains: this.hostnames});
-        this.addServiceData({
-          volumes: [
-            `${certPath}:/certs/cert.crt`,
-            `${keyPath}:/certs/cert.key`,
-          ],
-        });
-      });
-
-      // boot stuff
-      // @TODO: consolidate all of this elsewhere so constructor isnt SFB?
-      this.#setupBootScripts();
-      this.addSteps({group: 'boot', instructions: `
-        RUN mkdir -p /etc/lando /etc/lando/env.d
-        RUN chmod 777 /etc/lando
-        RUN ln -sf /etc/lando/environment /etc/profile.d/lando.sh
-        RUN /etc/lando/boot.sh
-      `});
-
-      // debug stuff
-      if (lando.debuggy) {
-        this.addSteps({group: 'boot', instructions: `
-          ENV DEBUG 1
-          ENV LANDO_DEBUG 1
-        `});
-      }
-
-      // go through all groups except boot and add run-hook stuffs
-      for (const hook of Object.keys(this._data.groups).filter(group => parseInt(group.weight) <= 100)) {
-        this.addSteps({group: hook, instructions: `
-          RUN mkdir -p /etc/lando/${hook}.d
-          RUN /etc/lando/run-hooks.sh ${hook}
-        `});
-      }
-
       // go through all packages and add them
-      this.packages = config.packages ?? {};
-      for (const [id, data] of Object.entries(this.packages)) {
+      for (const [id, data] of Object.entries(config.packages)) {
+        this.debug('adding package %o with args: %o', id, data);
         if (!require('../utils/is-disabled')(data)) {
           this.addPackage(id, data);
         }
@@ -310,16 +314,11 @@ module.exports = {
 
       // add a home folder persistent mount
       this.addComposeData({volumes: {[this.homevol]: {}}});
-      // add build vols
-      this.addAppBuildVolume(`${this.homevol}:/home/${this.user.name}`);
-      // add command if we have one
-      if (this.command) this.addServiceData({command: this.command});
 
       // add main dc stuff
-      // @TODO: other good lando envvars/labels/logs would be good to put in the ones from v3 even if
-      // they are duplicated so this is portable and consistent?
-      this.addServiceData({
+      this.addLandoServiceData({
         environment: {
+          PIROG: 'tester',
           ...config.environment,
         },
         user: this.user.name,
@@ -329,57 +328,54 @@ module.exports = {
       });
     }
 
-    addHookFile(file, {hook = 'boot', priority = '100'} = {}) {
-      this.addContext(`${file}:/etc/lando/${hook}.d/${priority}-${path.basename(file)}`, `${hook}-1000-before`);
+    addHookFile(file, {id = undefined, hook = 'boot', stage = 'image', priority = '100'} = {}) {
+      // if file is actually script content we need to normalize and dump it first
+      if (!require('valid-path')(file, {simpleReturn: true})) {
+        const leader = file.split('\n').find(line => line.length > 0).match(/^\s*/)[0].length ?? 0;
+        const contents = file
+          .split('\n')
+          .map(line => line.slice(leader))
+          .join('\n');
+
+        // reset file to a path
+        file = path.join(this.context, id ? `${priority}-${id}.sh` : `${priority}-${stage}-${hook}.sh`);
+        write(file, contents);
+      }
+
+      // image stage should add directly to the build context
+      if (stage === 'image') {
+        this.addContext(
+          `${file}:/etc/lando/build/image/${hook}.d/${priority}-${path.basename(file)}`,
+          `${hook}-1000-before`,
+        );
+
+      // app context should mount into the app
+      } else if (stage === 'app') {
+        const volumes = [`${file}:/etc/lando/build/app/${hook}.d/${path.basename(file)}`];
+        this.addLandoServiceData({volumes});
+      }
     }
 
     addLashRC(file, {priority = '100'} = {}) {
       this.addContext(`${file}:/etc/lando/lash.d/${priority}-${path.basename(file)}`);
     }
 
-    addPackageInstaller(id, data) {
-      this.#installers[id] = data;
+    addPackageInstaller(id, func) {
+      this.#installers[id] = func;
     }
 
     addPackage(id, data = []) {
       // check if we have an package installer
       // @TODO: should this throw or just log?
-      if (this.#installers[id] === undefined) throw new Error(`Could not find a package installer for ${id}!`);
+      if (this.#installers[id] === undefined || typeof this.#installers[id] !== 'function') {
+        throw new Error(`Could not find a package installer functionfor ${id}!`);
+      }
 
       // normalize data
       if (!Array.isArray(data)) data = [data];
 
-      // get installer
-      const installer = this.#installers[id];
-
-      // do different stuff based on type
-      switch (installer.type) {
-        case 'hook':
-          this.addHookFile(installer.script, {hook: installer.group, priority: installer.priority});
-          break;
-        case 'script':
-          this.addLSF(installer.script, `installers/${path.basename(installer.script)}`);
-          for (const options of data) {
-            this.addSteps({group: installer.group, instructions: `
-              RUN /etc/lando/installers/${path.basename(installer.script)} ${require('../utils/parse-v4-pkginstall-opts')(options)}`, // eslint-disable-line max-len
-            });
-          }
-          break;
-      }
-
-      // handle additional instructions function if its just a single thing
-      if (installer.instructions && typeof installer.instructions === 'function') {
-        installer.instructions = {[installer.group]: installer.instructions};
-      }
-
-      // handle additional instructions if its an object of group functions
-      if (installer.instructions && isObject(installer.instructions)) {
-        for (const [group, instructFunc] of Object.entries(installer.instructions)) {
-          if (instructFunc && typeof instructFunc === 'function') {
-            this.addSteps({group, instructions: instructFunc(data, this)});
-          }
-        }
-      }
+      // run installer
+      this.#installers[id](this, ...data);
     }
 
     addLSF(source, dest, {context = 'context'} = {}) {
@@ -388,85 +384,87 @@ module.exports = {
     }
 
     addUser(user) {
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'add-user.sh'));
+      this.addHookFile(path.join(__dirname, '..', 'scripts', 'install-useradd.sh'), {hook: 'boot', priority: 10});
       this.addSteps({group: 'setup-user', instructions: `
         RUN /etc/lando/add-user.sh ${require('../utils/parse-v4-pkginstall-opts')(user)}`,
       });
     }
 
-    addAppBuildVolume(volumes) {
-      if (Array.isArray(volumes)) {
-        this.#appBuildOpts.mounts.push(...volumes);
-      } else {
-        this.#appBuildOpts.mounts.push(volumes);
+    addCerts({cert, key}) {
+      // if cert is true then just map to the usual
+      if (this.certs === true) this.certs = '/etc/lando/certs/cert.crt';
+
+      // if cert is a string then compute the key and objectify
+      if (typeof this.certs === 'string') this.certs = {cert: this.certs};
+
+      // if cert is an object with no key then compute the key with the cert
+      if (isObject(this.certs) && this.certs?.key === undefined) {
+        this.certs.key = path.join(path.dirname(this.certs.cert), 'cert.key');
       }
+
+      // make sure both cert and key are arrays
+      if (typeof this.certs?.cert === 'string') this.certs.cert = [this.certs.cert];
+      if (typeof this.certs?.key === 'string') this.certs.key = [this.certs.key];
+
+      // build the volumes
+      const volumes = uniq([
+        ...this.certs.cert.map(file => `${cert}:${file}`),
+        ...this.certs.key.map(file => `${key}:${file}`),
+        `${cert}:/etc/lando/certs/cert.crt`,
+        `${key}:/etc/lando/certs/cert.key`,
+      ]);
+
+      // add things
+      this.addLandoServiceData({
+        volumes,
+        environment: {
+          LANDO_SERVICE_CERT: this.certs.cert[0],
+          LANDO_SERVICE_KEY: this.certs.key[0],
+        },
+      });
+    }
+
+    // wrapper around addServiceData so we can also add in #run stuff
+    addLandoServiceData(data = {}) {
+      // pass through our run considerations
+      this.addLandoRunData(data);
+      // and then super
+      this.addServiceData(data);
+    }
+
+    addLandoRunData(data = {}) {
+      this.#addRunEnvironment(data.environment);
+      this.#addRunLabels(data.labels);
+      this.#addRunVolumes(data.volumes);
     }
 
     // buildapp
     async buildApp() {
-      // bail if no script
-      if (!this.buildScript) {
-        this.debug(`no build detected for ${this.id}, skipping`);
-        return;
-      };
-
-      // get build func
-      const bengine = LandoServiceV4.getBengine(LandoServiceV4.bengineConfig, {
-        builder: LandoServiceV4.builder,
-        debug: this.debug,
-        orchestrator: LandoServiceV4.orchestrator,
-      });
-
-      // generate the build script
-      const buildScript = require('../utils/generate-build-script')(
-        this.buildScript,
-        this.user.name,
-        this.user.gid,
-        process.platform === 'linux' ? process.env.SSH_AUTH_SOCK : `/run/host-services/ssh-auth.sock`,
-        this.appMount,
-      );
-      const buildScriptPath = path.join(this.context, 'app-build.sh');
-      write(buildScriptPath, buildScript);
-
       try {
         // set state
         this.info = {state: {APP: 'BUILDING'}};
 
-        // stuff
-        const bs = `/etc/lando/build/app.sh`;
-        const command = `chmod +x ${bs} && sh ${bs}`;
+        // run internal root app build first
+        await this.runHook(['app', 'internal-root'], {attach: false, user: 'root'});
 
-        // add build vols
-        this.addAppBuildVolume(`${buildScriptPath}:${bs}`);
+        // run user build scripts if we have them
+        if (this.buildScript && typeof this.buildScript === 'string') {
+          this.addHookFile(this.buildScript, {stage: 'app', hook: 'user'});
+          await this.runHook(['app', 'user']);
+        };
 
-        // run with the appropriate builder
-        const success = await bengine.run([command], {
-          image: this.tag,
-          attach: true,
-          interactive: this.isInteractive,
-          createOptions: {
-            User: this.user.name,
-            WorkingDir: this.appMount,
-            Entrypoint: ['/bin/sh', '-c'],
-            Env: uniq(this.#appBuildOpts.environment),
-            HostConfig: {
-              Binds: [...uniq(this.#appBuildOpts.mounts)],
-            },
-          },
-        });
-
-        // // augment the success info
-        success.context = {script: read(buildScriptPath)};
         // state
         this.info = {state: {APP: 'BUILT'}};
         // log
-        this.debug('app %o built successfully from %o', `${this.project}-${this.id}`, buildScriptPath);
-        return success;
+        this.debug('app %o built successfully', `${this.project}-${this.id}`);
+        // @TODO: return something?
 
       // failure
       } catch (error) {
         // augment error
         error.id = this.id;
-        error.context = {script: read(buildScriptPath), path: buildScriptPath};
+        // log
         this.debug('app %o build failed with code %o error %o', `${this.project}-${this.id}`, error.code, error);
         // set the build failure
         this.info = {state: {APP: 'BUILD FAILURE'}};
@@ -476,15 +474,78 @@ module.exports = {
     }
 
     async buildImage() {
+      // do the certs stuff here cause we need async
+      if (this.certs) {
+        const {certPath, keyPath} = await this.generateCert(`${this.id}.${this.project}`, {domains: this.hostnames});
+        this.addCerts({cert: certPath, key: keyPath});
+      }
+
       // build the image
       const image = await super.buildImage();
       // determine the command and normalize it for wrapper
-      let command = this.command ?? image?.info?.Config?.Cmd ?? image?.info?.ContainerConfig?.Cmd;
-      // @TODO: fix letter?
-      if (typeof command === 'string') command = sargv(command);
+      const command = this.command ?? image?.info?.Config?.Cmd ?? image?.info?.ContainerConfig?.Cmd;
 
-      this.addServiceData({command: ['/etc/lando/start.sh', ...command]});
+      // if command if null or undefined then throw error
+      // @TODO: better error?
+      if (command === undefined || command === null) {
+        throw new Error(`${this.id} has no command set!`);
+      }
+
+      // parse command
+      const parseCommand = command => typeof command === 'string' ? sargv(command) : command;
+      // add command wrapper to image
+      this.addLandoServiceData({command: ['/etc/lando/start.sh', ...parseCommand(command)]});
+
+      // return
       return image;
+    }
+
+    async runHook(hook, {attach = true, user = this.user.name} = {}) {
+      return await this.run(hook, {attach, user, entrypoint: ['/etc/lando/run-hooks.sh']});
+    }
+
+    async run(command, {
+      attach = true,
+      user = this.user.name,
+      workingDir = this.appMount,
+      entrypoint = ['/bin/sh', '-c'],
+    } = {}) {
+      const bengine = LandoServiceV4.getBengine(LandoServiceV4.bengineConfig, {
+        builder: LandoServiceV4.builder,
+        debug: this.debug,
+        orchestrator: LandoServiceV4.orchestrator,
+      });
+
+      // construct runopts
+      const runOpts = {
+        image: this.tag,
+        attach,
+        interactive: this.isInteractive,
+        createOptions: {
+          User: user,
+          WorkingDir: workingDir,
+          Entrypoint: entrypoint,
+          Env: this.#run.environment,
+          Labels: this.#run.labels,
+          HostConfig: {
+            Binds: this.#run.mounts,
+          },
+        },
+      };
+
+      try {
+        // run me
+        const success = await bengine.run(command, runOpts);
+        // augment the success info
+        success.context = {command, runOpts};
+        // return
+        return success;
+      } catch (error) {
+        // augment error
+        error.id = this.id;
+        // then throw
+        throw error;
+      }
     }
 
     setNPMRC(data) {
@@ -504,39 +565,9 @@ module.exports = {
         `${npmauthfile}:/home/${this.user.name}/.npmrc`,
         `${npmauthfile}:/root/.npmrc`,
       ];
-      this.addServiceData({volumes: mounts});
-      this.addAppBuildVolume(mounts);
+      this.addLandoServiceData({volumes: mounts});
       this.npmrc = contents.join('\n');
       this.npmrcFile = npmauthfile;
-    }
-
-    // sets ssh agent and prepares for socating
-    // DD ssh-agent is a bit strange and we wont use it in v4 plugin but its easiest for demoing purposes
-    // if you have issues with it its best to do the below
-    // 0. Close Docker Desktop
-    // 1. killall ssh-agent
-    // 2. Start Docker Desktop
-    // 3. Open a terminal (after Docker Desktop starts)
-    // 4. ssh-add (use the existing SSH agent, don't start a new one)
-    // 5. docker run --rm --mount type=bind,src=/run/host-services/ssh-auth.sock,target=/run/host-services/ssh-auth.sock -e SSH_AUTH_SOCK="/run/host-services/ssh-auth.sock" --entrypoint /usr/bin/ssh-add alpine/git -l
-    setSSHAgent() {
-      const socket = process.platform === 'linux' ? process.env.SSH_AUTH_SOCK : `/run/host-services/ssh-auth.sock`;
-      const socater = `/run/ssh-${this.user.name}.sock`;
-
-      // only add if we have a socket
-      if (socket) {
-        this.addComposeData({services: {[this.id]: {
-          environment: {
-            SSH_AUTH_SOCK: socater,
-          },
-          volumes: [
-            `${socket}:${socket}`,
-          ],
-        }}});
-
-        this.#appBuildOpts.environment.push(`SSH_AUTH_SOCK=${socater}`);
-        this.addAppBuildVolume(`${socket}:${socket}`);
-      }
     }
 
     // @TODO: more powerful syntax eg go as many levels as you want and maybe ! syntax?
@@ -547,9 +578,10 @@ module.exports = {
       // its easy if we dont have any excludes
       if (config.exclude.length === 0) {
         this.#appMount.binds = [`${this.appRoot}:${config.destination}`];
-        this.addAppBuildVolume(`${this.appRoot}:${config.destination}`);
 
       // if we have excludes then we need to compute somethings
+      // @TODO: this is busted and needs to be redone when we have a deeper "mounting"
+      // system
       } else {
         // named volumes for excludes
         this.#appMount.volumes = config.exclude.map(vol => `app-mount-${vol}`);
@@ -566,9 +598,9 @@ module.exports = {
         // and again for appBuild stuff b w/ full mount name
         binds.map(path => {
           if (config.exclude.includes(path)) {
-            this.addAppBuildVolume(`${this.project}_app-mount-${path}:${this.#appMount.destination}/${path}`);
+            // this.addAppBuildVolume(`${this.project}_app-mount-${path}:${this.#appMount.destination}/${path}`);
           } else {
-            this.addAppBuildVolume(`${this.appRoot}/${path}:${this.#appMount.destination}/${path}`);
+            // this.addAppBuildVolume(`${this.appRoot}/${path}:${this.#appMount.destination}/${path}`);
           }
         });
       }
@@ -579,7 +611,7 @@ module.exports = {
       }
 
       // set bindz
-      this.addServiceData({volumes: this.#appMount.binds});
+      this.addLandoServiceData({volumes: this.#appMount.binds});
 
       // set infp
       this.appMount = config.destination;

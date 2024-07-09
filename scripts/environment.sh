@@ -1,6 +1,4 @@
 #!/bin/sh
-set -e
-
 . /etc/lando/utils.sh
 
 # Path to the os-release file

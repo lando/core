@@ -13,6 +13,9 @@ const {generateDockerFileFromArray} = require('dockerfile-generator/lib/dockerGe
 const {nanoid} = require('nanoid');
 const {EventEmitter} = require('events');
 
+// set more appropirate lando limit
+EventEmitter.setMaxListeners(64);
+
 // @TODO: should these be methods as well? static or otherwise?
 const getMountMatches = require('../utils/get-mount-matches');
 const hasInstructions = require('../utils/has-instructions');
