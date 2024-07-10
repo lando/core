@@ -48,6 +48,27 @@ debug LANDO_LINUX_DISTRO="$LANDO_LINUX_DISTRO"
 debug LANDO_LINUX_DISTRO_LIKE="$LANDO_LINUX_DISTRO_LIKE"
 debug LANDO_LINUX_PACKAGE_MANAGER="$LANDO_LINUX_PACKAGE_MANAGER"
 
+# unset some build and legacy stuff just to keep LANDO_* slim
+# @NOTE: is it a mistake to remove some of these?
+unset LANDO_APP_COMMON_NAME
+unset LANDO_APP_NAME
+unset LANDO_APP_PROJECT
+unset LANDO_APP_ROOT
+unset LANDO_APP_ROOT_BIND
+unset LANDO_CA_CERT
+unset LANDO_CA_KEY
+unset LANDO_CONFIG_DIR
+unset LANDO_HOST_HOME
+unset LANDO_IMAGE_GROUP
+unset LANDO_IMAGE_USER
+unset LANDO_INFO
+unset LANDO_LOAD_KEYS
+unset LANDO_MOUNT
+unset LANDO_PROXY_NAMES
+unset LANDO_PROXY_PASSTHRU
+unset LANDO_WEBROOT_GROUP
+unset LANDO_WEBROOT_USER
+
 # Execute sh scripts in /etc/lando/env.d
 for script in /etc/lando/env.d/*.sh; do
   if [ -e "$script" ]; then
