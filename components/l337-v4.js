@@ -149,7 +149,11 @@ class L337ServiceV4 extends EventEmitter {
     const {ports, http, https} = require('../utils/parse-v4-ports')(config.ports);
 
     // add in the l337 spec config
-    this.addServiceData({...config, ports});
+    this.addServiceData({
+      ...config,
+      extra_hosts: ['host.lando.internal:host-gateway'],
+      ports,
+    });
     this.addServiceData({ports});
 
     // handle legacy and deprecated settings in lando-v4 and above services
