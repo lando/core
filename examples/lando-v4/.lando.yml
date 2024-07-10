@@ -36,6 +36,13 @@ services:
         set -e
         echo "stuff"
 
+
+    # persistent-storage
+    # mounts
+    # app-mount
+    # build
+    # files
+
     # appmount
     # support appMount but prefer app-mount
     # project-mount: /project how does this work?

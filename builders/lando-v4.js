@@ -83,7 +83,6 @@ module.exports = {
       'hostnames': [],
       'packages': {
         'git': true,
-        'proxy': true,
         'ssh-agent': true,
         'sudo': true,
       },
@@ -115,9 +114,12 @@ module.exports = {
     }
 
     #installers = {
+      'certs': require('../packages/certs/certs'),
       'git': require('../packages/git/git'),
       'proxy': require('../packages/proxy/proxy'),
+      'security': require('../packages/security/security'),
       'sudo': require('../packages/sudo/sudo'),
+      'user': require('../packages/user/user'),
 
       // @TODO: this is a temp implementation until we have an ssh-agent container
       'ssh-agent': require('../packages/ssh-agent/ssh-agent'),
@@ -153,6 +155,8 @@ module.exports = {
       this.addLSF(path.join(__dirname, '..', 'scripts', 'install-updates.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'install-bash.sh'));
       this.addSteps({group: 'boot', instructions: `
+        ENV DEBUG 1
+        ENV LANDO_DEBUG 1
         RUN mkdir -p /etc/lando /etc/lando/env.d /etc/lando/build/image
         RUN chmod 777 /etc/lando
         RUN ln -sf /etc/lando/environment /etc/profile.d/lando.sh
@@ -170,37 +174,25 @@ module.exports = {
       }
     }
 
-    #setupSecurity(security) {
-      // right now this is mostly just CA setup, lets munge it all together and normalize and whatever
-      const cas = [security.ca, security.cas, security['certificate-authority'], security['certificate-authorities']]
-        .flat(Number.POSITIVE_INFINITY)
-        .filter(cert => fs.existsSync(cert))
-        .map(cert => path.isAbsolute(cert) ? cert : path.resolve(this.appRoot, cert));
-
-      // add ca-cert install hook if we have some to add
-      if (cas.length > 0) {
-        this.addHookFile(path.join(__dirname, '..', 'scripts', 'install-ca-certs.sh'), {hook: 'boot'});
-      }
-
-      // inject them
-      for (const ca of cas) this.addLSF(ca, `ca-certificates/${path.basename(ca)}`);
-    }
-
     constructor(id, options, app, lando) {
+      //  extra_hosts:
+      //     - "host.docker.internal:host-gateway"
+
       // @TODO: hostname stuff?
         // add hostnames?
         // better wrapper stuff around proxy?
 
         // @TODO: add additional hostnames?
         // @TODO: do we have better hostnames at this point?
+        // @TODO: what about aliases?
 
-      // @TODO: better CA/cert envvars?
+      // @TODO: better CA/cert/ total envvars?
       // @TODO: add in cert tests
+      // @TODO: other good lando envvars/labels/logs would be good to put in the ones from v3 even if
 
       // @TODO: add debugging and improve logix/grouping of stuff
       // @TODO: consolidate hostname/urls/etc?
       // @TODO: overrides for run and compose?
-      // @TODO: other good lando envvars/labels/logs would be good to put in the ones from v3 even if
       // we do have appenv and applabel on lando.config?
 
       /*
@@ -266,31 +258,18 @@ module.exports = {
       this.homevol = `${this.project}-${this.user.name}-home`;
       this.datavol = `${this.project}-${this.id}-data`;
 
-      // debug stuff must come first
-      if (lando.debuggy) {
-        this.addSteps({group: 'boot', instructions: `
-          ENV DEBUG 1
-          ENV LANDO_DEBUG 1
-        `});
-      }
-
       // boot stuff
       this.#setupBoot();
       // hook system
       this.#setupHooks();
-      // handle security considerations
-      this.#setupSecurity(this.security);
-      // userstuff
-      this.addUser(this.user);
 
-      // if the proxy package and proxy config is on then reset its config
-      if (!require('../utils/is-disabled')(config?.packages?.proxy) && lando.config?.proxy === 'ON') {
-        config.packages.proxy = {
-          id: this.id,
-          volume: `${lando.config.proxyName}_proxy_config`,
-          project: this.project,
-        };
-      }
+      // set up some core package config
+      this.packages.certs = this.certs;
+      this.packages.security = this.security;
+      this.packages.user = this.user;
+
+      // if the proxy is on then set the package
+      if (lando.config?.proxy === 'ON') this.packages.proxy = {volume: `${lando.config.proxyName}_proxy_config`};
 
       // build script
       // @TODO: handle array content?
@@ -304,26 +283,29 @@ module.exports = {
       // @TODO: make this into a package?
       this.setNPMRC(lando.config.pluginConfigFile);
 
-      // go through all packages and add them
-      for (const [id, data] of Object.entries(config.packages)) {
-        this.debug('adding package %o with args: %o', id, data);
-        if (!require('../utils/is-disabled')(data)) {
-          this.addPackage(id, data);
-        }
-      }
-
       // add a home folder persistent mount
       this.addComposeData({volumes: {[this.homevol]: {}}});
 
       // add main dc stuff
       this.addLandoServiceData({
         environment: {
-          PIROG: 'tester',
+          // legacy stuff
+          ...lando.config.appEnv,
+
+          // new stuff
+          DEBUG: lando.debuggy ? '1' : '',
+          LANDO_DEBUG: lando.debuggy ? '1' : '',
+          LANDO_SERVICE_NAME: id,
+
+          // user overrides
           ...config.environment,
         },
         user: this.user.name,
         volumes: [
           `${this.homevol}:/home/${this.user.name}`,
+        ],
+        extra_hosts: [
+          'host.lando.internal:host-gateway',
         ],
       });
     }
@@ -364,65 +346,23 @@ module.exports = {
       this.#installers[id] = func;
     }
 
-    addPackage(id, data = []) {
+    async addPackage(id, data = []) {
       // check if we have an package installer
       // @TODO: should this throw or just log?
       if (this.#installers[id] === undefined || typeof this.#installers[id] !== 'function') {
-        throw new Error(`Could not find a package installer functionfor ${id}!`);
+        throw new Error(`Could not find a package installer function for ${id}!`);
       }
 
       // normalize data
       if (!Array.isArray(data)) data = [data];
 
       // run installer
-      this.#installers[id](this, ...data);
+      return await this.#installers[id](this, ...data);
     }
 
     addLSF(source, dest, {context = 'context'} = {}) {
       if (dest === undefined) dest = path.basename(source);
       this.addContext(`${source}:/etc/lando/${dest}`, context);
-    }
-
-    addUser(user) {
-      this.addLSF(path.join(__dirname, '..', 'scripts', 'add-user.sh'));
-      this.addHookFile(path.join(__dirname, '..', 'scripts', 'install-useradd.sh'), {hook: 'boot', priority: 10});
-      this.addSteps({group: 'setup-user', instructions: `
-        RUN /etc/lando/add-user.sh ${require('../utils/parse-v4-pkginstall-opts')(user)}`,
-      });
-    }
-
-    addCerts({cert, key}) {
-      // if cert is true then just map to the usual
-      if (this.certs === true) this.certs = '/etc/lando/certs/cert.crt';
-
-      // if cert is a string then compute the key and objectify
-      if (typeof this.certs === 'string') this.certs = {cert: this.certs};
-
-      // if cert is an object with no key then compute the key with the cert
-      if (isObject(this.certs) && this.certs?.key === undefined) {
-        this.certs.key = path.join(path.dirname(this.certs.cert), 'cert.key');
-      }
-
-      // make sure both cert and key are arrays
-      if (typeof this.certs?.cert === 'string') this.certs.cert = [this.certs.cert];
-      if (typeof this.certs?.key === 'string') this.certs.key = [this.certs.key];
-
-      // build the volumes
-      const volumes = uniq([
-        ...this.certs.cert.map(file => `${cert}:${file}`),
-        ...this.certs.key.map(file => `${key}:${file}`),
-        `${cert}:/etc/lando/certs/cert.crt`,
-        `${key}:/etc/lando/certs/cert.key`,
-      ]);
-
-      // add things
-      this.addLandoServiceData({
-        volumes,
-        environment: {
-          LANDO_SERVICE_CERT: this.certs.cert[0],
-          LANDO_SERVICE_KEY: this.certs.key[0],
-        },
-      });
     }
 
     // wrapper around addServiceData so we can also add in #run stuff
@@ -474,14 +414,12 @@ module.exports = {
     }
 
     async buildImage() {
-      // do the certs stuff here cause we need async
-      if (this.certs) {
-        const {certPath, keyPath} = await this.generateCert(`${this.id}.${this.project}`, {domains: this.hostnames});
-        this.addCerts({cert: certPath, key: keyPath});
-      }
+      // go through all packages and install them
+      await this.installPackages();
 
       // build the image
       const image = await super.buildImage();
+
       // determine the command and normalize it for wrapper
       const command = this.command ?? image?.info?.Config?.Cmd ?? image?.info?.ContainerConfig?.Cmd;
 
@@ -498,6 +436,15 @@ module.exports = {
 
       // return
       return image;
+    }
+
+    async installPackages() {
+      await Promise.all(Object.entries(this.packages).map(async ([id, data]) => {
+        this.debug('adding package %o with args: %o', id, data);
+        if (!require('../utils/is-disabled')(data)) {
+          await this.addPackage(id, data);
+        }
+      }));
     }
 
     async runHook(hook, {attach = true, user = this.user.name} = {}) {
