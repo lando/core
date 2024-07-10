@@ -145,6 +145,7 @@ module.exports = {
         services: _.set({}, name, {
           entrypoint,
           environment,
+          extra_hosts: ['host.lando.internal:host-gateway'],
           labels,
           logging,
           ports,
