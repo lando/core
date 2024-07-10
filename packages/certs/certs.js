@@ -21,8 +21,13 @@ module.exports = async (service, certs) => {
   if (typeof certs?.key === 'string') certs.key = [certs.key];
 
   // generate certs
-  const {id, project, hostnames} = service;
-  const {certPath, keyPath} = await service.generateCert(`${id}.${project}`, {domains: hostnames});
+  const {certPath, keyPath} = await service.generateCert(`${service.id}.${service.project}`, {
+    domains: [
+      ...service.packages?.proxy?.domains ?? [],
+      ...service.hostnames,
+      service.id,
+    ],
+  });
 
   // build the volumes
   const volumes = uniq([

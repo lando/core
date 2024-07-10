@@ -38,32 +38,6 @@ const groups = {
   },
 };
 
-// @TODO: move this into utils and reuse in app-generate-certs.js?
-const parseUrls = (urls = []) => {
-  return urls.map(url => {
-    try {
-      url = new URL(url);
-      return url.hostname;
-    } catch {
-      return undefined;
-    }
-  })
-  .filter(hostname => hostname !== undefined);
-};
-
-// get hostnames
-const getHostnames = ({app, id, project}) => {
-  const routes = app?.config?.proxy?.[id] ?? [];
-  const urls = routes
-    .map(route => route?.hostname ?? route?.host ?? route)
-    .map(route => `http://${route}`);
-  return [
-    ...parseUrls(urls),
-    `${id}.${project}.internal`,
-    id,
-  ];
-};
-
 /*
  * The lowest level lando service, this is where a lot of the deep magic lives
  */
@@ -80,6 +54,7 @@ module.exports = {
       },
       'certs': true,
       'environment': {},
+      'healthcheck': false,
       'hostnames': [],
       'packages': {
         'git': true,
@@ -175,22 +150,14 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
-      // @TODO: hostname stuff?
-        // add hostnames?
-        // better wrapper stuff around proxy?
-
-        // @TODO: add additional hostnames?
-        // @TODO: do we have better hostnames at this point?
-        // @TODO: what about aliases?
+      // @TODO: other good lando envvars/labels/logs would be good to put in the ones from v3 even if
+      // we do have appenv and applabel on lando.config?
 
       // @TODO: better CA/cert/ total envvars?
       // @TODO: add in cert tests
-      // @TODO: other good lando envvars/labels/logs would be good to put in the ones from v3 even if
-
       // @TODO: add debugging and improve logix/grouping of stuff
       // @TODO: consolidate hostname/urls/etc?
       // @TODO: overrides for run and compose?
-      // we do have appenv and applabel on lando.config?
 
       /*
       # Should have the correct entries in /certs/cert.ext
@@ -236,17 +203,20 @@ module.exports = {
       // get this
       super(id, merge({}, {groups}, {states}, upstream), app, lando);
 
-      // more this
+      // foundational this
       this.canHealthcheck = true;
+      this.generateCert = lando.generateCert.bind(lando);
+      this.isInteractive = lando.config.isInteractive;
+      this.network = lando.config.networkBridge;
+      this.project = app.project;
+      this.router = config.router;
+
+      // more this
       this.certs = config.certs;
       this.command = config.command;
-      this.generateCert = lando.generateCert.bind(lando);
-      this.healthcheck = config.healthcheck ?? false;
-      this.hostnames = uniq([...getHostnames({app, ...this}), ...config.hostnames]);
-      this.isInteractive = lando.config.isInteractive;
+      this.healthcheck = config.healthcheck;
+      this.hostnames = uniq([...config.hostnames, `${this.id}.${this.project}.internal`]);
       this.packages = config.packages;
-      this.project = app.project;
-      this.router = options.router;
       this.security = config.security;
       this.security.cas.push(caCert, path.join(path.dirname(caCert), `${caDomain}.pem`));
       this.user = user;
@@ -266,7 +236,12 @@ module.exports = {
       this.packages.user = this.user;
 
       // if the proxy is on then set the package
-      if (lando.config?.proxy === 'ON') this.packages.proxy = {volume: `${lando.config.proxyName}_proxy_config`};
+      if (lando.config?.proxy === 'ON') {
+        this.packages.proxy = {
+          volume: `${lando.config.proxyName}_proxy_config`,
+          domains: require('../packages/proxy/get-proxy-hostnames')(app?.config?.proxy?.[id] ?? []),
+        };
+      }
 
       // build script
       // @TODO: handle array content?
@@ -280,29 +255,32 @@ module.exports = {
       // @TODO: make this into a package?
       this.setNPMRC(lando.config.pluginConfigFile);
 
-      // add a home folder persistent mount
-      this.addComposeData({volumes: {[this.homevol]: {}}});
+      // top level considerations
+      this.addComposeData({
+        networks: {[this.network]: {external: true}},
+        volumes: {[this.homevol]: {}},
+      });
 
-      // add main dc stuff
+      // environment
+      const environment = {
+        // legacy stuff
+        ...lando.config.appEnv,
+        // new stuff
+        DEBUG: lando.debuggy ? '1' : '',
+        LANDO_DEBUG: lando.debuggy ? '1' : '',
+        LANDO_SERVICE_NAME: id,
+        // user overrides
+        ...config.environment,
+      };
+
+      // add it all 2getha
       this.addLandoServiceData({
-        environment: {
-          // legacy stuff
-          ...lando.config.appEnv,
-
-          // new stuff
-          DEBUG: lando.debuggy ? '1' : '',
-          LANDO_DEBUG: lando.debuggy ? '1' : '',
-          LANDO_SERVICE_NAME: id,
-
-          // user overrides
-          ...config.environment,
-        },
+        environment,
+        extra_hosts: ['host.lando.internal:host-gateway'],
+        networks: {[this.network]: {aliases: this.hostnames}},
         user: this.user.name,
         volumes: [
           `${this.homevol}:/home/${this.user.name}`,
-        ],
-        extra_hosts: [
-          'host.lando.internal:host-gateway',
         ],
       });
     }
