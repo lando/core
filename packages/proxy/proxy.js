@@ -1,6 +1,7 @@
 'use strict';
 
-module.exports = async (service, {volume}) => {
+module.exports = async (service, {volume, routes = []}) => {
+  // add run data
   service.addLandoRunData({
     environment: {
       LANDO_PROXY_CERT: `/lando/certs/${service.id}.${service.project}.crt`,
@@ -12,6 +13,7 @@ module.exports = async (service, {volume}) => {
     ],
   });
 
+  // add hook file
   service.addHookFile(`
     # if we have certs then lets add the proxy config
     # we do this here instead of in the plugin code because it avoids a race condition

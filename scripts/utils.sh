@@ -68,11 +68,11 @@ log() {
 }
 
 retry() {
-  local max_attempts=\${MAX_ATTEMPTS-10}
-  local initial_delay=\${INITIAL_DELAY-1}
-  local factor=\${FACTOR-2}
-  local attempt=1
-  local delay=$initial_delay
+  max_attempts=${MAX_ATTEMPTS-10}
+  initial_delay=${INITIAL_DELAY-1}
+  factor=${FACTOR-2}
+  attempt=1
+  delay=$initial_delay
 
   while true; do
     "$@"
