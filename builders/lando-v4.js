@@ -56,11 +56,13 @@ module.exports = {
       'environment': {},
       'healthcheck': false,
       'hostnames': [],
+      'labels': {},
       'packages': {
         'git': true,
         'ssh-agent': true,
         'sudo': true,
       },
+      'overrides': {},
       'ports': [],
       'security': {
         'ca': [],
@@ -150,14 +152,9 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
-      // @TODO: other good lando envvars/labels/logs would be good to put in the ones from v3 even if
-      // we do have appenv and applabel on lando.config?
-
-      // @TODO: better CA/cert/ total envvars?
+      // @TODO: better CA/cert/all things envvars?
+      // @TODO: LANDO_INFO file?
       // @TODO: add in cert tests
-      // @TODO: add debugging and improve logix/grouping of stuff
-      // @TODO: consolidate hostname/urls/etc?
-      // @TODO: overrides for run and compose?
 
       /*
       # Should have the correct entries in /certs/cert.ext
@@ -173,6 +170,8 @@ module.exports = {
       lando ssh -s placeholder -c "cat /certs/cert.ext" | grep placeholder.lando-lemp.lndo.site
       */
 
+      // @TODO: pass on debugging?
+      // @TODO: overrides for this.run()?
       // @TODO: better appmount logix?
       // @TODO: allow additonal users to be installed in config.users?
       // @TODO: change lando literal to "lando product"
@@ -263,26 +262,46 @@ module.exports = {
 
       // environment
       const environment = {
-        // legacy stuff
-        ...lando.config.appEnv,
-        // new stuff
         DEBUG: lando.debuggy ? '1' : '',
+        LANDO: 'ON',
         LANDO_DEBUG: lando.debuggy ? '1' : '',
-        LANDO_SERVICE_NAME: id,
+        LANDO_HOST_IP: 'host.lando.internal',
+        LANDO_HOST_GID: require('../utils/get-gid')(),
+        LANDO_HOST_OS: process.platform,
+        LANDO_HOST_UID: require('../utils/get-uid')(),
+        LANDO_HOST_USER: require('../utils/get-username')(),
+        LANDO_LEIA: lando.config.leia === false ? '0' : '1',
+        LANDO_PROJECT: this.project,
+        LANDO_PROJECT_MOUNT: this.appMount,
+        LANDO_SERVICE_API: 4,
+        LANDO_SERVICE_NAME: this.id,
+        LANDO_SERVICE_TYPE: this.type,
         // user overrides
         ...config.environment,
       };
+
+      // labels
+      const labels = merge({}, app.labels, {
+        'dev.lando.container': 'TRUE',
+        'dev.lando.id': lando.config.id,
+        'dev.lando.src': app.root,
+      }, config.labels);
 
       // add it all 2getha
       this.addLandoServiceData({
         environment,
         extra_hosts: ['host.lando.internal:host-gateway'],
+        labels,
+        logging: {driver: 'json-file', options: {'max-file': '3', 'max-size': '10m'}},
         networks: {[this.network]: {aliases: this.hostnames}},
         user: this.user.name,
         volumes: [
           `${this.homevol}:/home/${this.user.name}`,
         ],
       });
+
+      // add any overrides on top
+      this.addLandoServiceData(config.overrides);
     }
 
     addHookFile(file, {id = undefined, hook = 'boot', stage = 'image', priority = '100'} = {}) {
