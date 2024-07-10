@@ -5,7 +5,6 @@ const fs = require('fs-extra');
 const path = require('path');
 const merge = require('lodash/merge');
 const slugify = require('slugify');
-const stringArgv = require('string-argv').default;
 
 const Dockerode = require('dockerode');
 const {EventEmitter} = require('events');
@@ -548,7 +547,7 @@ class DockerEngine extends Dockerode {
     // error if no command
     if (!command) throw new Error('you must pass a command into engine.run');
     // arrayify commands that are strings
-    if (typeof command === 'string') command = stringArgv(command);
+    if (typeof command === 'string') command = require('string-argv')(command);
     // some good default createOpts
     const defaultCreateOptions = {
       AttachStdin: interactive,

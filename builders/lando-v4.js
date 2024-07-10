@@ -7,8 +7,6 @@ const path = require('path');
 const uniq = require('lodash/uniq');
 const write = require('../utils/write-file');
 
-const sargv = require('string-argv').parseArgsStringToArgv;
-
 const states = {APP: 'UNBUILT'};
 const groups = {
   'boot': {
@@ -124,6 +122,7 @@ module.exports = {
     #setupBoot() {
       this.addContext(`${path.join(__dirname, '..', 'scripts', 'lash')}:/bin/lash`);
       this.addLSF(path.join(__dirname, '..', 'scripts', 'boot.sh'));
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'exec.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'run-hooks.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'start.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'landorc'));
@@ -152,6 +151,10 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
+      // @TODO: hide lando ssh
+      // @TODO: new exec with ssh alias for backwards compat?
+      // @TODO: opportunity to intro new -- lando ssh syntax?
+
       // @TODO: better CA/cert/all things envvars?
       // @TODO: LANDO_INFO file?
       // @TODO: add in cert tests
@@ -426,7 +429,7 @@ module.exports = {
       }
 
       // parse command
-      const parseCommand = command => typeof command === 'string' ? sargv(command) : command;
+      const parseCommand = command => typeof command === 'string' ? require('string-argv')(command) : command;
       // add command wrapper to image
       this.addLandoServiceData({command: ['/etc/lando/start.sh', ...parseCommand(command)]});
 

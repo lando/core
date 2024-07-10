@@ -4,7 +4,7 @@
 const _ = require('lodash');
 
 // Other things
-const bashme = ['/bin/sh', '-c', 'if ! type bash > /dev/null; then sh; else LANDO_DEBUG= DEBUG= bash --login; fi'];
+const bashme = ['/bin/sh', '-c', 'if ! type bash > /dev/null; then sh; else bash; fi'];
 const task = {
   command: 'ssh',
   describe: 'Drops into a shell on a service, runs commands',
@@ -35,6 +35,7 @@ module.exports = (lando, app) => {
       return app.init().then(() => {
         // get the service api if possible
         const api = _.get(_.find(app.info, {service}), 'api', 3);
+
         // set additional opt defaults if possible
         const opts = [undefined, api === 4 ? undefined : '/app'];
         // mix any v4 service info on top of app.config.services
@@ -53,6 +54,15 @@ module.exports = (lando, app) => {
           if (!config.appMount && _.has(config, 'config.working_dir')) opts[0] = config.config.working_dir;
         }
 
+        // if this is an api 4 service and we have the default command then replace
+        if (api === 4 && command === bashme) command = 'bash';
+
+        // if this is an api 4 service then we need to arrayify and prepend
+        if (api === 4) {
+          command = typeof command === 'string' ? require('string-argv')(command) : command;
+          command = ['/etc/lando/exec.sh', ...command];
+        }
+
         // continue
         if (_.isNull(user)) user = require('../utils/get-user')(service, app.info);
         return lando.engine.run(require('../utils/build-tooling-runner')(
@@ -60,7 +70,10 @@ module.exports = (lando, app) => {
           command,
           service,
           user,
-          {},
+          {
+            DEBUG: lando.debuggy ? '1' : '',
+            LANDO_DEBUG: lando.debuggy ? '1' : '',
+          },
           ...opts,
         )).catch(error => {
           error.hide = true;

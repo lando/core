@@ -8,4 +8,11 @@ module.exports = async (service, user) => {
   service.addSteps({group: 'setup-user', instructions: `
     RUN /etc/lando/add-user.sh ${require('../../utils/parse-v4-pkginstall-opts')(user)}`,
   });
+  service.addLandoServiceData({
+    environment: {
+      LANDO_USER: user.name,
+      LANDO_GID: user.gid,
+      LANDO_UID: user.uid,
+    },
+  });
 };
