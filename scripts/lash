@@ -1,5 +1,4 @@
 #!/bin/bash
-set -eo pipefail
 
 # if arg 1 is a file then eval its contents
 if [ -f "$1" ]; then

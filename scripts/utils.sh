@@ -67,6 +67,32 @@ log() {
   printf "%s\n" "$(shell_join "$@")"
 }
 
+retry() {
+  local max_attempts=\${MAX_ATTEMPTS-10}
+  local initial_delay=\${INITIAL_DELAY-1}
+  local factor=\${FACTOR-2}
+  local attempt=1
+  local delay=$initial_delay
+
+  while true; do
+    "$@"
+    local status=$?
+    if [ $status -eq 0 ]; then
+      return 0
+    fi
+
+    if [ $attempt -ge $max_attempts ]; then
+      debug "Attempt $attempt failed and there are no more attempts left!"
+      return $status
+    fi
+
+    debug "Attempt $attempt failed! Retrying in $delay seconds..."
+    sleep $delay
+    attempt=$((attempt + 1))
+    delay=$((delay * factor))
+  done
+}
+
 warn() {
   printf "${tty_yellow}warning${tty_reset}: %s\n" "$(chomp "$@")" >&2
 }

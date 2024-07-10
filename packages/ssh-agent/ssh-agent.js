@@ -26,35 +26,7 @@ module.exports = async service => {
     service.addHookFile(path.join(__dirname, 'install-socat.sh'), {hook: 'boot'});
     service.addHookFile(path.join(__dirname, 'install-ssh-add.sh'), {hook: 'boot'});
     service.addHookFile(`
-      #!/bin/bash
-      set -e
-
-      retry_with_backoff() {
-        local max_attempts=\${MAX_ATTEMPTS-10}
-        local initial_delay=\${INITIAL_DELAY-1}
-        local factor=\${FACTOR-2}
-        local attempt=1
-        local delay=$initial_delay
-
-        while true; do
-          "$@"
-          local status=$?
-          if [ $status -eq 0 ]; then
-            return 0
-          fi
-
-          if [ $attempt -ge $max_attempts ]; then
-            echo "Attempt $attempt failed and there are no more attempts left!"
-            return $status
-          fi
-
-          echo "Attempt $attempt failed! Retrying in $delay seconds..."
-          sleep $delay
-          attempt=$((attempt + 1))
-          delay=$((delay * factor))
-        done
-      }
-
+      #!/bin/lash
       # clean up and setup ssh-auth
       if command -v socat >/dev/null 2>&1 && command -v sudo >/dev/null 2>&1; then
         if [ -S "${socket}" ]; then
@@ -62,7 +34,7 @@ module.exports = async service => {
           socat \
             UNIX-LISTEN:/run/ssh-${name}.sock,fork,user=${name},group=${gid},mode=777 \
             UNIX-CONNECT:${socket} &
-          retry_with_backoff ssh-add -l
+          retry ssh-add -l
         fi
       fi
     `, {stage: 'app', hook: 'internal-root', id: 'socat-docker-socket', priority: '000'});

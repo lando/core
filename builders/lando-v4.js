@@ -175,9 +175,6 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
-      //  extra_hosts:
-      //     - "host.docker.internal:host-gateway"
-
       // @TODO: hostname stuff?
         // add hostnames?
         // better wrapper stuff around proxy?
@@ -313,11 +310,13 @@ module.exports = {
     addHookFile(file, {id = undefined, hook = 'boot', stage = 'image', priority = '100'} = {}) {
       // if file is actually script content we need to normalize and dump it first
       if (!require('valid-path')(file, {simpleReturn: true})) {
-        const leader = file.split('\n').find(line => line.length > 0).match(/^\s*/)[0].length ?? 0;
-        const contents = file
-          .split('\n')
-          .map(line => line.slice(leader))
-          .join('\n');
+        // split the file into lines
+        file = file.split('\n');
+        // trim any empty lines at the top
+        file = file.slice(file.findIndex(line => line.length > 0));
+        // now just try to make it look pretty
+        const leader = file.find(line => line.length > 0).match(/^\s*/)[0].length ?? 0;
+        const contents = file.map(line => line.slice(leader)).join('\n');
 
         // reset file to a path
         file = path.join(this.context, id ? `${priority}-${id}.sh` : `${priority}-${stage}-${hook}.sh`);
