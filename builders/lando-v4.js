@@ -151,6 +151,9 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
+      // @TODO: fix tests?
+      // need some special setting for hasExecer since 1337 barfs on on /etc/landp/exec.sh
+
       // @TODO: hide lando ssh
       // @TODO: new exec with ssh alias for backwards compat?
       // @TODO: opportunity to intro new -- lando ssh syntax?
@@ -206,6 +209,7 @@ module.exports = {
       super(id, merge({}, {groups}, {states}, upstream), app, lando);
 
       // foundational this
+      this.canExec = true;
       this.canHealthcheck = true;
       this.generateCert = lando.generateCert.bind(lando);
       this.isInteractive = lando.config.isInteractive;

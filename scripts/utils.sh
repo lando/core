@@ -82,11 +82,11 @@ retry() {
     fi
 
     if [ $attempt -ge $max_attempts ]; then
-      debug "Attempt $attempt failed and there are no more attempts left!"
+      debug "attempt $attempt failed and there are no more attempts left!"
       return $status
     fi
 
-    debug "Attempt $attempt failed! Retrying in $delay seconds..."
+    debug "attempt $attempt failed! retrying in $delay seconds..."
     sleep $delay
     attempt=$((attempt + 1))
     delay=$((delay * factor))
