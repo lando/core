@@ -38,9 +38,7 @@ case "$LANDO_LINUX_DISTRO" in
 esac
 
 # Use PACKAGE_MANAGER env var if available, argument if not
-if command -v "$LANDO_LINUX_PACKAGE_MANAGER" > /dev/null 2>&1; then
-  debug "$LANDO_LINUX_PACKAGE_MANAGER found."
-else
+if ! command -v "$LANDO_LINUX_PACKAGE_MANAGER" > /dev/null 2>&1; then
   abort "$LANDO_LINUX_PACKAGE_MANAGER could not be found."
 fi
 
@@ -50,6 +48,7 @@ debug LANDO_LINUX_PACKAGE_MANAGER="$LANDO_LINUX_PACKAGE_MANAGER"
 
 # unset some build and legacy stuff just to keep LANDO_* slim
 # @NOTE: is it a mistake to remove some of these?
+unset BITNAMI_DEBUG
 unset LANDO_APP_COMMON_NAME
 unset LANDO_APP_NAME
 unset LANDO_APP_PROJECT
@@ -68,6 +67,9 @@ unset LANDO_PROXY_NAMES
 unset LANDO_PROXY_PASSTHRU
 unset LANDO_WEBROOT_GROUP
 unset LANDO_WEBROOT_USER
+
+# envvar so we can test if this loaded
+export LANDO_ENVIRONMENT="loaded"
 
 # Execute sh scripts in /etc/lando/env.d
 for script in /etc/lando/env.d/*.sh; do
