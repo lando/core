@@ -2,7 +2,7 @@
 
 const path = require('path');
 
-module.exports = service => {
+module.exports = async service => {
   service.addHookFile(path.join(__dirname, 'install-sudo.sh'), {hook: 'boot'});
   service.addSteps({group: 'setup-user-1-after', instructions: `
     RUN touch /etc/sudoers

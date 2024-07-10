@@ -11,7 +11,7 @@ const path = require('path');
 // 3. Open a terminal (after Docker Desktop starts)
 // 4. ssh-add (use the existing SSH agent, don't start a new one)
 // 5. docker run --rm --mount type=bind,src=/run/host-services/ssh-auth.sock,target=/run/host-services/ssh-auth.sock -e SSH_AUTH_SOCK="/run/host-services/ssh-auth.sock" --entrypoint /usr/bin/ssh-add alpine/git -l
-module.exports = service => {
+module.exports = async service => {
   const {name, uid, gid} = service.user;
   const socket = process.platform === 'linux' ? process.env.SSH_AUTH_SOCK : `/run/host-services/ssh-auth.sock`;
 

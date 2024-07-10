@@ -1,11 +1,11 @@
 'use strict';
 
-module.exports = (service, {id, project, volume}) => {
+module.exports = async (service, {volume}) => {
   service.addLandoRunData({
     environment: {
-      LANDO_PROXY_CERT: `/lando/certs/${id}.${project}.crt`,
-      LANDO_PROXY_KEY: `/lando/certs/${id}.${project}.key`,
-      LANDO_PROXY_CONFIG_FILE: `/proxy_config/${id}.${project}.yaml`,
+      LANDO_PROXY_CERT: `/lando/certs/${service.id}.${service.project}.crt`,
+      LANDO_PROXY_KEY: `/lando/certs/${service.id}.${service.project}.key`,
+      LANDO_PROXY_CONFIG_FILE: `/proxy_config/${service.id}.${service.project}.yaml`,
     },
     volumes: [
       `${volume}:/proxy_config`,

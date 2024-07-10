@@ -10,20 +10,20 @@ HOOK="${2:-boot}"
 
 # run hook scripts
 if [ -d "/etc/lando/build/${STAGE}/${HOOK}.d" ]; then
-  debug "running /etc/lando/build/${STAGE}/${HOOK}.d scripts"
+  debug "${tty_magenta}$LANDO_SERVICE_NAME${tty_reset} running /etc/lando/build/${STAGE}/${HOOK}.d scripts"
   for script in /etc/lando/build/${STAGE}/${HOOK}.d/*.sh; do
     if [ -e "$script" ]; then
       if [ -r "$script" ] && [ -f "$script" ]; then
-        debug "running hook $script"
+        debug "${tty_magenta}$LANDO_SERVICE_NAME${tty_reset} running hook $script"
         chmod +x "$script" >/dev/null
         "$script"
       else
-        debug "skipping hook $script, not readable or not a file"
+        debug "${tty_magenta}$LANDO_SERVICE_NAME${tty_reset} skipping hook $script, not readable or not a file"
       fi
     fi
   done
 
   # Unset the variable after use
   unset script
-  debug "completed $STAGE $HOOK hooks"
+  debug "${tty_magenta}$LANDO_SERVICE_NAME${tty_reset} completed $STAGE $HOOK hooks"
 fi
