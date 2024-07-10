@@ -54,6 +54,7 @@ module.exports = async (app, lando) => {
       containers: app.containers,
       root: app.root,
       info: app.info,
+      executors: require('./utils/get-executors')(_.get(app, 'v4.services', {})),
       mounts: require('./utils/get-mounts')(_.get(app, 'v4.services', {})),
       overrides: {
         tooling: app._coreToolingOverrides,

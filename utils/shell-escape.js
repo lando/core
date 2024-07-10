@@ -2,9 +2,9 @@
 
 const _ = require('lodash');
 
-module.exports = (command, wrap = false, args = process.argv.slice(3), api = 3) => {
+module.exports = (command, wrap = false, args = process.argv.slice(3), v4Exec = false) => {
   // if api 4 then just prepend and we will handle it downstream
-  if (api === 4) {
+  if (v4Exec) {
     if (_.isString(command)) command = require('string-argv')(command);
     return ['/etc/lando/exec.sh', ...command];
   }
