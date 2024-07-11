@@ -18,24 +18,17 @@ module.exports = async service => {
   // if no socket then just bail
   if (!socket) return;
 
-  // discover the socater
-  const socater = (name === 'root' || uid === 0 || uid === '0') ? socket : `/run/ssh-${name}.sock`;
-
   // if not root then we need to do some extra stuff
   if (name !== 'root' && uid !== 0 || uid !== '0') {
     service.addHookFile(path.join(__dirname, 'install-socat.sh'), {hook: 'boot'});
     service.addHookFile(path.join(__dirname, 'install-ssh-add.sh'), {hook: 'boot'});
     service.addHookFile(`
       #!/bin/lash
-      # clean up and setup ssh-auth
-      if command -v socat >/dev/null 2>&1 && command -v sudo >/dev/null 2>&1; then
-        if [ -S "${socket}" ]; then
-          rm -rf /run/ssh-${name}.sock
-          socat \
-            UNIX-LISTEN:/run/ssh-${name}.sock,fork,user=${name},group=${gid},mode=777 \
-            UNIX-CONNECT:${socket} &
-          retry ssh-add -l
-        fi
+      # make the socket accessible by group
+      if [ -S "${socket}" ]; then
+        chown :${gid} ${socket}
+        chmod 660 ${socket}
+        retry ssh-add -l
       fi
     `, {stage: 'app', hook: 'internal-root', id: 'socat-docker-socket', priority: '000'});
   }
@@ -43,7 +36,7 @@ module.exports = async service => {
   // finally add the data
   service.addLandoServiceData({
     environment: {
-      SSH_AUTH_SOCK: socater,
+      SSH_AUTH_SOCK: socket,
     },
     volumes: [
       `${socket}:${socket}`,

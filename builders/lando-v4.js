@@ -151,8 +151,7 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
-      // @TODO: fix tests?
-      // need some special setting for hasExecer since 1337 barfs on on /etc/landp/exec.sh
+      // @TODO: socat no longer works? can we do a hack or something for this for now?
 
       // @TODO: hide lando ssh
       // @TODO: new exec with ssh alias for backwards compat?
@@ -160,7 +159,10 @@ module.exports = {
 
       // @TODO: better CA/cert/all things envvars?
       // @TODO: LANDO_INFO file?
+
+      // @TODO: THE GREAT TEST RECKONING?
       // @TODO: add in cert tests
+      // @TODO: separate out tests into specific features eg lando-v4-certs lando-v4-users
 
       /*
       # Should have the correct entries in /certs/cert.ext
@@ -176,12 +178,12 @@ module.exports = {
       lando ssh -s placeholder -c "cat /certs/cert.ext" | grep placeholder.lando-lemp.lndo.site
       */
 
+      // @TODO: docs?
       // @TODO: pass on debugging?
       // @TODO: overrides for this.run()?
       // @TODO: better appmount logix?
       // @TODO: allow additonal users to be installed in config.users?
       // @TODO: change lando literal to "lando product"
-      // @TODO: separate out tests into specific features eg lando-v4-certs lando-v4-users
       // @TODO: debug/lando_debug should be set with env?
 
       // get stuff from config

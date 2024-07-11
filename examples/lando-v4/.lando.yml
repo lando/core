@@ -6,8 +6,8 @@ services:
       imagefile: |
         FROM nginxinc/nginx-unprivileged:1.26.1
         USER root
-        RUN apt update -u
-        RUN apt install git ssh socat sudo -y
+        RUN apt update -y
+        RUN apt install ssh -y
         RUN ssh-keyscan github.com >> /etc/ssh/ssh_known_hosts
     user: nginx
     build:
