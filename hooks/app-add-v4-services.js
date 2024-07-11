@@ -13,7 +13,7 @@ module.exports = async (app, lando) => {
 
   // if no service is set as the primary one lets set the first one as primary
   if (_.find(app.v4.parsedConfig, service => service.primary === true) === undefined) {
-    if (_.has(app, 'v4.parsedConfig[0.name')) app.v4.parsedConfig[0].primary = true;
+    if (_.has(app, 'v4.parsedConfig[0].name')) app.v4.parsedConfig[0].primary = true;
   }
 
   // note the primary service in a more convenient place so we dont have to search for it all the time

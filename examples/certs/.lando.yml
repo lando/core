@@ -25,6 +25,7 @@ services:
     command: sleep infinity
   nginx:
     api: 4
+    primary: true
     certs: /certs/cert.crt
     hostnames:
       - bobthing

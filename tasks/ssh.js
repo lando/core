@@ -5,14 +5,15 @@ const _ = require('lodash');
 
 // Other things
 const bashme = ['/bin/sh', '-c', 'if ! type bash > /dev/null; then sh; else bash; fi'];
-const task = {
+
+module.exports = (lando, app) => ({
   command: 'ssh',
-  describe: 'Drops into a shell on a service, runs commands',
+  override: true,
   options: {
     service: {
       describe: 'SSH into this service',
       alias: ['s'],
-      default: 'appserver',
+      default: app.primary ?? 'appserver',
     },
     command: {
       describe: 'Run a command in the service',
@@ -23,10 +24,7 @@ const task = {
       alias: ['u'],
     },
   },
-};
-
-module.exports = (lando, app) => {
-  task.run = ({appname = undefined, command = bashme, service = 'appserver', user = null, _app = {}} = {}) => {
+  run: ({command = bashme, service = 'appserver', user = null, _app = {}} = {}) => {
     // Try to get our app
     const app = lando.getApp(_app.root, false);
 
@@ -81,6 +79,5 @@ module.exports = (lando, app) => {
         });
       });
     }
-  };
-  return task;
-};
+  },
+});
