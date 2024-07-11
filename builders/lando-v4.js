@@ -151,9 +151,8 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
-      // @TODO: socat no longer works? can we do a hack or something for this for now?
+      // @TODO: dev cli test core 4now
 
-      // @TODO: hide lando ssh
       // @TODO: new exec with ssh alias for backwards compat?
       // @TODO: opportunity to intro new -- lando ssh syntax?
 
@@ -163,6 +162,10 @@ module.exports = {
       // @TODO: THE GREAT TEST RECKONING?
       // @TODO: add in cert tests
       // @TODO: separate out tests into specific features eg lando-v4-certs lando-v4-users
+
+      // @TODO: exec docs
+      // @TODO: update cli commands with usage info and positionals if needed?
+      // @TODO: do positionals and usage work in tooling now?
 
       /*
       # Should have the correct entries in /certs/cert.ext

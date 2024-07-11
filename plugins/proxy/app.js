@@ -151,7 +151,7 @@ module.exports = (app, lando) => {
         // Add hasCerts to servedBys
         _.forEach(servedBy, name => {
           const service = _.find(app.info, {service: name});
-          service.hasCerts = true;
+          if (service) service.hasCerts = true;
         });
 
         // get new v4 ssl ready services

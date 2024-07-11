@@ -120,8 +120,8 @@ module.exports = async (app, lando) => {
   // @TODO: i feel like there has to be a better way to do this than this mega loop right?
   app.events.on('post-init', 9999, async () => await require('./hooks/app-set-bind-address')(app, lando));
 
-  // override the ssh tooling command with a good default
-  app.events.on('ready', 1, async () => await require('./hooks/app-override-ssh-defaults')(app, lando));
+  // override default tooling commands if needed
+  app.events.on('ready', 1, async () => await require('./hooks/app-override-tooling-defaults')(app, lando));
 
   // Discover portforward true info
   app.events.on('ready', async () => await require('./hooks/app-set-portforwards')(app, lando));
