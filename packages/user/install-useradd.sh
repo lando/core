@@ -23,7 +23,7 @@ if [ ! -x "$(command -v useradd)" ]; then
       yum install -y shadow-utils
       ;;
     *)
-      abort "$LANDO_LINUX_PACKAGE_MANAGER not supported! Could not install sudo!"
+      abort "$LANDO_LINUX_PACKAGE_MANAGER not supported! Could not install useradd!"
       ;;
   esac
 fi
