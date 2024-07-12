@@ -7,6 +7,8 @@ proxy:
 events:
   post-start:
     - nginx: env | grep LANDO | sort
+    - debian: tail -f /dev/null &
+    - web3: tail -f /dev/null &
 services:
   alpine:
     api: 4
@@ -14,7 +16,10 @@ services:
     command: sleep infinity
   debian:
     api: 4
-    image: debian:bookworm-slim
+    image:
+      imagefile: |
+        FROM debian:bookworm-slim
+        RUN apt update -y && apt install -y procps
     command: sleep infinity
   fedora:
     api: 4
@@ -45,9 +50,27 @@ services:
       - 8080/http
       - 8443/https
 
+  web3:
+    api: 3
+    type: lando
+    ssl: true
+    sslExpose: false
+    services:
+      image: bitnami/nginx
+      command: /opt/bitnami/scripts/nginx/entrypoint.sh /opt/bitnami/scripts/nginx/run.sh
+      ports:
+        - "8080"
+      user: root
+
 tooling:
   env:
     service: nginx
+  backgrounder:
+    service: debian
+    cmd: tail -f /dev/null &
+  backgrounder2:
+    service: web3
+    cmd: tail -f /dev/null &
 
 plugins:
   "@lando/core": "../.."
