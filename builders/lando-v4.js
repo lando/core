@@ -151,11 +151,9 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
-      // @TODO: /etc/lando/exec.sh for events?
-      // @TODO: & -> detach handling? docker exec and docker compose exec?
-
       // @TODO: better CA/cert/all things envvars?
       // @TODO: LANDO_INFO file?
+      // @TODO: finish cert adding on windows and linux?
 
       // @TODO: THE GREAT TEST RECKONING/REORG?
       // @TODO: add in cert tests
@@ -164,6 +162,9 @@ module.exports = {
       // @TODO: exec docs
       // @TODO: update cli commands with usage info and positionals if needed?
       // @TODO: do positionals and usage work in tooling now?
+      // @TODO: docs?
+      // @TODO: pass on debugging?
+      // @TODO: switch back to 3-slim
 
       /*
       # Should have the correct entries in /certs/cert.ext
@@ -179,14 +180,11 @@ module.exports = {
       lando ssh -s placeholder -c "cat /certs/cert.ext" | grep placeholder.lando-lemp.lndo.site
       */
 
-      // @TODO: docs?
-      // @TODO: pass on debugging?
       // @TODO: overrides for this.run()?
       // @TODO: better appmount logix?
       // @TODO: allow additonal users to be installed in config.users?
       // @TODO: change lando literal to "lando product"
       // @TODO: debug/lando_debug should be set with env?
-      // @TODO: switch make to 3-slim
 
       // get stuff from config
       const {caCert, caDomain, gid, uid, username} = lando.config;
