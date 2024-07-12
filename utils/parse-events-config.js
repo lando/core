@@ -48,6 +48,17 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
     _.get(app, 'v4.servicesList', []),
   ]).flatten().compact().uniq().value();
 
+  // attempt to ascertain whether this is a v4 "exec" service
+  const canExec = _.get(app, 'v4.services', []).find(s => s.id === service)?.canExec ?? false;
+
+  // reset the cmd based on exec situation
+  if (canExec) {
+    cmd = _.isArray(command) ? command : require('string-argv')(command);
+    cmd = ['/etc/lando/exec.sh', ...cmd];
+  } else {
+    cmd = ['/bin/sh', '-c', _.isArray(command) ? command.join(' ') : command];
+  }
+
   // Validate the service if we can
   // @NOTE fast engine runs might not have this data yet
   if (
@@ -60,7 +71,7 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
   // Add the build command
   return {
     id: app.containers[service],
-    cmd: ['/bin/sh', '-c', _.isArray(command) ? command.join(' ') : command],
+    cmd,
     compose: app.compose,
     project: app.project,
     api: _.includes(v4s, service) ? 4 : 3,
