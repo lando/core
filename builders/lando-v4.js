@@ -152,9 +152,7 @@ module.exports = {
 
     constructor(id, options, app, lando) {
       // @TODO: /etc/lando/exec.sh for events?
-      // @TODO: entrypoint for docker run?
       // @TODO: & -> detach handling? docker exec and docker compose exec?
-      // @TODO: opportunity to intro new -- lando ssh syntax?
 
       // @TODO: better CA/cert/all things envvars?
       // @TODO: LANDO_INFO file?
@@ -457,14 +455,14 @@ module.exports = {
     }
 
     async runHook(hook, {attach = true, user = this.user.name} = {}) {
-      return await this.run(hook, {attach, user, entrypoint: ['/etc/lando/run-hooks.sh']});
+      return await this.run(['/etc/lando/run-hooks.sh', ...hook], {attach, user, entrypoint: ['/etc/lando/exec.sh']});
     }
 
     async run(command, {
       attach = true,
       user = this.user.name,
       workingDir = this.appMount,
-      entrypoint = ['/bin/sh', '-c'],
+      entrypoint = ['/bin/bash', '-c'],
     } = {}) {
       const bengine = LandoServiceV4.getBengine(LandoServiceV4.bengineConfig, {
         builder: LandoServiceV4.builder,
