@@ -148,7 +148,7 @@ module.exports = (config = {}, argv = {}, tasks = []) => {
     try {
       const composeCache = JSON.parse(fs.readFileSync(config.composeCache, {encoding: 'utf-8'}));
       const overrides = _(_.get(composeCache, 'overrides.tooling', [])).map(t => ([t.command, t])).fromPairs().value();
-      _.merge(coreTasks, overrides);
+      Object.assign(coreTasks, overrides);
     } catch (e) {
       throw new Error(`There was a problem with parsing ${config.composeCache}. Ensure it is valid JSON! ${e}`);
     }

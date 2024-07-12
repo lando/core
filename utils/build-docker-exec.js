@@ -33,6 +33,7 @@ module.exports = (injected, stdio, datum = {}) => {
   // Depending on whether injected is the app or lando
   const dockerBin = injected.config.dockerBin || injected._config.dockerBin;
   const opts = {mode: 'attach', cstdio: stdio};
+
   // Run run run
   return injected.shell.sh(getExecOpts(dockerBin, datum).concat(datum.cmd), opts);
 };

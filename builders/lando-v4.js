@@ -151,15 +151,15 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
-      // @TODO: dev cli test core 4now
-
-      // @TODO: new exec with ssh alias for backwards compat?
+      // @TODO: /etc/lando/exec.sh for events?
+      // @TODO: entrypoint for docker run?
+      // @TODO: & -> detach handling? docker exec and docker compose exec?
       // @TODO: opportunity to intro new -- lando ssh syntax?
 
       // @TODO: better CA/cert/all things envvars?
       // @TODO: LANDO_INFO file?
 
-      // @TODO: THE GREAT TEST RECKONING?
+      // @TODO: THE GREAT TEST RECKONING/REORG?
       // @TODO: add in cert tests
       // @TODO: separate out tests into specific features eg lando-v4-certs lando-v4-users
 
@@ -188,6 +188,7 @@ module.exports = {
       // @TODO: allow additonal users to be installed in config.users?
       // @TODO: change lando literal to "lando product"
       // @TODO: debug/lando_debug should be set with env?
+      // @TODO: switch make to 3-slim
 
       // get stuff from config
       const {caCert, caDomain, gid, uid, username} = lando.config;
