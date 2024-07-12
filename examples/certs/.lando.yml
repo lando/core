@@ -4,6 +4,9 @@ proxy:
     - lando-certs.lndo.site:8080
     - hostname: lando-certs-2.lndo.site
       port: 8080
+events:
+  post-start:
+    - nginx: env | grep LANDO | sort
 services:
   alpine:
     api: 4
@@ -27,6 +30,10 @@ services:
     api: 4
     primary: true
     certs: /certs/cert.crt
+    build:
+      app: |
+        echo "app build"
+        sh -c "env | grep LANDO | sort"
     hostnames:
       - bobthing
     image:
@@ -37,6 +44,10 @@ services:
     ports:
       - 8080/http
       - 8443/https
+
+tooling:
+  env:
+    service: nginx
 
 plugins:
   "@lando/core": "../.."
