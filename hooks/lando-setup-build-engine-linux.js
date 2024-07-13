@@ -67,7 +67,7 @@ module.exports = async (lando, options) => {
           ctx.password = await task.prompt({
             type: 'password',
             name: 'password',
-            message: `Enter computer password for ${lando.config.usernam} to add them to docker group`,
+            message: `Enter computer password for ${lando.config.username} to add them to docker group`,
             validate: async (input, state) => {
               const options = {debug, ignoreReturnCode: true, password: input};
               const response = await require('../utils/run-elevated')(['echo', 'hello there'], options);
