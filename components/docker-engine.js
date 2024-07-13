@@ -15,6 +15,9 @@ const makeError = require('../utils/make-error');
 const makeSuccess = require('../utils/make-success');
 const mergePromise = require('../utils/merge-promise');
 
+const read = require('../utils/read-file');
+const write = require('../utils/write-file');
+
 class DockerEngine extends Dockerode {
   static name = 'docker-engine';
   static cspace = 'docker-engine';
@@ -135,6 +138,13 @@ class DockerEngine extends Dockerode {
     // from source above
     fs.copySync(dockerfile, path.join(context, 'Dockerfile'));
     debug('copied Imagefile from %o to %o', dockerfile, path.join(context, 'Dockerfile'));
+
+    // on windows we want to ensure the build context has linux line endings
+    if (process.platform === 'win32') {
+      for (const file of require('glob').sync(path.join(context, '**/*'), {nodir: true})) {
+        write(file, read(file), {forcePosixLineEndings: true});
+      }
+    }
 
     // call the parent
     // @TODO: consider other opts? https://docs.docker.com/engine/api/v1.43/#tag/Image/operation/ImageBuild args?
