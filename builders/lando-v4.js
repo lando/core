@@ -328,6 +328,7 @@ module.exports = {
         // reset file to a path
         file = path.join(this.context, id ? `${priority}-${id}.sh` : `${priority}-${stage}-${hook}.sh`);
         write(file, contents, {forcePosixLineEndings: true});
+        fs.chmodSync(file, '755');
       }
 
       // image stage should add directly to the build context
