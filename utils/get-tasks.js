@@ -129,13 +129,16 @@ module.exports = (config = {}, argv = {}, tasks = []) => {
   _.forEach(_.get(config, 'tooling', {}), (task, command) => {
     if (_.isObject(task)) {
       tasks.push({
-        command,
         id: command.split(' ')[0],
-        level,
+        command,
+        delegate: _.isEmpty(_.get(task, 'options', {})) && _.isEmpty(_.get(task, 'positionals', {})),
         describe: _.get(task, 'description', `Runs ${command} commands`),
+        examples: _.get(task, 'examples', []),
+        level,
         options: _.get(task, 'options', {}),
+        positionals: _.get(task, 'positionals', {}),
+        usage: _.get(task, 'usage', command),
         run: (level === 'app') ? appRunner(command) : engineRunner({...config, argv}, command, task),
-        delegate: _.isEmpty(_.get(task, 'options', {})),
       });
     }
   });

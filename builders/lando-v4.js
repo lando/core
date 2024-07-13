@@ -154,16 +154,14 @@ module.exports = {
     constructor(id, options, app, lando) {
       // @TODO: better CA/cert/all things envvars?
       // @TODO: LANDO_INFO file?
-      // @TODO: finish cert adding on windows and linux?
+      // @TODO: update cli commands with usage info and positionals and examples if needed?
 
       // @TODO: THE GREAT TEST RECKONING/REORG?
       // @TODO: add in cert tests
       // @TODO: separate out tests into specific features eg lando-v4-certs lando-v4-users
 
-      // @TODO: exec docs
-      // @TODO: update cli commands with usage info and positionals if needed?
-      // @TODO: do positionals and usage work in tooling now?
-      // @TODO: docs?
+      // @TODO: exec, cli docs
+      // @TODO: tooling docs?
       // @TODO: pass on debugging?
       // @TODO: switch back to 3-slim
 

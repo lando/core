@@ -131,6 +131,8 @@ tooling:
     service: :service
     cmd: /app/word-engine.sh
     level: engine
+    examples:
+      - ['thing', 'stuff']
     options:
       service:
         default: web
