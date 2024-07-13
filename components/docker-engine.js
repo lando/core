@@ -277,15 +277,12 @@ class DockerEngine extends Dockerode {
     // move other sources into the build contex
     // we read/write so we can make sure we are removing windows line endings
     for (const source of sources) {
-      // copy first so we also get the metadata like perms
       fs.copySync(source.source, path.join(context, source.destination));
-      // rewrite contents to ensure no windows line endings
-      write(path.join(context, source.destination), read(path.join(context, source.destination)), {forcePosixLineEndings: true});
       debug('copied %o into build context %o', source.source, path.join(context, source.destination));
     }
 
     // copy the dockerfile to the correct place
-    write(path.join(context, 'Dockerfile'), read(dockerfile), {forcePosixLineEndings: true});
+    fs.copySync(dockerfile, path.join(context, 'Dockerfile'));
     debug('copied Imagefile from %o to %o', dockerfile, path.join(context, 'Dockerfile'));
 
     // debug
