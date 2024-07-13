@@ -292,6 +292,13 @@ class DockerEngine extends Dockerode {
     fs.copySync(dockerfile, path.join(context, 'Dockerfile'));
     debug('copied Imagefile from %o to %o', dockerfile, path.join(context, 'Dockerfile'));
 
+    // on windows we want to ensure the build context has linux line endings
+    if (process.platform === 'win32') {
+      for (const file of require('glob').sync(path.join(context, '**/*'), {nodir: true})) {
+        write(file, read(file), {forcePosixLineEndings: true});
+      }
+    }
+
     // debug
     debug('buildxing image %o from %o with build-args', tag, context, buildArgs);
 
