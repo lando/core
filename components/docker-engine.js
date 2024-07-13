@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 'use strict';
 
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 const merge = require('lodash/merge');
 const slugify = require('slugify');
@@ -277,13 +277,15 @@ class DockerEngine extends Dockerode {
     // move other sources into the build contex
     // we read/write so we can make sure we are removing windows line endings
     for (const source of sources) {
-      write(path.join(context, source.destination), read(source.source), {forcePosixLineEndings: true});
+      // copy first so we also get the metadata like perms
+      fs.copySync(source.source, path.join(context, source.destination));
+      // rewrite contents to ensure no windows line endings
+      write(path.join(context, source.destination), read(path.join(context, source.destination)), {forcePosixLineEndings: true});
       debug('copied %o into build context %o', source.source, path.join(context, source.destination));
     }
 
     // copy the dockerfile to the correct place
     write(path.join(context, 'Dockerfile'), read(dockerfile), {forcePosixLineEndings: true});
-
     debug('copied Imagefile from %o to %o', dockerfile, path.join(context, 'Dockerfile'));
 
     // debug
