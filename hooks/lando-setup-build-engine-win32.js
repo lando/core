@@ -3,11 +3,11 @@
 const os = require('os');
 const path = require('path');
 const semver = require('semver');
-
 const {color} = require('listr2');
 const {nanoid} = require('nanoid');
 
 const buildIds = {
+  '4.32.0': '157355',
   '4.31.1': '153621',
   '4.31.0': '153195',
   '4.30.0': '149282',

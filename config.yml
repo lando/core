@@ -15,14 +15,14 @@ dockerSupportedVersions:
       win32: https://docs.docker.com/desktop/install/windows-install/
   desktop:
     satisfies: ">=4.0.0 <5"
-    tested: "<=4.31.1"
+    tested: "<=4.32.0"
     recommendUpdate: "<=4.28.0"
     link:
       darwin: https://docs.docker.com/desktop/install/mac-install/
       win32: https://docs.docker.com/desktop/install/windows-install/
   engine:
-    satisfies: ">=18 <27"
-    tested: "<=26.1.4"
+    satisfies: ">=18 <28"
+    tested: "<=27.0.3"
     link:
       linux: https://docs.docker.com/engine/install/debian/#install-using-the-convenience-script
 

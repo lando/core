@@ -7,10 +7,10 @@
 * Improved CA and cert generation
 * Improved `v3` plugin script automoving
 * Updated default Docker Compose version to `2.27.1`
-* Updated default Docker Desktop for MacOS version to `4.31.0`
-* Updated default Docker Desktop for Windows version to `4.31.1`
-* Updated default Docker Engine version to `26.1.4`
-* Updated tested Docker Desktop range to `<=4.31`
+* Updated default Docker Desktop for macOS version to `4.32.0`
+* Updated default Docker Desktop for Windows version to `4.32.0`
+* Updated default Docker Engine version to `27.0.3`
+* Updated tested Docker Desktop range to `<=4.32`
 
 ### Internal
 
