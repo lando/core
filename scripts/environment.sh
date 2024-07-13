@@ -23,7 +23,7 @@ case "$LANDO_LINUX_DISTRO" in
   centos)
     export LANDO_LINUX_PACKAGE_MANAGER="yum"
     ;;
-  debian|ubuntu)
+  debian|pop|ubuntu)
     export LANDO_LINUX_PACKAGE_MANAGER="apt"
     ;;
   fedora)
