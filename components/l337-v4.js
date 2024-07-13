@@ -19,6 +19,7 @@ EventEmitter.setMaxListeners(64);
 // @TODO: should these be methods as well? static or otherwise?
 const getMountMatches = require('../utils/get-mount-matches');
 const hasInstructions = require('../utils/has-instructions');
+const toPosixPath = require('../utils/to-posix-path');
 
 class L337ServiceV4 extends EventEmitter {
   #app
@@ -283,18 +284,24 @@ class L337ServiceV4 extends EventEmitter {
     if (context && context.length > 0) {
       this.#data.sources.push(context.map(file => {
         // file is a string with src par
-        if (typeof file === 'string' && file.split(':').length === 1) file = {src: file, dest: file};
+        if (typeof file === 'string' && toPosixPath(file).split(':').length === 1) file = {src: file, dest: file};
         // file is a string with src and dest parts
-        if (typeof file === 'string' && file.split(':').length === 2) file = {src: file.split(':')[0], dest: file.split(':')[1]}; // eslint-disable-line max-len
+        if (typeof file === 'string' && toPosixPath(file).split(':').length === 2) {
+          const parts = file.split(':');
+          const dest = parts.pop();
+          const src = parts.join(':');
+          file = {src, dest};
+        }
         // file is an object with src key
         if (isObject(file) && file.src) file.source = file.src;
         // file is an object with dest key
         if (isObject(file) && file.dest) file.destination = file.dest;
         // if source is actually a url then lets address that
         try {
-          file.url = new URL(file.source).href;
+          file.url = new URL(toPosixPath(file.source)).href;
           delete file.source;
         } catch {}
+
         // at this point we need to make sure a desintation is set
         if (!file.destination && file.source) file.destination = file.source;
         if (!file.destination && file.url) file.destination = new URL(file.url).pathname;
@@ -314,7 +321,7 @@ class L337ServiceV4 extends EventEmitter {
           if (file.owner) file.instructions.push(`--chown=${file.owner}`);
           if (file.permissions) file.instructions.push(`--chmod=${file.permissions}`);
           file.instructions.push(file.url || file.destination);
-          file.instructions.push(path.resolve('/', file.destination));
+          file.instructions.push(process.platform === 'win32' ? file.destination : path.resolve('/', file.destination));
           file.instructions = file.instructions.join(' ');
         }
 
@@ -382,20 +389,23 @@ class L337ServiceV4 extends EventEmitter {
     if (compose.volumes && Array.isArray(compose.volumes)) {
       compose.volumes = compose.volumes.map(volume => {
         // if volume is a one part string then just return so we dont have to handle it downstream
-        if (typeof volume === 'string' && volume.split(':').length === 1) return volume;
+        if (typeof volume === 'string' && toPosixPath(volume).split(':').length === 1) return volume;
 
         // if volumes is a string with two colon-separated parts then do stuff
-        if (typeof volume === 'string' && volume.split(':').length === 2) {
-          volume = {source: volume.split(':')[0], target: volume.split(':')[1]};
+        if (typeof volume === 'string' && toPosixPath(volume).split(':').length === 2) {
+          const parts = volume.split(':');
+          const target = parts.pop();
+          const source = parts.join(':');
+          volume = {source, target};
         }
 
         // if volumes is a string with three colon-separated parts then do stuff
-        if (typeof volume === 'string' && volume.split(':').length === 3) {
-          volume = {
-            source: volume.split(':')[0],
-            target: volume.split(':')[1],
-            read_only: volume.split(':')[2] === 'ro',
-          };
+        if (typeof volume === 'string' && toPosixPath(volume).split(':').length === 3) {
+          const parts = volume.split(':');
+          const mode = parts.pop();
+          const target = parts.pop();
+          const source = parts.join(':');
+          volume = {source, target, read_only: mode === 'ro'};
         }
 
         // if source is not an absolute path that exists relateive to appRoot then set as bind
@@ -608,8 +618,8 @@ class L337ServiceV4 extends EventEmitter {
 
       // prefix user and comment data and some helpful envvars
       steps[group].unshift(`USER ${user}`);
-      steps[group].unshift(`ENV LANDO_IMAGE_GROUP ${group}`);
-      steps[group].unshift(`ENV LANDO_IMAGE_USER ${user}`);
+      steps[group].unshift(`ENV LANDO_IMAGE_GROUP=${group}`);
+      steps[group].unshift(`ENV LANDO_IMAGE_USER=${user}`);
       steps[group].unshift(`# group: ${group}`);
       // and add a newline for readability
       steps[group].push('');

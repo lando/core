@@ -13,7 +13,7 @@ module.exports = async (service, certs) => {
 
   // if cert is an object with no key then compute the key with the cert
   if (isObject(certs) && certs?.key === undefined) {
-    certs.key = path.join(path.dirname(certs.cert), 'cert.key');
+    certs.key = path.posix.join(path.dirname(certs.cert), 'cert.key');
   }
 
   // make sure both cert and key are arrays
