@@ -6,6 +6,7 @@ const merge = require('lodash/merge');
 const path = require('path');
 const uniq = require('lodash/uniq');
 const write = require('../utils/write-file');
+const toPosixPath = require('../utils/to-posix-path');
 
 const states = {APP: 'UNBUILT'};
 const groups = {
@@ -131,8 +132,8 @@ module.exports = {
       this.addLSF(path.join(__dirname, '..', 'scripts', 'install-updates.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'install-bash.sh'));
       this.addSteps({group: 'boot', instructions: `
-        ENV DEBUG 1
-        ENV LANDO_DEBUG 1
+        ENV DEBUG=1
+        ENV LANDO_DEBUG=1
         RUN mkdir -p /etc/lando /etc/lando/env.d /etc/lando/build/image
         RUN chmod 777 /etc/lando
         RUN ln -sf /etc/lando/environment /etc/profile.d/lando.sh
@@ -315,7 +316,7 @@ module.exports = {
 
     addHookFile(file, {id = undefined, hook = 'boot', stage = 'image', priority = '100'} = {}) {
       // if file is actually script content we need to normalize and dump it first
-      if (!require('valid-path')(file, {simpleReturn: true})) {
+      if (!require('valid-path')(toPosixPath(file), {simpleReturn: true})) {
         // split the file into lines
         file = file.split('\n');
         // trim any empty lines at the top
@@ -326,7 +327,7 @@ module.exports = {
 
         // reset file to a path
         file = path.join(this.context, id ? `${priority}-${id}.sh` : `${priority}-${stage}-${hook}.sh`);
-        write(file, contents);
+        write(file, contents, {forcePosixLineEndings: true});
       }
 
       // image stage should add directly to the build context
@@ -514,8 +515,8 @@ module.exports = {
 
       // ensure mount
       const mounts = [
-        `${npmauthfile}:/home/${this.user.name}/.npmrc`,
-        `${npmauthfile}:/root/.npmrc`,
+        `${npmauthfile}:/home/${this.user.name}/.npmrc:ro`,
+        `${npmauthfile}:/root/.npmrc:ro`,
       ];
       this.addLandoServiceData({volumes: mounts});
       this.npmrc = contents.join('\n');

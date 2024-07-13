@@ -9,3 +9,5 @@
 *.ini text eol=lf
 *.php text eol=lf
 *.vcl text eol=lf
+lash text eol=lf
+landorc text eol=lf

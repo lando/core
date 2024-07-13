@@ -15,8 +15,8 @@ module.exports = async service => {
   const {name, uid, gid} = service.user;
   const socket = process.platform === 'linux' ? process.env.SSH_AUTH_SOCK : `/run/host-services/ssh-auth.sock`;
 
-  // if no socket then just bail
-  if (!socket) return;
+  // if no socket or on windows then just bail
+  if (!socket || process.platform === 'win32') return;
 
   // if not root then we need to do some extra stuff
   if (name !== 'root' && uid !== 0 || uid !== '0') {
