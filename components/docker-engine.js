@@ -15,9 +15,6 @@ const makeError = require('../utils/make-error');
 const makeSuccess = require('../utils/make-success');
 const mergePromise = require('../utils/merge-promise');
 
-const read = require('../utils/read-file');
-const write = require('../utils/write-file');
-
 class DockerEngine extends Dockerode {
   static name = 'docker-engine';
   static cspace = 'docker-engine';
