@@ -8,11 +8,11 @@ const os = require('os');
 const getBuildEngineVersion = () => {
   switch (process.platform) {
     case 'darwin':
-      return '4.31.0';
+      return '4.32.0';
     case 'linux':
-      return '26.1.4';
+      return '27.0.3';
     case 'win32':
-      return '4.31.1';
+      return '4.32.0';
   }
 };
 

@@ -8,7 +8,6 @@ module.exports = (format = 'fingerprint') => {
       return require('mac-ca').get({format});
     case 'linux':
       const {systemCertsSync} = require('system-ca');
-
       for (const cert of systemCertsSync()) {
         try {
           fingerprints.push(require('./get-fingerprint')(cert));
