@@ -8,10 +8,15 @@ const {color} = require('listr2');
 
 module.exports = (lando, config) => ({
   command: 'exec',
-  describe: 'Runs commands on a service',
+  describe: 'Runs command(s) on a service',
   usage: '$0 exec <service> [--user <user>] -- <command>',
   override: true,
   level: 'engine',
+  examples: [
+    '$0 exec appserver -- lash bash',
+    '$0 exec nginx --user root -- whoami',
+    `$0 exec my-service -- "env && echo 'hello there!"'`,
+  ],
   positionals: {
     service: {
       describe: 'Runs on this service',

@@ -7,9 +7,13 @@ module.exports = lando => {
   return {
     command: 'rebuild',
     describe: 'Rebuilds your app from scratch, preserving data',
+    usage: '$0 rebuild [--service <service>...] [--yes]',
+    examples: [
+      '$0 rebuild --service php --service nginx --yes',
+    ],
     options: {
       service: {
-        describe: 'Rebuild only the specified services',
+        describe: 'Rebuilds only the specified services',
         alias: ['s'],
         array: true,
       },

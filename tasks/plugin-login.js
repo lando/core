@@ -3,10 +3,15 @@
 module.exports = lando => {
   return {
     command: 'plugin-login',
+    usage: '$0 plugin-login [--username <username>] [--password <password>] [--registry <registry>]',
+    examples: [
+      '$0 plugin-login --username riker --password "$TOKEN"',
+      '$0 plugin-login --registry https://npm.pkg.github.com',
+    ],
     level: 'tasks',
     options: {
       username: {
-        describe: 'The registry username',
+        describe: 'Sets the registry username',
         alias: ['u'],
         string: true,
         interactive: {
@@ -19,7 +24,7 @@ module.exports = lando => {
         },
       },
       password: {
-        describe: 'The registry password',
+        describe: 'Sets the registry password',
         alias: ['p'],
         string: true,
         interactive: {
@@ -32,18 +37,17 @@ module.exports = lando => {
         },
       },
       registry: {
-        describe: 'Use registry',
+        describe: 'Sets registry',
         alias: ['r'],
         string: true,
         default: 'https://registry.npmjs.org',
       },
       scope: {
-        describe: 'Use scopes',
+        describe: 'Sets scopes',
         alias: ['s'],
         array: true,
       },
     },
-
     run: async options => {
       const merge = require('lodash/merge');
       const profile = require('npm-profile');

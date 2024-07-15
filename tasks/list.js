@@ -7,28 +7,36 @@ module.exports = lando => {
   return {
     command: 'list',
     describe: 'Lists all running lando apps and containers',
+    usage: '$0 list [--format <default|json|table>] [--path <path>]',
+    examples: [
+      '$0 config',
+      '$0 config --format table --path env',
+    ],
     level: 'engine',
     options: _.merge({}, lando.cli.formatOptions(), {
       all: {
-        describe: 'Show all containers, even those not running',
+        describe: 'Shows all containers, even those not running',
         alias: ['a'],
         boolean: true,
       },
       app: {
-        describe: 'Show containers for only a particular app',
+        describe: 'Shows containers for only a particular app',
         string: true,
       },
     }),
     run: async options => {
+      // if options is a table then map it over to the new otable
+      if (options.format === 'table') options.format = 'otable';
+
       // List all the apps
-      await lando.engine.list(options)
-      // Map each app to a summary and print results
-      .then(containers => console.log(lando.cli.formatData(
-        _(containers)
-          .map(container => _.omit(container, ['lando', 'id', 'instance']))
-          .value(),
-        options,
-      )));
+      const containers = await lando.engine.list(options)
+        .map(container => _.omit(container, ['lando', 'id', 'instance']));
+
+      // we want to do a slightly different thing for otable
+      if (options.format === 'otable') {
+        for (const container of containers) console.log(lando.cli.formatData(container, options));
+      // and then everything else
+      } else console.log(lando.cli.formatData(containers, options));
     },
   };
 };

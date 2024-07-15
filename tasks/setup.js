@@ -71,28 +71,28 @@ module.exports = lando => {
   // default options
   const options = {
     'build-engine': {
-      describe: `The version of the build engine (${buildEngine}) to install`,
+      describe: `Sets the version of the build engine (${buildEngine}) to install`,
       default: defaults.buildEngine,
       string: true,
     },
     'orchestrator': {
-      describe: 'The version of the orchestrator (docker-compose) to install',
+      describe: 'Sets the version of the orchestrator (docker-compose) to install',
       default: defaults.orchestrator,
       string: true,
     },
     'plugin': {
-      describe: 'Additional plugin(s) to install',
+      describe: 'Sets additional plugin(s) to install',
       default: require('../utils/parse-to-plugin-strings')(defaults.plugins),
       array: true,
-    },
-    'skip-install-ca': {
-      describe: 'Disables the installation of the Lando Certificate Authority (CA)',
-      default: defaults.skipInstallCA,
-      boolean: true,
     },
     'skip-common-plugins': {
       describe: 'Disables the installation of common Lando plugins',
       default: defaults.skipCommonPlugins,
+      boolean: true,
+    },
+    'skip-install-ca': {
+      describe: 'Disables the installation of the Lando Certificate Authority (CA)',
+      default: defaults.skipInstallCA,
       boolean: true,
     },
     'skip-networking': {
@@ -125,6 +125,18 @@ module.exports = lando => {
 
   return {
     command: 'setup',
+    usage: `$0 setup
+    [--build-engine <version>]
+    [--build-engine-accept-license]
+    [--orchestrator <version>]
+    [--plugin <plugin>...]
+    [--skip-common-plugins]
+    [--skip-install-ca]
+    [--yes]`,
+    examples: [
+      '$0 setup --skip-common-plugins --plugin @lando/php --plugin @lando/mysql --yes',
+      '$0 setup --skip-install-ca --build-engine 4.31.0 --build-engine-accept-license',
+    ],
     options,
     run: async options => {
       // @TODO: conditional visibility for lando setup re first time run succesfully?
