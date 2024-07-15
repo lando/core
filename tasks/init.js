@@ -66,6 +66,7 @@ module.exports = lando => {
     command: 'init',
     level: 'app',
     describe: 'Initializes code for use with lando',
+    usage: '$0 init [--name <name>] [--recipe <recipe>] [--source <source>]',
     options: _.merge(getInitBaseOpts(recipes, sources), configOpts, getInitOveridesOpts(inits, recipes, sources)),
     run: options => {
       // Parse options abd and configs

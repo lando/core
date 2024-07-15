@@ -3,6 +3,7 @@
 module.exports = lando => ({
   command: 'stop',
   describe: 'Stops your app',
+  usage: '$0 stop',
   run: async options => {
     // Try to get our app
     const app = lando.getApp(options._app.root);

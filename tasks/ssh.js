@@ -8,19 +8,24 @@ const bashme = ['/bin/sh', '-c', 'if ! type bash > /dev/null; then sh; else bash
 
 module.exports = (lando, app) => ({
   command: 'ssh',
+  usage: '$0 ssh [--command <command>] [--service <service>] [--user <user>]',
+  examples: [
+    '$0 ssh --command "env | grep LANDO_ | sort"',
+    '$0 ssh --command "apt update -y && apt install vim -y --user root --service appserver"',
+  ],
   override: true,
   options: {
     service: {
-      describe: 'SSH into this service',
+      describe: 'SSHs into this service',
       alias: ['s'],
       default: app.primary ?? 'appserver',
     },
     command: {
-      describe: 'Run a command in the service',
+      describe: 'Runs a command in the service',
       alias: ['c'],
     },
     user: {
-      describe: 'Run as a specific user',
+      describe: 'Runs as a specific user',
       alias: ['u'],
     },
   },

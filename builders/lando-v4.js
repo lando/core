@@ -152,18 +152,22 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
-      // @TODO: better CA/cert/all things envvars?
-      // @TODO: LANDO_INFO file?
       // @TODO: update cli commands with usage info and positionals and examples if needed?
+      // @TODO: what to do with formatData|formatOptions?
+        // keep them but introduce a otable? default should return undefined?
 
       // @TODO: THE GREAT TEST RECKONING/REORG?
       // @TODO: add in cert tests
       // @TODO: separate out tests into specific features eg lando-v4-certs lando-v4-users
 
+      // @TODO: better CA/cert/all things envvars?
+      // @TODO: LANDO_INFO file?
+
       // @TODO: exec, cli docs
       // @TODO: tooling docs?
       // @TODO: pass on debugging?
       // @TODO: switch back to 3-slim
+      // @TODO: init improvements re usage|examples?
 
       /*
       # Should have the correct entries in /certs/cert.ext
@@ -184,6 +188,7 @@ module.exports = {
       // @TODO: allow additonal users to be installed in config.users?
       // @TODO: change lando literal to "lando product"
       // @TODO: debug/lando_debug should be set with env?
+      // @TODO: command as a full script?
 
       // get stuff from config
       const {caCert, caDomain, gid, uid, username} = lando.config;
@@ -257,6 +262,9 @@ module.exports = {
 
       // volumes
       if (config['app-mount']) this.setAppMount(config['app-mount']);
+
+      // info things
+      this.info = {hostnames: this.hostnames};
 
       // auth stuff
       // @TODO: make this into a package?

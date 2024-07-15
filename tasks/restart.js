@@ -7,6 +7,7 @@ module.exports = lando => {
   return {
     command: 'restart',
     describe: 'Restarts your app',
+    usage: '$0 restart',
     run: async options => {
       // Try to get our app
       const app = lando.getApp(options._app.root);

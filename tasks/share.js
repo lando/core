@@ -4,6 +4,7 @@ module.exports = lando => {
   return {
     command: 'share',
     describe: 'Shares your local site publicly',
+    usage: '$0 share',
     run: options => {
       console.log(lando.cli.makeArt('shareWait'));
       /*
