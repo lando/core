@@ -152,13 +152,10 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
-      // @TODO: update cli commands with usage info and positionals and examples if needed?
-      // @TODO: what to do with formatData|formatOptions?
-        // keep them but introduce a otable? default should return undefined?
-
       // @TODO: THE GREAT TEST RECKONING/REORG?
-      // @TODO: add in cert tests
+      // @TODO: start by combining into a single test close
       // @TODO: separate out tests into specific features eg lando-v4-certs lando-v4-users
+      // @TODO: add in cert tests
 
       // @TODO: better CA/cert/all things envvars?
       // @TODO: LANDO_INFO file?

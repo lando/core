@@ -49,7 +49,7 @@ module.exports = lando => {
       Plugin.debug = require('../utils/debug-shim')(lando.log);
 
       // merge plugins together
-      const plugins = options._;
+      const plugins = options._.slice(1);
       lando.log.debug('attempting to install plugins %j', plugins);
 
       // attempt to compute the destination to install the plugin
