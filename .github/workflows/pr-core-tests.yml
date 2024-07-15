@@ -20,6 +20,7 @@ jobs:
           - examples/base
           - examples/events
           - examples/experimental
+          - examples/healthcheck
           - examples/init-github
           - examples/init-remote
           - examples/keys
@@ -27,12 +28,16 @@ jobs:
           - examples/lando-v4
           - examples/landofile-custom
           - examples/long-name
+          - examples/networking
           - examples/no-services
           - examples/orchestrator
           - examples/plugin-commands
+          - examples/proxy
+          - examples/scanner
           - examples/services
           - examples/sql-helpers
           - examples/tooling
+          - examples/update
         node-version:
           - "18"
         os:
