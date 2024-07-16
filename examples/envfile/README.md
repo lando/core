@@ -2,8 +2,6 @@
 
 This example exists primarily to test the following documentation:
 
-**Basics**
-
 * [Environment Files](http://docs.lando.dev/config/env.html#environment-files)
 
 See the [Landofiles](http://docs.lando.dev/config/lando.html) in this directory for the exact magicks.
