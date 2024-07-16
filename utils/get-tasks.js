@@ -29,7 +29,7 @@ const getBsLevel = (config, command) => {
  */
 const loadCacheFile = file => {
   try {
-    return JSON.parse(fs.readFileSync(file, {encoding: 'utf-8'}));
+    return JSON.parse(JSON.parse(fs.readFileSync(file, {encoding: 'utf-8'})));
   } catch (e) {
     throw new Error(`There was a problem with parsing ${file}. Ensure it is valid JSON! ${e}`);
   }
