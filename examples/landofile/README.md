@@ -2,8 +2,6 @@
 
 This example exists primarily to test the following documentation:
 
-**Basics**
-
 * [Landofiles](http://docs.lando.dev/config/lando.html)
 
 See the [Landofiles](http://docs.lando.dev/config/lando.html) in this directory for the exact magicks.

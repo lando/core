@@ -35,6 +35,7 @@ jobs:
           - examples/orchestrator
           - examples/plugin-commands
           - examples/proxy
+          - examples/recipes
           - examples/scanner
           - examples/services
           - examples/sql-helpers

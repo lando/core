@@ -113,7 +113,7 @@ module.exports = (config = {}, argv = {}, tasks = []) => {
     }
   // Or we have a recipe lets rebase on that
   } else if (_.has(config, 'recipe')) {
-    config.tooling = _.merge({}, loadCacheFile(config.toolingCache), config.tooling);
+    config.tooling = _.merge({}, JSON.parse(fs.readFileSync(config.toolingCache, {encoding: 'utf-8'})), config.tooling);
   }
 
   // lets add ids to help match commands with args?
