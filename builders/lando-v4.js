@@ -152,11 +152,6 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
-      // @TODO: THE GREAT TEST RECKONING/REORG?
-      // @TODO: start by combining into a single test close
-      // @TODO: separate out tests into specific features eg lando-v4-certs lando-v4-users
-      // @TODO: add in cert tests
-
       // @TODO: better CA/cert/all things envvars?
       // @TODO: LANDO_INFO file?
 

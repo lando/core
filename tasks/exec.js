@@ -1,10 +1,13 @@
 'use strict';
 
 // Modules
+const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
 
 const {color} = require('listr2');
+
+// @TODO: when we have a file for recipes/compose we can set choices on service
 
 module.exports = (lando, config) => ({
   command: 'exec',
@@ -21,7 +24,7 @@ module.exports = (lando, config) => ({
     service: {
       describe: 'Runs on this service',
       type: 'string',
-      choices: Object.keys(config?.services ?? {}),
+      choices: (config?.info ?? []).map(service => service.service),
     },
   },
   options: {
@@ -31,12 +34,14 @@ module.exports = (lando, config) => ({
     },
   },
   run: async options => {
+    // if no app then we need to throw
+    if (!fs.existsSync(config.composeCache)) {
+      throw new Error('Could not detect a built app. Rebuild or move into the correct location!');
+    }
+
     // Build a minimal app
     const AsyncEvents = require('../lib/events');
     const app = lando.cache.get(path.basename(config.composeCache));
-
-    // if no app then we need to throw
-    if (!app) throw new Error('Could not detect a built app. Rebuild or move into the correct location!');
 
     // augment
     app.config = config;
@@ -50,7 +55,7 @@ module.exports = (lando, config) => ({
     }
 
     // nice things
-    const aservices = Object.keys(config?.services ?? {});
+    const aservices = (config?.info ?? []).map(service => service.service);
     const choices = `[${color.green('choices:')} ${aservices.map(service => `"${service}"`).join(', ')}]`;
 
     // gather our options
