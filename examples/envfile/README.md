@@ -58,6 +58,7 @@ lando exec web4 -- env | grep "TAYLOR=SWIFT"
 lando exec web4 -- env| grep "LOCAL=LANDO"
 lando exec web4 -- env| grep "COUNT=1"
 cd ..
+```
 
 ## Destroy tests
 
