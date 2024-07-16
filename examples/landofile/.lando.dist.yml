@@ -1,0 +1,4 @@
+name: lando-landofile-dist
+compose:
+  - compose.yml
+

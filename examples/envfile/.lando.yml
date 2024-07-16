@@ -1,0 +1,30 @@
+name: lando-envfile
+env_file:
+  - environment/moar.env
+services:
+  web2:
+    api: 3
+    type: lando
+    services:
+      image: nginx:1.22.1
+      command: /docker-entrypoint.sh nginx -g "daemon off;"
+      ports:
+        - 80
+      volumes:
+        - ./:/usr/share/nginx/html
+  web3:
+    api: 4
+    type: l337
+    image: nginx
+    ports:
+      - '80/http'
+    volumes:
+    - ./:/usr/share/nginx/html
+  web4:
+    api: 4
+    type: lando
+    image: nginxinc/nginx-unprivileged:1.26.1
+    ports:
+      - 8080/http
+    app-mount:
+      destination: /usr/share/nginx/html

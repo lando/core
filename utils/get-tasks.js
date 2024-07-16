@@ -29,7 +29,7 @@ const getBsLevel = (config, command) => {
  */
 const loadCacheFile = file => {
   try {
-    return JSON.parse(JSON.parse(fs.readFileSync(file, {encoding: 'utf-8'})));
+    return JSON.parse(fs.readFileSync(file, {encoding: 'utf-8'}));
   } catch (e) {
     throw new Error(`There was a problem with parsing ${file}. Ensure it is valid JSON! ${e}`);
   }
@@ -146,12 +146,17 @@ module.exports = (config = {}, argv = {}, tasks = []) => {
   // get core tasks
   const coreTasks = _(loadCacheFile(process.landoTaskCacheFile)).map(t => ([t.command, t])).fromPairs().value();
 
-  // and apply any overrides if we have them
+  // mix in any relevant compose cache things
   if (fs.existsSync(config.composeCache)) {
     try {
       const composeCache = JSON.parse(fs.readFileSync(config.composeCache, {encoding: 'utf-8'}));
+
+      // tooling overrides
       const overrides = _(_.get(composeCache, 'overrides.tooling', [])).map(t => ([t.command, t])).fromPairs().value();
       Object.assign(coreTasks, overrides);
+
+      // info additions
+      config.info = composeCache.info ?? [];
     } catch (e) {
       throw new Error(`There was a problem with parsing ${config.composeCache}. Ensure it is valid JSON! ${e}`);
     }

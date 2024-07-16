@@ -42,38 +42,6 @@ Verification commands
 Run the following commands to verify things work as expected
 
 ```bash
-# Should merge in all Landofiles correctly
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_log_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web2_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web3_1
-
-# Should merge in all Landofiles correctly even if we are down a directory
-cd docker-compose
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_log_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web2_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web3_1
-cd ..
-
-# Should load environment files from all Landofiles
-lando ssh -s web -c "env" | grep "MILEY=CYRUS"
-lando ssh -s web -c "env" | grep "TAYLOR=SWIFT"
-lando ssh -s web -c "env" | grep "LOCAL=LANDO"
-lando ssh -s web3 -c "env" | grep "MILEY=CYRUS"
-lando ssh -s web3 -c "env" | grep "TAYLOR=SWIFT"
-lando ssh -s web3 -c "env" | grep "LOCAL=LANDO"
-
-# Should load environment files from all Landofiles if we are down a directory
-cd environment
-lando ssh -s web -c "env" | grep "MILEY=CYRUS"
-lando ssh -s web -c "env" | grep "TAYLOR=SWIFT"
-lando ssh -s web -c "env" | grep "LOCAL=LANDO"
-lando ssh -s web3 -c "env" | grep "MILEY=CYRUS"
-lando ssh -s web3 -c "env" | grep "TAYLOR=SWIFT"
-lando ssh -s web3 -c "env" | grep "LOCAL=LANDO"
-cd ..
-
 # Should return lando help
 lando config --help | grep verbose
 lando config --lando | grep verbose

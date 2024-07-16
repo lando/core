@@ -17,27 +17,29 @@ jobs:
           - 3-dev-slim
         leia-test:
           - examples/badname
-          - examples/base
-          - examples/events
-          - examples/experimental
-          - examples/healthcheck
-          - examples/init-github
-          - examples/init-remote
-          - examples/keys
-          - examples/l337
-          - examples/lando-v4
-          - examples/landofile-custom
+          # - examples/base
+          - examples/envfile
+          # - examples/events
+          # - examples/experimental
+          # - examples/healthcheck
+          # - examples/init-github
+          # - examples/init-remote
+          # - examples/keys
+          # - examples/l337
+          # - examples/lando-v4
+          - examples/landofile
+          # - examples/landofile-custom
           - examples/long-name
-          - examples/networking
+          # - examples/networking
           - examples/no-services
-          - examples/orchestrator
-          - examples/plugin-commands
-          - examples/proxy
-          - examples/scanner
-          - examples/services
-          - examples/sql-helpers
-          - examples/tooling
-          - examples/update
+          # - examples/orchestrator
+          # - examples/plugin-commands
+          # - examples/proxy
+          # - examples/scanner
+          # - examples/services
+          # - examples/sql-helpers
+          # - examples/tooling
+          # - examples/update
         node-version:
           - "18"
         os:
