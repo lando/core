@@ -18,7 +18,7 @@ module.exports = (lando, app) => ({
     service: {
       describe: 'SSHs into this service',
       alias: ['s'],
-      default: app.primary ?? 'appserver',
+      default: app._defaultService ?? 'appserver',
     },
     command: {
       describe: 'Runs a command in the service',
