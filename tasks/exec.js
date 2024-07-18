@@ -9,7 +9,7 @@ const {color} = require('listr2');
 
 // @TODO: when we have a file for recipes/compose we can set choices on service
 
-module.exports = (lando, config) => ({
+module.exports = (lando, config = lando.appConfig) => ({
   command: 'exec',
   describe: 'Runs command(s) on a service',
   usage: '$0 exec <service> [--user <user>] -- <command>',
@@ -34,17 +34,20 @@ module.exports = (lando, config) => ({
     },
   },
   run: async options => {
+    // construct a minapp from various places
+    const minapp = !_.isEmpty(config) ? config : lando.appConfig;
+
     // if no app then we need to throw
-    if (!fs.existsSync(config.composeCache)) {
+    if (!fs.existsSync(minapp.composeCache)) {
       throw new Error('Could not detect a built app. Rebuild or move into the correct location!');
     }
 
     // Build a minimal app
     const AsyncEvents = require('../lib/events');
-    const app = lando.cache.get(path.basename(config.composeCache));
+    const app = lando.cache.get(path.basename(minapp.composeCache));
 
     // augment
-    app.config = config;
+    app.config = minapp;
     app.events = new AsyncEvents(lando.log);
 
     // Load only what we need so we don't pay the appinit penalty
@@ -55,7 +58,7 @@ module.exports = (lando, config) => ({
     }
 
     // nice things
-    const aservices = config?.allServices ?? [];
+    const aservices = app.config.allServices ?? [];
     const choices = `[${color.green('choices:')} ${aservices.map(service => `"${service}"`).join(', ')}]`;
 
     // gather our options
