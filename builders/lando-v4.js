@@ -214,7 +214,7 @@ module.exports = {
       this.isInteractive = lando.config.isInteractive;
       this.network = lando.config.networkBridge;
       this.project = app.project;
-      this.router = config.router;
+      this.router = upstream.router;
 
       // more this
       this.certs = config.certs;
