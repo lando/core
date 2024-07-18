@@ -31,6 +31,7 @@ module.exports = async (app, lando) => {
       overrides: {
         tooling: app._coreToolingOverrides,
       },
+      primary: app._defaultService,
       project: app.project,
       root: app.root,
     }, {persist: true});
@@ -60,6 +61,7 @@ module.exports = async (app, lando) => {
       overrides: {
         tooling: app._coreToolingOverrides,
       },
+      primary: app._defaultService,
       project: app.project,
     }, {persist: true});
   };
