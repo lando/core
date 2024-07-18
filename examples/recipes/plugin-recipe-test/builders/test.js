@@ -25,6 +25,12 @@ module.exports = {
           image: 'nginxinc/nginx-unprivileged:1.26.1',
           ports: ['8080/http'],
         },
+        web2: {
+          api: 4,
+          type: 'lando',
+          image: 'nginxinc/nginx-unprivileged:1.26.1',
+          ports: ['8080/http'],
+        },
       });
 
       super(id, _.merge({}, config, options));

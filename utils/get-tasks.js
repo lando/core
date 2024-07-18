@@ -94,6 +94,11 @@ const engineRunner = (config, command) => (argv, lando) => {
 };
 
 module.exports = (config = {}, argv = {}, tasks = []) => {
+  // merge in recipe cache config first
+  if (fs.existsSync(config.recipeCache) && _.has(config, 'recipe')) {
+    config = _.merge({}, JSON.parse(fs.readFileSync(config.recipeCache, {encoding: 'utf-8'})), config);
+  }
+
   // If we have a tooling router lets rebase on that
   if (fs.existsSync(config.toolingRouter)) {
     // Get the closest route
@@ -111,9 +116,6 @@ module.exports = (config = {}, argv = {}, tasks = []) => {
       config.tooling = _.merge({}, config.tooling, closestRoute.tooling);
       config.route = closestRoute;
     }
-  // Or we have a recipe lets rebase on that
-  } else if (_.has(config, 'recipe')) {
-    config.tooling = _.merge({}, JSON.parse(fs.readFileSync(config.toolingCache, {encoding: 'utf-8'})), config.tooling);
   }
 
   // lets add ids to help match commands with args?
@@ -151,11 +153,10 @@ module.exports = (config = {}, argv = {}, tasks = []) => {
     try {
       const composeCache = JSON.parse(fs.readFileSync(config.composeCache, {encoding: 'utf-8'}));
 
-      // tooling overrides
-      const overrides = _(_.get(composeCache, 'overrides.tooling', [])).map(t => ([t.command, t])).fromPairs().value();
-      Object.assign(coreTasks, overrides);
+      // merge in additional tooling;
+      Object.assign(coreTasks, composeCache?.overrides?.tooling ?? {});
 
-      // info additions
+      // add additional items
       config.info = composeCache.info ?? [];
     } catch (e) {
       throw new Error(`There was a problem with parsing ${config.composeCache}. Ensure it is valid JSON! ${e}`);

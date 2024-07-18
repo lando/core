@@ -24,7 +24,7 @@ module.exports = (lando, config) => ({
     service: {
       describe: 'Runs on this service',
       type: 'string',
-      choices: (config?.info ?? []).map(service => service.service),
+      choices: config?.allServices ?? [],
     },
   },
   options: {
@@ -55,7 +55,7 @@ module.exports = (lando, config) => ({
     }
 
     // nice things
-    const aservices = (config?.info ?? []).map(service => service.service);
+    const aservices = config?.allServices ?? [];
     const choices = `[${color.green('choices:')} ${aservices.map(service => `"${service}"`).join(', ')}]`;
 
     // gather our options
