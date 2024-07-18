@@ -54,8 +54,6 @@ fi
 export LANDO_LINUX_DISTRO=$(grep -E '^ID=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
 export LANDO_LINUX_DISTRO_LIKE=$(grep -E '^ID_LIKE=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
 
-env
-
 # Find correct package manager based on DISTRO
 case "$LANDO_LINUX_DISTRO" in
   alpine)
