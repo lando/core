@@ -20,6 +20,7 @@ module.exports = async service => {
 
   // if not root then we need to do some extra stuff
   if (name !== 'root' && uid !== 0 || uid !== '0') {
+    service.addLSF(path.join(__dirname, 'check-ssh-agent.sh'), 'bin/check-ssh-agent');
     service.addHookFile(path.join(__dirname, 'install-socat.sh'), {hook: 'boot'});
     service.addHookFile(path.join(__dirname, 'install-ssh-add.sh'), {hook: 'boot'});
     service.addHookFile(`
@@ -28,7 +29,7 @@ module.exports = async service => {
       if [ -S "${socket}" ]; then
         chown :${gid} ${socket}
         chmod 660 ${socket}
-        retry ssh-add -l
+        retry check-ssh-agent
       fi
     `, {stage: 'app', hook: 'internal-root', id: 'socat-docker-socket', priority: '000'});
   }

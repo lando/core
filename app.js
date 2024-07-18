@@ -15,23 +15,24 @@ const getKeys = (keys = true) => {
 module.exports = async (app, lando) => {
   // Compose cache key
   app.composeCache = `${app.name}.compose.cache`;
-  // Tooling cache key
-  app.toolingCache = `${app.name}.tooling.cache`;
+  // recipe cache key
+  app.recipeCache = `${app.name}.recipe.cache`;
   // Build step locl files
   app.preLockfile = `${app.name}.build.lock`;
   app.postLockfile = `${app.name}.post-build.lock`;
   // add compose cache updated
   app.updateComposeCache = () => {
     lando.cache.set(app.composeCache, {
-      name: app.name,
-      project: app.project,
+      allServices: app.allServices,
       compose: app.compose,
       containers: app.containers,
-      root: app.root,
       info: app.info,
+      name: app.name,
       overrides: {
         tooling: app._coreToolingOverrides,
       },
+      project: app.project,
+      root: app.root,
     }, {persist: true});
   };
 
@@ -48,17 +49,18 @@ module.exports = async (app, lando) => {
   // add compose cache updated
   app.v4.updateComposeCache = () => {
     lando.cache.set(app.v4.composeCache, {
-      name: app.name,
-      project: app.project,
+      allServices: app.allServices,
       compose: app.compose,
       containers: app.containers,
-      root: app.root,
       info: app.info,
       executors: require('./utils/get-executors')(_.get(app, 'v4.services', {})),
+      name: app.name,
       mounts: require('./utils/get-mounts')(_.get(app, 'v4.services', {})),
+      root: app.root,
       overrides: {
         tooling: app._coreToolingOverrides,
       },
+      project: app.project,
     }, {persist: true});
   };
 
@@ -188,10 +190,12 @@ module.exports = async (app, lando) => {
 
   // remove compose cache
   app.events.on('post-uninstall', async () => await require('./hooks/app-purge-compose-cache')(app, lando));
-  app.events.on('post-destroy', async () => await require('./hooks/app-purge-compose-cache')(app, lando));
 
   // remove tooling cache
-  app.events.on('post-uninstall', async () => await require('./hooks/app-purge-tooling-cache')(app, lando));
+  app.events.on('post-uninstall', async () => await require('./hooks/app-purge-recipe-cache')(app, lando));
+
+  // remove compose cache on destroy
+  app.events.on('post-destroy', 9999, async () => await require('./hooks/app-purge-compose-cache')(app, lando));
 
   // process events
   if (!_.isEmpty(_.get(app, 'config.events', []))) {

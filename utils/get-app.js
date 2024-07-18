@@ -25,7 +25,7 @@ module.exports = (files, userConfRoot) => {
     project: _.toLower(config.name).replace(/_|-|\.+/g, ''),
     root: path.dirname(files[0]),
     composeCache: path.join(userConfRoot, 'cache', `${config.name}.compose.cache`),
-    toolingCache: path.join(userConfRoot, 'cache', `${config.name}.tooling.cache`),
+    recipeCache: path.join(userConfRoot, 'cache', `${config.name}.recipe.cache`),
     toolingRouter: path.join(userConfRoot, 'cache', `${config.name}.tooling.router`),
   });
 };

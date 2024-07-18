@@ -134,6 +134,7 @@ module.exports = {
       this.addSteps({group: 'boot', instructions: `
         ENV DEBUG=1
         ENV LANDO_DEBUG=1
+        ENV PATH=$PATH:/etc/lando/bin
         RUN mkdir -p /etc/lando /etc/lando/env.d /etc/lando/build/image
         RUN chmod 777 /etc/lando
         RUN ln -sf /etc/lando/environment /etc/profile.d/lando.sh

@@ -16,6 +16,9 @@ jobs:
           # uncomment to test against bleeding edge cli
           - 3-dev-slim
         leia-test:
+          # g2g
+
+          # wip
           - examples/badname
           # - examples/base
           - examples/envfile
