@@ -2,11 +2,6 @@
 
 const _ = require('lodash');
 
-// Helper to filter services
-const filterServices = (service, services = []) => {
-  return !_.isEmpty(services) ? _.includes(services, service) : true;
-};
-
 module.exports = lando => ({
   command: 'info',
   describe: 'Prints info about your app',
@@ -34,27 +29,49 @@ module.exports = lando => ({
 
     // Try to get our app
     const app = lando.getApp(options._app.root);
-    // Get services
-    app.opts = (!_.isEmpty(options.service)) ? {services: options.service} : {};
-    // Go deep if we need to
-    if (app && options.deep) {
-      await app.init();
-      await lando.engine.list({project: app.project})
-        .filter(container => filterServices(container.service, options.service))
-        .each(container => lando.engine.scan(container).then(data => console.log(lando.cli.formatData(data, options))));
 
-    // otherwise just do the normal
-    } else if (app && !options.deep) {
-      // init app
-      await app.init();
-      // get data
-      const services = _.filter(app.info, service => filterServices(service.service, options.service));
+    // helper to get raw services data
+    const getData = async () => {
+      // go deep
+      if (options.deep) {
+        return await lando.engine.list({project: app.project})
+          .map(async container => await lando.engine.scan(container))
+          .filter(container => {
+            if (!options.service) return true;
+            return options.service.map(service => `/${app.project}_${service}_1`).includes(container.Name);
+          });
 
-      // we want to do a slightly different thing for otable
-      if (options.format === 'otable') {
-        for (const service of services) console.log(lando.cli.formatData(service, options));
-      // and then everything else
-      } else console.log(lando.cli.formatData(services, options));
+      // normal info
+      } else {
+        return app.info.filter(service => options.service ? options.service.includes(service.service) : true);
+      }
+    };
+
+    // only continue if we have an app
+    if (app) {
+      // init
+      await app.init();
+      // get the data
+      options.data = await getData();
+      // and filter it if needed
+      if (options.filter) {
+        for (const filter of options.filter) {
+          options.data = _.filter(options.data, item => _.get(item, filter.split('=')[0]) == filter.split('=')[1]);
+        }
+      }
+    }
+
+    // if we have a path and a single service then just do that
+    if (options.path && options.data.length === 1) {
+      console.log(lando.cli.formatData(options.data[0], options));
+
+    // if we do not have an otable then just print
+    } else if (options.format !== 'otable') {
+      console.log(lando.cli.formatData(options.data, options));
+
+    // otherwise iterate and print table info
+    } else {
+      for (const datum of options.data) console.log(lando.cli.formatData(datum, options));
     }
   },
 });
