@@ -153,29 +153,6 @@ module.exports = {
     }
 
     constructor(id, options, app, lando) {
-      // @TODO: better CA/cert/all things envvars?
-      // @TODO: LANDO_INFO file?
-
-      // @TODO: exec, cli docs
-      // @TODO: tooling docs?
-      // @TODO: pass on debugging?
-      // @TODO: switch back to 3-slim
-      // @TODO: init improvements re usage|examples?
-
-      /*
-      # Should have the correct entries in /certs/cert.ext
-      cd lamp
-      lando ssh -s appserver -c "cat /certs/cert.ext" | grep DNS.1 | grep -w appserver.landolamp.internal
-      lando ssh -s appserver -c "cat /certs/cert.ext" | grep DNS.2 | grep -w appserver
-      lando ssh -s appserver -c "cat /certs/cert.ext" | grep DNS.3 | grep -w localhost
-      lando ssh -s appserver -c "cat /certs/cert.ext" | grep lando-lamp.lndo.site
-      cd .. && cd lemp
-      lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.1 | grep -w placeholder.landolemp.internal
-      lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.2 | grep -w placeholder
-      lando ssh -s placeholder -c "cat /certs/cert.ext" | grep DNS.3 | grep -w localhost
-      lando ssh -s placeholder -c "cat /certs/cert.ext" | grep placeholder.lando-lemp.lndo.site
-      */
-
       // @TODO: overrides for this.run()?
       // @TODO: better appmount logix?
       // @TODO: allow additonal users to be installed in config.users?

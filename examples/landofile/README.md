@@ -2,9 +2,9 @@
 
 This example exists primarily to test the following documentation:
 
-* [Landofiles](http://docs.lando.dev/config/lando.html)
+* [Landofiles](https://docs.lando.dev/config/lando.html)
 
-See the [Landofiles](http://docs.lando.dev/config/lando.html) in this directory for the exact magicks.
+See the [Landofiles](https://docs.lando.dev/config/lando.html) in this directory for the exact magicks.
 
 ## Start up tests
 

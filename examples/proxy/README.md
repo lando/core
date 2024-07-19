@@ -3,9 +3,9 @@ Proxy Example
 
 This example exists primarily to test the following documentation:
 
-* [Proxy](http://docs.devwithlando.io/config/proxy.html)
+* [Proxy](https://docs.devwithlando.io/config/proxy.html)
 
-See the [Landofiles](http://docs.devwithlando.io/config/lando.html) in this directory for the exact magicks.
+See the [Landofiles](https://docs.devwithlando.io/config/lando.html) in this directory for the exact magicks.
 
 Start up tests
 --------------

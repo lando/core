@@ -3,9 +3,9 @@ Events Example
 
 This example exists primarily to test the following documentation:
 
-* [Events](http://docs.devwithlando.io/config/events.html)
+* [Events](https://docs.devwithlando.io/config/events.html)
 
-See the [Landofiles](http://docs.devwithlando.io/config/lando.html) in this directory for the exact magicks.
+See the [Landofiles](https://docs.devwithlando.io/config/lando.html) in this directory for the exact magicks.
 
 Start up tests
 --------------

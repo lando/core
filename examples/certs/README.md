@@ -3,9 +3,9 @@ Certificates Example
 
 This example exists primarily to test the following documentation:
 
-* [Networking](http://docs.devwithlando.io/config/certificates.html)
+* [Networking](https://docs.devwithlando.io/config/certificates.html)
 
-See the [Landofiles](http://docs.devwithlando.io/config/lando.html) in this directory for the exact magicks.
+See the [Landofiles](https://docs.devwithlando.io/config/lando.html) in this directory for the exact magicks.
 
 Start up tests
 --------------

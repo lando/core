@@ -2,9 +2,9 @@
 
 This example exists primarily to test the following documentation:
 
-* [Environment Files](http://docs.lando.dev/config/env.html#environment-files)
+* [Environment Files](https://docs.lando.dev/config/env.html#environment-files)
 
-See the [Landofiles](http://docs.lando.dev/config/lando.html) in this directory for the exact magicks.
+See the [Landofiles](https://docs.lando.dev/config/lando.html) in this directory for the exact magicks.
 
 ## Start up tests
 
