@@ -16,43 +16,43 @@ jobs:
           # uncomment to test against bleeding edge cli
           - 3-dev-slim
         leia-test:
-          - examples/badname
-          # - examples/cache
-          # - examples/certs
-          - examples/config
-          - examples/debug
-          - examples/envfile
-          - examples/events
-          - examples/experimental
-          - examples/healthcheck
-          - examples/info
-          - examples/init-github
-          - examples/init-remote
-          - examples/keys
-          - examples/l337
-          - examples/lando-v4
-          - examples/landofile
-          - examples/landofile-custom
-          - examples/list
-          - examples/logs
-          - examples/long-name
-          - examples/networking
-          - examples/no-services
-          - examples/orchestrator
-          - examples/plugin-commands
-          - examples/plugins
-          - examples/proxy
-          - examples/rebuild
-          - examples/recipes
-          - examples/release-channel
-          - examples/restart
-          - examples/scanner
-          - examples/services
-          - examples/sql-helpers
-          - examples/ssh
-          - examples/tooling
-          - examples/update
-          - examples/version
+          - badname
+          # - cache
+          # - certs
+          - config
+          - debug
+          - envfile
+          - events
+          - experimental
+          - healthcheck
+          - info
+          - init-github
+          - init-remote
+          - keys
+          - l337
+          - lando-v4
+          - landofile
+          - landofile-custom
+          - list
+          - logs
+          - long-name
+          - networking
+          - no-services
+          - orchestrator
+          - plugin-commands
+          - plugins
+          - proxy
+          - rebuild
+          - recipes
+          - release-channel
+          - restart
+          - scanner
+          - services
+          - sql-helpers
+          - ssh
+          - tooling
+          - update
+          - version
         node-version:
           - "18"
         os:
