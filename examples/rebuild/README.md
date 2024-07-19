@@ -21,26 +21,26 @@ Run the following commands to verify things work as expected
 ```bash
 # Should rebuild the services without errors
 lando rebuild -y
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_log_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web2_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web3_1
+docker ps --filter label=com.docker.compose.project=landorebuild | grep landobase_web_1
+docker ps --filter label=com.docker.compose.project=landorebuild | grep landobase_web2_1
+docker ps --filter label=com.docker.compose.project=landorebuild | grep landobase_web3_1
+docker ps --filter label=com.docker.compose.project=landorebuild | grep landobase_web4_1
 
 # Should only rebuild the specified services
 lando rebuild -y --service web2
 lando rebuild -y -s web2
 docker ps --latest | grep landobase_web2_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_log_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web2_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web3_1
+docker ps --filter label=com.docker.compose.project=landorebuild | grep landobase_web_1
+docker ps --filter label=com.docker.compose.project=landorebuild | grep landobase_web2_1
+docker ps --filter label=com.docker.compose.project=landorebuild | grep landobase_web3_1
+docker ps --filter label=com.docker.compose.project=landorebuild | grep landobase_web4_1
 lando rebuild -y --service web3
 lando rebuild -y -s web3
 docker ps --latest | grep landobase_web3_1
-docker ps --filter label=com.docker.compose.project=landobase | grep landobase_log_1
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web_1
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web2_1
 docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web3_1
+docker ps --filter label=com.docker.compose.project=landobase | grep landobase_web4_1
 ```
 
 ## Destroy tests
