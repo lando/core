@@ -1,8 +1,8 @@
-# Recipes Example
+# Version Example
 
 This example exists primarily to test the following documentation:
 
-* [Recipes](https://docs.lando.dev/config/recipes.html)
+* [`lando version`](https://docs.lando.dev/cli/version.html)
 
 See the [Landofiles](https://docs.lando.dev/config/lando.html) in this directory for the exact magicks.
 
@@ -19,8 +19,8 @@ lando start
 Run the following commands to verify things work as expected
 
 ```bash
-# Should work
-true
+# Should return the version
+lando version | grep "v3."
 ```
 
 ## Destroy tests

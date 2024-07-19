@@ -16,6 +16,7 @@
 # Logs
 *.log
 logs
+!examples/logs
 
 # NPM files
 node_modules
@@ -44,6 +45,7 @@ dist
 cache
 temp
 config.*.timestamp-*-*.*
+!examples/cache
 
 # YARN
 yarn.lock

@@ -3,11 +3,11 @@ Services Example
 
 This example exists primarily to test the following documentation:
 
-* [Build Steps](http://docs.devwithlando.io/config/services.html#build-steps)
-* [Overrides](http://docs.devwithlando.io/config/services.html#overrides)
-* [Using Dockerfiles](http://docs.devwithlando.io/config/services.html#using-dockerfiles)
+* [Build Steps](https://docs.devwithlando.io/config/services.html#build-steps)
+* [Overrides](https://docs.devwithlando.io/config/services.html#overrides)
+* [Using Dockerfiles](https://docs.devwithlando.io/config/services.html#using-dockerfiles)
 
-See the [Landofiles](http://docs.devwithlando.io/config/lando.html) in this directory for the exact magicks.
+See the [Landofiles](https://docs.devwithlando.io/config/lando.html) in this directory for the exact magicks.
 
 Start up tests
 --------------

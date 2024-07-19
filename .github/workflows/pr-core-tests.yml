@@ -16,15 +16,16 @@ jobs:
           # uncomment to test against bleeding edge cli
           - 3-dev-slim
         leia-test:
-          # g2g
-
-          # wip
           - examples/badname
-          # - examples/base
+          # - examples/cache
+          # - examples/certs
+          - examples/config
+          - examples/debug
           - examples/envfile
           - examples/events
           - examples/experimental
           - examples/healthcheck
+          - examples/info
           - examples/init-github
           - examples/init-remote
           - examples/keys
@@ -32,18 +33,26 @@ jobs:
           - examples/lando-v4
           - examples/landofile
           - examples/landofile-custom
+          - examples/list
+          - examples/logs
           - examples/long-name
           - examples/networking
           - examples/no-services
           - examples/orchestrator
           - examples/plugin-commands
+          - examples/plugins
           - examples/proxy
+          - examples/rebuild
           - examples/recipes
+          - examples/release-channel
+          - examples/restart
           - examples/scanner
           - examples/services
           - examples/sql-helpers
+          - examples/ssh
           - examples/tooling
           - examples/update
+          - examples/version
         node-version:
           - "18"
         os:

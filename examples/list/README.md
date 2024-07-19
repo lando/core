@@ -1,8 +1,8 @@
-# Recipes Example
+# List Example
 
 This example exists primarily to test the following documentation:
 
-* [Recipes](https://docs.lando.dev/config/recipes.html)
+* [`lando list`](https://docs.lando.dev/cli/list.html)
 
 See the [Landofiles](https://docs.lando.dev/config/lando.html) in this directory for the exact magicks.
 
@@ -19,8 +19,17 @@ lando start
 Run the following commands to verify things work as expected
 
 ```bash
-# Should work
-true
+# Should list this apps containers
+lando list | grep landobase_log_1
+lando list | grep landobase_web_1
+lando list | grep landobase_web2_1
+lando list | grep landobase_web3_1
+
+# Should output JSON in lando list without error
+lando list --format json
+
+# Should return a specified path when given with lando list
+lando list --path "landobase" | grep landobase
 ```
 
 ## Destroy tests
