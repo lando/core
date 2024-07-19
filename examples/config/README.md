@@ -40,7 +40,7 @@ lando config --field mode | grep recipes || echo $? | grep 1
 lando config --format json | grep "^{\""
 
 # Should output in table format
-lando | grep landoFileConfig.name | grep lando-config
+lando config --format table | grep landoFileConfig.name | grep lando-config
 ```
 
 ## Destroy tests
