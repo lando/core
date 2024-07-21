@@ -98,9 +98,6 @@ module.exports = async (app, lando) => {
   // run v4 build steps
   app.events.on('post-init', async () => await require('./hooks/app-run-v4-build-steps')(app, lando));
 
-  // Add localhost info to our containers if they are up
-  app.events.on('post-init', async () => await require('./hooks/app-find-localhosts')(app, lando));
-
   // refresh all out v3 certs
   app.events.on('post-init', async () => await require('./hooks/app-refresh-v3-certs')(app, lando));
 
@@ -124,17 +121,20 @@ module.exports = async (app, lando) => {
   // @TODO: i feel like there has to be a better way to do this than this mega loop right?
   app.events.on('post-init', 9999, async () => await require('./hooks/app-set-bind-address')(app, lando));
 
+  // Add localhost info to our containers if they are up
+  app.events.on('post-init-engine', async () => await require('./hooks/app-find-localhosts')(app, lando));
+
   // override default tooling commands if needed
   app.events.on('ready', 1, async () => await require('./hooks/app-override-tooling-defaults')(app, lando));
-
-  // Discover portforward true info
-  app.events.on('ready', async () => await require('./hooks/app-set-portforwards')(app, lando));
 
   // set tooling compose cache
   app.events.on('ready', async () => await require('./hooks/app-set-compose-cache')(app, lando));
 
   // v4 parts of the app are ready
   app.events.on('ready', 6, async () => await require('./hooks/app-v4-ready')(app, lando));
+
+  // Discover portforward true info
+  app.events.on('ready-engine', async () => await require('./hooks/app-set-portforwards')(app, lando));
 
   // Save a compose cache every time the app is ready, we have to duplicate this for v4 because we modify the
   // composeData after the v3 app.ready event

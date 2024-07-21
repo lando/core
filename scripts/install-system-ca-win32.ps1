@@ -38,7 +38,7 @@ if ($env:CI) {
   Write-Debug "Running in non-interactive mode because CI=$env:CI is set."
 }
 
-# if non-interactive, eg the default, we can just run directly
+# if non-interactive eg we are probably on CI lets just powershell it out as admin
 if ($noninteractive -eq $false) {
   # Start the process with elevated permissions
   $p = Start-Process -FilePath certutil.exe -ArgumentList "-addstore Root `"$ca`"" -Verb RunAs -Wait -PassThru
@@ -47,7 +47,7 @@ if ($noninteractive -eq $false) {
   # If there is an error then throw here
   if ($($p.ExitCode) -ne 0) {throw "CA install failed! Rerun setup with --debug or -vvv for more info!"}
 
-# otherwise we can run it normally
+# otherwise we can run use power
 } else {
   certutil -user -addstore Root "$ca"
 }
