@@ -42,6 +42,7 @@ module.exports = async (lando, options) => {
 
         // add optional args
         if (options.debug || options.verbose > 0 || lando.debuggy) args.push('-Debug');
+        if (!lando.config.isInteractive) args.push('-NonInteractive');
 
         // run
         const result = await require('../utils/run-powershell-script')(script, args, {debug});
