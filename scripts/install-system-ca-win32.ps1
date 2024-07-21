@@ -19,8 +19,7 @@ trap {
 
 # validation
 # @TODO: check if installer exists on fs?
-if ([string]::IsNullOrEmpty($ca))
-{
+if ([string]::IsNullOrEmpty($ca)) {
   throw "You must pass in a -CA!"
 }
 
@@ -34,29 +33,24 @@ Write-Debug "DEBUG: $debug"
 Write-Debug "NONINTERACTIVE: $noninteractive"
 
 # if we are in CI then reset non-interactive to true
-if ($env:CI)
-{
+if ($env:CI) {
   $noninteractive = $true
   Write-Debug "Running in non-interactive mode because CI=$env:CI is set."
 }
 
-# Start arg stuff
-$options = "-addstore Root `"$ca`""
-$runAsVerb = 'RunAs'
+# if non-interactive, eg the default, we can just run directly
+if ($noninteractive -eq $false) {
+  # Start the process with elevated permissions
+  $p = Start-Process -FilePath certutil.exe -ArgumentList "-addstore Root `"$ca`"" -Verb RunAs -Wait -PassThru
+  Write-Debug "Process finished with return code: $($p.ExitCode)"
 
-# if non-interactive is NOT on then we need to change things around a bit
-if ($noninteractive -eq $false)
-{
-  $options = "-user $options"
-  $runAsVerb = 'RunAsUser'
+  # If there is an error then throw here
+  if ($($p.ExitCode) -ne 0) {throw "CA install failed! Rerun setup with --debug or -vvv for more info!"}
+
+# otherwise we can run it normally
+} else {
+  certutil -user -addstore Root "$ca"
 }
-
-# Start the process with elevated permissions
-$p = Start-Process -FilePath "certutil.exe" -ArgumentList "$options" -Verb $runAsVerb -Wait -PassThru
-Write-Debug "Process finished with return code: $($p.ExitCode)"
-
-# If there is an error then throw here
-if ($($p.ExitCode) -ne 0) {throw "CA install failed! Rerun setup with --debug or -vvv for more info!"}
 
 # Debug
 Write-Output "Certificate added to the Trusted Root Certification Authorities store for the current user."

@@ -27,8 +27,7 @@ Write-Debug "DEBUG: $debug"
 
 # validation
 # @TODO: check if installer exists on fs?
-if ([string]::IsNullOrEmpty($installer))
-{
+if ([string]::IsNullOrEmpty($installer)) {
   throw "You must pass in an -Installer!"
 }
 
