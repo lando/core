@@ -49,7 +49,7 @@ jobs:
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         with:
-          leia-test: "./examples/{{ matrix.leia-test }}/README.md"
+          leia-test: "./examples/${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"
           shell: bash
           stdin: true
