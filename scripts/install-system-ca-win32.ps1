@@ -4,7 +4,8 @@
 # @NOTE: we omit DEBUG as a param because its "built in"
 [CmdletBinding(PositionalBinding=$false)]
 Param(
-  [string]$ca
+  [string]$ca,
+  [switch]$noninteractive = $false
 )
 
 # error handling
@@ -16,13 +17,6 @@ trap {
   exit 1
 }
 
-# enable debugging if debug is true
-$DebugPreference = If ($DebugPreference -eq "Inquire") {"Continue"} Else {"SilentlyContinue"}
-$debug = If ($DebugPreference -eq "Continue") {$true} Else {$false}
-Write-Debug "running script with:"
-Write-Debug "CA: $ca"
-Write-Debug "DEBUG: $debug"
-
 # validation
 # @TODO: check if installer exists on fs?
 if ([string]::IsNullOrEmpty($ca))
@@ -30,14 +24,39 @@ if ([string]::IsNullOrEmpty($ca))
   throw "You must pass in a -CA!"
 }
 
-# Read the certificate
-$cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-$cert.Import($ca)
+# enable debugging if debug is true
+$DebugPreference = If ($DebugPreference -eq "Inquire") {"Continue"} Else {"SilentlyContinue"}
+$debug = If ($DebugPreference -eq "Continue") {$true} Else {$false}
+Write-Debug "running script with:"
+Write-Debug "CA: $ca"
+Write-Debug "CI: $env:CI"
+Write-Debug "DEBUG: $debug"
+Write-Debug "NONINTERACTIVE: $noninteractive"
 
-# Add the certificate to the Current User Trusted Root Certification Authorities store
-$store = New-Object System.Security.Cryptography.X509Certificates.X509Store "Root", "CurrentUser"
-$store.Open("ReadWrite")
-$store.Add($cert)
-$store.Close()
+# if we are in CI then reset non-interactive to true
+if ($env:CI)
+{
+  $noninteractive = $true
+  Write-Debug "Running in non-interactive mode because CI=$env:CI is set."
+}
 
+# Start arg stuff
+$options = "-addstore Root `"$ca`""
+$runAsVerb = 'RunAs'
+
+# if non-interactive is NOT on then we need to change things around a bit
+if ($noninteractive -eq $false)
+{
+  $options = "-user $options"
+  $runAsVerb = 'RunAsUser'
+}
+
+# Start the process with elevated permissions
+$p = Start-Process powershell -NoProfile -ExecutionPolicy Bypass -Command "certutil $options" -Verb $runAsVerb -Wait -PassThru
+Write-Debug "Process finished with return code: $($p.ExitCode)"
+
+# If there is an error then throw here
+if ($($p.ExitCode) -ne 0) {throw "CA install failed! Rerun setup with --debug or -vvv for more info!"}
+
+# Debug
 Write-Output "Certificate added to the Trusted Root Certification Authorities store for the current user."
