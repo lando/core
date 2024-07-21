@@ -12,11 +12,11 @@ jobs:
       fail-fast: false
       matrix:
         lando-version:
-          - 3-slim
+          # - 3-slim
           # uncomment to test against bleeding edge cli
-          # - 3-dev-slim
+          - 3-dev-slim
         leia-test:
-          - examples/setup-windows
+          - setup-windows
         node-version:
           - "18"
         os:

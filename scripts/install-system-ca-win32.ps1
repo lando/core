@@ -52,7 +52,7 @@ if ($noninteractive -eq $false)
 }
 
 # Start the process with elevated permissions
-$p = Start-Process powershell -NoProfile -ExecutionPolicy Bypass -Command "certutil $options" -Verb $runAsVerb -Wait -PassThru
+$p = Start-Process powershell -NoProfile -ExecutionPolicy Bypass -ArgumentList "-Command `""certutil $options`"" " -Verb $runAsVerb -Wait -PassThru
 Write-Debug "Process finished with return code: $($p.ExitCode)"
 
 # If there is an error then throw here
