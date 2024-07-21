@@ -11,7 +11,7 @@ Param(
 # error handling
 $ErrorActionPreference = "Stop"
 
-# Handle uncaught errorz
+# handle uncaught errorz
 trap {
   Write-Error "An unhandled error occurred: $_"
   exit 1
@@ -40,16 +40,23 @@ if ($env:CI) {
 
 # if non-interactive eg we are probably on CI lets just powershell it out as admin
 if ($noninteractive -eq $false) {
-  # Start the process with elevated permissions
+  # start the process with elevated permissions
   $p = Start-Process -FilePath certutil.exe -ArgumentList "-addstore Root `"$ca`"" -Verb RunAs -Wait -PassThru
   Write-Debug "Process finished with return code: $($p.ExitCode)"
 
-  # If there is an error then throw here
+  # if there is an error then throw here
   if ($($p.ExitCode) -ne 0) {throw "CA install failed! Rerun setup with --debug or -vvv for more info!"}
 
-# otherwise we can run use power
+# otherwise we can add directly
 } else {
-  certutil -user -addstore Root "$ca"
+  # read the certificate
+  $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
+  $cert.Import($ca)
+  # add it to the store
+  $store = New-Object System.Security.Cryptography.X509Certificates.X509Store "Root", "CurrentUser"
+  $store.Open("ReadWrite")
+  $store.Add($cert)
+  $store.Close()
 }
 
 # Debug
