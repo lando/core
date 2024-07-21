@@ -39,7 +39,7 @@ if ($env:CI) {
 }
 
 # if non-interactive eg we are probably on CI lets just powershell it out as admin
-if ($noninteractive -eq $false) {
+if ($noninteractive -eq $true) {
   # start the process with elevated permissions
   $p = Start-Process -FilePath certutil.exe -ArgumentList "-addstore Root `"$ca`"" -Verb RunAs -Wait -PassThru
   Write-Debug "Process finished with return code: $($p.ExitCode)"

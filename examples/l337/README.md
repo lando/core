@@ -33,7 +33,7 @@ lando info --service db | grep state: | grep IMAGE: | grep UNBUILT
 lando info --service db | grep -z image: | grep core/examples/l337/Dockerfile
 lando info --service db | grep primary: | grep false
 lando info --service db | grep user: | grep root
-cat $(lando info --service db --path "[0].image" --format json | tr -d '"') | grep "ENV SERVICE=db"
+cat $(lando info --service db --path "image" --format json | tr -d '"') | grep "ENV SERVICE=db"
 lando info --service web | grep api: | grep 4
 lando info --service web | grep type: | grep l337
 lando info --service web | grep state: | grep IMAGE: | grep UNBUILT
@@ -41,7 +41,7 @@ lando info --service web | grep -z image: | grep /Imagefile
 lando info --service web | grep primary: | grep true
 lando info --service web | grep appMount: | grep /site
 lando info --service web | grep user: | grep nginx
-cat $(lando info --service web --path "[0].image" --format json | tr -d '"') | grep ENV | grep SERVICE | grep web
+cat $(lando info --service web --path "image" --format json | tr -d '"') | grep ENV | grep SERVICE | grep web
 lando info --service image-1 | grep image: | grep nginx:1.21.6
 lando info --service image-2 | grep -z image: | grep core/examples/l337/images/nginx/Dockerfile
 lando info --service image-3 | grep -z image: | grep /Imagefile
