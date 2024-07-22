@@ -74,9 +74,21 @@ jobs:
       #     # Should have created the Lando Development CA
       #     Test-Path "$HOME/.lando/certs/LandoCA.crt2"
 
+      # - name: Run Leia Tests
+      #   uses: lando/run-leia-action@v2
+      #   with:
+      #     leia-test: "./examples/${{ matrix.leia-test }}/README.md"
+      #     cleanup-header: "Destroy tests"
+      #     debug: true
       - name: Run Leia Tests
-        uses: lando/run-leia-action@v2
-        with:
-          leia-test: "./examples/${{ matrix.leia-test }}/README.md"
-          cleanup-header: "Destroy tests"
-          debug: true
+        shell: powershell
+        run: |
+          npx leia --version
+          npx leia "./examples/${{ matrix.leia-test }}/README.md" \
+            --setup-header=Start,Setup,This is the dawning \
+            --test-header=Test,Validat,Verif \
+            --cleanup-header=Destroy tests \
+            --shell=powershell \
+            --retry=1 \
+            --stdin \
+            --debug
