@@ -59,9 +59,10 @@ jobs:
 
           # Should have installed Docker Desktop
           Get-ChildItem Env:
-          Get-ChildItem -Path $Env:ProgramFiles
-          Get-ChildItem -Path ${Env:ProgramFiles(x86)}
-          # docker --version
+          Get-ChildItem -Path "$Env:ProgramFiles\Docker\Docker"
+          Get-ChildItem -Path "$Env:ProgramFiles\Docker\resources\bin"
+          Test-Path "$Env:ProgramFiles\Docker\Docker\Docker Desktop.exe"
+          & "$Env:ProgramFiles\Docker\Docker\resources\bin\docker.exe" --version
 
           # Should have installed Docker Compose
           Get-ChildItem -Path "$HOME/.bin" -Filter "docker-compose-v2*" -Recurse | ForEach-Object {
@@ -73,9 +74,7 @@ jobs:
           Test-Path "$HOME/.lando/certs/LandoCA.crt"
 
           # Should have installed the Lando Development CA
-          certutil -store Root
-          certutil -store Root > certs.txt
-          Get-Content -Path .\certs.txt
+          certutil -store Root | findstr "Lando Development CA"
 
       # - name: Run Leia Tests
       #   uses: lando/run-leia-action@v2
