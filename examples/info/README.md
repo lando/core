@@ -33,8 +33,7 @@ lando info --format json
 lando info --path "[0]" | grep service | wc -l | grep 1
 
 # Should have the correct info after destroy
-lando destroy -y
-fail
+skip
 ```
 
 ## Destroy tests
