@@ -15,19 +15,18 @@ Run the following commands to validate things are rolling as they should.
 lando plugin-add "@lando/core@file:../.."
 
 # Should be able to run lando setup
-lando setup -y --skip-networking
+lando setup -y --skip-networking --skip-common-plugins --debug
 
 # Should have installed Docker Desktop
-ls -lsa
-docker version
-fail
+Test-Path "$Env:ProgramFiles\Docker\Docker\Docker Desktop.exe"
+& "$Env:ProgramFiles\Docker\Docker\resources\bin\docker.exe" --version
 
 # Should have installed Docker Compose
-find ~/.lando/bin -type f -name 'docker-compose-v2*' -exec {} version \;
+Get-ChildItem -Path "$HOME/.lando/bin" -Filter "docker-compose-v2*" -Recurse | ForEach-Object { & $_.FullName version }
 
 # Should have created the Lando Development CA
-stat ~/.lando/certs/LandoCA.crt
+Test-Path "$HOME/.lando/certs/LandoCA.crt"
 
 # Should have installed the Lando Development CA
-fail
+certutil -store Root | findstr /C:"Lando Development CA"
 ```
