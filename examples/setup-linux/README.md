@@ -36,7 +36,7 @@ stat ~/.lando/certs/LandoCA.crt
 openssl x509 -in /etc/ssl/certs/LandoCA.pem -text -noout | grep -A 1 "Issuer:" | grep "Lando Development CA"
 
 # Should have created the Landonet
-ocker network ls | grep lando_bridge_network
+docker network ls | grep lando_bridge_network
 
 # Should be able to start a basic app
 lando start

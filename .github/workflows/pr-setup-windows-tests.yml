@@ -47,8 +47,9 @@ jobs:
       - name: TESTS
         shell: powershell
         run: |
+          Get-ChildItem Env:
           Get-ChildItem -Path $Env:ProgramFiles
-          Get-ChildItem -Path $Env:'ProgramFiles(x86)'
+          Get-ChildItem -Path ${Env:ProgramFiles(x86)}
 
           # Should dogfood the core plugin we are testing against
           lando plugin-add "@lando/core@file:${{ github.workspace }}"
@@ -57,9 +58,10 @@ jobs:
           lando setup -y --skip-networking --skip-common-plugins --debug
 
           # Should have installed Docker Desktop
-          docker version
+          docker --version
+          Get-ChildItem Env:
           Get-ChildItem -Path $Env:ProgramFiles
-          Get-ChildItem -Path $Env:'ProgramFiles(x86)'
+          Get-ChildItem -Path ${Env:ProgramFiles(x86)}
 
           # Should have installed Docker Compose
           Get-ChildItem -Path "$HOME/.bin" -Filter "docker-compose-v2*" -Recurse | ForEach-Object {
@@ -80,5 +82,6 @@ jobs:
       #   with:
       #     leia-test: "./examples/${{ matrix.leia-test }}/README.md"
       #     cleanup-header: "Destroy tests"
+      #     shell: powershell
       #     stdin: true
       #     debug: true
