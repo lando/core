@@ -16,4 +16,18 @@ lando plugin-add "@lando/core@file:../.."
 
 # Should be able to run lando setup
 lando setup -y --skip-networking
+
+# Should have installed Docker Desktop
+ls -lsa
+docker version
+fail
+
+# Should have installed Docker Compose
+find ~/.lando/bin -type f -name 'docker-compose-v2*' -exec {} version \;
+
+# Should have created the Lando Development CA
+stat ~/.lando/certs/LandoCA.crt
+
+# Should have installed the Lando Development CA
+fail
 ```

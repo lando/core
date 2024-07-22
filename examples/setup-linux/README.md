@@ -22,6 +22,22 @@ dpkg -l | grep docker-desktop || echo $? | grep 1
 # Should be able to run lando setup
 lando setup -y
 
+# Should have installed Docker Engine
+docker version
+docker info
+
+# Should have installed Docker Compose
+find ~/.lando/bin -type f -name 'docker-compose-v2*' -exec {} version \;
+
+# Should have created the Lando Development CA
+stat ~/.lando/certs/LandoCA.crt
+
+# Should have installed the Lando Development CA
+openssl x509 -in /etc/ssl/certs/LandoCA.pem -text -noout | grep -A 1 "Issuer:" | grep "Lando Development CA"
+
+# Should have created the Landonet
+ocker network ls | grep lando_bridge_network
+
 # Should be able to start a basic app
 lando start
 ```
