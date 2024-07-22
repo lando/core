@@ -34,7 +34,6 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile
-      # bundle deps is needed so local plugin installation succeeds
       - name: Bundle Deps
         uses: lando/prepare-release-action@v3
         with:
