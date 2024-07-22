@@ -60,7 +60,7 @@ jobs:
           # Should have installed Docker Desktop
           Get-ChildItem Env:
           Get-ChildItem -Path "$Env:ProgramFiles\Docker\Docker"
-          Get-ChildItem -Path "$Env:ProgramFiles\Docker\resources\bin"
+          Get-ChildItem -Path "$Env:ProgramFiles\Docker\Docker\resources\bin"
           Test-Path "$Env:ProgramFiles\Docker\Docker\Docker Desktop.exe"
           & "$Env:ProgramFiles\Docker\Docker\resources\bin\docker.exe" --version
 
