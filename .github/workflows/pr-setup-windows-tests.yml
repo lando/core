@@ -47,6 +47,8 @@ jobs:
       - name: TESTS
         shell: powershell
         run: |
+          $ErrorActionPreference = "Stop"
+
           # Should dogfood the core plugin we are testing against
           lando plugin-add "@lando/core@file:${{ github.workspace }}"
 
@@ -61,10 +63,8 @@ jobs:
           & "$Env:ProgramFiles\Docker\Docker\resources\bin\docker.exe" --version
 
           # Should have installed Docker Compose
-          Write-Output "hello there"
           Get-ChildItem -Path "$HOME/.lando/bin" -Filter "docker-compose-v2*" -Recurse | ForEach-Object {
             $dc = $_.FullName
-            Write-Output "$dc"
             & $dc version
           }
 
