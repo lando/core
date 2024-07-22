@@ -47,10 +47,6 @@ jobs:
       - name: TESTS
         shell: powershell
         run: |
-          Get-ChildItem Env:
-          Get-ChildItem -Path $Env:ProgramFiles
-          Get-ChildItem -Path ${Env:ProgramFiles(x86)}
-
           # Should dogfood the core plugin we are testing against
           lando plugin-add "@lando/core@file:${{ github.workspace }}"
 
@@ -65,8 +61,10 @@ jobs:
           & "$Env:ProgramFiles\Docker\Docker\resources\bin\docker.exe" --version
 
           # Should have installed Docker Compose
-          Get-ChildItem -Path "$HOME/.bin" -Filter "docker-compose-v2*" -Recurse | ForEach-Object {
+          Write-Output "hello there"
+          Get-ChildItem -Path "$HOME/.lando/bin" -Filter "docker-compose-v2*" -Recurse | ForEach-Object {
             $dc = $_.FullName
+            Write-Output "$dc"
             & $dc version
           }
 
@@ -74,7 +72,10 @@ jobs:
           Test-Path "$HOME/.lando/certs/LandoCA.crt"
 
           # Should have installed the Lando Development CA
-          certutil -store Root | findstr "Lando Development CA"
+          certutil -store Root | findstr /C:"Lando Development CA"
+
+          # Should have created the Lando Development CA
+          Test-Path "$HOME/.lando/certs/LandoCA.crt2"
 
       # - name: Run Leia Tests
       #   uses: lando/run-leia-action@v2
