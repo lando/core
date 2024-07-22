@@ -44,50 +44,11 @@ jobs:
           auto-setup: false
           lando-version: ${{ matrix.lando-version }}
           telemetry: false
-      # - name: TESTS
-      #   shell: powershell
-      #   run: |
-      #     $ErrorActionPreference = "Stop"
-
-      #     # Should dogfood the core plugin we are testing against
-      #     lando plugin-add "@lando/core@file:${{ github.workspace }}"
-
-      #     # Should be able to run lando setup
-      #     lando setup -y --skip-networking --skip-common-plugins --debug
-
-      #     # Should have installed Docker Desktop
-      #     Test-Path "$Env:ProgramFiles\Docker\Docker\Docker Desktop.exe"
-      #     & "$Env:ProgramFiles\Docker\Docker\resources\bin\docker.exe" --version
-
-      #     # Should have installed Docker Compose
-      #     Get-ChildItem -Path "$HOME/.lando/bin" -Filter "docker-compose-v2*" -Recurse | ForEach-Object {
-      #       $dc = $_.FullName
-      #       & $dc version
-      #     }
-
-      #     # Should have created the Lando Development CA
-      #     Test-Path "$HOME/.lando/certs/LandoCA.crt"
-
-      #     # Should have installed the Lando Development CA
-      #     certutil -store Root | findstr /C:"Lando Development CA"
-
-      #     # Should have created the Lando Development CA
-      #     Test-Path "$HOME/.lando/certs/LandoCA.crt2"
-
-      # - name: Run Leia Tests
-      #   uses: lando/run-leia-action@v2
-      #   with:
-      #     leia-test: "./examples/${{ matrix.leia-test }}/README.md"
-      #     cleanup-header: "Destroy tests"
-      #     debug: true
       - name: Run Leia Tests
-        shell: bash
-        run: |
-          npx leia --version
-          npx leia "./examples/${{ matrix.leia-test }}/README.md" \
-            --setup-header="Start,Setup,This is the dawning" \
-            --test-header=Test,Validat,Verif \
-            --cleanup-header=Destroy tests \
-            --shell=powershell \
-            --retry=1 \
-            --stdin
+        uses: lando/run-leia-action@v2
+        with:
+          leia-test: "./examples/${{ matrix.leia-test }}/README.md"
+          cleanup-header: "Destroy tests"
+          shell: powershell
+          stdin: true
+          debug: true
