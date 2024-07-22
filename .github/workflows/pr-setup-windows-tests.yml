@@ -84,11 +84,11 @@ jobs:
         shell: powershell
         run: |
           npx leia --version
-          npx leia "./examples/${{ matrix.leia-test }}/README.md" \
-            --setup-header=Start,Setup,This is the dawning \
-            --test-header=Test,Validat,Verif \
-            --cleanup-header=Destroy tests \
-            --shell=powershell \
-            --retry=1 \
-            --stdin \
+          npx leia "./examples/${{ matrix.leia-test }}/README.md" `
+            --setup-header=Start,Setup,This is the dawning `
+            --test-header=Test,Validat,Verif `
+            --cleanup-header=Destroy tests `
+            --shell=powershell `
+            --retry=1 `
+            --stdin `
             --debug
