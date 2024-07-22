@@ -58,10 +58,10 @@ jobs:
           lando setup -y --skip-networking --skip-common-plugins --debug
 
           # Should have installed Docker Desktop
-          docker --version
           Get-ChildItem Env:
           Get-ChildItem -Path $Env:ProgramFiles
           Get-ChildItem -Path ${Env:ProgramFiles(x86)}
+          # docker --version
 
           # Should have installed Docker Compose
           Get-ChildItem -Path "$HOME/.bin" -Filter "docker-compose-v2*" -Recurse | ForEach-Object {
