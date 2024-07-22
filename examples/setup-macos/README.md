@@ -23,7 +23,7 @@ lando setup -y --skip-networking
 
 # Should have installed Docker Desktop
 stat /Applications/Docker.app
-docker version
+docker --version
 
 # Should have installed Docker Compose
 find ~/.lando/bin -type f -name 'docker-compose-v2*' -exec {} version \;
