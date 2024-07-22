@@ -56,9 +56,6 @@ jobs:
           lando setup -y --skip-networking --skip-common-plugins --debug
 
           # Should have installed Docker Desktop
-          Get-ChildItem Env:
-          Get-ChildItem -Path "$Env:ProgramFiles\Docker\Docker"
-          Get-ChildItem -Path "$Env:ProgramFiles\Docker\Docker\resources\bin"
           Test-Path "$Env:ProgramFiles\Docker\Docker\Docker Desktop.exe"
           & "$Env:ProgramFiles\Docker\Docker\resources\bin\docker.exe" --version
 
@@ -77,11 +74,11 @@ jobs:
           # Should have created the Lando Development CA
           Test-Path "$HOME/.lando/certs/LandoCA.crt2"
 
-      # - name: Run Leia Tests
-      #   uses: lando/run-leia-action@v2
-      #   with:
-      #     leia-test: "./examples/${{ matrix.leia-test }}/README.md"
-      #     cleanup-header: "Destroy tests"
-      #     shell: powershell
-      #     stdin: true
-      #     debug: true
+      - name: Run Leia Tests
+        uses: lando/run-leia-action@v2
+        with:
+          leia-test: "./examples/${{ matrix.leia-test }}/README.md"
+          cleanup-header: "Destroy tests"
+          shell: powershell
+          stdin: true
+          debug: true
