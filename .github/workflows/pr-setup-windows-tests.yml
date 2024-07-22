@@ -81,14 +81,13 @@ jobs:
       #     cleanup-header: "Destroy tests"
       #     debug: true
       - name: Run Leia Tests
-        shell: powershell
+        shell: bash
         run: |
           npx leia --version
-          npx leia "./examples/${{ matrix.leia-test }}/README.md" `
-            --setup-header=Start,Setup,This is the dawning `
-            --test-header=Test,Validat,Verif `
-            --cleanup-header=Destroy tests `
-            --shell=powershell `
-            --retry=1 `
-            --stdin `
-            --debug
+          npx leia "./examples/${{ matrix.leia-test }}/README.md" \
+            --setup-header="Start,Setup,This is the dawning" \
+            --test-header=Test,Validat,Verif \
+            --cleanup-header=Destroy tests \
+            --shell=powershell \
+            --retry=1 \
+            --stdin
