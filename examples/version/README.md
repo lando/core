@@ -19,8 +19,34 @@ lando start
 Run the following commands to verify things work as expected
 
 ```bash
-# Should return the version
-lando version | grep "v3."
+# Should run version without error in app context
+lando version
+
+# Should run version without error in global context
+cd ..
+lando version
+
+# Should return the lando core version by default
+lando version | grep "$(lando version --component core)"
+
+# Should print all version information with --all
+lando version --all
+lando version --all | grep @lando/core | grep "$(lando version --component @lando/core)"
+lando version --all | grep @lando/healthcheck | grep "$(lando version --component core)"
+lando version --all | grep @lando/networking | grep "$(lando version --component core)"
+lando version --all | grep @lando/proxy | grep "$(lando version --component core)"
+lando version --all | grep @lando/scanner | grep "$(lando version --component core)"
+lando version --all | grep @lando/sharing | grep "$(lando version --component core)"
+lando version --all | grep @lando/test | grep "$(lando version --component core)"
+lando version --all | grep @lando/base-test-plugin-2 | grep v1.0.2
+lando version -a | grep @lando/core | grep v3
+
+# Should print specific component information
+lando version --component healthcheck | grep "$(lando version --component @lando/core)"
+lando version -c healthcheck | grep "$(lando version --component core)"
+
+# Should print full version information
+lando version --full | grep @lando/core | grep "$(lando version -c core)" | grep "$(uname -m)" | grep "node-v18" | grep cli | grep "$(lando version -c cli)"
 ```
 
 ## Destroy tests
