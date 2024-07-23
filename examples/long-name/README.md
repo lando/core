@@ -1,4 +1,4 @@
-## Long Name Example
+# Long Name Example
 
 This example exists primarily to test the following documentation:
 

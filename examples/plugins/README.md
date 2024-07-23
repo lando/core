@@ -6,8 +6,7 @@ This example exists primarily to test the following documentation:
 
 See the [Landofiles](https://docs.lando.dev/config/lando.html) in this directory for the exact magicks.
 
-Start up tests
---------------
+## Start up tests
 
 ```bash
 # Should start successfully
@@ -15,8 +14,7 @@ lando poweroff
 lando start
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to verify things work as expected
 
@@ -71,8 +69,7 @@ lando plugin-remove "@lando/lando-plugin-test"
 lando config | grep -qv "plugins/@lando/lando-plugin-test"
 ```
 
-Destroy tests
--------------
+# Destroy tests
 
 ```bash
 # Should destroy successfully
