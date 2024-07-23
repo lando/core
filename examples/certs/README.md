@@ -6,7 +6,7 @@ This example exists primarily to test the following documentation:
 
 See the [Landofiles](https://docs.lando.dev/config/lando.html) in this directory for the exact magicks.
 
-# Start up tests
+## Start up tests
 
 ```bash
 # Should start
