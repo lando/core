@@ -17,12 +17,15 @@ jobs:
           - 3-dev-slim
         leia-test:
           - badname
+          # - build
           # - cache
           # - certs
           - config
           - debug
           - envfile
+          # - environment
           - events
+          # - exec
           - experimental
           - healthcheck
           - info
@@ -46,6 +49,7 @@ jobs:
           - release-channel
           - restart
           - scanner
+          # - security
           - services
           - sql-helpers
           - ssh
