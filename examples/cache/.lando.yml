@@ -1,4 +1,4 @@
-name: lando-version
+name: lando-cache
 compose:
   - compose.yml
 services:
