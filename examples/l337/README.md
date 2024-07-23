@@ -1,12 +1,10 @@
-L337 Example
-============
+# L337 Example
 
 This example exists primarily to test the v3 runtime implementation of following documentation:
 
 * [Lando 3 l337 service](https://docs.lando.dev/core/v3/services/l337.html)
 
-Start up tests
---------------
+## Start up tests
 
 ```bash
 # should start successfully
@@ -16,8 +14,7 @@ lando poweroff
 lando start
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to verify things work as expected
 
@@ -224,8 +221,7 @@ lando ssh --service steps-1 --command "cat /stuff" | sed -n '2p' | grep middle
 lando ssh --service steps-1 --command "cat /stuff" | sed -n '3p' | grep last
 ```
 
-Destroy tests
--------------
+## Destroy tests
 
 ```bash
 # should destroy successfully

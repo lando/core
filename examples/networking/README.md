@@ -41,31 +41,31 @@ lando info -s appserver_nginx | grep hostnames: | grep appserver_nginx.landolemp
 
 # Should be able to self connect from lamp
 cd lamp
-lando ssh -s appserver -c "curl http://localhost"
-lando ssh -s appserver -c "curl https://localhost"
+lando exec appserver -- curl http://localhost
+lando exec appserver -- curl https://localhost
 
 # Should be able to self connect from lemp
 cd lemp
-lando ssh -s appserver_nginx -c "curl http://localhost:8080"
-lando ssh -s appserver_nginx -c "curl https://localhost:8443"
+lando exec appserver_nginx -- curl http://localhost:8080
+lando exec appserver_nginx -- curl https://localhost:8443
 
 # Should be able to curl lemp from lamp at proxy addresses and internal hostnames
 cd lamp
-lando ssh -s appserver -c "curl http://lando-lemp.lndo.site"
-lando ssh -s appserver -c "curl http://appserver_nginx.landolemp.internal:8080"
-lando ssh -s appserver -c "curl https://lando-lemp.lndo.site"
-lando ssh -s appserver -c "curl https://appserver_nginx.landolemp.internal:8443"
+lando exec appserver -- curl http://lando-lemp.lndo.site
+lando exec appserver -- curl http://appserver_nginx.landolemp.internal:8080
+lando exec appserver -- curl https://lando-lemp.lndo.site
+lando exec appserver -- curl https://appserver_nginx.landolemp.internal:8443
 
 # Should be able to curl lamp from lemp at proxy addresses and internal hostname
 cd lemp
-lando ssh -s appserver_nginx -c "curl http://lando-lamp.lndo.site"
-lando ssh -s appserver_nginx -c "curl http://appserver.landolamp.internal"
-lando ssh -s appserver_nginx -c "curl https://lando-lamp.lndo.site"
-lando ssh -s appserver_nginx -c "curl https://appserver.landolamp.internal"
+lando exec appserver_nginx -- curl http://lando-lamp.lndo.site
+lando exec appserver_nginx -- curl http://appserver.landolamp.internal
+lando exec appserver_nginx -- curl https://lando-lamp.lndo.site
+lando exec appserver_nginx -- curl https://appserver.landolamp.internal
 
 # Should even be able to connect to a database in a different app
 cd lamp
-lando ssh -s database -c "mysql -uroot -h database.landolemp.internal -e 'quit'"
+lando exec database -- mysql -uroot -h database.landolemp.internal -e "quit"
 ```
 
 Destroy tests
