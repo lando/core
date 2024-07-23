@@ -24,6 +24,7 @@ services:
     api: 4
     type: lando
     image: nginxinc/nginx-unprivileged:1.26.1
+    user: nginx
     ports:
       - 8080/http
     app-mount:
