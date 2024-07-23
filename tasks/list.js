@@ -29,14 +29,27 @@ module.exports = lando => {
       if (options.format === 'table') options.format = 'otable';
 
       // List all the apps
-      const containers = await lando.engine.list(options)
-        .map(container => _.omit(container, ['lando', 'id', 'instance']));
+      options.data = await lando.engine.list(options).map(container => _.omit(container, ['lando', 'id', 'instance']));
 
-      // we want to do a slightly different thing for otable
-      if (options.format === 'otable') {
-        for (const container of containers) console.log(lando.cli.formatData(container, options));
-      // and then everything else
-      } else console.log(lando.cli.formatData(containers, options));
+      // if filters then do the filters first
+      if (options.filter) {
+        for (const filter of options.filter) {
+          options.data = _.filter(options.data, item => _.get(item, filter.split('=')[0]) == filter.split('=')[1]);
+        }
+      }
+
+      // if we have a path and a single service then just do that
+      if (options.path && options.data.length === 1) {
+        console.log(lando.cli.formatData(options.data[0], options));
+
+      // if we do not have an otable then just print
+      } else if (options.format !== 'otable') {
+        console.log(lando.cli.formatData(options.data, options));
+
+      // otherwise iterate and print table info
+      } else {
+        for (const datum of options.data) console.log(lando.cli.formatData(datum, options));
+      }
     },
   };
 };
