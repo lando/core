@@ -30,6 +30,7 @@ lando.env
 # Build dirs
 build
 dist
+!examples/build
 
 # coverage reporting
 .nyc_output
