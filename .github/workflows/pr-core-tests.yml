@@ -19,7 +19,7 @@ jobs:
           - badname
           - build
           - cache
-          # - certs
+          - certs
           - config
           - debug
           - envfile
@@ -28,6 +28,7 @@ jobs:
           # - exec
           - experimental
           - healthcheck
+          # - hostnames
           - info
           - init-github
           - init-remote
