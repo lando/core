@@ -1,12 +1,10 @@
-Orchestrator Example
-====================
+# Orchestrator Example
 
 This example exists primarily to test the following documentation:
 
 * [Orchestrator](https://docs.lando.dev/core/v3/orchestrator.html)
 
-Start up tests
---------------
+## Start up tests
 
 Run the following commands to get up and running with this example.
 
@@ -16,8 +14,7 @@ lando poweroff
 lando start
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to validate things are rolling as they should.
 
@@ -48,8 +45,7 @@ LANDO_COMPOSE_BIN="/usr/local/bin/docker-compose" lando config --path orchestrat
 LANDO_COMPOSE_BIN="/usr/local/bin/bogus" LANDO_ORCHESTRATOR_BIN="/usr/local/bin/docker-compose" lando config --path orchestratorBin | grep "$LANDO_ORCHESTRATOR_BIN"
 ```
 
-Destroy tests
--------------
+## Destroy tests
 
 Run the following commands to trash this app like nothing ever happened.
 

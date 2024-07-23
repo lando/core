@@ -44,7 +44,7 @@ services:
     image:
       imagefile: nginxinc/nginx-unprivileged:1.26.1
       context:
-        ./default-ssl.conf:/etc/nginx/conf.d/default.conf
+        - ./default-ssl.conf:/etc/nginx/conf.d/default.conf
     user: nginx
     ports:
       - 8080/http
