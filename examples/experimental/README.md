@@ -4,16 +4,14 @@ This example exists primarily to test the following documentation:
 
 * [Experimental](https://docs.lando.dev/core/v3/experimental.html)
 
-Start up tests
---------------
+## Start up tests
 
 ```bash
 # Should start successfully
 lando start
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to verify things work as expected
 
@@ -31,8 +29,7 @@ lando --experimental
 lando config --path experimental | grep false
 ```
 
-Destroy tests
--------------
+## Destroy tests
 
 ```bash
 # Should destroy successfully

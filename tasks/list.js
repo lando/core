@@ -34,8 +34,11 @@ module.exports = lando => {
       // if filters then do the filters first
       if (options.filter) {
         for (const filter of options.filter) {
-          options.data = _.filter(options.data, item => _.get(item, filter.split('=')[0]) == filter.split('=')[1]);
+          options.data = _.filter(options.data, item => {
+            return String(_.get(item, filter.split('=')[0])) == filter.split('=')[1];
+          });
         }
+        delete options.filter;
       }
 
       // if we have a path and a single service then just do that

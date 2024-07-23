@@ -56,8 +56,11 @@ module.exports = lando => ({
       // and filter it if needed
       if (options.filter) {
         for (const filter of options.filter) {
-          options.data = _.filter(options.data, item => _.get(item, filter.split('=')[0]) == filter.split('=')[1]);
+          options.data = _.filter(options.data, item => {
+            return String(_.get(item, filter.split('=')[0])) == filter.split('=')[1];
+          });
         }
+        delete options.filter;
       }
     }
 
