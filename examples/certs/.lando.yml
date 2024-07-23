@@ -22,7 +22,6 @@ services:
       volumes:
         - ./default-ssl.conf:/opt/bitnami/nginx/conf/server_blocks/my_server_block.conf
         - ./:/usr/share/nginx/html
-
   web2:
     api: 4
     image:
@@ -69,7 +68,6 @@ services:
     user: nginx
     ports:
       - 8080/http
-
 tooling:
   certinfo:
     cmd: bash -c "openssl x509 -in "$LANDO_SERVICE_CERT" -noout -text"
