@@ -46,7 +46,7 @@ lando version --component healthcheck | grep "$(lando version --component @lando
 lando version -c healthcheck | grep "$(lando version --component core)"
 
 # Should print full version information
-lando version --full | grep @lando/core | grep "$(lando version -c core)" | grep "$(uname -m)" | grep "node-v18" | grep cli | grep "$(lando version -c cli)"
+lando version --full | grep @lando/core | grep "$(lando version -c core)" | grep "$(lando config --path os.platform | tr -d '\n' | sed -e "s/^'//" -e "s/'$//")" | grep "$(lando config --path os.arch | tr -d '\n' | sed -e "s/^'//" -e "s/'$//")" | grep node-v18 | grep cli | grep "$(lando version -c cli)"
 ```
 
 ## Destroy tests
