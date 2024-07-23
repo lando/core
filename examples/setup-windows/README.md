@@ -15,7 +15,7 @@ Run the following commands to validate things are rolling as they should.
 lando plugin-add "@lando/core@file:../.."
 
 # Should be able to run lando setup
-lando setup -y --skip-networking --skip-common-plugins --debug
+lando setup -y --skip-networking
 
 # Should have installed Docker Desktop
 Test-Path "$Env:ProgramFiles\Docker\Docker\Docker Desktop.exe"

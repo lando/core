@@ -28,8 +28,9 @@ module.exports = lando => {
       // if options is a table then map it over to the new otable
       if (options.format === 'table') options.format = 'otable';
 
-      // List all the apps
-      options.data = await lando.engine.list(options).map(container => _.omit(container, ['lando', 'id', 'instance']));
+      // List all the apps but avoid lists built-in filtering for this one
+      options.data = await lando.engine.list({...options, filter: []})
+        .map(container => _.omit(container, ['lando', 'id', 'instance']));
 
       // if filters then do the filters first
       if (options.filter) {
