@@ -39,7 +39,6 @@ jobs:
           - networking
           - no-services
           - orchestrator
-          - plugin-commands
           - plugins
           - proxy
           - rebuild
