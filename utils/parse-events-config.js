@@ -49,7 +49,10 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
   ]).flatten().compact().uniq().value();
 
   // attempt to ascertain whether this is a v4 "exec" service
-  const canExec = _.get(app, 'v4.services', []).find(s => s.id === service)?.canExec ?? false;
+  const canExec = _.get(app, 'v4.services', []).find(s => s.id === service)?.canExec
+    ?? _.get(app, `executors.${service}`, undefined)
+    ?? _.get(data, `executors.${service}`, undefined)
+    ?? false;
 
   // reset the cmd based on exec situation
   if (canExec) {
@@ -79,6 +82,10 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
       mode: 'attach',
       user: require('./get-user')(service, app.info),
       services: [service],
+      environment: {
+        DEBUG: app.debuggy ? '1' : '',
+        LANDO_DEBUG: app.debuggy ? '1' : '',
+      },
     },
   };
 });
