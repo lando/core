@@ -1,12 +1,10 @@
-Setup macOS Tests
-=================
+# Setup macOS Tests
 
 This example exists primarily to test the following documentation:
 
 * [lando setup](https://docs.lando.dev/cli/setup.html)
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to validate things are rolling as they should.
 

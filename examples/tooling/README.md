@@ -1,5 +1,4 @@
-Tooling Example
-===============
+# Tooling Example
 
 This example exists primarily to test the following documentation:
 
@@ -7,8 +6,7 @@ This example exists primarily to test the following documentation:
 
 See the [Landofiles](https://docs.devwithlando.io/config/lando.html) in this directory for the exact magicks.
 
-Start up tests
---------------
+## Start up tests
 
 ```bash
 # Should start successfully
@@ -16,8 +14,7 @@ lando poweroff
 lando start
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to verify things work as expected
 
@@ -130,8 +127,7 @@ lando pwd --service l337-slim | grep /tmp
 lando ssh -c "env" | grep PRIMARY_SERVICE | grep yes
 ```
 
-Destroy tests
--------------
+## Destroy tests
 
 ```bash
 # Should destroy successfully

@@ -3,10 +3,3 @@ recipe: test
 plugins:
   "@lando/recipe-test": ./plugin-recipe-test
   "@lando/core": "../.."
-tooling:
-  thing:
-    service: web
-    cmd: env
-  thing2:
-    service: web
-    cmd: env
