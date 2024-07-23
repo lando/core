@@ -1,46 +1,43 @@
 name: lando-certs
 proxy:
-  nginx:
-    - lando-certs.lndo.site:8080
-    - hostname: lando-certs-2.lndo.site
-      port: 8080
-events:
-  post-start:
-    - nginx: env | grep LANDO | sort
-    - debian: tail -f /dev/null &
-    - web3: tail -f /dev/null &
+  web:
+    - web.lndo.site:8080
+  web2:
+    - web2.lndo.site:8080
+
 services:
-  alpine:
-    api: 4
-    image: alpine:3.20
-    command: sleep infinity
-  debian:
+  web:
+    api: 3
+    type: lando
+    ssl: true
+    sslExpose: true
+    sport: "8443"
+    services:
+      image: bitnami/nginx
+      command: /opt/bitnami/scripts/nginx/entrypoint.sh /opt/bitnami/scripts/nginx/run.sh
+      ports:
+        - "8080"
+        - "8443"
+      user: root
+      volumes:
+        - ./default-ssl.conf:/opt/bitnami/nginx/conf/server_blocks/my_server_block.conf
+        - ./:/usr/share/nginx/html
+
+  web2:
     api: 4
     image:
-      imagefile: |
-        FROM debian:bookworm-slim
-        RUN apt update -y && apt install -y procps
-    command: sleep infinity
-  fedora:
+      imagefile: nginxinc/nginx-unprivileged:1.26.1
+      context:
+        - ./default-ssl-2.conf:/etc/nginx/conf.d/default.conf
+    user: nginx
+    ports:
+      - 8080/http
+      - 8443/https
+  web3:
     api: 4
-    image: fedora:40
-    command:
-      - sleep
-      - infinity
-  ol:
-    api: 4
-    image: oraclelinux:9-slim
-    command: sleep infinity
-  nginx:
-    api: 4
-    primary: true
     certs: /certs/cert.crt
-    build:
-      app: |
-        echo "app build"
-        sh -c "env | grep LANDO | sort"
     hostnames:
-      - bobthing
+      - vibes.rising
     image:
       imagefile: nginxinc/nginx-unprivileged:1.26.1
       context:
@@ -49,28 +46,40 @@ services:
     ports:
       - 8080/http
       - 8443/https
-
-  web3:
-    api: 3
-    type: lando
-    ssl: true
-    sslExpose: false
-    services:
-      image: bitnami/nginx
-      command: /opt/bitnami/scripts/nginx/entrypoint.sh /opt/bitnami/scripts/nginx/run.sh
-      ports:
-        - "8080"
-      user: root
+  web4:
+    api: 4
+    certs:
+      cert: /frank/cert.crt
+      key: /bob/key.key
+    image:
+      imagefile: nginxinc/nginx-unprivileged:1.26.1
+      context:
+        - ./default-ssl-3.conf:/etc/nginx/conf.d/default.conf
+    user: nginx
+    ports:
+      - 8080/http
+      - 8443/https
+  web5:
+    api: 4
+    certs: false
+    image:
+      imagefile: nginxinc/nginx-unprivileged:1.26.1
+      context:
+        - ./default.conf:/etc/nginx/conf.d/default.conf
+    user: nginx
+    ports:
+      - 8080/http
 
 tooling:
-  env:
-    service: nginx
-  backgrounder:
-    service: debian
-    cmd: tail -f /dev/null &
-  backgrounder2:
-    service: web3
-    cmd: tail -f /dev/null &
+  certinfo:
+    cmd: bash -c "openssl x509 -in "$LANDO_SERVICE_CERT" -noout -text"
+    service: :service
+    options:
+      service:
+        default: web
+        alias:
+          - s
+        describe: Runs on a different service
 
 plugins:
   "@lando/core": "../.."
