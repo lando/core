@@ -23,10 +23,11 @@ Run the following commands to verify things work as expected
 lando logs
 
 # Should return only logs for the specified service
-lando logs -s web2 | grep log_1 || echo $? | grep 1
-lando logs --service web2 | grep log_1 || echo $? | grep 1
-lando logs -s web3 | grep log_1 || echo $? | grep 1
-lando logs --service web3 | grep log_1 || echo $? | grep 1
+lando logs -s web2 | grep web2_1 || echo $? | grep 1
+lando logs --service web2 | grep web2_1 || echo $? | grep 1
+lando logs -s web3 | grep web3_1 || echo $? | grep 1
+lando logs --service web3 | grep web3_1 || echo $? | grep 1
+lando logs --service web4 | grep web4_1 || echo $? | grep 1
 ```
 
 ## Destroy tests

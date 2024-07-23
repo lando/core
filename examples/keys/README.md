@@ -1,5 +1,4 @@
-Keys Example
-============
+# Keys Example
 
 This example exists primarily to test the following documentation:
 
@@ -7,8 +6,7 @@ This example exists primarily to test the following documentation:
 
 See the [Landofiles](https://docs.devwithlando.io/config/lando.html) in this directory for the exact magicks.
 
-Start up tests
---------------
+## Start up tests
 
 ```bash
 # Should start successfully
@@ -16,8 +14,7 @@ lando poweroff
 lando start
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to verify things work as expected
 
@@ -47,8 +44,7 @@ lando ssh -s thesekeys -c "cat /etc/ssh/ssh_config" | grep "/user/.ssh/mykey2"
 lando ssh -s thesekeys -c "cat /etc/ssh/ssh_config" | grep "/user/.ssh/mykey3" || echo "$?" | grep 1
 ```
 
-Destroy tests
--------------
+## Destroy tests
 
 ```bash
 # Remove generated test keys and files
