@@ -34,9 +34,9 @@ lando whoami --service lando4 | grep bob
 
 # Should run as the specified user
 lando iamroot
-lando ssh -s php -c "cat /whoami | grep root"
+lando exec php -- cat /whoami | grep root
 lando iamroot --service l337-php
-lando ssh -s l337-php -c "cat /whoami | grep root"
+lando exec l337-php -- cat /whoami | grep root
 lando notme | grep www-data
 lando notme --service l337-node | grep www-data
 lando iamroot --service lando4 | grep root
@@ -96,10 +96,10 @@ lando workdir | grep "/tmp"
 lando workdir | grep /tmp/folder || echo "$?" | grep 1
 
 # Should use /app as the default appMount for v3 services
-lando ssh --service web -c "pwd" | grep /app
-lando ssh --service web2 -c "pwd" | grep /app
-lando ssh --service php -c "pwd" | grep /app
-lando ssh --service node -c "pwd" | grep /app
+lando exec web -- pwd | grep /app
+lando exec web2 -- pwd | grep /app
+lando exec php -- pwd | grep /app
+lando exec node -- pwd | grep /app
 
 # Should use and track appMount by default
 lando pwd | grep /app
@@ -112,16 +112,16 @@ lando ssh -c "pwd" | grep /app
 cd folder && lando ssh -c "pwd" | grep /app/folder && cd ..
 lando pwd --service l337-node | grep /app
 cd folder && lando pwd --service l337-node | grep /app/folder && cd ..
-lando ssh --service l337-node -c "pwd" | grep /app
-cd folder && lando ssh --service l337-node -c "pwd" | grep /app/folder && cd ..
+lando exec l337-node -- pwd | grep /app
+cd folder && lando exec l337-node -- pwd | grep /app/folder && cd ..
 lando pwd --service l337-php | grep /web
 cd folder && lando pwd --service l337-php | grep /web/folder && cd ..
-lando ssh --service l337-php -c "pwd" | grep /web
-cd folder && lando ssh --service l337-php -c "pwd" | grep /web/folder && cd ..
+lando exec l337-php -- pwd | grep /web
+cd folder && lando exec l337-php -- pwd | grep /web/folder && cd ..
 lando pwd --service web | grep /app
 cd folder && lando pwd --service web | grep /app/folder && cd ..
-lando ssh --service web -c "pwd" | grep /app
-cd folder && lando ssh --service web -c "pwd" | grep /app/folder && cd ..
+lando exec web -- pwd | grep /app
+cd folder && lando exec web -- pwd | grep /app/folder && cd ..
 
 # Should use working_dir if no app mount for v4 services
 lando pwd --service l337-slim | grep /tmp
@@ -136,6 +136,28 @@ lando dynamic --service lando4 | grep LANDO_ENVIRONMENT | grep loaded
 # Should honor --debug on v4
 lando l4env -- env | grep "LANDO_DEBUG=--debug" || echo $? || echo 1
 lando l4env --debug -- env | grep LANDO_DEBUG=--debug
+
+# Should background commands with &
+lando backgrounder
+lando --service node backgrounder
+lando --service l337-slim backgrounder
+lando --service lando4 backgrounder
+lando exec --user root alpine -- ps a | grep "sleep infinity"
+lando exec --user root node -- ps a | grep "sleep infinity"
+lando exec --user root l337-slim -- ps a | grep "sleep infinity"
+lando exec --user root lando4 -- ps a | grep "sleep infinity"
+
+# Should allow for positional pasthru in task definition
+lando everything --help | grep arg1 | grep "Uses arg1" | grep "choices:" | grep thing | grep stuff
+lando everything --help | grep arg2 | grep "Uses arg2"
+lando everything thing morething | grep "thing morething"
+lando everything stuff morestuff | grep "stuff morestuff"
+
+# Should allow for usage pasthru in task definition
+lando everything --help | grep "lando everything \[arg1\] \[arg2\] MORETHINGS"
+
+# Should allow for example pasthru in task definition
+lando everything --help | grep "lando this is just for testing"
 ```
 
 ## Destroy tests

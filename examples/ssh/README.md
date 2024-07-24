@@ -48,6 +48,16 @@ lando ssh -s web -u root -c "env" | grep LANDO=ON
 lando ssh -s web2 -u root -c "env" | grep LANDO=ON
 lando ssh -s web2 -u root -c "env" | grep LANDO=ON
 lando ssh -s web4 -u root -c "env" | grep LANDO=ON
+
+# Should be able to background commands with &
+lando ssh -s alpine -u root -c "sleep infinity &"
+lando ssh -s web2 -u root -c "sleep infinity &"
+lando ssh -s web3 -u root -c "sleep infinity &"
+lando ssh -s web4 -u root -c "sleep infinity &"
+lando ssh -s alpine -u root -c "ps a" | grep "sleep infinity"
+lando ssh -s web2 -u root -c "ps a" | grep "sleep infinity"
+lando ssh -s web3 -u root -c "ps a" | grep "sleep infinity"
+lando ssh -s web4 -u root -c "ps a" | grep "sleep infinity"
 ```
 
 ## Destroy tests

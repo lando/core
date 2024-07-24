@@ -7,3 +7,6 @@ services:
     image: nginx
     environment:
       SERVICE: 'web'
+  alpine:
+    image: alpine
+    command: tail -f /dev/null

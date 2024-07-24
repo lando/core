@@ -64,6 +64,13 @@ lando exec web2 -- cat /app/test/web2-user.txt | grep nginx
 lando env
 lando exec web2 -- cat /app/test/web2-event-env.txt | grep LANDO_ENVIRONMENT | grep loaded
 lando exec web2 -- cat /app/test/web2-tooling-event-env.txt | grep LANDO_ENVIRONMENT | grep loaded
+
+# Should be able to background events with & on v4 services
+lando backgrounder
+lando exec appserver -- ps a | grep "tail -f /dev/null"
+lando exec --user root alpine -- ps a | grep "sleep infinity"
+lando exec l337 -- ps a | grep "sleep infinity"
+lando exec web2 -- ps a | grep "sleep infinity"
 ```
 
 ## Destroy tests

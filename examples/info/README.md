@@ -48,11 +48,11 @@ lando info --deep --path "[0].Config.User" | grep nginx
 lando info --path service --service web4 | grep web4
 lando info --deep --service web4 --path Config.User | grep nginx
 
-# Should return info for --service(s) only
+# Should return info for --services only
 lando info --service web4 | grep service | wc -l | grep 1
 lando info --service web4 --service web3 | grep service | wc -l | grep 2
-lando info -d --service web4 | grep Id | wc -l | grep 1
-lando info -d --service web4 --service web3 | grep Id | wc -l | grep 2
+lando info -d --service web4 | grep NetworkSettings: | wc -l | grep 1
+lando info -d --service web4 --service web3 | grep NetworkSettings: | wc -l | grep 2
 
 # Should have the correct default info before start or after destroy
 lando destroy -y

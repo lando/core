@@ -8,6 +8,7 @@ services:
     image: |
       FROM nginx:1.22.1
       ENV SERVICE l337
+      RUN apt update -y && apt install procps -y
 
       # if you are running these tests locally on linux then you **might** need to update the below userid
       RUN usermod -o -u 1001 www-data
@@ -15,7 +16,10 @@ services:
       - ./:/app
   web2:
     api: 4
-    image: nginxinc/nginx-unprivileged:1.26.1
+    image: |
+      FROM nginxinc/nginx-unprivileged:1.26.1
+      USER root
+      RUN apt update -y && apt install procps -y
     user: nginx
     environment:
       SERVICE: web2
@@ -61,6 +65,12 @@ events:
     - web2: echo "thing2"
     - echo "$SERVICE"
     - echo "stuff"
+  post-backgrounder:
+    - appserver: tail -f /dev/null &
+    - alpine: sleep infinity &
+    - web: sleep infinity &
+    - web2: sleep infinity &
+    - l337: sleep infinity &
   post-env:
     - env > /app/test/web2-tooling-event-env.txt
   post-multi-pass:
@@ -87,6 +97,9 @@ tooling:
     cmd:
       - web: echo "KORBEN"
       - l337: echo "DALLAS"
+  backgrounder:
+    cmd: echo "backgrounding"
+    service: web
   dynamic:
     cmd: env
     service: :host
