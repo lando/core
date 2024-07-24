@@ -1,4 +1,4 @@
-name: lando-ssh
+name: lando-exec
 compose:
   - compose.yml
 services:
@@ -25,6 +25,8 @@ services:
     type: lando
     image: nginxinc/nginx-unprivileged:1.26.1
     user: nginx
+    environment:
+      MESSAGE: hellothere
     ports:
       - 8080/http
     app-mount:

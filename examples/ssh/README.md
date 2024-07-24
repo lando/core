@@ -19,21 +19,35 @@ lando start
 Run the following commands to verify things work as expected
 
 ```bash
-# Should run a command as the LANDO_WEBROOT_USER by default in v3
+# Should run a command as the default user
+lando ssh -s web -c "id | grep \$LANDO_WEBROOT_USER"
 lando ssh -s web2 -c "id | grep \$LANDO_WEBROOT_USER"
-
-# Should run a command as root by default in l337 service
 lando ssh -s web3 -c "id" | grep root
+lando ssh -s web4 -c "whoami | grep \$LANDO_USER"
 
-# Should run a command as the user specific
+# Should run a command as the --user
+lando ssh -s web -u root -c "id | grep root"
 lando ssh -s web2 -u root -c "id | grep root"
 lando ssh -s web3 -u root -c "id | grep root"
+lando ssh -s web4 -u root -c "id | grep root"
 
-# Should run commands from /app for v3 services
+# Should run commands from appMount for
+lando ssh -s web -u root -c "pwd" | grep /app
 lando ssh -s web2 -u root -c "pwd" | grep /app
-
-# Should run commands from appMount for v4 services
 lando ssh -s web3 -u root -c "pwd" | grep /usr/share/nginx/html
+lando ssh -s web4 -u root -c "pwd" | grep /usr/share/nginx/html
+
+# Should track appMounted commands
+cd folder
+lando ssh -s web2 -u root -c "pwd" | grep /app/folder
+lando ssh -s web3 -u root -c "pwd" | grep /usr/share/nginx/html/folder
+lando ssh -s web4 -u root -c "pwd" | grep /usr/share/nginx/html/folder
+
+# Should load the v3 lando environment
+lando ssh -s web -u root -c "env" | grep LANDO=ON
+lando ssh -s web2 -u root -c "env" | grep LANDO=ON
+lando ssh -s web2 -u root -c "env" | grep LANDO=ON
+lando ssh -s web4 -u root -c "env" | grep LANDO=ON
 ```
 
 ## Destroy tests

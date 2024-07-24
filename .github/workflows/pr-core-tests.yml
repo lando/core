@@ -25,7 +25,7 @@ jobs:
           - envfile
           # - environment
           - events
-          # - exec
+          - exec
           - experimental
           - healthcheck
           # - hostnames
