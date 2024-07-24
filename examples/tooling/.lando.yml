@@ -42,6 +42,12 @@ services:
     image: alpine:3.18.3
     user: root
     working_dir: /tmp
+  lando4:
+    api: 4
+    type: lando
+    command: sleep infinity
+    image: debian
+    user: bob
 
 tooling:
   php:
@@ -155,6 +161,8 @@ tooling:
   dynamic:
     cmd: env
     service: :service
+    env:
+      MILEY: cyrus
     options:
       service:
         default: web
@@ -175,6 +183,9 @@ tooling:
     cmd: echo "$TAYLOR"
     env:
       TAYLOR: swift
+  l4env:
+    service: lando4
+    cmd: env
   listfiles:
     service: web
     cmd: ls -lsa /app/*
