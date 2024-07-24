@@ -50,7 +50,7 @@ jobs:
           - release-channel
           - restart
           - scanner
-          # - security
+          - security
           - sql-helpers
           - ssh
           - tooling
