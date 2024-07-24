@@ -31,7 +31,9 @@ LANDO_ORCHESTRATOR_VERSION="2.19.1" lando config --path orchestratorVersion --fo
 LANDO_ORCHESTRATOR_VERSION="2.19.1" lando start
 LANDO_ORCHESTRATOR_VERSION="2.19.1" lando start -vvv 2>&1 | grep ".lando/bin/docker-compose-v2.19.1"
 
-# Should use a system fallback if avialable if version is bogus
+# Should use a system fallback if available if version is bogus
+ls -lsa /usr/local/bin
+LANDO_ORCHESTRATOR_VERSION="UHNO" lando start --debug
 LANDO_ORCHESTRATOR_VERSION="UHNO" lando start -vvv 2>&1 | grep "/usr/local/bin/docker-compose"
 
 # Should use the orchestratorBin if set
