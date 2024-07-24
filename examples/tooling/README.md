@@ -137,7 +137,7 @@ lando dynamic --service lando4 | grep LANDO_ENVIRONMENT | grep loaded
 lando l4env -- env | grep "LANDO_DEBUG=--debug" || echo $? || echo 1
 lando l4env --debug -- env | grep LANDO_DEBUG=--debug
 
-# Should background commands with &
+# Should background commands with line ending ampersands
 lando backgrounder
 lando --service node backgrounder
 lando --service l337-slim backgrounder
