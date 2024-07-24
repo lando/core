@@ -20,7 +20,7 @@ jobs:
         node-version:
           - "18"
         os:
-          - ubuntu-22.04
+          - ubuntu-24.04
 
     steps:
       - name: Checkout code
