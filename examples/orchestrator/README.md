@@ -32,9 +32,7 @@ LANDO_ORCHESTRATOR_VERSION="2.19.1" lando start
 LANDO_ORCHESTRATOR_VERSION="2.19.1" lando start -vvv 2>&1 | grep ".lando/bin/docker-compose-v2.19.1"
 
 # Should use a system fallback or automatically download the default compose when version is bogus
-LANDO_ORCHESTRATOR_VERSION="UHNO" lando start --debug
 LANDO_ORCHESTRATOR_VERSION="UHNO" lando start -vvv 2>&1 | grep -E "/usr/local/bin/docker-compose|.lando/bin/docker-compose"
-fail
 
 # Should use the orchestratorBin if set
 LANDO_ORCHESTRATOR_BIN="/usr/local/bin/docker-compose" lando config --path orchestratorBin | grep "$LANDO_ORCHESTRATOR_BIN"
@@ -43,7 +41,7 @@ LANDO_ORCHESTRATOR_BIN="/usr/local/bin/docker-compose" lando start -vvv 2>&1 | g
 # Should set orchestratorBin with composeBin if orchestratorBin is not set
 LANDO_COMPOSE_BIN="/usr/local/bin/docker-compose" lando config --path orchestratorBin | grep "$LANDO_COMPOSE_BIN"
 
-# Shoud prefer orchestratorBin to composeBin
+# Should prefer orchestratorBin to composeBin
 LANDO_COMPOSE_BIN="/usr/local/bin/bogus" LANDO_ORCHESTRATOR_BIN="/usr/local/bin/docker-compose" lando config --path orchestratorBin | grep "$LANDO_ORCHESTRATOR_BIN"
 ```
 
