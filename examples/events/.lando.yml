@@ -68,7 +68,6 @@ events:
   post-backgrounder:
     - appserver: tail -f /dev/null &
     - alpine: sleep infinity &
-    - web: sleep infinity &
     - web2: sleep infinity &
     - l337: sleep infinity &
   post-env:
