@@ -25,12 +25,20 @@ const getExecOpts = (docker, datum) => {
     exec.push(`${key}=${value}`);
   });
 
-  // Assess the intention to detach
+  // Assess the intention to detach for execers
   if (datum.cmd[0] === '/etc/lando/exec.sh' && datum.cmd[datum.cmd.length - 1] === '&') {
     datum.cmd.pop();
     exec.push('--detach');
-  } else if (datum.cmd[0] === '/bin/sh' && datum.cmd[1] === '-c' && datum.cmd[2].endsWith('&')) {
+  // Assess the intention to detach for shell wrappers
+  } else if (datum.cmd[0].endsWith('sh') && datum.cmd[1] === '-c' && datum.cmd[2].endsWith('&')) {
     datum.cmd[2] = datum.cmd[2].slice(0, -1).trim();
+    exec.push('--detach');
+  } else if (datum.cmd[0].endsWith('bash') && datum.cmd[1] === '-c' && datum.cmd[2].endsWith('&')) {
+    datum.cmd[2] = datum.cmd[2].slice(0, -1).trim();
+    exec.push('--detach');
+  // Assess the intention to detach for everything else
+  } else if (datum.cmd[datum.cmd.length - 1] === '&') {
+    datum.cmd.pop();
     exec.push('--detach');
   }
 

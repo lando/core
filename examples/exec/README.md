@@ -63,6 +63,23 @@ lando exec web4 -u root -- env | grep LANDO_ENVIRONMENT=loaded
 lando exec web4 -- env | grep "LANDO_DEBUG=--debug" || echo $? || echo 1
 lando exec web4 --debug -- env | grep LANDO_DEBUG=--debug
 
+# Should be able to background commands with &
+lando exec --user root alpine -- "sleep infinity &"
+lando exec web2 -- "sleep infinity &"
+lando exec web3 -- "sleep infinity &"
+lando exec web4 -- "sleep infinity &"
+lando exec --user root alpine -- ps a | grep "sleep infinity"
+lando exec web2 -- ps a | grep "sleep infinity"
+lando exec web3 -- ps a | grep "sleep infinity"
+lando exec web4 -- ps a | grep "sleep infinity"
+lando restart
+lando exec --user root alpine -- sh -c "sleep infinity &"
+lando exec web2 -- /bin/sh -c "sleep infinity &"
+lando exec web3 -- bash -c "sleep infinity &"
+lando exec --user root alpine -- ps a | grep "sleep infinity"
+lando exec web2 -- ps a | grep "sleep infinity"
+lando exec web3 -- ps a | grep "sleep infinity"
+
 # Should run complex commands on v4
 lando exec web4 -- "echo -n hello && echo there" | grep hellothere
 lando exec web4 -- "nope || echo hellothere" | grep hellothere

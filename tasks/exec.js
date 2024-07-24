@@ -18,7 +18,8 @@ module.exports = (lando, config = lando.appConfig) => ({
   examples: [
     '$0 exec appserver -- lash bash',
     '$0 exec nginx --user root -- whoami',
-    `$0 exec my-service -- "env && echo 'hello there!"'`,
+    `$0 exec my-service -- "env && echo 'hello there!'"`,
+    `$0 exec worker -- "background-service &"`,
   ],
   positionals: {
     service: {
