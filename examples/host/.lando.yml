@@ -1,0 +1,24 @@
+name: lando-host
+services:
+  pinger:
+    api: 3
+    type: lando
+    meUser: root
+    services:
+      image: alpine
+      command: sleep infinity
+  pinger2:
+    api: 4
+    type: l337
+    image: alpine
+    user: root
+    command: sleep infinity
+  pinger3:
+    api: 4
+    type: lando
+    image: alpine
+    user: root
+    command: sleep infinity
+
+plugins:
+  "@lando/core": "../.."

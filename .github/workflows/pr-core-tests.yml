@@ -28,6 +28,7 @@ jobs:
           - exec
           - experimental
           - healthcheck
+          - host
           # - hostnames
           - info
           - init-github
