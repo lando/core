@@ -42,12 +42,14 @@ fi
 case $LANDO_LINUX_PACKAGE_MANAGER in
   dnf|microdnf|yum)
     cp -r /etc/lando/ca-certificates/.  /etc/pki/ca-trust/source/anchors/
-    echo "export LANDO_CERTS_DIR=/etc/pki/ca-trust/source/anchors" >> /etc/lando/env.d/install-ca-certs.sh
+    echo "export LANDO_CA_DIR=/etc/pki/ca-trust/source/anchors" >> /etc/lando/env.d/install-ca-certs.sh
+    echo "export LANDO_CA_BUNDLE=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem" >> /etc/lando/env.d/install-ca-certs.sh
     update-ca-trust
     ;;
   *)
     cp -r /etc/lando/ca-certificates/.  /usr/local/share/ca-certificates/
-    echo "export LANDO_CERTS_DIR=/usr/local/share/ca-certificates" >> /etc/lando/env.d/install-ca-certs.sh
+    echo "export LANDO_CA_DIR=/etc/ssl/certs/" >> /etc/lando/env.d/install-ca-certs.sh
+    echo "export LANDO_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt" >> /etc/lando/env.d/install-ca-certs.sh
     update-ca-certificates
     ;;
 esac
