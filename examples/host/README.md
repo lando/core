@@ -19,6 +19,11 @@ lando start
 Run the following commands to verify things work as expected
 
 ```bash
+# Should have the correct envvars set
+lando exec pinger -- env | grep LANDO_HOST_IP | grep host.lando.internal
+lando exec pinger2 -- env | grep LANDO_HOST_IP | grep host.lando.internal
+lando exec pinger3 -- env | grep LANDO_HOST_IP | grep host.lando.internal
+
 # Should be able to ping the host at host.lando.internal
 lando exec pinger -- ping host.lando.internal -c 3
 lando exec pinger2 -- ping host.lando.internal -c 3

@@ -2,7 +2,7 @@
 
 ### New Features
 
-* Added new [`lando exec` command](https://docs.lando.dev/cli/exec.html)
+* Added new [`lando exec`](https://docs.lando.dev/cli/exec.html) command
 * Added cross platform `host.lando.internal` for container-to-host access
 * Added limited auto setup to app start-y events
 * Added Install Certificate Authority `setup` task
