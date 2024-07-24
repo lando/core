@@ -144,7 +144,7 @@ lando --service l337-slim backgrounder
 lando --service lando4 backgrounder
 lando exec --user root alpine -- ps a | grep "sleep infinity"
 lando exec --user root node -- ps -e -o cmd | grep "sleep infinity"
-lando exec --user root l337-slim -- ps -e -o cmd | grep "sleep infinity"
+lando exec --user root l337-slim -- ps a | grep "sleep infinity"
 lando exec --user root lando4 -- ps -e -o cmd | grep "sleep infinity"
 
 # Should allow for positional pasthru in task definition
