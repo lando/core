@@ -30,6 +30,7 @@ lando whoami --service l337-php | grep root
 lando nodeme | grep node
 lando nodeme --service l337-node | grep node
 lando stillme | grep node | wc -l | grep 2
+lando whoami --service lando4 | grep bob
 
 # Should run as the specified user
 lando iamroot
@@ -38,6 +39,7 @@ lando iamroot --service l337-php
 lando ssh -s l337-php -c "cat /whoami | grep root"
 lando notme | grep www-data
 lando notme --service l337-node | grep www-data
+lando iamroot --service lando4 | grep root
 
 # Should be able to run multiple commands on one service
 lando test
@@ -74,6 +76,7 @@ cat pipe.txt | grep more
 
 # Should be able to set envvars
 lando envvar | grep swift
+lando dynamic --service lando4 | grep cyrus
 
 # Should be able to use *
 lando listfiles | grep /app/README.md
@@ -125,6 +128,10 @@ lando pwd --service l337-slim | grep /tmp
 
 # Should use first lando 3 service as default if no appserver
 lando ssh -c "env" | grep PRIMARY_SERVICE | grep yes
+
+# Shold load lando4 environment
+lando l4env | grep LANDO_ENVIRONMENT | grep loaded
+lando dynamic --service lando4 | grep LANDO_ENVIRONMENT | grep loaded
 ```
 
 ## Destroy tests
