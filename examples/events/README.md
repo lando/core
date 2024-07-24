@@ -69,8 +69,8 @@ lando exec web2 -- cat /app/test/web2-tooling-event-env.txt | grep LANDO_ENVIRON
 lando backgrounder
 lando exec appserver -- ps a | grep "tail -f /dev/null"
 lando exec --user root alpine -- ps a | grep "sleep infinity"
-lando exec l337 -- ps a | grep "sleep infinity"
-lando exec web2 -- ps a | grep "sleep infinity"
+lando exec l337 -- ps -e -o cmd | grep "sleep infinity"
+lando exec web2 -- ps -e -o cmd | grep "sleep infinity"
 ```
 
 ## Destroy tests

@@ -69,9 +69,6 @@ lando exec web2 -- "sleep infinity &"
 lando exec web3 -- "sleep infinity &"
 lando exec web4 -- "sleep infinity &"
 lando exec --user root alpine -- ps a | grep "sleep infinity"
-lando exec web2 -- ps -e -o cmd
-lando exec web3 -- ps -e -o cmd
-lando exec web4 -- ps -e -o cmd
 lando exec web2 -- ps -e -o cmd | grep "sleep infinity"
 lando exec web3 -- ps -e -o cmd | grep "sleep infinity"
 lando exec web4 -- ps -e -o cmd | grep "sleep infinity"
