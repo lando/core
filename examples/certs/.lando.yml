@@ -70,7 +70,7 @@ services:
       - 8080/http
 tooling:
   certinfo:
-    cmd: bash -c "openssl x509 -in "$LANDO_SERVICE_CERT" -noout -text"
+    cmd: openssl x509 -in "$LANDO_SERVICE_CERT" -noout -text
     service: :service
     options:
       service:
