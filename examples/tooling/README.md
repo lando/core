@@ -129,9 +129,13 @@ lando pwd --service l337-slim | grep /tmp
 # Should use first lando 3 service as default if no appserver
 lando ssh -c "env" | grep PRIMARY_SERVICE | grep yes
 
-# Shold load lando4 environment
+# Should load lando4 environment
 lando l4env | grep LANDO_ENVIRONMENT | grep loaded
 lando dynamic --service lando4 | grep LANDO_ENVIRONMENT | grep loaded
+
+# Should honor --debug on v4
+lando l4env -- env | grep "LANDO_DEBUG=--debug" || echo $? || echo 1
+lando l4env --debug -- env | grep LANDO_DEBUG=--debug
 ```
 
 ## Destroy tests
