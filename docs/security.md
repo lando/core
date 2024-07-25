@@ -78,7 +78,7 @@ lando exec web -- env | grep LANDO_SERVICE_CERT
 lando exec web -- env | grep LANDO_SERVICE_KEY
 ```
 
-Note that in API 3 services you will need to [enable SSL](http://localhost:5173/core/v3/services/lando.html#ssl) to get certs. API 4 services will generate certs by default.
+Note that in API 3 services you will need to [enable SSL](./services/lando.html#ssl) to get certs. API 4 services will generate certs by default.
 
 ## Trusting the CA
 
