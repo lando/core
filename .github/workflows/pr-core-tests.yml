@@ -12,33 +12,57 @@ jobs:
       fail-fast: false
       matrix:
         lando-version:
-          - 3-slim
+          # - 3-slim
           # uncomment to test against bleeding edge cli
-          # - 3-dev-slim
+          - 3-dev-slim
         leia-test:
-          - examples/badname
-          - examples/base
-          - examples/events
-          - examples/experimental
-          - examples/init-github
-          - examples/init-remote
-          - examples/keys
-          - examples/l337
-          - examples/lando-v4
-          - examples/landofile-custom
-          - examples/long-name
-          - examples/no-services
-          - examples/orchestrator
-          - examples/plugin-commands
-          - examples/services
-          - examples/sql-helpers
-          - examples/tooling
+          - badname
+          - build
+          - cache
+          - certs
+          - config
+          - debug
+          - envfile
+          # - environment
+          - events
+          - exec
+          - experimental
+          - healthcheck
+          - host
+          # - hostnames
+          - info
+          - init-github
+          - init-remote
+          - keys
+          - l337
+          - lando-v4
+          - landofile
+          - landofile-custom
+          - list
+          - logs
+          - long-name
+          - networking
+          - no-services
+          - orchestrator
+          - plugins
+          - proxy
+          - rebuild
+          - recipes
+          - release-channel
+          - restart
+          - scanner
+          - security
+          - sql-helpers
+          - ssh
+          - tooling
+          - update
+          - version
         node-version:
           - "18"
         os:
           # - macos-13
           # - macos-14
-          - ubuntu-22.04
+          - ubuntu-24.04
           # - windows-2022
         shell:
           - bash
@@ -85,7 +109,7 @@ jobs:
           GITHUB_PAT: ${{ secrets.KYBER_AMPLIFICATION_MATRIX }}
           GITHUB_KEY_NAME: "${{ github.sha }}${{ matrix.os }}"
         with:
-          leia-test: "./${{ matrix.leia-test }}/README.md"
+          leia-test: "./examples/${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"
           shell: ${{ matrix.shell }}
           stdin: true

@@ -2,23 +2,35 @@
 
 module.exports = lando => {
   return {
-    command: 'plugin-add <plugin> [plugins...]',
+    command: 'plugin-add',
+    usage: '$0 plugin-add <plugin> [plugin...] [--auth <auth>...] [--registry <registry>...] [--scope <scope>...]',
+    examples: [
+      '$0 plugin-add @lando/php@1.2.0',
+      '$0 plugin-add @lando/php@file:~/my-php-plugin lando/node#main https://github.com/pirog/plugin.git#v1.2.1',
+      '$0 plugin-add @myorg/php --auth "$TOKEN" --registry https://npm.pkg.github.com',
+      '$0 plugin-add @org/a @myorg/b --auth "//npm.pkg.github.com/:_authToken=$TOKEN" --scope myorg:registry=https://npm.pkg.github.com', // eslint-disable-line max-len
+    ],
     level: 'tasks',
+    positionals: {
+      plugin: {
+        describe: 'Installs these plugins',
+        type: 'string',
+      },
+    },
     options: {
       auth: {
-        describe: 'Use global or scoped auth',
+        describe: 'Sets global or scoped auth',
         alias: ['a'],
         array: true,
         default: [],
       },
       registry: {
-        describe: 'Use global or scoped registry',
+        describe: 'Sets global or scoped registry',
         alias: ['r', 's', 'scope'],
         array: true,
         default: [],
       },
     },
-
     run: async options => {
       const getPluginConfig = require('../utils/get-plugin-config');
       const lopts2Popts = require('../utils/lopts-2-popts');
@@ -37,7 +49,7 @@ module.exports = lando => {
       Plugin.debug = require('../utils/debug-shim')(lando.log);
 
       // merge plugins together
-      const plugins = [options.plugin].concat(options.plugins);
+      const plugins = options._.slice(1);
       lando.log.debug('attempting to install plugins %j', plugins);
 
       // attempt to compute the destination to install the plugin

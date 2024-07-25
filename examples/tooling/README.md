@@ -1,14 +1,12 @@
-Tooling Example
-===============
+# Tooling Example
 
 This example exists primarily to test the following documentation:
 
-* [Tooling](http://docs.devwithlando.io/config/tooling.html)
+* [Tooling](https://docs.devwithlando.io/config/tooling.html)
 
-See the [Landofiles](http://docs.devwithlando.io/config/lando.html) in this directory for the exact magicks.
+See the [Landofiles](https://docs.devwithlando.io/config/lando.html) in this directory for the exact magicks.
 
-Start up tests
---------------
+## Start up tests
 
 ```bash
 # Should start successfully
@@ -16,8 +14,7 @@ lando poweroff
 lando start
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to verify things work as expected
 
@@ -27,20 +24,22 @@ lando php -v
 lando php -m
 lando php -r "phpinfo();"
 
-# Should run as meUser by default
+# Should run as correct user
 lando whoami | grep www-data
-lando whoami --service l337-php | grep www-data
+lando whoami --service l337-php | grep root
 lando nodeme | grep node
 lando nodeme --service l337-node | grep node
 lando stillme | grep node | wc -l | grep 2
+lando whoami --service lando4 | grep bob
 
 # Should run as the specified user
 lando iamroot
-lando ssh -s php -c "cat /whoami | grep root"
+lando exec php -- cat /whoami | grep root
 lando iamroot --service l337-php
-lando ssh -s l337-php -c "cat /whoami | grep root"
+lando exec l337-php -- cat /whoami | grep root
 lando notme | grep www-data
 lando notme --service l337-node | grep www-data
+lando iamroot --service lando4 | grep root
 
 # Should be able to run multiple commands on one service
 lando test
@@ -77,6 +76,7 @@ cat pipe.txt | grep more
 
 # Should be able to set envvars
 lando envvar | grep swift
+lando dynamic --service lando4 | grep cyrus
 
 # Should be able to use *
 lando listfiles | grep /app/README.md
@@ -96,10 +96,10 @@ lando workdir | grep "/tmp"
 lando workdir | grep /tmp/folder || echo "$?" | grep 1
 
 # Should use /app as the default appMount for v3 services
-lando ssh --service web -c "pwd" | grep /app
-lando ssh --service web2 -c "pwd" | grep /app
-lando ssh --service php -c "pwd" | grep /app
-lando ssh --service node -c "pwd" | grep /app
+lando exec web -- pwd | grep /app
+lando exec web2 -- pwd | grep /app
+lando exec php -- pwd | grep /app
+lando exec node -- pwd | grep /app
 
 # Should use and track appMount by default
 lando pwd | grep /app
@@ -112,26 +112,55 @@ lando ssh -c "pwd" | grep /app
 cd folder && lando ssh -c "pwd" | grep /app/folder && cd ..
 lando pwd --service l337-node | grep /app
 cd folder && lando pwd --service l337-node | grep /app/folder && cd ..
-lando ssh --service l337-node -c "pwd" | grep /app
-cd folder && lando ssh --service l337-node -c "pwd" | grep /app/folder && cd ..
+lando exec l337-node -- pwd | grep /app
+cd folder && lando exec l337-node -- pwd | grep /app/folder && cd ..
 lando pwd --service l337-php | grep /web
 cd folder && lando pwd --service l337-php | grep /web/folder && cd ..
-lando ssh --service l337-php -c "pwd" | grep /web
-cd folder && lando ssh --service l337-php -c "pwd" | grep /web/folder && cd ..
+lando exec l337-php -- pwd | grep /web
+cd folder && lando exec l337-php -- pwd | grep /web/folder && cd ..
 lando pwd --service web | grep /app
 cd folder && lando pwd --service web | grep /app/folder && cd ..
-lando ssh --service web -c "pwd" | grep /app
-cd folder && lando ssh --service web -c "pwd" | grep /app/folder && cd ..
+lando exec web -- pwd | grep /app
+cd folder && lando exec web -- pwd | grep /app/folder && cd ..
 
 # Should use working_dir if no app mount for v4 services
 lando pwd --service l337-slim | grep /tmp
 
 # Should use first lando 3 service as default if no appserver
 lando ssh -c "env" | grep PRIMARY_SERVICE | grep yes
+
+# Should load lando4 environment
+lando l4env | grep LANDO_ENVIRONMENT | grep loaded
+lando dynamic --service lando4 | grep LANDO_ENVIRONMENT | grep loaded
+
+# Should honor --debug on v4
+lando l4env -- env | grep "LANDO_DEBUG=--debug" || echo $? || echo 1
+lando l4env --debug -- env | grep LANDO_DEBUG=--debug
+
+# Should background commands with line ending ampersands
+lando backgrounder
+lando --service node backgrounder
+lando --service l337-slim backgrounder
+lando --service lando4 backgrounder
+lando exec --user root alpine -- ps a | grep "sleep infinity"
+lando exec --user root node -- ps -e -o cmd | grep "sleep infinity"
+lando exec --user root l337-slim -- ps a | grep "sleep infinity"
+lando exec --user root lando4 -- ps -e -o cmd | grep "sleep infinity"
+
+# Should allow for positional pasthru in task definition
+lando everything --help | grep arg1 | grep "Uses arg1" | grep "choices:" | grep thing | grep stuff
+lando everything --help | grep arg2 | grep "Uses arg2"
+lando everything thing morething | grep "thing morething"
+lando everything stuff morestuff | grep "stuff morestuff"
+
+# Should allow for usage pasthru in task definition
+lando everything --help | grep "lando everything \[arg1\] \[arg2\] MORETHINGS"
+
+# Should allow for example pasthru in task definition
+lando everything --help | grep "lando this is just for testing"
 ```
 
-Destroy tests
--------------
+## Destroy tests
 
 ```bash
 # Should destroy successfully

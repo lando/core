@@ -19,13 +19,15 @@ const getDynamicKeys = (answer, answers = {}) => _(answers)
  * Set SERVICE from answers and strip out that noise from the rest of
  * stuff, check answers/argv for --service or -s, validate and then remove
  */
-const handleDynamic = (config, options = {}, answers = {}) => {
+const handleDynamic = (config, options = {}, answers = {}, execs = {}) => {
   if (_.startsWith(config.service, ':')) {
     const answer = answers[config.service.split(':')[1]];
     // Remove dynamic service option from argv
     _.remove(process.argv, arg => _.includes(getDynamicKeys(answer, answers).concat(answer), arg));
+    // get the service
+    const service = answers[config.service.split(':')[1]];
     // Return updated config
-    return _.merge({}, config, {service: answers[config.service.split(':')[1]]});
+    return _.merge({}, config, {exec: execs[service] ?? false, service});
   } else {
     return config;
   }
@@ -59,21 +61,22 @@ const handlePassthruOpts = (options = {}, answers = {}) => _(options)
 /*
  * Helper to convert a command into config object
  */
-const parseCommand = (cmd, service) => ({
+const parseCommand = (cmd, service, execs) => ({
+  exec: execs[service] ?? false,
   command: (_.isObject(cmd)) ? cmd[_.first(_.keys(cmd))] : cmd,
   service: (_.isObject(cmd)) ? _.first(_.keys(cmd)) : service,
 });
 
 // adds required methods to ensure the lando v3 debugger can be injected into v4 things
-module.exports = (cmd, service, options = {}, answers = {}) => _(cmd)
+module.exports = (cmd, service, options = {}, answers = {}, execs = {}) => _(cmd)
   // Put into an object so we can handle "multi-service" tooling
-  .map(cmd => parseCommand(cmd, service))
+  .map(cmd => parseCommand(cmd, service, execs))
   // Handle dynamic services
-  .map(config => handleDynamic(config, options, answers))
+  .map(config => handleDynamic(config, options, answers, execs))
   // Add in any argv extras if they've been passed in
   .map(config => handleOpts(config, handlePassthruOpts(options, answers)))
   // Wrap the command in /bin/sh if that makes sense
-  .map(config => _.merge({}, config, {command: require('./shell-escape')(config.command, true, config.args)}))
+  .map(config => _.merge({}, config, {command: require('./shell-escape')(config.command, true, config.args, config.exec)})) // eslint-disable-line max-len
   // Add any args to the command and compact to remove undefined
   .map(config => _.merge({}, config, {command: _.compact(config.command.concat(config.args))}))
   // Put into an object

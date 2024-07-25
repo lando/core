@@ -1,12 +1,10 @@
-Lando Init GitHub Source Example
-================================
+# Lando Init GitHub Source Example
 
 This example exists primarily to test the following documentation:
 
 * [Lando Init with GitHub Source](https://docs.lando.dev/cli/init.html#github)
 
-Start up tests
---------------
+## Start up tests
 
 Run the following commands to get up and running with this example.
 
@@ -16,8 +14,7 @@ mkdir -p github && cd github
 lando init --source github --recipe none --github-auth="$GITHUB_PAT" --github-repo="git@github.com:lando/lando.git" --github-key-name="$GITHUB_KEY_NAME" --yes
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to verify things work as expected
 
@@ -26,8 +23,7 @@ Run the following commands to verify things work as expected
 cd github && cat README.md
 ```
 
-Destroy tests
--------------
+## Destroy tests
 
 ```bash
 # Should remove key

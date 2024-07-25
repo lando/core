@@ -10,7 +10,7 @@ module.exports = {
     label: 'remote git repo or archive',
     options: lando => ({
       'remote-url': {
-        describe: 'The URL of your git repo or archive, only works when you set source to remote',
+        describe: 'Uses the URL of your git repo or archive, only works when you set source to remote',
         string: true,
         interactive: {
           type: 'input',
@@ -26,7 +26,7 @@ module.exports = {
       },
       'remote-options': {
         default: '',
-        describe: 'Some options to pass into either the git clone or archive extract command',
+        describe: 'Passes options into either the git clone or archive extract command',
         string: true,
       },
     }),

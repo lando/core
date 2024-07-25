@@ -1,0 +1,6 @@
+services:
+  web:
+    image: nginx
+  alpine:
+    image: alpine
+    command: tail -f /dev/null

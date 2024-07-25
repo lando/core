@@ -4,11 +4,12 @@ services:
     api: 4
     image:
       imagefile: |
-        FROM nginx:1.22.1
-        RUN apt update -u
-        RUN apt install git ssh socat sudo -y
+        FROM nginxinc/nginx-unprivileged:1.26.1
+        USER root
+        RUN apt update -y
+        RUN apt install ssh -y
         RUN ssh-keyscan github.com >> /etc/ssh/ssh_known_hosts
-    user: root
+    user: nginx
     build:
       app: |
         env
@@ -24,16 +25,23 @@ services:
 
   web-2:
     api: 4
-    user: root
-    image: nginx:1.22.1
+    user: nginx
+    image: nginxinc/nginx-unprivileged:1.26.1
   web-3:
     api: 4
-    user: root
-    image: nginx:1.22.1
+    user: nginx
+    image: nginxinc/nginx-unprivileged:1.26.1
     build:
       app: |
         set -e
         echo "stuff"
+
+
+    # persistent-storage
+    # mounts
+    # app-mount
+    # build
+    # files
 
     # appmount
     # support appMount but prefer app-mount

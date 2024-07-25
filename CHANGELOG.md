@@ -1,5 +1,47 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+### New Features
+
+* Added new [`lando exec`](https://docs.lando.dev/cli/exec.html) command
+* Added cross platform `host.lando.internal` for container-to-host access
+* Added limited auto setup to app start-y events
+* Added Install Certificate Authority `setup` task
+* Added limit `app` support in `task` functions
+* Added `usage`, `examples` and `positionals` support to `task` and `tooling` objects
+* Added `LANDO_SERVICE_CERT` and `LANDO_SERVICE_KEY` envvars
+* Improved CA and cert generation
+* Improved tooling, events, etc to honor `&` for proper backgrounding with `--detach`
+* Improved `v3` plugin script automoving (finally!)
+* Updated default Docker Compose version to `2.27.1`
+* Updated default Docker Desktop for macOS version to `4.32.0`
+* Updated default Docker Desktop for Windows version to `4.32.0`
+* Updated default Docker Engine version to `27.0.3`
+* Updated tested Docker Desktop range to `<=4.32`
+
+### Bug Fixes
+
+* Fixed bug causing weird array merging in dynamic override tasks
+* Fixed bug causing debug output showing in some errors
+* Fixed bug causing compose cache to not properly empty on `destroy`
+* Fixed bug causing `docker-engine.run` to double emit errors
+* Fixed bug causing `undefined` to show on some user password prompts
+* Fixed bug causing Docker Desktop `version` information to not load correctly in some circumstances
+* Fixed various `dc2` renderer bugs
+
+### DEPRECATIONS
+
+* **DEPRECATED** `lando ssh` in favor of new `lando exec`
+* Defunct `lando share` command is now a hidden command
+
+### Internal
+
+* Changed `.ps1` scripts to use `-Option` style option convention
+* Changed `LANDO_HOST_IP` to now use new `host.lando.internal`
+* Moved Lando Development Certificate Authority creation to `setup` framework
+* Moved Landonet 2 upgrade to `setup` framework
+* Removed `_casetup` builder in favor of native CA generation
+* Removed `ip` `npm` package
+
 ## v3.21.2 - [June 20, 2024](https://github.com/lando/core/releases/tag/v3.21.2)
 
 ### Bug Fixes

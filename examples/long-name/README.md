@@ -1,12 +1,10 @@
-Long Name Example
-=================
+# Long Name Example
 
 This example exists primarily to test the following documentation:
 
 * [Issue #3179](https://github.com/lando/lando/issues/3179)
 
-Start up tests
---------------
+## Start up tests
 
 Run the following commands to get up and running with this example.
 
@@ -16,8 +14,7 @@ lando poweroff
 lando start
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to validate things are rolling as they should.
 
@@ -27,8 +24,7 @@ lando ssh -s defaults -c "curl http://localhost:80" | grep ROOTDIR
 lando ssh -s l337 -c "curl http://localhost:80" | grep ROOTDIR
 ```
 
-Destroy tests
--------------
+## Destroy tests
 
 Run the following commands to trash this app like nothing ever happened.
 

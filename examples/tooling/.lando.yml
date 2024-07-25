@@ -12,7 +12,7 @@ services:
     meUser: node
     services:
       image: node:16
-      command: docker-entrypoint.sh sleep infinity
+      command: docker-entrypoint.sh tail -f /dev/null
       environment:
         PRIMARY_SERVICE: yes
         LANDO_WEBROOT_USER: 'node'
@@ -23,8 +23,8 @@ services:
     api: 4
     type: l337
     image: node:16
-    command: sleep infinity
-    meUser: node
+    command: tail -f /dev/null
+    user: node
     volumes:
       - "./:/app"
     environment:
@@ -38,10 +38,18 @@ services:
   l337-slim:
     api: 4
     type: l337
-    command: sleep infinity
+    command: tail -f /dev/null
     image: alpine:3.18.3
-    meUser: root
+    user: root
     working_dir: /tmp
+  lando4:
+    api: 4
+    type: lando
+    command: tail -f /dev/null
+    image: |
+      FROM debian
+      RUN apt-get update -y && apt-get install procps -y
+    user: bob
 
 tooling:
   php:
@@ -153,6 +161,8 @@ tooling:
   dynamic:
     cmd: env
     service: :service
+    env:
+      MILEY: cyrus
     options:
       service:
         default: web
@@ -173,6 +183,9 @@ tooling:
     cmd: echo "$TAYLOR"
     env:
       TAYLOR: swift
+  l4env:
+    service: lando4
+    cmd: env
   listfiles:
     service: web
     cmd: ls -lsa /app/*
@@ -197,6 +210,17 @@ tooling:
         alias:
           - s
         describe: Runs in this service
+  backgrounder:
+    cmd: sleep infinity &
+    service: :service
+    user: root
+    options:
+      service:
+        default: alpine
+        alias:
+          - s
+        describe: Runs in this service
+
   'pwd-app [file]':
     cmd: pwd
     service: :container
@@ -208,6 +232,25 @@ tooling:
         describe: Runs in this service
   bad-tool: disabled
   naughty-tool: false
+  everything:
+    cmd: /app/args.sh
+    service: node
+    user: root
+    usage: $0 everything [arg1] [arg2] MORETHINGS
+    examples:
+      - $0 everything thing
+      - $0 everything stuff morestuff
+      - $0 this is just for testing
+    positionals:
+      arg1:
+        describe: Uses arg1
+        type: string
+        choices:
+          - thing
+          - stuff
+      arg2:
+        describe: Uses arg2
+        type: string
 
 plugins:
   "@lando/core": "../.."

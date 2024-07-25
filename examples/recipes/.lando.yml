@@ -1,0 +1,5 @@
+name: lando-recipes
+recipe: test
+plugins:
+  "@lando/recipe-test": ./plugin-recipe-test
+  "@lando/core": "../.."

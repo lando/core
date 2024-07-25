@@ -15,23 +15,25 @@ const getKeys = (keys = true) => {
 module.exports = async (app, lando) => {
   // Compose cache key
   app.composeCache = `${app.name}.compose.cache`;
-  // Tooling cache key
-  app.toolingCache = `${app.name}.tooling.cache`;
+  // recipe cache key
+  app.recipeCache = `${app.name}.recipe.cache`;
   // Build step locl files
   app.preLockfile = `${app.name}.build.lock`;
   app.postLockfile = `${app.name}.post-build.lock`;
   // add compose cache updated
   app.updateComposeCache = () => {
     lando.cache.set(app.composeCache, {
-      name: app.name,
-      project: app.project,
+      allServices: app.allServices,
       compose: app.compose,
       containers: app.containers,
-      root: app.root,
       info: app.info,
+      name: app.name,
       overrides: {
         tooling: app._coreToolingOverrides,
       },
+      primary: app._defaultService,
+      project: app.project,
+      root: app.root,
     }, {persist: true});
   };
 
@@ -48,16 +50,19 @@ module.exports = async (app, lando) => {
   // add compose cache updated
   app.v4.updateComposeCache = () => {
     lando.cache.set(app.v4.composeCache, {
-      name: app.name,
-      project: app.project,
+      allServices: app.allServices,
       compose: app.compose,
       containers: app.containers,
-      root: app.root,
       info: app.info,
+      executors: require('./utils/get-executors')(_.get(app, 'v4.services', {})),
+      name: app.name,
       mounts: require('./utils/get-mounts')(_.get(app, 'v4.services', {})),
+      root: app.root,
       overrides: {
         tooling: app._coreToolingOverrides,
       },
+      primary: app._defaultService,
+      project: app.project,
     }, {persist: true});
   };
 
@@ -93,9 +98,6 @@ module.exports = async (app, lando) => {
   // run v4 build steps
   app.events.on('post-init', async () => await require('./hooks/app-run-v4-build-steps')(app, lando));
 
-  // Add localhost info to our containers if they are up
-  app.events.on('post-init', async () => await require('./hooks/app-find-localhosts')(app, lando));
-
   // refresh all out v3 certs
   app.events.on('post-init', async () => await require('./hooks/app-refresh-v3-certs')(app, lando));
 
@@ -119,17 +121,20 @@ module.exports = async (app, lando) => {
   // @TODO: i feel like there has to be a better way to do this than this mega loop right?
   app.events.on('post-init', 9999, async () => await require('./hooks/app-set-bind-address')(app, lando));
 
-  // override the ssh tooling command with a good default
-  app.events.on('ready', 1, async () => await require('./hooks/app-override-ssh-defaults')(app, lando));
+  // Add localhost info to our containers if they are up
+  app.events.on('post-init-engine', async () => await require('./hooks/app-find-localhosts')(app, lando));
 
-  // Discover portforward true info
-  app.events.on('ready', async () => await require('./hooks/app-set-portforwards')(app, lando));
+  // override default tooling commands if needed
+  app.events.on('ready', 1, async () => await require('./hooks/app-override-tooling-defaults')(app, lando));
 
   // set tooling compose cache
   app.events.on('ready', async () => await require('./hooks/app-set-compose-cache')(app, lando));
 
   // v4 parts of the app are ready
   app.events.on('ready', 6, async () => await require('./hooks/app-v4-ready')(app, lando));
+
+  // Discover portforward true info
+  app.events.on('ready-engine', async () => await require('./hooks/app-set-portforwards')(app, lando));
 
   // Save a compose cache every time the app is ready, we have to duplicate this for v4 because we modify the
   // composeData after the v3 app.ready event
@@ -152,6 +157,9 @@ module.exports = async (app, lando) => {
   // Check for updates if the update cache is empty
   app.events.on('pre-start', 1, async () => await require('./hooks/app-check-for-updates')(app, lando));
 
+  // Generate certs for v3 SSL services as needed
+  app.events.on('pre-start', 2, async () => await require('./hooks/app-generate-v3-certs')(app, lando));
+
   // If the app already is installed but we can't determine the builtAgainst, then set it to something bogus
   app.events.on('pre-start', async () => await require('./hooks/app-update-built-against-pre')(app, lando));
 
@@ -168,7 +176,7 @@ module.exports = async (app, lando) => {
   app.events.on('post-start', async () => await require('./hooks/app-check-docker-compat')(app, lando));
 
   // throw service not start errors
-  app.events.on('post-start', 9999, async () => await require('./hooks/app-check-v4-service-running')(app, lando));
+  app.events.on('post-start', 1, async () => await require('./hooks/app-check-v4-service-running')(app, lando));
 
   // Reset app info on a stop, this helps prevent wrong/duplicate information being reported on a restart
   app.events.on('post-stop', async () => require('./utils/get-app-info-defaults')(app));
@@ -186,7 +194,10 @@ module.exports = async (app, lando) => {
   app.events.on('post-uninstall', async () => await require('./hooks/app-purge-compose-cache')(app, lando));
 
   // remove tooling cache
-  app.events.on('post-uninstall', async () => await require('./hooks/app-purge-tooling-cache')(app, lando));
+  app.events.on('post-uninstall', async () => await require('./hooks/app-purge-recipe-cache')(app, lando));
+
+  // remove compose cache on destroy
+  app.events.on('post-destroy', 9999, async () => await require('./hooks/app-purge-compose-cache')(app, lando));
 
   // process events
   if (!_.isEmpty(_.get(app, 'config.events', []))) {

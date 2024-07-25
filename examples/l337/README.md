@@ -1,12 +1,10 @@
-L337 Example
-============
+# L337 Example
 
 This example exists primarily to test the v3 runtime implementation of following documentation:
 
 * [Lando 3 l337 service](https://docs.lando.dev/core/v3/services/l337.html)
 
-Start up tests
---------------
+## Start up tests
 
 ```bash
 # should start successfully
@@ -16,8 +14,7 @@ lando poweroff
 lando start
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to verify things work as expected
 
@@ -32,8 +29,8 @@ lando info --service db | grep healthy: | grep unknown
 lando info --service db | grep state: | grep IMAGE: | grep UNBUILT
 lando info --service db | grep -z image: | grep core/examples/l337/Dockerfile
 lando info --service db | grep primary: | grep false
-lando info --service db | grep user: | grep www-data
-cat $(lando info --service db --path "[0].image" --format json | tr -d '"') | grep "ENV SERVICE=db"
+lando info --service db | grep user: | grep root
+cat $(lando info --service db --path "image" --format json | tr -d '"') | grep "ENV SERVICE=db"
 lando info --service web | grep api: | grep 4
 lando info --service web | grep type: | grep l337
 lando info --service web | grep state: | grep IMAGE: | grep UNBUILT
@@ -41,7 +38,7 @@ lando info --service web | grep -z image: | grep /Imagefile
 lando info --service web | grep primary: | grep true
 lando info --service web | grep appMount: | grep /site
 lando info --service web | grep user: | grep nginx
-cat $(lando info --service web --path "[0].image" --format json | tr -d '"') | grep ENV | grep SERVICE | grep web
+cat $(lando info --service web --path "image" --format json | tr -d '"') | grep ENV | grep SERVICE | grep web
 lando info --service image-1 | grep image: | grep nginx:1.21.6
 lando info --service image-2 | grep -z image: | grep core/examples/l337/images/nginx/Dockerfile
 lando info --service image-3 | grep -z image: | grep /Imagefile
@@ -84,11 +81,12 @@ lando info --service image-6 | grep tag: | grep "lando/l337\-" | grep "\-image-6
 lando ssh --command "env" | grep SERVICE | grep web
 lando env | grep SERVICE | grep web
 
-# should allow legacy meUser to work like it does for v3
+# should use the user as the default exec user
 lando whoami | grep nginx
 
-# should allow legacy moreHttpPorts to work like it does for v3
-docker inspect l337_web_1 | grep io.lando.http-ports | grep "80,443,8888"
+# should set http/https metadata as needed
+docker inspect l337_web_1 | grep dev.lando.http-ports | grep "8888"
+docker inspect l337_web_1 | grep dev.lando.https-ports | grep '"",'
 
 # should automatically set appMount if appRoot is volume mounted
 lando pwd | grep /site
@@ -223,8 +221,7 @@ lando ssh --service steps-1 --command "cat /stuff" | sed -n '2p' | grep middle
 lando ssh --service steps-1 --command "cat /stuff" | sed -n '3p' | grep last
 ```
 
-Destroy tests
--------------
+## Destroy tests
 
 ```bash
 # should destroy successfully

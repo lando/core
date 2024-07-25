@@ -12,15 +12,15 @@ jobs:
       fail-fast: false
       matrix:
         lando-version:
-          - 3-slim
+          # - 3-slim
           # uncomment to test against bleeding edge cli
-          # - 3-dev-slim
+          - 3-dev-slim
         leia-test:
-          - examples/setup-linux
+          - setup-linux
         node-version:
           - "18"
         os:
-          - ubuntu-22.04
+          - ubuntu-24.04
 
     steps:
       - name: Checkout code
@@ -33,7 +33,6 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile
-      # bundle deps is needed so local plugin installation succeeds
       - name: Bundle Deps
         uses: lando/prepare-release-action@v3
         with:
@@ -49,7 +48,7 @@ jobs:
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         with:
-          leia-test: "./${{ matrix.leia-test }}/README.md"
+          leia-test: "./examples/${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"
           shell: bash
           stdin: true

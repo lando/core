@@ -5,28 +5,31 @@ const _ = require('lodash');
 
 // Other things
 const bashme = ['/bin/sh', '-c', 'if ! type bash > /dev/null; then sh; else bash; fi'];
-const task = {
+
+module.exports = (lando, app) => ({
   command: 'ssh',
-  describe: 'Drops into a shell on a service, runs commands',
+  usage: '$0 ssh [--command <command>] [--service <service>] [--user <user>]',
+  examples: [
+    '$0 ssh --command "env | grep LANDO_ | sort"',
+    '$0 ssh --command "apt update -y && apt install vim -y --user root --service appserver"',
+  ],
+  override: true,
   options: {
     service: {
-      describe: 'SSH into this service',
+      describe: 'SSHs into this service',
       alias: ['s'],
-      default: 'appserver',
+      default: app._defaultService ?? 'appserver',
     },
     command: {
-      describe: 'Run a command in the service',
+      describe: 'Runs a command in the service',
       alias: ['c'],
     },
     user: {
-      describe: 'Run as a specific user',
+      describe: 'Runs as a specific user',
       alias: ['u'],
     },
   },
-};
-
-module.exports = (lando, app) => {
-  task.run = ({appname = undefined, command = bashme, service = 'appserver', user = null, _app = {}} = {}) => {
+  run: ({command = bashme, service = 'appserver', user = null, _app = {}} = {}) => {
     // Try to get our app
     const app = lando.getApp(_app.root, false);
 
@@ -35,6 +38,9 @@ module.exports = (lando, app) => {
       return app.init().then(() => {
         // get the service api if possible
         const api = _.get(_.find(app.info, {service}), 'api', 3);
+        // and whether it can exec
+        const canExec = api === 4 && _.get(_.find(app?.v4?.services, {id: service}), 'canExec', false);
+
         // set additional opt defaults if possible
         const opts = [undefined, api === 4 ? undefined : '/app'];
         // mix any v4 service info on top of app.config.services
@@ -53,6 +59,13 @@ module.exports = (lando, app) => {
           if (!config.appMount && _.has(config, 'config.working_dir')) opts[0] = config.config.working_dir;
         }
 
+        // if this is an api 4 service that canExec then we have special handling
+        if (api === 4 && canExec) {
+          if (command === bashme) command = 'bash';
+          if (typeof command === 'string') command = require('string-argv')(command);
+          command = ['/etc/lando/exec.sh', ...command];
+        }
+
         // continue
         if (_.isNull(user)) user = require('../utils/get-user')(service, app.info);
         return lando.engine.run(require('../utils/build-tooling-runner')(
@@ -60,7 +73,10 @@ module.exports = (lando, app) => {
           command,
           service,
           user,
-          {},
+          {
+            DEBUG: lando.debuggy ? '1' : '',
+            LANDO_DEBUG: lando.debuggy ? '1' : '',
+          },
           ...opts,
         )).catch(error => {
           error.hide = true;
@@ -68,6 +84,5 @@ module.exports = (lando, app) => {
         });
       });
     }
-  };
-  return task;
-};
+  },
+});

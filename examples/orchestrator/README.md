@@ -1,12 +1,10 @@
-Orchestrator Example
-====================
+# Orchestrator Example
 
 This example exists primarily to test the following documentation:
 
 * [Orchestrator](https://docs.lando.dev/core/v3/orchestrator.html)
 
-Start up tests
---------------
+## Start up tests
 
 Run the following commands to get up and running with this example.
 
@@ -16,8 +14,7 @@ lando poweroff
 lando start
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to validate things are rolling as they should.
 
@@ -34,8 +31,8 @@ LANDO_ORCHESTRATOR_VERSION="2.19.1" lando config --path orchestratorVersion --fo
 LANDO_ORCHESTRATOR_VERSION="2.19.1" lando start
 LANDO_ORCHESTRATOR_VERSION="2.19.1" lando start -vvv 2>&1 | grep ".lando/bin/docker-compose-v2.19.1"
 
-# Should use a system fallback if avialable if version is bogus
-LANDO_ORCHESTRATOR_VERSION="UHNO" lando start -vvv 2>&1 | grep "/usr/local/bin/docker-compose"
+# Should use a system fallback or automatically download the default compose when version is bogus
+LANDO_ORCHESTRATOR_VERSION="UHNO" lando start -vvv 2>&1 | grep -E "/usr/local/bin/docker-compose|.lando/bin/docker-compose"
 
 # Should use the orchestratorBin if set
 LANDO_ORCHESTRATOR_BIN="/usr/local/bin/docker-compose" lando config --path orchestratorBin | grep "$LANDO_ORCHESTRATOR_BIN"
@@ -44,12 +41,11 @@ LANDO_ORCHESTRATOR_BIN="/usr/local/bin/docker-compose" lando start -vvv 2>&1 | g
 # Should set orchestratorBin with composeBin if orchestratorBin is not set
 LANDO_COMPOSE_BIN="/usr/local/bin/docker-compose" lando config --path orchestratorBin | grep "$LANDO_COMPOSE_BIN"
 
-# Shoud prefer orchestratorBin to composeBin
+# Should prefer orchestratorBin to composeBin
 LANDO_COMPOSE_BIN="/usr/local/bin/bogus" LANDO_ORCHESTRATOR_BIN="/usr/local/bin/docker-compose" lando config --path orchestratorBin | grep "$LANDO_ORCHESTRATOR_BIN"
 ```
 
-Destroy tests
--------------
+## Destroy tests
 
 Run the following commands to trash this app like nothing ever happened.
 

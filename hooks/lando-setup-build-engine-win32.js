@@ -3,11 +3,13 @@
 const os = require('os');
 const path = require('path');
 const semver = require('semver');
-
 const {color} = require('listr2');
 const {nanoid} = require('nanoid');
 
 const buildIds = {
+  '4.32.0': '157355',
+  '4.31.1': '153621',
+  '4.31.0': '153195',
   '4.30.0': '149282',
   '4.29.0': '145265',
   '4.28.0': '139021',
@@ -75,6 +77,10 @@ module.exports = async (lando, options) => {
   const debug = require('../utils/debug-shim')(lando.log);
   debug.enabled = lando.debuggy;
 
+  // if build engine is set to false allow it to be skipped
+  // @NOTE: this is mostly for internal stuff
+  if (options.buildEngine === false) return;
+
   // get stuff from config/opts
   const build = getId(options.buildEngine);
   const version = getVersion(options.buildEngine);
@@ -127,9 +133,9 @@ module.exports = async (lando, options) => {
         // script
         const script = [path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1')];
         // args
-        const args = ['-installer', ctx.download.dest];
-        if (options.buildEngineAcceptLicense) args.push('-acceptlicense');
-        if ((options.debug || options.verbose > 0) && lando.config.isInteractive) args.push('-debug');
+        const args = ['-Installer', ctx.download.dest];
+        if (options.buildEngineAcceptLicense) args.push('-AcceptLicense');
+        if ((options.debug || options.verbose > 0 || lando.debuggy) && lando.config.isInteractive) args.push('-Debug');
 
         // run install command
         task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;

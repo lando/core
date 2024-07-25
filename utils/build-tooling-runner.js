@@ -3,9 +3,10 @@
 const _ = require('lodash');
 const path = require('path');
 
-/*
- * Helper to map the cwd on the host to the one in the container
- */
+const getContainer = (app, service) => {
+  return app?.containers?.[service] ?? `${app.project}_${service}_1`;
+};
+
 const getContainerPath = (appRoot, appMount = undefined) => {
   // if appmount is undefined then dont even try
   if (appMount === undefined) return undefined;
@@ -20,7 +21,7 @@ const getContainerPath = (appRoot, appMount = undefined) => {
 };
 
 module.exports = (app, command, service, user, env = {}, dir = undefined, appMount = undefined) => ({
-  id: app.containers[service],
+  id: getContainer(app, service),
   compose: app.compose,
   project: app.project,
   cmd: command,

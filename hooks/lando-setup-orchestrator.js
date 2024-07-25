@@ -6,7 +6,7 @@ const path = require('path');
 /*
  * Helper to get docker compose v2 download url
  */
-const getComposeDownloadUrl = (version = '2.21.0') => {
+const getComposeDownloadUrl = (version = '2.27.1') => {
   const mv = version.split('.')[0] > 1 ? '2' : '1';
   const arch = process.arch === 'arm64' ? 'aarch64' : 'x86_64';
   const toggle = `${process.platform}-${mv}`;
@@ -30,7 +30,7 @@ const getComposeDownloadUrl = (version = '2.21.0') => {
 /*
  * Helper to get docker compose v2 download destination
  */
-const getComposeDownloadDest = (base, version = '2.21.0') => {
+const getComposeDownloadDest = (base, version = '2.27.1') => {
   switch (process.platform) {
     case 'linux':
     case 'darwin':
@@ -47,6 +47,11 @@ module.exports = async (lando, options) => {
   // get stuff from config/opts
   const {orchestratorBin, userConfRoot} = lando.config;
   const {orchestrator} = options;
+
+  // if orchestrator engine is set to false allow it to be skipped
+  // @NOTE: this is mostly for internal stuff
+  if (orchestrator === false) return;
+
   const dest = getComposeDownloadDest(path.join(userConfRoot, 'bin'), orchestrator);
   const url = getComposeDownloadUrl(orchestrator);
 
