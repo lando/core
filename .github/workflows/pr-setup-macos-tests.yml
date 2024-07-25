@@ -13,8 +13,10 @@ jobs:
       matrix:
         lando-version:
           # - 3-slim
-          # uncomment to test against bleeding edge cli
-          - 3-dev-slim
+          # uncomment to test against edge cli
+          - 3-edge-slim
+          # uncomment to test against dev cli
+          # - 3-dev-slim
         leia-test:
           - setup-macos
         node-version:
