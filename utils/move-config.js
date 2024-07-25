@@ -27,6 +27,7 @@ module.exports = (src, dest = os.tmpdir()) => {
 
     // Catch this so we can try to repair
     if (code !== 'EISDIR' || syscall !== 'open' || !!fs.mkdirSync(f, {recursive: true})) {
+      fs.removeSync(f);
       throw new Error(error);
     }
 
