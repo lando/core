@@ -20,6 +20,8 @@
 
 ### Bug Fixes
 
+* Fixed bug causing `EISDIR: illegal operation on a directory` on some mounts [#169](https://github.com/lando/core/pull/169)
+* Fixed bug causing `COLUMNS` to be forced to `256` [#1847](https://github.com/lando/core/pull/179)
 * Fixed bug causing weird array merging in dynamic override tasks
 * Fixed bug causing debug output showing in some errors
 * Fixed bug causing compose cache to not properly empty on `destroy`
