@@ -2,7 +2,18 @@
 
 module.exports = lando => {
   return {
-    command: 'plugin-remove <plugin> [plugins...]',
+    command: 'plugin-remove',
+    usage: '$0 plugin-remove <plugin> [plugin...]',
+    examples: [
+      '$0 plugin-remove @lando/php @lando/node',
+    ],
+    level: 'tasks',
+    positionals: {
+      plugin: {
+        describe: 'Removes these plugins',
+        type: 'string',
+      },
+    },
     level: 'tasks',
     run: async options => {
       const Plugin = require('../components/plugin');
@@ -11,8 +22,7 @@ module.exports = lando => {
       Plugin.debug = require('../utils/debug-shim')(lando.log);
 
       // merge plugins together, parse/normalize their names and return only unique values
-      const plugins = [options.plugin]
-        .concat(options.plugins)
+      const plugins = options._.slice(1)
         .map(plugin => require('../utils/parse-package-name')(plugin).name)
         .filter((plugin, index, array) => array.indexOf(plugin) === index);
       lando.log.debug('attempting to remove plugins %j', plugins);

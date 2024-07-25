@@ -5,10 +5,21 @@ const browsers = ['electron', 'chrome', 'atom-shell'];
 const path = require('path');
 const os = require('os');
 
+const getBuildEngineVersion = () => {
+  switch (process.platform) {
+    case 'darwin':
+      return '4.32.0';
+    case 'linux':
+      return '27.0.3';
+    case 'win32':
+      return '4.32.0';
+  }
+};
+
 // Default config
 const defaultConfig = options => ({
   orchestratorSeparator: '_',
-  orchestratorVersion: '2.27.0',
+  orchestratorVersion: '2.27.1',
   configSources: [],
   disablePlugins: [],
   dockerBin: require('../utils/get-docker-x')(),
@@ -32,7 +43,7 @@ const defaultConfig = options => ({
   // this governs both autosetup and the defaults of lando setup
   // @TODO: orchestrator works a bit differently because it predates lando.setup() we set it elsewhere
   setup: {
-    buildEngine: process.platform === 'linux' ? '26.1.1' : '4.30.0',
+    buildEngine: getBuildEngineVersion(),
     buildEngineAcceptLicense: !require('is-interactive')(),
     commonPlugins: {
       '@lando/acquia': 'latest',
@@ -76,6 +87,8 @@ const defaultConfig = options => ({
     plugins: {},
     tasks: [],
     skipCommonPlugins: _.get(options, 'fatcore', false),
+    skipInstallCA: false,
+    skipNetworking: false,
   },
 });
 

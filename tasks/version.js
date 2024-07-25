@@ -20,22 +20,29 @@ const normalize = name => {
 
 module.exports = lando => ({
   command: 'version',
+  describe: 'Displays lando version information',
+  usage: '$0 version [--all] [--component <component>] [--full]',
+  examples: [
+    '$0 version --all',
+    '$0 version --full',
+    '$0 version --component @lando/cli',
+    '$0 version --component cli',
+  ],
   level: 'tasks',
-  describe: 'Displays the lando version',
   options: {
     all: {
-      describe: 'Show all version information',
+      describe: 'Shows all version information',
       alias: ['a'],
       type: 'boolean',
     },
     component: {
-      describe: 'Show version info for specific component',
+      describe: 'Shows version info for specific component',
       alias: ['c'],
       type: 'string',
       default: '@lando/core',
     },
     full: {
-      describe: 'Show full version string',
+      describe: 'Shows full version string',
       alias: ['f'],
       type: 'boolean',
     },

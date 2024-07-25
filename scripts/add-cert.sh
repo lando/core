@@ -24,105 +24,41 @@ if [ $(id -u) != 0 ]; then
 fi
 
 # Vars and defaults
-: ${LANDO_DOMAIN:="lndo.site"}
-: ${COMMON_NAME:="${LANDO_APP_COMMON_NAME}"}
-: ${LANDO_CA_CERT:="/lando/certs/lndo.site.pem"}
-: ${LANDO_CA_KEY:="/lando/certs/lndo.site.key"}
-: ${LANDO_EXTRA_NAMES}:=""}
-: ${LANDO_PROXY_NAMES}:=""}
+: ${LANDO_CA_CERT:="/lando/certs/LandoCA.crt"}
+: ${LANDO_CA_KEY:="/lando/certs/LandoCA.key"}
 : ${CA_DIR:="/usr/share/ca-certificates"}
-: ${CA_CERT_FILENAME:="${LANDO_DOMAIN}.pem"}
+: ${CA_CERT_FILENAME:="LandoCA.crt"}
 : ${CA_CERT_CONTAINER:="$CA_DIR/$CA_CERT_FILENAME"}
 
 # Make sure our cert directories exists
 mkdir -p /certs $CA_DIR
 
-# Setup cert SANz
-cat > /certs/cert.ext <<EOF
-authorityKeyIdentifier=keyid,issuer
-basicConstraints=CA:FALSE
-keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
-extendedKeyUsage = serverAuth
-subjectAltName = @alt_names
-[alt_names]
-DNS.1 = ${LANDO_SERVICE_NAME}.${LANDO_APP_PROJECT}.internal
-DNS.2 = ${LANDO_SERVICE_NAME}
-DNS.3 = localhost
-${LANDO_PROXY_NAMES}
-${LANDO_EXTRA_NAMES}
-EOF
-
 # Enable SSL on apache if we have to
 #
 # @NOTE: Once we decouple the php container from apache like we do for nginx we can
 # move this to the apache service
+# @NOTE: the neccessity of this has been lost to the sands of time so we are just keeping it around
+# because we dont know
 if [ -f "/etc/apache2/mods-available/ssl.load" ]; then
   lando_info "Enabling apache ssl modz"
   cp -rf /etc/apache2/mods-available/ssl* /etc/apache2/mods-enabled || true
   cp -rf /etc/apache2/mods-available/socache_shmcb* /etc/apache2/mods-enabled || true
 fi
 
-# Check if openssl is installed, if not install it
-if ! [ -x "$(command -v openssl)" ]; then
-  lando_info "Installing openssl..."
-  apt-get update -y && apt-get install openssl -y || apk add --no-cache openssl
-fi
-
-# Make sure the LANDO_CA_CERT exists
-if [ ! -f $LANDO_CA_CERT ]; then
-  /helpers/setup-ca.sh
-fi
-
-# Validate the certs against the root CA
-if [ -f "/certs/cert.pem" ] && ! openssl verify -CAfile $LANDO_CA_CERT /certs/cert.pem >/dev/null; then
-  lando_info "Certs are not valid! Lets remove them."
-  rm -f /certs/cert.key
-  rm -f /certs/cert.csr
-  rm -f /certs/cert.crt
-  rm -f /certs/cert.pem
-fi
-
-# Cert add heating up
-lando_info "Cert creation kicking off...."
-lando_info ""
-lando_debug "=================================================="
-lando_debug "LANDO_CA_CERT     : $LANDO_CA_CERT"
-lando_debug "LANDO_CA_KEY      : $LANDO_CA_KEY"
-lando_debug "CA_DIR            : $CA_DIR"
-lando_debug "CA_CERT_FILENAME  : $CA_CERT_FILENAME"
-lando_debug "CA_CERT_CONTAINER : $CA_CERT_CONTAINER"
-lando_debug "COMMON_NAME       : $COMMON_NAME"
-lando_debug "LANDO_PROXY_NAMES : $LANDO_PROXY_NAMES"
-lando_debug "LANDO_EXTRA_NAMES : $LANDO_EXTRA_NAMES"
-lando_debug "=================================================="
-lando_info ""
-
-lando_info "Generating certs..."
-openssl genrsa -out /certs/cert.key 2048
-openssl req -new -key /certs/cert.key -out /certs/cert.csr -subj "/C=US/ST=California/L=San Francisco/O=Lando/OU=Bespin/CN=${COMMON_NAME}"
-openssl x509 \
-  -req \
-  -in /certs/cert.csr \
-  -CA $LANDO_CA_CERT \
-  -CAkey $LANDO_CA_KEY \
-  -CAcreateserial \
-  -out /certs/cert.crt \
-  -days 825 \
-  -sha256 \
-  -extfile /certs/cert.ext
+# @TODO: create a combined CA if the older DOMANCERT still exists?
+# @TODO: just print the entire /lando/certs and /certs dirs?
 
 # Pemify
 cat /certs/cert.crt /certs/cert.key > /certs/cert.pem
-# Also copy to our persistent cert volume
-cp -f /certs/cert.crt "/lando/certs/${LANDO_SERVICE_NAME}.${LANDO_APP_PROJECT}.crt"
-cp -f /certs/cert.key "/lando/certs/${LANDO_SERVICE_NAME}.${LANDO_APP_PROJECT}.key"
+
 # This is a weird hack to handle recent changes to bitnami's apache image without causing
 # breaking changes
 cp -f /certs/cert.crt /certs/server.crt
 cp -f /certs/cert.key /certs/server.key
+
 # Set the cert and key on host to host-uid/gid ownership
-chown "$LANDO_HOST_UID:$LANDO_HOST_GID" "/lando/certs/${LANDO_SERVICE_NAME}.${LANDO_APP_PROJECT}.crt"
-chown "$LANDO_HOST_UID:$LANDO_HOST_GID" "/lando/certs/${LANDO_SERVICE_NAME}.${LANDO_APP_PROJECT}.key"
+chown "$LANDO_HOST_UID:$LANDO_HOST_GID" "$LANDO_SERVICE_CERT"
+chown "$LANDO_HOST_UID:$LANDO_HOST_GID" "$LANDO_SERVICE_KEY"
 
 # Trust our root CA
 if [ ! -f "$CA_CERT_CONTAINER" ]; then

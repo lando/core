@@ -40,11 +40,11 @@ While the above lists are great starting point, they may be out of date. You can
 
 ```bash
 # Discover hookable events for the `lando start` command
-lando start -vvv | grep "Emitting"
+lando start --debug | grep "emitting"
 
 # Discover hookable events for the `lando test` command
 # NOTE: This assumed you've defined a `test` command in tooling
-lando test -vvv | grep "Emitting"
+lando test --debug | grep "emitting"
 ```
 
 Specifically, you need to hook into an event where the service you are running the command against exists and is running.
@@ -113,5 +113,15 @@ events:
   post-start:
     - node: yarn sass
     - appserver: composer compile-templates
+```
+
+### Backgrounding
+
+You can also background a command using `&`
+
+```yaml
+events:
+  post-some-command:
+    - node: npm run worker-process &
 ```
 

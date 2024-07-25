@@ -57,7 +57,3 @@ sh "$INSTALLER" --version "$VERSION"
 
 # add group
 groupadd docker || true
-
-# enable system start?
-# systemctl enable docker.service || true
-# systemctl enable containerd.service || true

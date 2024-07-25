@@ -1,0 +1,10 @@
+name: lando-landofile
+services:
+  web3:
+    api: 4
+    type: lando
+    image: nginxinc/nginx-unprivileged:1.26.1
+    ports:
+      - 8080/http
+    app-mount:
+      destination: /usr/share/nginx/html

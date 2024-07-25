@@ -16,6 +16,7 @@
 # Logs
 *.log
 logs
+!examples/logs
 
 # NPM files
 node_modules
@@ -28,6 +29,7 @@ lando.env
 # Build dirs
 build
 dist
+!examples/build
 
 # coverage reporting
 .nyc_output
@@ -44,6 +46,7 @@ dist
 cache
 temp
 config.*.timestamp-*-*.*
+!examples/cache
 
 # YARN
 yarn.lock

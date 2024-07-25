@@ -6,16 +6,23 @@ const isObject = require('lodash/isPlainObject');
 const os = require('os');
 const merge = require('lodash/merge');
 const path = require('path');
+const read = require('../utils/read-file');
+const write = require('../utils/write-file');
 
 const {generateDockerFileFromArray} = require('dockerfile-generator/lib/dockerGenerator');
 const {nanoid} = require('nanoid');
 const {EventEmitter} = require('events');
 
+// set more appropirate lando limit
+EventEmitter.setMaxListeners(64);
+
 // @TODO: should these be methods as well? static or otherwise?
 const getMountMatches = require('../utils/get-mount-matches');
 const hasInstructions = require('../utils/has-instructions');
+const toPosixPath = require('../utils/to-posix-path');
 
 class L337ServiceV4 extends EventEmitter {
+  #app
   #data
 
   static debug = require('debug')('@lando/l337-service-v4');
@@ -35,7 +42,6 @@ class L337ServiceV4 extends EventEmitter {
 
   #init() {
     return {
-      compose: [],
       groups: {
         context: {
           description: 'A group for adding and copying sources to the image',
@@ -51,26 +57,40 @@ class L337ServiceV4 extends EventEmitter {
       image: undefined,
       imageInstructions: undefined,
       imageFileContext: undefined,
-      sources: [],
-      states: {
-        IMAGE: 'UNBUILT',
+      info: {
+        api: 4,
+        state: {
+          IMAGE: 'UNBUILT',
+        },
       },
+      sources: [],
       stages: {
         default: 'image',
         image: 'Instructions to help generate an image',
+      },
+      states: {
+        IMAGE: 'UNBUILT',
       },
       steps: [],
     };
   }
 
-  set state(states) {
-    this.#data.states = merge(this.#data.states, states);
-    this.info.state = this.#data.states;
-    this.emit('state', this.#data.states);
+  set info(data) {
+    // reset state info
+    if (data === undefined) data = {state: this.#data.states, tag: undefined};
+    // merge
+    this.#data.info = merge(this.#data.info, data);
+    // if we have app.info then merge into that
+    if (this.#app.info.find(service => service.service === this.id)) {
+      merge(this.#app.info.find(service => service.service === this.id) ?? {}, data);
+    }
+    this.emit('state', this.#data.info);
+    this.#app.v4.updateComposeCache();
+    this.debug('updated app info to %o', this.#data.info);
   }
 
-  get state() {
-    return this.#data.states;
+  get info() {
+    return this.#data.info;
   }
 
   get _data() {
@@ -93,12 +113,8 @@ class L337ServiceV4 extends EventEmitter {
     states = {},
     tag = nanoid(),
     type = 'l337',
-    legacy = {
-      meUser = 'www-data',
-      moreHttpPorts = [],
-      sport = '443',
-    } = {},
-  } = {}) {
+    user = undefined,
+  } = {}, app, lando) {
     // instantiate ee immedately
     super();
 
@@ -124,29 +140,32 @@ class L337ServiceV4 extends EventEmitter {
     fs.mkdirSync(this.context, {recursive: true});
 
     // initialize our private data
+    this.#app = app;
     this.#data = merge(this.#init(), {groups}, {stages}, {states});
 
     // rework info based on whatever is passed in
-    this.info = merge({}, {
-      api: 4,
-      primary,
-      service: id,
-      state: this.#data.states,
-      type,
-    }, info);
+    this.info = merge({}, {state: states}, {primary, service: id, type}, info);
+
+    // do some special undocumented things to "ports"
+    const {ports, http, https} = require('../utils/parse-v4-ports')(config.ports);
 
     // add in the l337 spec config
-    this.addServiceData(config);
+    this.addServiceData({
+      ...config,
+      extra_hosts: ['host.lando.internal:host-gateway'],
+      ports,
+    });
+    this.addServiceData({ports});
 
     // handle legacy and deprecated settings in lando-v4 and above services
     this.addComposeData({services: {[this.id]: {labels: {
-      'io.lando.http-ports': ['80', '443'].concat(legacy.moreHttpPorts).join(','),
-      'io.lando.https-ports': ['443'].concat([legacy.sport]).join(','),
+      'dev.lando.http-ports': http.join(','),
+      'dev.lando.https-ports': https.join(','),
       },
     }}});
 
-    // handle legacy "meUser" setting
-    this.info.user = legacy.meUser;
+    // set user into info
+    this.info = {user: user ?? config.user ?? 'root'};
 
     // if we do not have an appmount yet and we have volumes information then try to infer it
     if (this.config && this.config.volumes && this.config.volumes.length > 0) {
@@ -155,7 +174,7 @@ class L337ServiceV4 extends EventEmitter {
       // if we have one then set it
       if (appMounts.length > 0) {
         this.appMount = appMounts.pop();
-        this.info.appMount = this.appMount;
+        this.info = {appMount: this.appMount};
       }
       // debug
       this.debug('%o autoset appmount to %o, did not select %o', this.id, this.appMount, appMounts);
@@ -214,7 +233,16 @@ class L337ServiceV4 extends EventEmitter {
 
   // just pushes the compose data directly into our thing
   addComposeData(data = {}) {
-    this.#data.compose.push(data);
+    // should we try to consolidate this
+    this.#app.add({
+      id: `${this.id}-${nanoid()}`,
+      info: this.info,
+      data: [data],
+    });
+
+    // update app with new stuff
+    this.#app.compose = require('../utils/dump-compose-data')(this.#app.composeData, this.#app._dir);
+    this.#app.v4.updateComposeCache();
     this.debug('%o added top level compose data %o', this.id, data);
   }
 
@@ -256,18 +284,24 @@ class L337ServiceV4 extends EventEmitter {
     if (context && context.length > 0) {
       this.#data.sources.push(context.map(file => {
         // file is a string with src par
-        if (typeof file === 'string' && file.split(':').length === 1) file = {src: file, dest: file};
+        if (typeof file === 'string' && toPosixPath(file).split(':').length === 1) file = {src: file, dest: file};
         // file is a string with src and dest parts
-        if (typeof file === 'string' && file.split(':').length === 2) file = {src: file.split(':')[0], dest: file.split(':')[1]}; // eslint-disable-line max-len
+        if (typeof file === 'string' && toPosixPath(file).split(':').length === 2) {
+          const parts = file.split(':');
+          const dest = parts.pop();
+          const src = parts.join(':');
+          file = {src, dest};
+        }
         // file is an object with src key
         if (isObject(file) && file.src) file.source = file.src;
         // file is an object with dest key
         if (isObject(file) && file.dest) file.destination = file.dest;
         // if source is actually a url then lets address that
         try {
-          file.url = new URL(file.source).href;
+          file.url = new URL(toPosixPath(file.source)).href;
           delete file.source;
         } catch {}
+
         // at this point we need to make sure a desintation is set
         if (!file.destination && file.source) file.destination = file.source;
         if (!file.destination && file.url) file.destination = new URL(file.url).pathname;
@@ -287,7 +321,7 @@ class L337ServiceV4 extends EventEmitter {
           if (file.owner) file.instructions.push(`--chown=${file.owner}`);
           if (file.permissions) file.instructions.push(`--chmod=${file.permissions}`);
           file.instructions.push(file.url || file.destination);
-          file.instructions.push(path.resolve('/', file.destination));
+          file.instructions.push(process.platform === 'win32' ? file.destination : path.resolve('/', file.destination));
           file.instructions = file.instructions.join(' ');
         }
 
@@ -355,20 +389,23 @@ class L337ServiceV4 extends EventEmitter {
     if (compose.volumes && Array.isArray(compose.volumes)) {
       compose.volumes = compose.volumes.map(volume => {
         // if volume is a one part string then just return so we dont have to handle it downstream
-        if (typeof volume === 'string' && volume.split(':').length === 1) return volume;
+        if (typeof volume === 'string' && toPosixPath(volume).split(':').length === 1) return volume;
 
         // if volumes is a string with two colon-separated parts then do stuff
-        if (typeof volume === 'string' && volume.split(':').length === 2) {
-          volume = {source: volume.split(':')[0], target: volume.split(':')[1]};
+        if (typeof volume === 'string' && toPosixPath(volume).split(':').length === 2) {
+          const parts = volume.split(':');
+          const target = parts.pop();
+          const source = parts.join(':');
+          volume = {source, target};
         }
 
         // if volumes is a string with three colon-separated parts then do stuff
-        if (typeof volume === 'string' && volume.split(':').length === 3) {
-          volume = {
-            source: volume.split(':')[0],
-            target: volume.split(':')[1],
-            read_only: volume.split(':')[2] === 'ro',
-          };
+        if (typeof volume === 'string' && toPosixPath(volume).split(':').length === 3) {
+          const parts = volume.split(':');
+          const mode = parts.pop();
+          const target = parts.pop();
+          const source = parts.join(':');
+          volume = {source, target, read_only: mode === 'ro'};
         }
 
         // if source is not an absolute path that exists relateive to appRoot then set as bind
@@ -386,7 +423,7 @@ class L337ServiceV4 extends EventEmitter {
     }
 
     // add the data
-    this.#data.compose.push({services: {[this.id]: compose}});
+    this.addComposeData({services: {[this.id]: compose}});
   }
 
   addSteps(steps) {
@@ -498,36 +535,47 @@ class L337ServiceV4 extends EventEmitter {
     const {imagefile, ...context} = this.generateBuildContext();
 
     try {
-      // set state
-      this.state = {IMAGE: 'BUILDING'};
-      // run with the appropriate builder
-      const success = this.buildkit ? await bengine.buildx(imagefile, context) : await bengine.build(imagefile, context); // eslint-disable-line max-len
-      // augment the success info
-      success.context = {imagefile, ...context};
+      const success = {imagefile, ...context};
+
+      // only build if image is not already built
+      if (this?.info?.state?.IMAGE !== 'BUILT') {
+        // set state
+        this.info = {state: {IMAGE: 'BUILDING'}};
+        // run with the appropriate builder
+        const result = this.buildkit
+          ? await bengine.buildx(imagefile, context) : await bengine.build(imagefile, context);
+        // augment the success info
+        Object.assign(success, result);
+      }
+
+      // get the inspect data so we can do other things
+      success.info = await bengine.getImage(context.tag).inspect();
+
       // add the final compose data with the updated image tag on success
       // @NOTE: ideally its sufficient for this to happen ONLY here but in v3 its not
       this.addComposeData({services: {[context.id]: {image: context.tag}}});
-
-      // state
-      this.state = {IMAGE: 'BUILT'};
       // set the image stuff into the info
-      this.info.image = imagefile;
-      this.info.tag = context.tag;
-
+      this.info = {image: imagefile, state: {IMAGE: 'BUILT'}, tag: context.tag};
       this.debug('image %o built successfully from %o', context.id, imagefile);
       return success;
 
     // failure
     } catch (error) {
+      // augment error
       error.context = {imagefile, ...context};
+      error.logfile = path.join(context.context ?? os.tmpdir(), `error-${nanoid()}.log`);
       this.debug('image %o build failed with code %o error %o', context.id, error.code, error);
-      this.addComposeData({services: {[context.id]: {command: 'sleep infinity'}}});
 
-      // set the build failure
-      this.state = {IMAGE: 'BUILD FAILURE'};
-      // and remove a bunch of stuff
-      this.info.image = undefined;
-      this.info.tag = undefined;
+      // inject helpful failing stuff to compose
+      this.addComposeData({services: {[context.id]: {
+        command: require('../utils/get-v4-image-build-error-command')(error),
+        image: 'busybox',
+        user: 'root',
+        volumes: [`${error.logfile}:/tmp/error.log`],
+      }}});
+
+      // set the image stuff into the info
+      this.info = {error: error.short, image: undefined, state: {IMAGE: 'BUILD FAILURE'}, tag: undefined};
       this.tag = undefined;
 
       // then throw
@@ -564,18 +612,19 @@ class L337ServiceV4 extends EventEmitter {
 
       // attempt to normalize newling usage mostly for aesthetic considerations
       steps[group] = steps[group]
-        .map(instructions => instructions.split('\n').filter(instruction => instruction && instruction !== ''))
+        .map(instructions => instructions.split('\n')
+        .filter(instruction => instruction && instruction !== ''))
         .flat(Number.POSITIVE_INFINITY);
 
       // prefix user and comment data and some helpful envvars
       steps[group].unshift(`USER ${user}`);
-      steps[group].unshift(`ENV LANDO_IMAGE_GROUP ${group}`);
-      steps[group].unshift(`ENV LANDO_IMAGE_USER ${user}`);
+      steps[group].unshift(`ENV LANDO_IMAGE_GROUP=${group}`);
+      steps[group].unshift(`ENV LANDO_IMAGE_USER=${user}`);
       steps[group].unshift(`# group: ${group}`);
       // and add a newline for readability
       steps[group].push('');
       // and then finally put it all together
-      steps[group] = steps[group].join('\n');
+      steps[group] = steps[group].map(line => line.trimStart()).join('\n');
     }
 
     // we should have raw instructions data now
@@ -595,7 +644,7 @@ class L337ServiceV4 extends EventEmitter {
     // throw new Error('NO NO NO')
 
     // write the imagefile
-    fs.writeFileSync(this.imagefile, content);
+    write(this.imagefile, content);
 
     // return the build context
     return {
@@ -607,14 +656,6 @@ class L337ServiceV4 extends EventEmitter {
       sshSocket: this.sshSocket,
       sshKeys: require('../utils/get-passphraseless-keys')(this.sshKeys),
       tag: this.tag,
-    };
-  }
-
-  generateOrchestorFiles() {
-    return {
-      id: this.id,
-      info: this.info,
-      data: this.#data.compose.map(element => merge({}, element)),
     };
   }
 
@@ -675,7 +716,7 @@ class L337ServiceV4 extends EventEmitter {
       const content = image;
       image = path.join(require('os').tmpdir(), nanoid(), 'Imagefile');
       fs.mkdirSync(path.dirname(image), {recursive: true});
-      fs.writeFileSync(image, content);
+      write(image, content);
       this.#data.imageFileContext = this.appRoot;
     }
 
@@ -690,7 +731,7 @@ class L337ServiceV4 extends EventEmitter {
 
     // and then generate the image instructions and set info
     this.#data.imageInstructions = fs.existsSync(image)
-      ? fs.readFileSync(image, 'utf8') : generateDockerFileFromArray([{from: {baseImage: image}}]);
+      ? read(image) : generateDockerFileFromArray([{from: {baseImage: image}}]);
     this.info.image = image;
 
     // finally lets reset the relevant build key if applicable
@@ -698,8 +739,11 @@ class L337ServiceV4 extends EventEmitter {
       this.addComposeData({services: {[this.id]: {
         build: merge({}, buildArgs, {dockerfile: path.basename(image), context: path.dirname(image)}),
       }}});
+
     // or the image one if its that one
-    } else this.addComposeData({services: {[this.id]: {image}}});
+    } else {
+      this.addComposeData({services: {[this.id]: {image}}});
+    }
 
     // log
     this.debug('%o set base image to %o with instructions %o', this.id, this.#data.image, this.#data.imageInstructions);

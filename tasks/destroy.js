@@ -4,6 +4,10 @@ module.exports = lando => {
   return {
     command: 'destroy',
     describe: 'Destroys your app',
+    usage: '$0 destroy [--yes]',
+    examples: [
+      '$0 destroy --yes',
+    ],
     options: {
       yes: lando.cli.confirm('Are you sure you want to DESTROY?'),
     },

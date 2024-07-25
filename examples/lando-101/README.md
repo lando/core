@@ -1,10 +1,8 @@
-Lando 101
-=========
+# Lando 101
 
 This example tests the [Lando 101](https://docs.lando.dev/guides/lando-101/lando-overview.html) course.
 
-Start up tests
---------------
+## Start up tests
 
 Run the following commands to get up and running with this example
 
@@ -20,8 +18,7 @@ echo "<?php phpinfo(); ?>" > index.php
 lando start
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to validate things are rolling as they should.
 
@@ -65,8 +62,7 @@ lando phpcs --version |grep squiz
 lando destroy -y
 ```
 
-Destroy tests
--------------
+## Destroy tests
 
 Run the following commands to trash this app like nothing ever happened.
 

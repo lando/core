@@ -43,42 +43,73 @@ const cleanNetworks = lando => lando.engine.getNetworks()
   });
 
 module.exports = lando => {
+  const debug = require('../../utils/debug-shim')(lando.log);
+
   // Preemptively make sure we have enough networks and if we don't smartly prune some of them
   lando.events.on('pre-engine-start', 1, () => cleanNetworks(lando));
 
-  // Assess whether we need to upgrade the lando network or not
-  lando.events.on('pre-engine-start', 2, () => {
-    if (lando.versions.networking === 1) {
-      lando.log.warn('Version %s Landonet detected, attempting upgrade...', lando.versions.networking);
-      const landonet = lando.engine.getNetwork(lando.config.networkBridge);
-      // Remove the old network
-      return landonet.inspect()
-      .then(data => _.keys(data.Containers))
-      .each(id => landonet.disconnect({Container: id, Force: true}))
-      .then(() => landonet.remove())
-      .catch(err => {
-        lando.log.verbose('Error inspecting lando_bridge_network, probably does not exit yet');
-        lando.log.debug(err);
-      });
-    }
-  });
+  // Add network add task
+  lando.events.once('pre-setup', async options => {
+    // skip the installation of the network if set
+    if (options.skipNetworking) return;
 
-  // Make sure we have a lando bridge network
-  // We do this here so we can take advantage of docker up assurancs in engine.js
-  // and to make sure it covers all non-app services
-  lando.events.on('pre-engine-start', 3, () => {
-    // Let's get a list of network
-    return lando.engine.getNetworks()
-    // Try to find our net
-    .then(networks => _.some(networks, network => network.Name === lando.config.networkBridge))
-    // Create if needed and set our network version number
-    .then(exists => {
-      if (!exists) {
-        return lando.engine.createNetwork(lando.config.networkBridge).then(() => {
-          lando.cache.set('versions', _.merge({}, lando.versions, {networking: 2}), {persist: true});
-          lando.versions = lando.cache.get('versions');
-        });
-      }
+    options.tasks.push({
+      title: `Creating Landonet`,
+      id: 'create-landonet',
+      dependsOn: ['setup-build-engine'],
+      description: '@lando/landonet',
+      comments: {
+        'NOT INSTALLED': 'Will create Landonet',
+      },
+      hasRun: async () => {
+        // if docker isnt even installed then this is easy
+        if (lando.engine.dockerInstalled === false) return false;
+
+        // otherwise attempt to sus things out
+        try {
+          const landonet = lando.engine.getNetwork(lando.config.networkBridge);
+          await lando.engine.daemon.up();
+          await landonet.inspect();
+          return lando.versions.networking > 1;
+        } catch (error) {
+          debug('looks like there isnt a landonet yet %o %o', error.message, error.stack);
+          return false;
+        }
+      },
+      task: async (ctx, task) => {
+        // we reinstantiate instead of using lando.engine.daemon so we can ensure an up-to-date docker bin
+        const LandoDaemon = require('../../lib/daemon');
+        const daemon = new LandoDaemon(lando.cache, lando.events, undefined, lando.log);
+
+        // we need docker up for this
+        await daemon.up();
+
+        // if we are v1 then disconnect and remove for upgrade
+        if (lando.versions.networking === 1) {
+          const landonet = lando.engine.getNetwork(lando.config.networkBridge);
+          await landonet.inspect()
+            .then(data => _.keys(data.Containers))
+            .each(id => landonet.disconnect({Container: id, Force: true}))
+            .then(() => landonet.remove())
+            .catch(error => {
+              debug('error disconnecting from old landonet %o %o', error.message, error.stack);
+            });
+        }
+
+        // create landonet2
+        await lando.engine.getNetworks()
+          .then(networks => _.some(networks, network => network.Name === lando.config.networkBridge))
+          .then(exists => {
+            if (!exists) {
+              return lando.engine.createNetwork(lando.config.networkBridge).then(() => {
+                lando.cache.set('versions', _.merge({}, lando.versions, {networking: 2}), {persist: true});
+                lando.versions = lando.cache.get('versions');
+                debug('created %o with version info %o', lando.config.networkBridge, lando.versions.networking);
+              });
+            }
+          });
+        task.title = 'Created Landonet';
+      },
     });
   });
 

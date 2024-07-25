@@ -35,8 +35,11 @@ tooling:
     dir: cwd | absolute path to elsewhere
     cmd: mycommand
     user: you
+    usage:
+    positionals:
     options:
     env:
+    examples: []
 ```
 
 ::: tip Tooling routes are cached!
@@ -251,6 +254,63 @@ lando word
 # This will not
 lando word --word=fox
 ```
+
+### Arguments
+
+Like options based tooling you can also specify some positional arguments in the tooling command.
+
+```yaml
+tooling:
+  my-command:
+    service: web
+    cmd: /app/args.sh
+    positionals:
+      arg1:
+        describe: This is the first arg
+        type: string
+        choices:
+          - thing
+          - stuff
+      arg2:
+        describe: This is the second arg
+        type: string
+```
+
+Unlike options this is mostly useful to provide better `--help` and command usage information.
+
+### Usage & Examples
+
+If you implement options or positionals in your tooling command it's nice to add additional usage information to `--help` which you can do with `usage` and `examples`.
+
+```yaml
+tooling:
+  my-command:
+    cmd: /app/args.sh
+    service: node
+    usage: $0 everything [thing|stuff] [arg2] [--word=<word>]
+    examples:
+      - $0 everything thing
+      - $0 everything stuff morestuff
+      - $0 everything thing whatver --word yes
+    options:
+      word:
+        passthrough: true
+        alias:
+          - w
+        describe: Print what the word is
+    positionals:
+      arg1:
+        describe: Uses arg1
+        type: string
+        choices:
+          - thing
+          - stuff
+      arg2:
+        describe: Uses arg2
+        type: string
+```
+
+You can use `$0` as a token value to replace the binary name which is usually just `lando`.
 
 ## Overriding
 

@@ -103,7 +103,7 @@ module.exports = {
     label: 'github',
     options: lando => ({
       'github-auth': {
-        describe: 'A GitHub personal access token',
+        describe: 'Uses a GitHub personal access token',
         string: true,
         interactive: {
           type: 'list',
@@ -124,7 +124,7 @@ module.exports = {
         },
       },
       'github-repo': {
-        describe: 'GitHub git url',
+        describe: 'Uses the GitHub git url',
         string: true,
         interactive: {
           type: 'autocomplete',

@@ -8,47 +8,84 @@ services:
     image: |
       FROM nginx:1.22.1
       ENV SERVICE l337
+      RUN apt update -y && apt install procps -y
 
       # if you are running these tests locally on linux then you **might** need to update the below userid
       RUN usermod -o -u 1001 www-data
     volumes:
       - ./:/app
+  web2:
+    api: 4
+    image: |
+      FROM nginxinc/nginx-unprivileged:1.26.1
+      USER root
+      RUN apt update -y && apt install procps -y
+    user: nginx
+    environment:
+      SERVICE: web2
+    ports:
+      - 8080/http
+
 events:
   pre-start:
-    - mkdir -p /app/test && echo "$(hostname -s)" > /app/test/appserver-pre-start.txt
+    - id && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/appserver-pre-start.txt
     - web: id && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-pre-start.txt
+    - web2: id && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web2-pre-start.txt
     - l337: id && ls -lsa /app && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/l337-pre-start.txt
+    - id -un > /app/test/appserver-user.txt
+    - web: id -un > /app/test/web-user.txt
+    - web2: id -un > /app/test/web2-user.txt
+    - l337: id -un > /app/test/l337-user.txt
+    - web2: env > /app/test/web2-event-env.txt
   post-start:
     - web: id && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-post-start.txt
+    - web2: id && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web2-post-start.txt
     - l337: id && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/l337-post-start.txt
   post-thing:
     - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-post-thing.txt
+    - web2: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web2-post-thing.txt
     - env | grep "SERVICE=web"
   post-stuff:
     - l337: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/l337-post-stuff.txt
+    - web2: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web2-post-stuff.txt
     - env | grep "SERVICE=l337"
   pre-rebuild:
     - web: mkdir -p /app/test && echo "rebuilding" > /app/test/web-pre-rebuild.txt
+    - web2: mkdir -p /app/test && echo "rebuilding" > /app/test/web2-pre-rebuild.txt
     - l337: mkdir -p /app/test && echo "rebuilding" > /app/test/l337-pre-rebuild.txt
   post-rebuild:
     - web: echo "ET TU, BRUT?"
+    - web2: echo "ET TU, BRUT?"
     - l337: echo "ET TU, BRUT?"
   post-dynamic:
     - web: env | grep "SERVICE=web"
     - l337: env | grep "SERVICE=l337"
+    - web2: env | grep LANDO | sort
     - web: echo "thing"
+    - web2: echo "thing2"
     - echo "$SERVICE"
     - echo "stuff"
+  post-backgrounder:
+    - appserver: tail -f /dev/null &
+    - alpine: sleep infinity &
+    - web2: sleep infinity &
+    - l337: sleep infinity &
+  post-env:
+    - env > /app/test/web2-tooling-event-env.txt
   post-multi-pass:
     - env | grep "SERVICE=appserver"
     - web: env | grep "SERVICE=web"
+    - web2: env | grep "SERVICE=web2"
     - l337: env | grep "SERVICE=l337"
   post-what-service:
     - echo "$SERVICE"
   pre-destroy:
     - web: mkdir -p /app/test && touch /app/test/destroy.txt
+    - web2: mkdir -p /app/test && touch /app/test/destroy-web2.txt
     - l337: mkdir -p /app/test && touch /app/test/destroy-l337.txt
 tooling:
+  env:
+    service: web2
   thing:
     service: web
     cmd: echo "THINGS"
@@ -59,6 +96,9 @@ tooling:
     cmd:
       - web: echo "KORBEN"
       - l337: echo "DALLAS"
+  backgrounder:
+    cmd: echo "backgrounding"
+    service: web
   dynamic:
     cmd: env
     service: :host

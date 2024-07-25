@@ -65,7 +65,20 @@ module.exports = lando => {
   return {
     command: 'init',
     level: 'app',
-    describe: 'Initializes code for use with lando',
+    describe: 'Fetched code and/or initializes a Landofile for use with lando',
+    usage: `$0 init
+    [--name <name>]
+    [--recipe <recipe>]
+    [--source <source>]
+    [--full]
+    [--github-auth==<token>]
+    [--github-repo==<url>]
+    [--option=<path=value>...]
+    [--remote-options=<options>]
+    [--remote-url=<url>]
+    [--webroot=<path>]
+    [--yes]
+    [--other-plugin-provided-options...]`,
     options: _.merge(getInitBaseOpts(recipes, sources), configOpts, getInitOveridesOpts(inits, recipes, sources)),
     run: options => {
       // Parse options abd and configs

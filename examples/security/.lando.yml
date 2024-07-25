@@ -1,0 +1,48 @@
+name: lando-security
+proxy:
+  web:
+    - web.lndo.site:8080
+
+services:
+  web:
+    api: 4
+    security:
+      ca:
+        - SoloCA.crt
+    certs:
+      cert: /frank/cert.crt
+      key: /bob/key.key
+    image:
+      imagefile: nginxinc/nginx-unprivileged:1.26.1
+      context:
+        - ./default-ssl-3.conf:/etc/nginx/conf.d/default.conf
+    user: nginx
+    ports:
+      - 8080/http
+      - 8443/https
+  fedora:
+    api: 4
+    security:
+      ca: SoloCA.crt
+    image: |
+      FROM fedora:40
+      RUN dnf update -y && dnf install openssl -y
+    command: sleep infinity
+
+tooling:
+  certinfo:
+    cmd: openssl x509 -in "$LANDO_SERVICE_CERT" -noout -text
+    service: :service
+    options:
+      service:
+        default: web
+        alias:
+          - s
+        describe: Runs on a different service
+
+plugins:
+  "@lando/core": "../.."
+  "@lando/healthcheck": "../../plugins/healthcheck"
+  "@lando/networking": "../../plugins/networking"
+  "@lando/proxy": "../../plugins/proxy"
+  "@lando/scanner": "../../plugins/scanner"

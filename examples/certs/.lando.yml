@@ -1,0 +1,87 @@
+name: lando-certs
+proxy:
+  web:
+    - web.lndo.site:8080
+  web2:
+    - web2.lndo.site:8080
+
+services:
+  web:
+    api: 3
+    type: lando
+    ssl: true
+    sslExpose: true
+    sport: "8443"
+    services:
+      image: bitnami/nginx
+      command: /opt/bitnami/scripts/nginx/entrypoint.sh /opt/bitnami/scripts/nginx/run.sh
+      ports:
+        - "8080"
+        - "8443"
+      user: root
+      volumes:
+        - ./default-ssl.conf:/opt/bitnami/nginx/conf/server_blocks/my_server_block.conf
+        - ./:/usr/share/nginx/html
+  web2:
+    api: 4
+    image:
+      imagefile: nginxinc/nginx-unprivileged:1.26.1
+      context:
+        - ./default-ssl-2.conf:/etc/nginx/conf.d/default.conf
+    user: nginx
+    ports:
+      - 8080/http
+      - 8443/https
+  web3:
+    api: 4
+    certs: /certs/cert.crt
+    hostnames:
+      - vibes.rising
+    image:
+      imagefile: nginxinc/nginx-unprivileged:1.26.1
+      context:
+        - ./default-ssl.conf:/etc/nginx/conf.d/default.conf
+    user: nginx
+    ports:
+      - 8080/http
+      - 8443/https
+  web4:
+    api: 4
+    certs:
+      cert: /frank/cert.crt
+      key: /bob/key.key
+    image:
+      imagefile: nginxinc/nginx-unprivileged:1.26.1
+      context:
+        - ./default-ssl-3.conf:/etc/nginx/conf.d/default.conf
+    user: nginx
+    ports:
+      - 8080/http
+      - 8443/https
+  web5:
+    api: 4
+    certs: false
+    image:
+      imagefile: nginxinc/nginx-unprivileged:1.26.1
+      context:
+        - ./default.conf:/etc/nginx/conf.d/default.conf
+    user: nginx
+    ports:
+      - 8080/http
+tooling:
+  certinfo:
+    cmd: openssl x509 -in "$LANDO_SERVICE_CERT" -noout -text
+    service: :service
+    options:
+      service:
+        default: web
+        alias:
+          - s
+        describe: Runs on a different service
+
+plugins:
+  "@lando/core": "../.."
+  "@lando/healthcheck": "../../plugins/healthcheck"
+  "@lando/networking": "../../plugins/networking"
+  "@lando/proxy": "../../plugins/proxy"
+  "@lando/scanner": "../../plugins/scanner"

@@ -6,15 +6,20 @@ const {color} = require('listr2');
 module.exports = lando => {
   return {
     command: 'shellenv',
+    usage: '$0 shellenv [--check] [--shell <shell>]',
+    examples: [
+      '$0 shellenv --check',
+      '$0 shellenv --shell bash',
+    ],
     level: 'tasks',
     options: {
       add: {
-        describe: 'Add to shell profile if blank lando will attempt discovery',
+        describe: 'Adds to shell profile if blank lando will attempt discovery',
         alias: ['a'],
         string: true,
       },
       check: {
-        describe: 'Check to see if lando is in PATH',
+        describe: 'Checks to see if lando is in PATH',
         alias: ['c'],
         boolean: true,
       },
