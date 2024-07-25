@@ -31,6 +31,7 @@
 ### DEPRECATIONS
 
 * **DEPRECATED** `lando ssh` in favor of new `lando exec`
+* Defunct `lando share` command is now a hidden command
 
 ### Internal
 
