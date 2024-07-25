@@ -5,7 +5,7 @@ const _ = require('lodash');
 module.exports = lando => ({
   command: 'logs',
   describe: 'Displays logs for your app',
-  usage: '$0 logs [--follow] [--service <service>] [--timestamps]',
+  usage: '$0 logs [--follow] [--service <service>...] [--timestamps]',
   examples: [
     '$0 logs',
     '$0 logs --follow --service appserver',

@@ -7,7 +7,7 @@ module.exports = lando => {
   return {
     command: 'list',
     describe: 'Lists all running lando apps and containers',
-    usage: '$0 list [--all] [--filter <key=value>] [--format <default|json|table>] [--path <path>]',
+    usage: '$0 list [--all] [--filter <key=value>...] [--format <default|json|table>] [--path <path>]',
     examples: [
       '$0 config',
       '$0 config --format table --path env',
