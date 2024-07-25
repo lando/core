@@ -48,16 +48,33 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
     _.get(app, 'v4.servicesList', []),
   ]).flatten().compact().uniq().value();
 
+  // attempt to ascertain whether this is a v4 "exec" service
+  const canExec = _.get(app, 'v4.services', []).find(s => s.id === service)?.canExec
+    ?? _.get(app, `executors.${service}`, undefined)
+    ?? _.get(data, `executors.${service}`, undefined)
+    ?? false;
+
+  // reset the cmd based on exec situation
+  if (canExec) {
+    cmd = _.isArray(command) ? command : require('string-argv')(command);
+    cmd = ['/etc/lando/exec.sh', ...cmd];
+  } else {
+    cmd = ['/bin/sh', '-c', _.isArray(command) ? command.join(' ') : command];
+  }
+
   // Validate the service if we can
   // @NOTE fast engine runs might not have this data yet
-  if (app.services && !_.includes(app.services, service)) {
+  if (
+    (Array.isArray(app.services) && !_.includes(app.services, service)) &&
+    (Array.isArray(v4s) && !_.includes(v4s, service))
+  ) {
     throw new Error(`This app has no service called ${service}`);
   }
 
   // Add the build command
   return {
     id: app.containers[service],
-    cmd: ['/bin/sh', '-c', _.isArray(command) ? command.join(' ') : command],
+    cmd,
     compose: app.compose,
     project: app.project,
     api: _.includes(v4s, service) ? 4 : 3,
@@ -66,6 +83,10 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
       mode: 'attach',
       user: require('./get-user')(service, app.info),
       services: [service],
+      environment: {
+        DEBUG: app.debuggy ? '1' : '',
+        LANDO_DEBUG: app.debuggy ? '1' : '',
+      },
     },
   };
 });

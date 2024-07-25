@@ -63,6 +63,7 @@ module.exports = {
     version: 'custom',
     type: 'traefix',
     name: 'proxy',
+    project: '_lando_',
     ssl: true,
     sslExpose: false,
     refreshCerts: true,

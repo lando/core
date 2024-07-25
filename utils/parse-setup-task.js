@@ -49,6 +49,7 @@ module.exports = otask => {
 
         // update title to reflect pending
         task.title = `${initialTitle} ${color.dim(`[Needs ${dids.join(', ')}]`)}`;
+        task.task.state = 'WAITING';
 
         // wait until all tasks close, for good or ill
         try {
@@ -72,6 +73,7 @@ module.exports = otask => {
 
       // main event
       task.title = initialTitle;
+      task.task.state = 'STARTED';
       const result = await orunner(ctx, task);
       // harvest
       if (otask.count) ctx.results.push(result);

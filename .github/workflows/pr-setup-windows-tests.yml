@@ -12,20 +12,15 @@ jobs:
       fail-fast: false
       matrix:
         lando-version:
-          - 3-slim
+          # - 3-slim
           # uncomment to test against bleeding edge cli
-          # - 3-dev-slim
+          - 3-dev-slim
         leia-test:
-          - examples/setup-windows
+          - setup-windows
         node-version:
           - "18"
         os:
           - windows-2022
-        shell:
-          - bash
-          - cmd
-          - powershell
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -37,7 +32,6 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile
-      # bundle deps is needed so local plugin installation succeeds
       - name: Bundle Deps
         uses: lando/prepare-release-action@v3
         with:
@@ -50,46 +44,11 @@ jobs:
           auto-setup: false
           lando-version: ${{ matrix.lando-version }}
           telemetry: false
-      - name: Dogfood core plugin
-        shell: powershell
-        run: lando plugin-add "@lando/core@file:${{ github.workspace }}"
-
-      # @TODO: we need to reimplement this with leia tests like the other os setup tests but ran out of time
-      # becuse this one is a bit more involved since it tries three different shells
-      - name: Lando Setup - BASH
-        if: matrix.shell == 'bash'
-        shell: bash
-        run: lando setup -y
-      - name: Lando Setup - CMD
-        if: matrix.shell == 'cmd'
-        shell: cmd
-        run: lando setup -y
-      - name: Lando Setup - POWERSHELL
-        if: matrix.shell == 'powershell'
-        shell: powershell
-        run: lando setup -y
-
-      # @TODO: for some reason the below refused to load anything but bash so we are just going to invoke leia
-      # directly for now but eventually we need to find out why this is the case
-      # - name: Run Leia Tests
-      #   uses: lando/run-leia-action@v2
-      #   env:
-      #     CORE_PLUGIN_PATH: ${{ github.workspace }}
-      #   with:
-      #     leia-test: "./${{ matrix.leia-test }}/README.md"
-      #     cleanup-header: "Destroy tests"
-      #     shell: powershell
-      #     stdin: true
-      #     debug: true
-      # - name: Run Leia Tests
-      #   shell: bash
-      #   run: |
-      #     npx leia --version
-      #     npx leia "./${{ matrix.leia-test }}/README.md" \
-      #       --setup-header=Start,Setup,This is the dawning \
-      #       --test-header=Test,Validat,Verif \
-      #       --cleanup-header=Destroy tests \
-      #       --shell=${{ matrix.shell }} \
-      #       --retry=1 \
-      #       --stdin \
-      #       --debug
+      - name: Run Leia Tests
+        uses: lando/run-leia-action@v2
+        with:
+          leia-test: "./examples/${{ matrix.leia-test }}/README.md"
+          cleanup-header: "Destroy tests"
+          shell: powershell
+          stdin: true
+          debug: true

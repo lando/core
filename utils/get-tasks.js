@@ -94,6 +94,11 @@ const engineRunner = (config, command) => (argv, lando) => {
 };
 
 module.exports = (config = {}, argv = {}, tasks = []) => {
+  // merge in recipe cache config first
+  if (fs.existsSync(config.recipeCache) && _.has(config, 'recipe')) {
+    config = _.merge({}, JSON.parse(fs.readFileSync(config.recipeCache, {encoding: 'utf-8'})), config);
+  }
+
   // If we have a tooling router lets rebase on that
   if (fs.existsSync(config.toolingRouter)) {
     // Get the closest route
@@ -111,9 +116,6 @@ module.exports = (config = {}, argv = {}, tasks = []) => {
       config.tooling = _.merge({}, config.tooling, closestRoute.tooling);
       config.route = closestRoute;
     }
-  // Or we have a recipe lets rebase on that
-  } else if (_.has(config, 'recipe')) {
-    config.tooling = _.merge({}, loadCacheFile(config.toolingCache), config.tooling);
   }
 
   // lets add ids to help match commands with args?
@@ -129,13 +131,16 @@ module.exports = (config = {}, argv = {}, tasks = []) => {
   _.forEach(_.get(config, 'tooling', {}), (task, command) => {
     if (_.isObject(task)) {
       tasks.push({
-        command,
         id: command.split(' ')[0],
-        level,
+        command,
+        delegate: _.isEmpty(_.get(task, 'options', {})) && _.isEmpty(_.get(task, 'positionals', {})),
         describe: _.get(task, 'description', `Runs ${command} commands`),
+        examples: _.get(task, 'examples', []),
+        level,
         options: _.get(task, 'options', {}),
+        positionals: _.get(task, 'positionals', {}),
+        usage: _.get(task, 'usage', command),
         run: (level === 'app') ? appRunner(command) : engineRunner({...config, argv}, command, task),
-        delegate: _.isEmpty(_.get(task, 'options', {})),
       });
     }
   });
@@ -143,12 +148,18 @@ module.exports = (config = {}, argv = {}, tasks = []) => {
   // get core tasks
   const coreTasks = _(loadCacheFile(process.landoTaskCacheFile)).map(t => ([t.command, t])).fromPairs().value();
 
-  // and apply any overrides if we have them
+  // mix in any relevant compose cache things
   if (fs.existsSync(config.composeCache)) {
     try {
       const composeCache = JSON.parse(fs.readFileSync(config.composeCache, {encoding: 'utf-8'}));
-      const overrides = _(_.get(composeCache, 'overrides.tooling', [])).map(t => ([t.command, t])).fromPairs().value();
-      _.merge(coreTasks, overrides);
+
+      // merge in additional tooling;
+      Object.assign(coreTasks, composeCache?.overrides?.tooling ?? {});
+
+      // add additional items
+      config.allServices = composeCache.allServices ?? [];
+      config.info = composeCache.info ?? [];
+      config.primary = composeCache.primary ?? 'appserver';
     } catch (e) {
       throw new Error(`There was a problem with parsing ${config.composeCache}. Ensure it is valid JSON! ${e}`);
     }

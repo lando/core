@@ -7,6 +7,8 @@ const semver = require('semver');
 const {color} = require('listr2');
 
 const buildIds = {
+  '4.32.0': '157355',
+  '4.31.0': '153195',
   '4.30.0': '149282',
   '4.29.0': '145265',
   '4.28.0': '139021',
@@ -24,6 +26,8 @@ const buildIds = {
  * Helper to get build engine id
  */
 const getId = version => {
+  // if false return false
+
   // if version is an integer then assume its already the id
   if (semver.valid(version) === null && Number.isInteger(parseInt(version))) return version;
   // otherwise return that corresponding build-id
@@ -67,9 +71,14 @@ const downloadDockerDesktop = (url, {debug, task, ctx}) => new Promise((resolve,
 
 module.exports = async (lando, options) => {
   const debug = require('../utils/debug-shim')(lando.log);
+  // if build engine is set to false allow it to be skipped
+  // @NOTE: this is mostly for internal stuff
+  if (options.buildEngine === false) return;
+
   // get stuff from config/opts
   const build = getId(options.buildEngine);
   const version = getVersion(options.buildEngine);
+
   // cosmetics
   const install = version ? `v${version}` : `build ${build}`;
 
@@ -117,7 +126,7 @@ module.exports = async (lando, options) => {
         ctx.download = await downloadDockerDesktop(getEngineDownloadUrl(build), {ctx, debug, task});
 
         // prompt for password if interactive
-        if (lando.config.isInteractive) {
+        if (ctx.password === undefined && lando.config.isInteractive) {
           ctx.password = await task.prompt({
             type: 'password',
             name: 'password',
@@ -139,7 +148,7 @@ module.exports = async (lando, options) => {
 
         // add optional args
         if (options.buildEngineAcceptLicense) command.push('--accept-license');
-        if (options.debug || options.verbose > 0) command.push('--debug');
+        if (options.debug || options.verbose > 0 || lando.debuggy) command.push('--debug');
 
         // run
         const result = await require('../utils/run-elevated')(command, {debug, password: ctx.password});

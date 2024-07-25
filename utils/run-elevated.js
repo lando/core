@@ -11,12 +11,14 @@ const {spawn} = require('child_process');
 
 // get the bosmang
 const defaults = {
-  notify: true,
+  env: process.env,
   debug: require('debug')('@lando/run-elevated'),
   ignoreReturnCode: false,
   isInteractive: require('is-interactive')(),
-  password: undefined,
   method: process.platform === 'win32' ? 'run-elevated' : 'sudo',
+  notify: true,
+  password: undefined,
+  user: 'root',
 };
 
 const getChild = (command, options) => {

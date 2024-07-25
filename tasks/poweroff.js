@@ -3,8 +3,9 @@
 module.exports = lando => {
   return {
     command: 'poweroff',
-    level: 'engine',
     describe: 'Spins down all lando related containers',
+    usage: '$0 poweroff',
+    level: 'engine',
     run: async () => {
       console.log(lando.cli.makeArt('poweroff', {phase: 'pre'}));
       // Get all our containers

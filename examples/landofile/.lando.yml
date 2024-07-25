@@ -1,0 +1,3 @@
+name: lando-landofile
+compose:
+  - docker-compose/moar.yml

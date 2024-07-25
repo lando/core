@@ -3,10 +3,18 @@
 const _ = require('lodash');
 
 module.exports = (config, injected) => {
-  const getToolingDefaults = require('./get-tooling-defaults');
-
   // Get our defaults and such
+  const getToolingDefaults = require('./get-tooling-defaults');
   const {name, app, appMount, cmd, describe, dir, env, options, service, stdio, user} = getToolingDefaults(config);
+
+  // add debug stuff if debuggy
+  env.DEBUG = injected.debuggy ? '1' : '';
+  env.LANDO_DEBUG = injected.debuggy ? '1' : '';
+
+  // service api 4 services that canExec
+  const canExec = Object.fromEntries((config?.app?.info ?? [])
+    .map(service => ([service.service, config?.app?.executors?.[service.service] ?? false])));
+
   // Handle dynamic services and passthrough options right away
   // Get the event name handler
   const eventName = name.split(' ')[0];
@@ -14,7 +22,7 @@ module.exports = (config, injected) => {
     // Kick off the pre event wrappers
     .then(() => app.events.emit(`pre-${eventName}`, config, answers))
     // Get an interable of our commandz
-    .then(() => _.map(require('./parse-tooling-config')(cmd, service, options, answers)))
+    .then(() => _.map(require('./parse-tooling-config')(cmd, service, options, answers, canExec)))
     // Build run objects
     .map(({command, service}) => require('./build-tooling-runner')(app, command, service, user, env, dir, appMount))
     // Try to run the task quickly first and then fallback to compose launch

@@ -5,7 +5,6 @@ const fs = require('fs-extra');
 const path = require('path');
 const merge = require('lodash/merge');
 const slugify = require('slugify');
-const stringArgv = require('string-argv').default;
 
 const Dockerode = require('dockerode');
 const {EventEmitter} = require('events');
@@ -15,6 +14,9 @@ const {PassThrough} = require('stream');
 const makeError = require('../utils/make-error');
 const makeSuccess = require('../utils/make-success');
 const mergePromise = require('../utils/merge-promise');
+
+const read = require('../utils/read-file');
+const write = require('../utils/write-file');
 
 class DockerEngine extends Dockerode {
   static name = 'docker-engine';
@@ -136,6 +138,13 @@ class DockerEngine extends Dockerode {
     // from source above
     fs.copySync(dockerfile, path.join(context, 'Dockerfile'));
     debug('copied Imagefile from %o to %o', dockerfile, path.join(context, 'Dockerfile'));
+
+    // on windows we want to ensure the build context has linux line endings
+    if (process.platform === 'win32') {
+      for (const file of require('glob').sync(path.join(context, '**/*'), {nodir: true})) {
+        write(file, read(file), {forcePosixLineEndings: true});
+      }
+    }
 
     // call the parent
     // @TODO: consider other opts? https://docs.docker.com/engine/api/v1.43/#tag/Image/operation/ImageBuild args?
@@ -272,7 +281,8 @@ class DockerEngine extends Dockerode {
     // ensure context dir exists
     fs.mkdirSync(context, {recursive: true});
 
-    // move other sources into the build context
+    // move other sources into the build contex
+    // we read/write so we can make sure we are removing windows line endings
     for (const source of sources) {
       fs.copySync(source.source, path.join(context, source.destination));
       debug('copied %o into build context %o', source.source, path.join(context, source.destination));
@@ -281,6 +291,13 @@ class DockerEngine extends Dockerode {
     // copy the dockerfile to the correct place
     fs.copySync(dockerfile, path.join(context, 'Dockerfile'));
     debug('copied Imagefile from %o to %o', dockerfile, path.join(context, 'Dockerfile'));
+
+    // on windows we want to ensure the build context has linux line endings
+    if (process.platform === 'win32') {
+      for (const file of require('glob').sync(path.join(context, '**/*'), {nodir: true})) {
+        write(file, read(file), {forcePosixLineEndings: true});
+      }
+    }
 
     // debug
     debug('buildxing image %o from %o with build-args', tag, context, buildArgs);
@@ -525,11 +542,11 @@ class DockerEngine extends Dockerode {
         // handle resolve/reject
         runner.on('done', data => {
           closer(stream, isRaw);
-          resolve(makeSuccess(merge({}, data, {command: 'dockerode run', all: allo, stdout: stdouto, stderr: stderro}, {args: command})));
+          resolve(makeSuccess(merge({}, data, {command: copts.Entrypoint, all: allo, stdout: stdouto, stderr: stderro}, {args: command})));
         });
         runner.on('error', error => {
           closer(stream, isRaw);
-          reject(makeError(merge({}, args, {command: 'dockerode run', all: allo, stdout: stdouto, stderr: stderro}, {args: command}, {error})));
+          reject(makeError(merge({}, args, {command: copts.Entrypoint, all: allo, stdout: stdouto, stderr: stderro}, {args: command}, {error})));
         });
       });
     };
@@ -538,7 +555,7 @@ class DockerEngine extends Dockerode {
     const callbackHandler = (error, data) => {
       // emit error first
       if (error) runner.emit('error', error);
-      if (data.StatusCode !== 0) runner.emit('error', data);
+      else if (data.StatusCode !== 0) runner.emit('error', data);
       // fire done no matter what?
       runner.emit('done', data);
       runner.emit('finished', data);
@@ -548,8 +565,7 @@ class DockerEngine extends Dockerode {
     // error if no command
     if (!command) throw new Error('you must pass a command into engine.run');
     // arrayify commands that are strings
-    if (typeof command === 'string') command = stringArgv(command);
-
+    if (typeof command === 'string') command = require('string-argv')(command);
     // some good default createOpts
     const defaultCreateOptions = {
       AttachStdin: interactive,
@@ -568,7 +584,7 @@ class DockerEngine extends Dockerode {
     // call the parent with clever stuff
     const runner = super.run(image, command, stream, copts, {}, callbackHandler);
     // log
-    this.debug('running command %o on image %o with create opts %o', command, image, copts);
+    this.debug('running command %o on image %o with create opts %o', [copts.Entrypoint, command].flat(), image, copts);
     // make this a hybrid async func and return
     return mergePromise(runner, awaitHandler);
   }

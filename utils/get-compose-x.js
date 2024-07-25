@@ -27,7 +27,7 @@ const getDockerBin = (bin, base, pathFallback = true) => {
   }
 };
 
-module.exports = ({orchestratorVersion = '2.27.0', userConfRoot = os.tmpdir()} = {}) => {
+module.exports = ({orchestratorVersion = '2.27.1', userConfRoot = os.tmpdir()} = {}) => {
   const orchestratorBin = `docker-compose-v${orchestratorVersion}`;
   switch (process.platform) {
     case 'darwin':

@@ -7,6 +7,7 @@ module.exports = lando => {
   return {
     command: 'restart',
     describe: 'Restarts your app',
+    usage: '$0 restart',
     run: async options => {
       // Try to get our app
       const app = lando.getApp(options._app.root);
@@ -15,8 +16,18 @@ module.exports = lando => {
       if (app) {
         console.log(lando.cli.makeArt('appRestart', {name: app.name, phase: 'pre'}));
 
+        // run any setup if we need to but without common plugins or build engine
+        const sopts = lando?.config?.setup;
+        sopts.buildEngine = false;
+        sopts.skipCommonPlugins = true;
+        sopts.yes = true;
+        const setupTasks = await lando.getSetupStatus(sopts);
+
         // Normal bootup
         try {
+          // run a limited setup if needed
+          if (setupTasks.length > 0) await lando.setup(sopts);
+          // then restart
           await app.restart();
           // determine legacy settings
           const legacyScanner = _.get(lando, 'config.scanner', true) === 'legacy';

@@ -1,10 +1,8 @@
-SQL Import/Export Example
-============
+# SQL Import/Export Example
 
 This example exists primarily to test the `sql-import.sh` and `sql-export.sh` helper scripts.
 
-Start up tests
---------------
+## Start up tests
 
 ```bash
 # Should init and start a lando app
@@ -15,8 +13,7 @@ cp -rf testdata2.sql sqlhelpers/testdata2.sql
 cd sqlhelpers && lando start
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to verify things work as expected
 
@@ -109,8 +106,7 @@ lando ssh -s postgres16 -c "/helpers/sql-import.sh testdata2.sql"
 lando ssh -s postgres16 -c "psql -U postgres -d lando_test -c 'select * from lando_test'" | grep -v "lando_original" | grep "lando_updated"
 ```
 
-Destroy tests
--------------
+## Destroy tests
 
 ```bash
 # Should destroy sqlhelpers successfully

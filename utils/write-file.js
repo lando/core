@@ -10,6 +10,11 @@ module.exports = (file, data, options = {}) => {
 
   // set extension if not set
   const extension = options.extension || path.extname(file);
+  // linux line endings
+  const forcePosixLineEndings = options.forcePosixLineEndings ?? false;
+
+  // data is a string and posixOnly then replace
+  if (typeof data === 'string' && forcePosixLineEndings) data = data.replace(/\r\n/g, '\n');
 
   switch (extension) {
     case '.yaml':
@@ -39,6 +44,6 @@ module.exports = (file, data, options = {}) => {
       break;
     default:
       if (!fs.existsSync(file)) fs.mkdirSync(path.dirname(file), {recursive: true});
-      fs.writeFileSync(file, data, {encoding: 'utf8'});
+      fs.writeFileSync(file, data, {encoding: 'utf-8'});
   }
 };

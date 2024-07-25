@@ -89,6 +89,10 @@ module.exports = lando => {
   return {
     command: 'update',
     describe: 'Updates lando',
+    usage: '$0 update [--yes]',
+    examples: [
+      '$0 update --yes',
+    ],
     options,
     run: async options => {
       const sortBy = require('lodash/sortBy');

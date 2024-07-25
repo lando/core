@@ -1,12 +1,10 @@
-Custom Landofile Name Example
-=============================
+# Custom Landofile Name Example
 
 This example exists primarily to test the issue:
 
 * [Issue #1919](https://github.com/lando/lando/issues/1919)
 
-Start up tests
---------------
+## Start up tests
 
 ```bash
 # Should set up the config
@@ -17,8 +15,7 @@ lando poweroff
 lando start
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to verify things work as expected
 
@@ -32,8 +29,7 @@ lando npm2 --version
 lando yarn2 --version
 ```
 
-Destroy tests
--------------
+## Destroy tests
 
 ```bash
 # Should destroy successfully
