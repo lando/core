@@ -61,6 +61,7 @@ module.exports = {
         'ssh-agent': true,
         'sudo': true,
       },
+      'persistent-storage': [],
       'overrides': {},
       'ports': [],
       'security': {
@@ -69,6 +70,7 @@ module.exports = {
         'cas': [],
         'certificate-authorities': [],
       },
+      'storage': [],
     },
   },
   router: () => ({}),
@@ -208,7 +210,10 @@ module.exports = {
       this.router = upstream.router;
       this.security = config.security;
       this.security.cas.push(caCert, path.join(path.dirname(caCert), `${caDomain}.pem`));
-      this.storage = require('../utils/normalize-storage')(config.storage, this);
+      this.storage = [
+        ...require('../utils/normalize-storage')(config.storage, this),
+        ...require('../utils/normalize-storage')(config['persistent-storage'], this),
+      ];
       this.user = user;
 
       // top level stuff
