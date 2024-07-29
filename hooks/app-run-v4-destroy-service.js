@@ -24,7 +24,7 @@ module.exports = async (app, lando) => {
   const tasks = services.map(service => {
     const container = [app.project, service.id, '1'].join(lando.config.orchestratorSeparator);
     return {
-      title: `Image for ${container}`,
+      title: `Container ${container}`,
       task: async (ctx, task) => {
         try {
           await service.destroy();
@@ -40,10 +40,10 @@ module.exports = async (app, lando) => {
   await app.runTasks(tasks, {
     renderer: 'dc2',
     rendererOptions: {
-      header: 'Destroying',
+      header: 'Clean Up',
       states: {
-        COMPLETED: 'Destroyed',
-        STARTED: 'Destroying',
+        COMPLETED: 'Cleaned',
+        STARTED: 'Cleaning',
         FAILED: 'FAILED',
       },
     },
