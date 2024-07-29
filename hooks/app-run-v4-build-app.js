@@ -17,6 +17,8 @@ module.exports = async app => {
     .filter(service => service?.info?.state?.APP !== 'BUILT')
     .value();
 
+  app.log.debug('going to build v4 apps', services.map(service => service.id));
+
   // and then run them in parallel
   await Promise.all(services.map(async service => {
     try {

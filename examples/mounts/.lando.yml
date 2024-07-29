@@ -1,0 +1,19 @@
+name: lando-mounts
+services:
+  web3:
+    api: 4
+    image:
+      imagefile: nginxinc/nginx-unprivileged:1.26.1
+      context:
+        - ./default-ssl.conf:/etc/nginx/conf.d/default.conf
+    user: nginx
+    ports:
+      - 8080/http
+      - 8443/https
+
+plugins:
+  "@lando/core": "../.."
+  "@lando/healthcheck": "../../plugins/healthcheck"
+  "@lando/networking": "../../plugins/networking"
+  "@lando/proxy": "../../plugins/proxy"
+  "@lando/scanner": "../../plugins/scanner"

@@ -1,0 +1,29 @@
+name: lando-storage
+services:
+  db:
+    api: 4
+    image: mysql:8.3
+    user: root
+    command: docker-entrypoint.sh mysqld
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    storage:
+      # single service scoped volume at /var/lib/mysql
+      - /var/lib/mysql
+
+      # single app scoped volume at /var/lib/mysql
+      - destination: /tmp/bob
+        scope: app
+      - destination: /tmp/frank
+        scope: global
+
+      # single bind mounted volume at /var/lib/mysql
+      # should create initial dir first if it doesnt exist? relative to app root?
+      - ./tmp:/tmp/storage
+
+plugins:
+  "@lando/core": "../.."
+  "@lando/healthcheck": "../../plugins/healthcheck"
+  "@lando/networking": "../../plugins/networking"
+  "@lando/proxy": "../../plugins/proxy"
+  "@lando/scanner": "../../plugins/scanner"
