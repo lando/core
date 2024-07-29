@@ -1,6 +1,10 @@
 'use strict';
 
-module.exports = async (service, {volume, routes = []}) => {
+module.exports = async (service, {volume}) => {
+  // add this as a top level volume
+  // @TODO: do we actually need this snce its just for rundata and we are typing our volume?
+  service.tlvolumes[volume] = {external: true};
+
   // add run data
   service.addLandoRunData({
     environment: {
@@ -8,9 +12,7 @@ module.exports = async (service, {volume, routes = []}) => {
       LANDO_PROXY_KEY: `/lando/certs/${service.id}.${service.project}.key`,
       LANDO_PROXY_CONFIG_FILE: `/proxy_config/${service.id}.${service.project}.yaml`,
     },
-    volumes: [
-      `${volume}:/proxy_config`,
-    ],
+    volumes: [{type: 'volume', source: volume, target: '/proxy_config'}],
   });
 
   // add hook file
