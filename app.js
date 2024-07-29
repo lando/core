@@ -184,6 +184,9 @@ module.exports = async (app, lando) => {
   // Remove meta cache on destroy
   app.events.on('post-destroy', async () => await require('./hooks/app-purge-metadata-cache')(app, lando));
 
+  // Run v4 service destroy methods
+  app.events.on('post-destroy', async () => await require('./hooks/app-run-v4-destroy-service')(app, lando));
+
   // remove v3 build locks
   app.events.on('post-uninstall', async () => await require('./hooks/app-purge-v3-build-locks')(app, lando));
 

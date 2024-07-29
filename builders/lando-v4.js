@@ -116,8 +116,15 @@ module.exports = {
     }
 
     #addRunVolumes(data = []) {
-      // if data is an array then lets concat and uniq to #mounts
-      if (Array.isArray(data)) this.#run.mounts = uniq([...this.#run.mounts, ...data]);
+      // if data is not an array then do nothing
+      if (!Array.isArray(data)) return;
+
+      // run data through normalizeVolumes first so it normalizes our mounts
+      // and then munge it all 2gether
+      this.#run.mounts = uniq([
+        ...this.#run.mounts,
+        ...this.normalizeVolumes(data).map(volume => `${volume.source}:${volume.target}`),
+      ]);
     }
 
     #setupBoot() {
@@ -184,28 +191,31 @@ module.exports = {
       // get this
       super(id, merge({}, {groups}, {states}, upstream), app, lando);
 
-      // foundational this
+      // props
       this.canExec = true;
       this.canHealthcheck = true;
-      this.generateCert = lando.generateCert.bind(lando);
       this.isInteractive = lando.config.isInteractive;
+      this.generateCert = lando.generateCert.bind(lando);
       this.network = lando.config.networkBridge;
       this.project = app.project;
-      this.router = upstream.router;
 
-      // more this
+      // config
       this.certs = config.certs;
       this.command = config.command;
       this.healthcheck = config.healthcheck;
       this.hostnames = uniq([...config.hostnames, `${this.id}.${this.project}.internal`]);
       this.packages = config.packages;
+      this.router = upstream.router;
       this.security = config.security;
       this.security.cas.push(caCert, path.join(path.dirname(caCert), `${caDomain}.pem`));
+      this.storage = require('../utils/normalize-storage')(config.storage, this);
       this.user = user;
 
-      // computed this
-      this.homevol = `${this.project}-${this.user.name}-home`;
-      this.datavol = `${this.project}-${this.id}-data`;
+      // top level stuff
+      this.tlnetworks = {[this.network]: {external: true}};
+      this.tlvolumes = Object.fromEntries(this.storage
+        .filter(volume => volume.type === 'volume')
+        .map(volume => ([volume.name, {external: true}])));
 
       // boot stuff
       this.#setupBoot();
@@ -240,11 +250,9 @@ module.exports = {
       // @TODO: make this into a package?
       this.setNPMRC(lando.config.pluginConfigFile);
 
-      // top level considerations
-      this.addComposeData({
-        networks: {[this.network]: {external: true}},
-        volumes: {[this.homevol]: {}},
-      });
+      // add in top level things
+      this.debug('adding top level volumes %o and networks %o', this.tlvolumes, {networks: this.tlnetworks});
+      this.addComposeData({networks: this.tlnetworks, volumes: this.tlvolumes});
 
       // environment
       const environment = {
@@ -273,6 +281,13 @@ module.exports = {
         'dev.lando.src': app.root,
       }, config.labels);
 
+      // volumes
+      // @TODO: volumes will probably need to handle more than just storage eg mounts?
+      const volumes = this.storage.map(volume => {
+        if (volume.type === 'bind') return volume.mount;
+        return {type: 'volume', source: volume.name, target: volume.destination};
+      });
+
       // add it all 2getha
       this.addLandoServiceData({
         environment,
@@ -281,9 +296,7 @@ module.exports = {
         logging: {driver: 'json-file', options: {'max-file': '3', 'max-size': '10m'}},
         networks: {[this.network]: {aliases: this.hostnames}},
         user: this.user.name,
-        volumes: [
-          `${this.homevol}:/home/${this.user.name}`,
-        ],
+        volumes,
       });
 
       // add any overrides on top
@@ -349,6 +362,7 @@ module.exports = {
     }
 
     // wrapper around addServiceData so we can also add in #run stuff
+    // @TODO: remove user if its set?
     addLandoServiceData(data = {}) {
       // pass through our run considerations
       this.addLandoRunData(data);
@@ -364,6 +378,21 @@ module.exports = {
 
     // buildapp
     async buildApp() {
+      // create storage if needed
+      // @TODO: should this be in try block below?
+      if (this.storage.filter(volume => volume.type === 'volume').length > 0) {
+        const bengine = this.getBengine();
+        await Promise.all(this.storage.filter(volume => volume.type === 'volume').map(async volume => {
+          try {
+            await bengine.createVolume({Name: volume.name, Labels: volume.labels});
+            this.debug('created %o storage volume %o with metadata %o', volume.scope, volume.name, volume.labels);
+          } catch (error) {
+            throw error;
+          }
+        }));
+      }
+
+      // build app
       try {
         // set state
         this.info = {state: {APP: 'BUILDING'}};
@@ -421,6 +450,46 @@ module.exports = {
       return image;
     }
 
+    // remove other app things after a destroy
+    async destroy() {
+      // remove storage if needed
+      if (this.storage.filter(volume => volume.type === 'volume').length > 0) {
+        const bengine = this.getBengine();
+
+        // find the right volumes to trash
+        const {Volumes} = await bengine.listVolumes();
+        const volumes = Volumes
+          .filter(volume => volume?.Labels?.['dev.lando.storage-volume'] === 'TRUE')
+          .map(volume => ({
+            name: volume.Name,
+            scope: volume?.Labels?.['dev.lando.storage-scope'] ?? 'service',
+            project: volume?.Labels?.['dev.lando.storage-project'],
+            service: volume?.Labels?.['dev.lando.storage-service'],
+          }))
+          .filter(volume => volume.project === this.project)
+          .filter(volume => volume.scope === 'service' || volume.scope === 'app')
+          .map(volume => bengine.getVolume(volume.name));
+
+        // and then trash them
+        await Promise.all(volumes.map(async volume => {
+          try {
+            await volume.remove({force: true});
+            this.debug('removed %o volume %o', this.project, volume.name);
+          } catch (error) {
+            throw error;
+          }
+        }));
+      }
+    }
+
+    getBengine() {
+      return LandoServiceV4.getBengine(LandoServiceV4.bengineConfig, {
+        builder: LandoServiceV4.builder,
+        debug: this.debug,
+        orchestrator: LandoServiceV4.orchestrator,
+      });
+    }
+
     async installPackages() {
       await Promise.all(Object.entries(this.packages).map(async ([id, data]) => {
         this.debug('adding package %o with args: %o', id, data);
@@ -440,11 +509,7 @@ module.exports = {
       workingDir = this.appMount,
       entrypoint = ['/bin/bash', '-c'],
     } = {}) {
-      const bengine = LandoServiceV4.getBengine(LandoServiceV4.bengineConfig, {
-        builder: LandoServiceV4.builder,
-        debug: this.debug,
-        orchestrator: LandoServiceV4.orchestrator,
-      });
+      const bengine = this.getBengine();
 
       // construct runopts
       const runOpts = {

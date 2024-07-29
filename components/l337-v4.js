@@ -8,6 +8,7 @@ const merge = require('lodash/merge');
 const path = require('path');
 const read = require('../utils/read-file');
 const write = require('../utils/write-file');
+const uniq = require('lodash/uniq');
 
 const {generateDockerFileFromArray} = require('dockerfile-generator/lib/dockerGenerator');
 const {nanoid} = require('nanoid');
@@ -72,6 +73,7 @@ class L337ServiceV4 extends EventEmitter {
         IMAGE: 'UNBUILT',
       },
       steps: [],
+      volumes: [],
     };
   }
 
@@ -233,7 +235,11 @@ class L337ServiceV4 extends EventEmitter {
 
   // just pushes the compose data directly into our thing
   addComposeData(data = {}) {
-    // should we try to consolidate this
+    // if we have a top level volume being added lets add that to #data so we can make use of it in
+    // addServiceData's volume normalization
+    if (data.volumes) this.#data.volumes = uniq([...this.#data.volumes, ...Object.keys(data.volumes)]);
+
+    // @TODO: should we try to consolidate this?
     this.#app.add({
       id: `${this.id}-${nanoid()}`,
       info: this.info,
@@ -384,43 +390,8 @@ class L337ServiceV4 extends EventEmitter {
     const {build, image, ...compose} = data; // eslint-disable-line
 
     // handle any appropriate path normalization for volumes
-    // @TODO: do we need to normalize other things?
     // @NOTE: this normalization ONLY applies here, not in the generic addComposeData
-    if (compose.volumes && Array.isArray(compose.volumes)) {
-      compose.volumes = compose.volumes.map(volume => {
-        // if volume is a one part string then just return so we dont have to handle it downstream
-        if (typeof volume === 'string' && toPosixPath(volume).split(':').length === 1) return volume;
-
-        // if volumes is a string with two colon-separated parts then do stuff
-        if (typeof volume === 'string' && toPosixPath(volume).split(':').length === 2) {
-          const parts = volume.split(':');
-          const target = parts.pop();
-          const source = parts.join(':');
-          volume = {source, target};
-        }
-
-        // if volumes is a string with three colon-separated parts then do stuff
-        if (typeof volume === 'string' && toPosixPath(volume).split(':').length === 3) {
-          const parts = volume.split(':');
-          const mode = parts.pop();
-          const target = parts.pop();
-          const source = parts.join(':');
-          volume = {source, target, read_only: mode === 'ro'};
-        }
-
-        // if source is not an absolute path that exists relateive to appRoot then set as bind
-        if (!path.isAbsolute(volume.source) && fs.existsSync(path.join(this.appRoot, volume.source))) {
-          volume.source = path.join(this.appRoot, volume.source);
-        }
-
-        // we make an "exception" for any /run/host-services things that are in the docker vm
-        if (volume.source.startsWith('/run/host-services')) volume.type = 'bind';
-        else volume.type = fs.existsSync(volume.source) ? 'bind' : 'volume';
-
-        // return
-        return volume;
-      });
-    }
+    if (compose.volumes) compose.volumes = this.normalizeVolumes(compose.volumes);
 
     // add the data
     this.addComposeData({services: {[this.id]: compose}});
@@ -707,6 +678,54 @@ class L337ServiceV4 extends EventEmitter {
 
     // if there is a closest match that is not the group itself then its an override otherwise fise
     return candidates.length > 0 && candidates[0] !== data ? candidates[0] : false;
+  }
+
+  normalizeVolumes(volumes = []) {
+    if (!Array.isArray) return [];
+
+    // normalize and return
+    return volumes.map(volume => {
+      // if volume is a one part string then just return so we dont have to handle it downstream
+      if (typeof volume === 'string' && toPosixPath(volume).split(':').length === 1) return volume;
+
+      // if volumes is a string with two colon-separated parts then do stuff
+      if (typeof volume === 'string' && toPosixPath(volume).split(':').length === 2) {
+        const parts = volume.split(':');
+        const target = parts.pop();
+        const source = parts.join(':');
+        volume = {source, target};
+      }
+
+      // if volumes is a string with three colon-separated parts then do stuff
+      if (typeof volume === 'string' && toPosixPath(volume).split(':').length === 3) {
+        const parts = volume.split(':');
+        const mode = parts.pop();
+        const target = parts.pop();
+        const source = parts.join(':');
+        volume = {source, target, read_only: mode === 'ro'};
+      }
+
+      // at this point we should have an object and if it doesnt have a type we need to try to figure it out
+      // which should be PRETTY straightforward as long as named volumes have been added first
+      if (!volume.type) volume.type = this.#data.volumes.includes(volume.source) ? 'volume' : 'bind';
+
+      // normalize relative bind mount paths to the appRoot
+      if (volume.type === 'bind' && !path.isAbsolute(volume.source)) {
+        volume.source = path.join(this.appRoot, volume.source);
+      }
+
+      // if the bind mount source does not exist then attempt to create it?
+      // we make an "exception" for any /run/host-services things that are in the docker vm
+      // @NOTE: is this actually a good idea?
+      if (volume.type === 'bind'
+        && !fs.existsSync(volume.source)
+        && !volume.source.startsWith('/run/host-services')) {
+        fs.mkdirSync(volume.source, {recursive: true});
+      }
+
+      // return
+      return volume;
+    });
   }
 
   // sets the base image for the service
