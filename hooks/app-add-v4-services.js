@@ -53,6 +53,7 @@ module.exports = async (app, lando) => {
         debug: app.v4._debugShim,
         info,
         tag: `${_.get(lando, 'product', 'lando')}/${app.name}-${app.id}-${config.name}:latest`,
+        tlvolumes: app.config.volumes,
       },
       ...config,
     }, app, lando);

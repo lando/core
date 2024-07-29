@@ -114,6 +114,7 @@ class L337ServiceV4 extends EventEmitter {
     stages = {},
     states = {},
     tag = nanoid(),
+    tlvolumes = {},
     type = 'l337',
     user = undefined,
   } = {}, app, lando) {
@@ -143,7 +144,7 @@ class L337ServiceV4 extends EventEmitter {
 
     // initialize our private data
     this.#app = app;
-    this.#data = merge(this.#init(), {groups}, {stages}, {states});
+    this.#data = merge(this.#init(), {groups}, {stages}, {states}, {volumes: Object.keys(tlvolumes)});
 
     // rework info based on whatever is passed in
     this.info = merge({}, {state: states}, {primary, service: id, type}, info);
@@ -183,75 +184,6 @@ class L337ServiceV4 extends EventEmitter {
     }
   }
 
-  // this handles our "changes" to docker-composes "build" key but really it just processes it and passes it through
-  addBuildData(data) {
-    // if data is a string then its the context and it should be
-    if (typeof data === 'string') data = {context: data};
-    // if no context then set to app root
-    if (!data.context) data.context = this.appRoot;
-    // ensure dockerfile is set
-    if (!data.dockerfile) data.dockerfile = 'Dockerfile';
-    // now pass the imagefile stuff into image parsing
-    this.setBaseImage(path.join(data.context, data.dockerfile), data);
-    // make sure we are adding the dockerfile context directly as a source so COPY/ADD instructions work
-    // @NOTE: we are not adding a "context" because that also injects dockerfile instructions which we might already have
-    this.#data.sources.push(({source: data.context, destination: '.'}));
-  }
-
-  // this handles our changes to docker-composes "image" key
-  // @TODO: helper methods to add particular parts of build data eg image, files, steps, groups, etc
-  addImageData(data) {
-    // make sure data is in object format if its a string then we assume it sets the "imagefile" value
-    if (typeof data === 'string') data = {imagefile: data};
-    // map dockerfile key to image key if it is set and imagefile isnt
-    if (!data.imagefile && data.dockerfile) data.imagefile = data.dockerfile;
-    // now pass the imagefile stuff into image parsing
-    this.setBaseImage(data.imagefile);
-    // if the imageInstructions include COPY/ADD then make sure we are adding the dockerfile context directly as a
-    // source so those instructions work
-    // @NOTE: we are not adding a "context" because if this passes we have the instructions already and just need to make
-    // sure the files exists
-    // @TODO: move this to a static method?
-    if (hasInstructions(this.#data.imageInstructions, ['COPY', 'ADD']) && this.#data.imageFileContext) {
-      this.#data.sources.push(({source: this.#data.imageFileContext, destination: '.'}));
-    }
-
-    // if we have context data then lets pass that in as well
-    if (data.args) this.addBuildArgs(data.args);
-    // if we have context data then lets pass that in as well
-    if (data.context) this.addContext(data.context);
-    // if we have groups data then
-    if (data.groups) this.addGroups(data.groups);
-    // if we have activated ssh then figure all of that out
-    if (data.ssh) this.addSSH(data.ssh);
-    // handle steps data
-    if (data.steps) this.addSteps(data.steps);
-    // if we have a custom tag then set that
-    if (data.tag) this.tag = data.tag;
-
-    // finally make sure we honor buildkit disabling
-    if (require('../utils/is-disabled')((data.buildkit || data.buildx) ?? this.buildkit)) this.buildkit = false;
-  }
-
-  // just pushes the compose data directly into our thing
-  addComposeData(data = {}) {
-    // if we have a top level volume being added lets add that to #data so we can make use of it in
-    // addServiceData's volume normalization
-    if (data.volumes) this.#data.volumes = uniq([...this.#data.volumes, ...Object.keys(data.volumes)]);
-
-    // @TODO: should we try to consolidate this?
-    this.#app.add({
-      id: `${this.id}-${nanoid()}`,
-      info: this.info,
-      data: [data],
-    });
-
-    // update app with new stuff
-    this.#app.compose = require('../utils/dump-compose-data')(this.#app.composeData, this.#app._dir);
-    this.#app.v4.updateComposeCache();
-    this.debug('%o added top level compose data %o', this.id, data);
-  }
-
   // passed in build args that can be used
   addBuildArgs(args) {
     // if args is an object lets make it into an array
@@ -278,6 +210,40 @@ class L337ServiceV4 extends EventEmitter {
     // merge into build args
     this.buildArgs = merge({}, this.buildArgs, Object.fromEntries(args));
     this.debug('%o build-args are now %o', this.id, this.buildArgs);
+  }
+
+  // this handles our "changes" to docker-composes "build" key but really it just processes it and passes it through
+  addBuildData(data) {
+    // if data is a string then its the context and it should be
+    if (typeof data === 'string') data = {context: data};
+    // if no context then set to app root
+    if (!data.context) data.context = this.appRoot;
+    // ensure dockerfile is set
+    if (!data.dockerfile) data.dockerfile = 'Dockerfile';
+    // now pass the imagefile stuff into image parsing
+    this.setBaseImage(path.join(data.context, data.dockerfile), data);
+    // make sure we are adding the dockerfile context directly as a source so COPY/ADD instructions work
+    // @NOTE: we are not adding a "context" because that also injects dockerfile instructions which we might already have
+    this.#data.sources.push(({source: data.context, destination: '.'}));
+  }
+
+  // just pushes the compose data directly into our thing
+  addComposeData(data = {}) {
+    // if we have a top level volume being added lets add that to #data so we can make use of it in
+    // addServiceData's volume normalization
+    if (data.volumes) this.#data.volumes = uniq([...this.#data.volumes, ...Object.keys(data.volumes)]);
+
+    // @TODO: should we try to consolidate this?
+    this.#app.add({
+      id: `${this.id}-${nanoid()}`,
+      info: this.info,
+      data: [data],
+    });
+
+    // update app with new stuff
+    this.#app.compose = require('../utils/dump-compose-data')(this.#app.composeData, this.#app._dir);
+    this.#app.v4.updateComposeCache();
+    this.debug('%o added top level compose data %o', this.id, data);
   }
 
   // adds files/dirs to the build context
@@ -375,6 +341,41 @@ class L337ServiceV4 extends EventEmitter {
         this.debug('%o added build group %o', this.id, group);
       });
     }
+  }
+
+  // this handles our changes to docker-composes "image" key
+  // @TODO: helper methods to add particular parts of build data eg image, files, steps, groups, etc
+  addImageData(data) {
+    // make sure data is in object format if its a string then we assume it sets the "imagefile" value
+    if (typeof data === 'string') data = {imagefile: data};
+    // map dockerfile key to image key if it is set and imagefile isnt
+    if (!data.imagefile && data.dockerfile) data.imagefile = data.dockerfile;
+    // now pass the imagefile stuff into image parsing
+    this.setBaseImage(data.imagefile);
+    // if the imageInstructions include COPY/ADD then make sure we are adding the dockerfile context directly as a
+    // source so those instructions work
+    // @NOTE: we are not adding a "context" because if this passes we have the instructions already and just need to make
+    // sure the files exists
+    // @TODO: move this to a static method?
+    if (hasInstructions(this.#data.imageInstructions, ['COPY', 'ADD']) && this.#data.imageFileContext) {
+      this.#data.sources.push(({source: this.#data.imageFileContext, destination: '.'}));
+    }
+
+    // if we have context data then lets pass that in as well
+    if (data.args) this.addBuildArgs(data.args);
+    // if we have context data then lets pass that in as well
+    if (data.context) this.addContext(data.context);
+    // if we have groups data then
+    if (data.groups) this.addGroups(data.groups);
+    // if we have activated ssh then figure all of that out
+    if (data.ssh) this.addSSH(data.ssh);
+    // handle steps data
+    if (data.steps) this.addSteps(data.steps);
+    // if we have a custom tag then set that
+    if (data.tag) this.tag = data.tag;
+
+    // finally make sure we honor buildkit disabling
+    if (require('../utils/is-disabled')((data.buildkit || data.buildx) ?? this.buildkit)) this.buildkit = false;
   }
 
   // lando runs a small superset of docker-compose that augments the image key so it can contain imagefile data
