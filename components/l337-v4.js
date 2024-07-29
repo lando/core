@@ -708,7 +708,7 @@ class L337ServiceV4 extends EventEmitter {
 
       // at this point we should have an object and if it doesnt have a type we need to try to figure it out
       // which should be PRETTY straightforward as long as named volumes have been added first
-      if (!volume.type) volume.type = this.#data.volumes.includes(volume.source) ? 'volume' : 'bind';
+      if (!volume.type) volume.type = this._data.volumes.includes(volume.source) ? 'volume' : 'bind';
 
       // normalize relative bind mount paths to the appRoot
       if (volume.type === 'bind' && !path.isAbsolute(volume.source)) {
