@@ -69,7 +69,7 @@ module.exports = async (app, lando) => {
   // front load top level networks
   app.v4.addNetworks = (data = {}) => {
     app.add({
-      id: `v4-${nanoid()}`,
+      id: `v4-networks-${nanoid()}`,
       info: {},
       data: [{networks: data}],
     }, true);
@@ -77,7 +77,7 @@ module.exports = async (app, lando) => {
   // front load top level volumes
   app.v4.addVolumes = (data = {}) => {
     app.add({
-      id: `v4-${nanoid()}`,
+      id: `v4-volumes-${nanoid()}`,
       info: {},
       data: [{volumes: data}],
     }, true);
@@ -201,6 +201,9 @@ module.exports = async (app, lando) => {
 
   // remove compose cache on destroy
   app.events.on('post-destroy', 9999, async () => await require('./hooks/app-purge-compose-cache')(app, lando));
+
+  // remove compose cache directory destroy
+  app.events.on('post-destroy', 9999, async () => await require('./hooks/app-purge-compose-dir')(app, lando));
 
   // process events
   if (!_.isEmpty(_.get(app, 'config.events', []))) {
