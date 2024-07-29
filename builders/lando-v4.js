@@ -35,6 +35,11 @@ const groups = {
     weight: 500,
     user: 'root',
   },
+  'storage': {
+    description: 'Set ownership and permission of storage mounts',
+    weight: 9999,
+    user: 'root',
+  },
 };
 
 /*
@@ -71,6 +76,7 @@ module.exports = {
         'certificate-authorities': [],
       },
       'storage': [],
+      'volumes': [],
     },
   },
   router: () => ({}),
@@ -161,6 +167,41 @@ module.exports = {
       }
     }
 
+    #setupStorage() {
+      // add top level volumes
+      this.tlvolumes = Object.fromEntries(this.storage
+        .filter(volume => volume.type === 'volume')
+        .map(volume => ([volume.name, {external: true}])));
+
+      // storage volumes
+      this.volumes.push(...this.storage
+        .filter(volume => volume.type === 'volume' || volume.type === 'bind')
+        .map(data => {
+          // blow it up
+          const {destination, labels, name, owner, permissions, scope, ...volume} = data; // eslint-disable-line no-unused-vars
+          // return what we need
+          return volume;
+        }),
+      );
+
+      // set initial storage volume ownerships/perms
+      for (const volume of this.storage) {
+        // recreate and chown
+        this.addSteps({group: 'storage', instructions: `
+          RUN rm -rf ${volume.target} \
+            && mkdir -p ${volume.target} \
+            && chown -R ${volume.owner ?? this.user.name} ${volume.target}
+        `});
+
+        // optionally set perms
+        if (volume.permissions) {
+          this.addSteps({group: 'storage', instructions: `
+            chmod -R ${volume.permissions} ${volume.target}
+          `});
+        }
+      }
+    }
+
     constructor(id, options, app, lando) {
       // @TODO: overrides for this.run()?
       // @TODO: better appmount logix?
@@ -201,31 +242,33 @@ module.exports = {
       this.network = lando.config.networkBridge;
       this.project = app.project;
 
+      // upstream
+      this.user = user;
+      this.router = upstream.router;
+
       // config
       this.certs = config.certs;
       this.command = config.command;
       this.healthcheck = config.healthcheck;
       this.hostnames = uniq([...config.hostnames, `${this.id}.${this.project}.internal`]);
       this.packages = config.packages;
-      this.router = upstream.router;
       this.security = config.security;
       this.security.cas.push(caCert, path.join(path.dirname(caCert), `${caDomain}.pem`));
       this.storage = [
         ...require('../utils/normalize-storage')(config.storage, this),
         ...require('../utils/normalize-storage')(config['persistent-storage'], this),
       ];
-      this.user = user;
+      this.volumes = config.volumes;
 
       // top level stuff
       this.tlnetworks = {[this.network]: {external: true}};
-      this.tlvolumes = Object.fromEntries(this.storage
-        .filter(volume => volume.type === 'volume')
-        .map(volume => ([volume.name, {external: true}])));
 
       // boot stuff
       this.#setupBoot();
       // hook system
       this.#setupHooks();
+      // storage system
+      this.#setupStorage();
 
       // set up some core package config
       this.packages.certs = this.certs;
@@ -286,13 +329,6 @@ module.exports = {
         'dev.lando.src': app.root,
       }, config.labels);
 
-      // volumes
-      // @TODO: volumes will probably need to handle more than just storage eg mounts?
-      const volumes = this.storage.map(volume => {
-        if (volume.type === 'bind') return volume.mount;
-        return {type: 'volume', source: volume.name, target: volume.destination};
-      });
-
       // add it all 2getha
       this.addLandoServiceData({
         environment,
@@ -301,7 +337,7 @@ module.exports = {
         logging: {driver: 'json-file', options: {'max-file': '3', 'max-size': '10m'}},
         networks: {[this.network]: {aliases: this.hostnames}},
         user: this.user.name,
-        volumes,
+        volumes: this.volumes,
       });
 
       // add any overrides on top

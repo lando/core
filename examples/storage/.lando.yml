@@ -3,7 +3,6 @@ services:
   db:
     api: 4
     image: mysql:8.3
-    user: root
     command: docker-entrypoint.sh mysqld
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
@@ -17,9 +16,15 @@ services:
       - destination: /tmp/frank
         scope: global
 
+      # "image" storage basically just sets correct ownership/perms on a dir thats already in the image
+      - destination: /var/run/mysqld
+        type: image
+
       # single bind mounted volume at /var/lib/mysql
       # should create initial dir first if it doesnt exist? relative to app root?
       - ./tmp:/tmp/storage
+      - ./tmp:/tmp/storage2
+      - ./tmp:/pirog
 
 plugins:
   "@lando/core": "../.."
