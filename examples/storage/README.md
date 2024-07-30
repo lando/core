@@ -26,16 +26,17 @@ docker volume inspect landostorage-stuff
 docker volume inspect landostorage-alpine-some-cache-directory
 docker volume inspect landostorage-db-some-other-dir
 docker volume inspect landostorage-db-var-lib-mysql
-docker volume ls | wc -l | grep 6
+docker volume list --filter "label=dev.lando.storage-volume=TRUE" | wc -l
+docker volume list --filter "label=dev.lando.storage-volume=TRUE" | wc -l | grep 6
 
 # Should create storage bind mounts
 stat shared
 
 # Should have correct labels on storage volumes
-docker volume inspect everywhere | grep "dev.lando.storage-volume" | grep TRUE
-docker volume inspect everywhere | grep "dev.lando.storage-scope" | grep global
-docker volume inspect everywhere | grep "dev.lando.storage-project" || echo "$?" | grep 1
-docker volume inspect everywhere | grep "dev.lando.storage-service" || echo "$?" | grep 1
+docker volume inspect lando-everywhere | grep "dev.lando.storage-volume" | grep TRUE
+docker volume inspect lando-everywhere | grep "dev.lando.storage-scope" | grep global
+docker volume inspect lando-everywhere | grep "dev.lando.storage-project" || echo "$?" | grep 1
+docker volume inspect lando-everywhere | grep "dev.lando.storage-service" || echo "$?" | grep 1
 docker volume inspect landostorage-stuff | grep "dev.lando.storage-volume" | grep TRUE
 docker volume inspect landostorage-stuff | grep "dev.lando.storage-scope" | grep app
 docker volume inspect landostorage-stuff | grep "dev.lando.storage-project" | grep landostorage
