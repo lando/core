@@ -1,4 +1,6 @@
 name: lando-storage
+volumes:
+  my-data:
 services:
   db:
     api: 4
@@ -7,6 +9,14 @@ services:
     user: mysql
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    # below goes through addLandoServiceData which will add an extra volume "my-data" without context during appBuild
+    # volumes:
+    #   - my-data:/my-data
+    # so we want to use "overrides" which uses addServiceData and will not to additional processing and not create
+    # the extra volumes
+    overrides:
+      volumes:
+        - my-data:/my-data
     storage:
       # short form single service scoped volume at /var/lib/mysql
       - /var/lib/mysql
@@ -42,7 +52,6 @@ services:
       # remount for fun?
       - source: landostorage-db-var-lib-mysql
         target: /var/lib/mysql-backup
-
   alpine:
     api: 4
     image: alpine:3.20
@@ -70,7 +79,7 @@ services:
     image: alpine:3.20
     command: sleep infinity
     user: me
-    persistent-storage:
+    storage:
       - destination: /someplace
         owner: games
       - destination: /someplace-secret

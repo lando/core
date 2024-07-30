@@ -224,6 +224,13 @@ lando exec owners -- stat /someplace-secret/root
 lando exec owners -- stat /someplace-free | grep Access: | grep "0777"
 lando exec owners -- touch /someplace-free/me
 lando exec owners -- stat /someplace-free/me
+
+# Should allow for top level volumes to still be used with overrides.volumes
+docker volume inspect my-data || echo "$?" | grep 1
+docker volume inspect landostorage_my-data
+docker volume inspect landostorage_my-data | grep com.docker.compose.project | grep landostorage
+docker volume inspect landostorage_my-data | grep com.docker.compose.volume | grep my-data
+lando exec --user root db -- touch /my-data/thing
 ```
 
 ## Destroy tests

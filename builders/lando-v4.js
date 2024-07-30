@@ -341,7 +341,9 @@ module.exports = {
       });
 
       // add any overrides on top
-      this.addLandoServiceData(config.overrides);
+      // @NOTE: should this be addLandoServiceData?
+      // @NOTE: does it make sense to have a way to override both LandoServiceData and regular ServiceData?
+      this.addServiceData(config.overrides);
     }
 
     addHookFile(file, {id = undefined, hook = 'boot', stage = 'image', priority = '100'} = {}) {
@@ -429,7 +431,8 @@ module.exports = {
         // find any volumes we might need to create
         const cstorage = this.storage
           .filter(volume => volume.type === 'volume')
-          .filter(volume => !estorage.includes(volume.source));
+          .filter(volume => !estorage.includes(volume.source))
+          .filter(volume => volume?.labels?.['dev.lando.storage-volume'] === 'TRUE');
 
         await Promise.all(cstorage.map(async volume => {
           try {
