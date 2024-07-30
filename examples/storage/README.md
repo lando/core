@@ -26,7 +26,10 @@ docker volume inspect landostorage-stuff
 docker volume inspect landostorage-alpine-some-cache-directory
 docker volume inspect landostorage-db-some-other-dir
 docker volume inspect landostorage-db-var-lib-mysql
-docker volume list --filter "label=dev.lando.storage-volume=TRUE" | wc -l | grep 6
+docker volume inspect landostorage-owners-someplace
+docker volume inspect landostorage-owners-someplace-free
+docker volume inspect landostorage-owners-someplace-secret
+docker volume list --filter "label=dev.lando.storage-volume=TRUE" | wc -l | grep 9
 
 # Should create storage bind mounts
 stat shared
@@ -204,7 +207,6 @@ lando exec db -- stat /everywhere | grep Uid: | grep mysql
 lando exec db -- stat /var/run/mysqld | grep Uid: | grep mysql
 lando exec db -- stat /var/lib/mysql-backup | grep Uid: | grep mysql
 lando exec alpine -- stat /some/cache/directory | grep Uid: | grep me
-lando exec alpine -- stat /some/other/dir | grep Uid: | grep me
 lando exec alpine -- stat /stuff | grep Uid: | grep me
 lando exec alpine -- stat /everywhere | grep Uid: | grep me
 lando exec alpine -- stat /things | grep Uid: | grep me
