@@ -86,6 +86,7 @@ lando exec web4 -- "nope || echo hellothere" | grep hellothere
 lando exec web4 -- "echo -n hello; echo there;" | grep hellothere
 lando exec web4 -- "echo -n hello; echo there;" | grep hellothere
 lando exec web4 -- "echo \"\$MESSAGE\"" | grep hellothere
+lando exec web4 -- echo "\$MESSAGE" | grep hellothere
 lando exec web4 -- "mkdir -p /usr/share/nginx/html/test && echo hellothere > /usr/share/nginx/html/test/msg1 && cat /usr/share/nginx/html/test/msg1" | grep hellothere
 lando exec web4 -- "mkdir -p /usr/share/nginx/html/test && echo -n hello >> /usr/share/nginx/html/test/msg2 && echo there >> /usr/share/nginx/html/test/msg2 && cat /usr/share/nginx/html/test/msg2" | grep hellothere
 lando exec web4 -- "cat < /usr/share/nginx/html/test/msg2" | grep hellothere
