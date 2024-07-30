@@ -4,6 +4,7 @@ services:
     api: 4
     image: mysql:8.3
     command: docker-entrypoint.sh mysqld
+    user: mysql
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
     storage:
@@ -38,10 +39,15 @@ services:
       - destination: /var/run/mysqld
         type: image
 
+      # remount for fun?
+      - source: landostorage-db-var-lib-mysql
+        target: /var/lib/mysql-backup
+
   alpine:
     api: 4
     image: alpine:3.20
     command: sleep infinity
+    user: me
     persistent-storage:
       - /some/cache/directory
       - destination: /stuff
@@ -58,6 +64,20 @@ services:
         target: /things
       - source: lando-everywhere
         target: /universal
+
+  owners:
+    api: 4
+    image: alpine:3.20
+    command: sleep infinity
+    user: me
+    persistent-storage:
+      - destination: /someplace
+        owner: games
+      - destination: /someplace-secret
+        owner: root
+      - destination: /someplace-free
+        owner: root
+        permissions: 777
 
 plugins:
   "@lando/core": "../.."
