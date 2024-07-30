@@ -35,28 +35,29 @@ module.exports = (volumes = [], {id, project, appRoot, user, normalizeVolumes, _
         scope: volume.scope,
         target: volume.target ?? volume.destination,
         type: 'volume',
-        labels: {
-          'dev.lando.storage-scope': volume.scope,
-          'dev.lando.storage-volume': 'TRUE',
-        },
+        labels: {},
       }, volume);
 
       // cleanup props a bit
       delete volume.destination;
 
-      // handle the source if still unset, the name implies scope
+      // if the dont have a source that means we are not referencing an already created volume and need to create one
       if (!volume.source) {
+        // give it a name based on scope and target
         if (volume.scope === 'global') volume.source = `lando-${kebabCase(volume.target)}`;
         else if (volume.scope === 'project') volume.source = `${project}-${kebabCase(volume.target)}`;
         else if (volume.scope === 'app') volume.source = `${project}-${kebabCase(volume.target)}`;
         else volume.source = `${project}-${id}-${kebabCase(volume.target)}`;
-      }
 
-      // for non-global mounets lets add additional labels so we know which service is
-      // resonable for removing which volumes
-      if (volume.scope !== 'global') {
-        volume.labels['dev.lando.storage-project'] = project;
-        volume.labels['dev.lando.storage-service'] = id;
+        // we also add labels here because we only want to set labels with the FIRST service that creates the volume
+        volume.labels['dev.lando.storage-volume'] = 'TRUE';
+        volume.labels['dev.lando.storage-scope'] = volume.scope;
+
+        // for non-global mounets lets add additional labels so we know which service should remove which volumes
+        if (volume.scope !== 'global') {
+          volume.labels['dev.lando.storage-project'] = project;
+          volume.labels['dev.lando.storage-service'] = id;
+        }
       }
     }
 
