@@ -50,8 +50,8 @@ lando exec thesekeys -- cat /etc/ssh/ssh_config | grep "/user/.ssh/mykey3" || ec
 ```bash
 # Remove generated test keys and files
 rm -f .lando.local.yml
-lando exec cli -u root -- "rm -f /lando/keys/badbadkey"
-lando exec cli -u root -- "rm -f /lando/keys/badbadkey.pub"
+lando exec cli -u root -- rm -f /lando/keys/badbadkey
+lando exec cli -u root -- rm -f /lando/keys/badbadkey.pub
 
 # Should destroy successfully
 lando destroy -y
