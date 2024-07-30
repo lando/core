@@ -93,7 +93,9 @@ module.exports = (lando, config = lando.appConfig) => ({
     // if command is a single thing then lets string argv that
     // this is useful to handle wrapping more complex commands a la "cmd && cmd"
     if (Array.isArray(options.command) && options.command.length === 1) {
-      options.command = require('string-argv')(options.command[0]);
+      if (require('string-argv')(options.command[0]).length > 1) {
+        options.command = ['sh', '-c', options.command];
+      }
     }
 
     // if this service has /etc/lando/exec then prepend
