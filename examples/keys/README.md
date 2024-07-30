@@ -33,16 +33,16 @@ lando exec l337-cli -- env | grep LANDO_LOAD_KEYS | grep true
 # Should not load user keys if keys is set to false in a Landofile
 cp -f .lando.local.yml.nokeys .lando.local.yml
 lando rebuild -y
-lando exec cli -- "env" | grep LANDO_LOAD_KEYS | grep false
-lando exec cli -- "/etc/ssh/ssh_config" | grep "/user/.ssh" || echo "$?" | grep 1
+lando exec cli -- env | grep LANDO_LOAD_KEYS | grep false
+lando exec cli -- cat /etc/ssh/ssh_config | grep "/user/.ssh" || echo "$?" | grep 1
 
 # Should load only user keys specified by user in a Landofile
 cp -f .lando.local.yml.thesekeys .lando.local.yml
 lando rebuild -y
-lando exec thesekeys -- "env" | grep LANDO_LOAD_KEYS | grep "mykey mykey2"
-lando exec thesekeys -- "cat /etc/ssh/ssh_config" | grep "/user/.ssh/mykey"
-lando exec thesekeys -- "cat /etc/ssh/ssh_config" | grep "/user/.ssh/mykey2"
-lando exec thesekeys -- "cat /etc/ssh/ssh_config" | grep "/user/.ssh/mykey3" || echo "$?" | grep 1
+lando exec thesekeys -- env | grep LANDO_LOAD_KEYS | grep "mykey mykey2"
+lando exec thesekeys -- cat /etc/ssh/ssh_config | grep "/user/.ssh/mykey"
+lando exec thesekeys -- cat /etc/ssh/ssh_config | grep "/user/.ssh/mykey2"
+lando exec thesekeys -- cat /etc/ssh/ssh_config | grep "/user/.ssh/mykey3" || echo "$?" | grep 1
 ```
 
 ## Destroy tests
