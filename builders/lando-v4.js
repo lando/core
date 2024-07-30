@@ -196,7 +196,7 @@ module.exports = {
         // optionally set perms
         if (volume.permissions) {
           this.addSteps({group: 'storage', instructions: `
-            chmod -R ${volume.permissions} ${volume.target}
+            RUN chmod -R ${volume.permissions} ${volume.target}
           `});
         }
       }
