@@ -38,9 +38,6 @@ module.exports = (lando, app) => ({
       return app.init().then(() => {
         // get the service api if possible
         const api = _.get(_.find(app.info, {service}), 'api', 3);
-        // and whether it can exec
-        const canExec = api === 4 && _.get(_.find(app?.v4?.services, {id: service}), 'canExec', false);
-
         // set additional opt defaults if possible
         const opts = [undefined, api === 4 ? undefined : '/app'];
         // mix any v4 service info on top of app.config.services
@@ -57,13 +54,6 @@ module.exports = (lando, app) => ({
           if (config.appMount) opts[1] = config.appMount;
           // fallback to working dir if available
           if (!config.appMount && _.has(config, 'config.working_dir')) opts[0] = config.config.working_dir;
-        }
-
-        // if this is an api 4 service that canExec then we have special handling
-        if (api === 4 && canExec) {
-          if (command === bashme) command = 'bash';
-          if (typeof command === 'string') command = require('string-argv')(command);
-          command = ['/etc/lando/exec.sh', ...command];
         }
 
         // continue
