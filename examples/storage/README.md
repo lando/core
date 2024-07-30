@@ -109,12 +109,14 @@ lando exec alpine -- ls -lsa /universal | grep test3
 lando exec alpine -- ls -lsa /universal | grep test4
 lando exec alpine -- ls -lsa /universal | grep test5
 lando exec alpine -- ls -lsa /universal | wc -l | grep 8
+cd app2
+lando destroy -y
 
 # Should share storage bind mounts across all services to which they are mounted
-lando exec db -- touch /shared/test3
-lando exec db -- touch /shared-again/test4
-lando exec alpine -- touch /shared/test1
-lando exec alpine -- touch /shared-again/test2
+lando exec db -- touch /shared/test1
+lando exec db -- touch /shared-again/test2
+lando exec alpine -- touch /shared/test3
+lando exec alpine -- touch /shared-again/test4
 cd app2
 lando start
 lando exec alpine -- touch /shared/test5
@@ -149,35 +151,77 @@ lando exec alpine -- ls -lsa /shared-again | grep test3
 lando exec alpine -- ls -lsa /shared-again | grep test4
 lando exec alpine -- ls -lsa /shared-again | grep test5
 lando exec alpine -- ls -lsa /shared-again | wc -l | grep 8
+cd app2
+lando destroy -y
 
 # Should allow source/target syntax to mount storage into different places
-skip
+lando exec db -- stat /shared-again/test1
+lando exec db -- stat /var/lib/mysql-backup/ibdata1
+lando exec alpine -- stat /shared-again/test1
+lando exec alpine -- stat /things/test1
+lando exec alpine -- stat /universal/test1
 
 # Should persist storage across rebuilds
-# lando exec db -- mysql -u root -e "CREATE DATABASE vibes;"
-skip
+lando exec db -- mysql -u root -e "CREATE DATABASE vibes;"
+lando exec db -- mysql -u root -e "SHOW DATABASES;" | grep vibes
+lando rebuild -y
+lando exec db -- mysql -u root -e "SHOW DATABASES;" | grep vibes
+lando exec db -- stat /shared-again/test1
+lando exec alpine -- stat /shared-again/test1
+lando exec alpine -- stat /things/test1
+lando exec alpine -- stat /universal/test1
+
+# Should not persist non-global storage volumes across rebuilds
+lando destroy -y
+docker volume inspect lando-everywhere
+docker volume inspect landostorage-stuff || echo "$?" | grep 1
+docker volume inspect landostorage-alpine-some-cache-directory || echo "$?" | grep 1
+docker volume inspect landostorage-db-some-other-dir || echo "$?" | grep 1
+docker volume inspect landostorage-db-var-lib-mysql || echo "$?" | grep 1
+docker volume list --filter "label=dev.lando.storage-volume=TRUE" | wc -l | grep 2
+lando start
+lando exec db -- mysql -u root -e "SHOW DATABASES;" | grep vibes || echo "$?" | grep 1
+lando exec alpine -- stat /stuff/test1 || echo "$?" | grep 1
+lando exec alpine -- stat /things/test1 || echo "$?" | grep 1
 
 # Should persist global storage across destroys
-# lando exec db -- mysql -u root -e "CREATE DATABASE vibes;"
-skip
+lando destroy -y
+docker volume inspect lando-everywhere
+docker volume inspect landostorage-stuff || echo "$?" | grep 1
+docker volume inspect landostorage-alpine-some-cache-directory || echo "$?" | grep 1
+docker volume inspect landostorage-db-some-other-dir || echo "$?" | grep 1
+docker volume inspect landostorage-db-var-lib-mysql || echo "$?" | grep 1
+docker volume list --filter "label=dev.lando.storage-volume=TRUE" | wc -l | grep 2
+lando start
+lando exec alpine -- stat /universal/test1
+lando exec alpine -- stat /everywhere/test1
 
-# Should create a storage volume with global scope if specified
-skip
-
-# Should create host bind mounted storage if specified
-skip
-
-# Should remove app scope storage volumes on destroy
-skip
-
-# Should set volume ownership to process owner by default
-skip
+# Should set initial volume ownership to process owner by default
+lando exec db -- stat /var/lib/mysql | grep Uid: | grep mysql
+lando exec db -- stat /some/other/dir | grep Uid: | grep mysql
+lando exec db -- stat /stuff | grep Uid: | grep mysql
+lando exec db -- stat /everywhere | grep Uid: | grep mysql
+lando exec db -- stat /var/run/mysqld | grep Uid: | grep mysql
+lando exec db -- stat /var/lib/mysql-backup | grep Uid: | grep mysql
+lando exec alpine -- stat /some/cache/directory | grep Uid: | grep me
+lando exec alpine -- stat /some/other/dir | grep Uid: | grep me
+lando exec alpine -- stat /stuff | grep Uid: | grep me
+lando exec alpine -- stat /everywhere | grep Uid: | grep me
+lando exec alpine -- stat /things | grep Uid: | grep me
+lando exec alpine -- stat /universal | grep Uid: | grep me
 
 # Should allow volume ownership to be specified
-skip
+lando exec owners -- stat /someplace | grep Uid: | grep games
+lando exec owners -- stat /someplace-secret | grep Uid: | grep root
+lando exec owners -- stat /someplace-free | grep Uid: | grep root
+lando exec owners -- touch /someplace-secret/me || echo "$?" | grep 1
+lando exec --user root owners -- touch /someplace-secret/root
+lando exec owners -- stat /someplace-secret/root
 
 # Should allow volume permissions to be specified
-skip
+lando exec owners -- stat /someplace-free | grep Access: | grep "0777"
+lando exec owners -- touch /someplace-free/me
+lando exec owners -- stat /someplace-free/me
 ```
 
 ## Destroy tests
