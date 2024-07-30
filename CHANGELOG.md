@@ -1,5 +1,16 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+### Bug Fixes
+
+* Fixed bug causing new `lando exec` command to incorrectly shell wrap
+* Fixed bug causing `compose` directories to bloat indefinitely
+* Fixed bug causing `stop` to not `kill` when it can just `kill`
+
+## Internal
+
+* Improved `run` volume mounting
+* Improved `volume` type detection
+
 ## v3.22.0-beta.1 - [July 25, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.1)
 
 ### New Features
