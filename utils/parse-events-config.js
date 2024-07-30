@@ -55,9 +55,9 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
     ?? false;
 
   // reset the cmd based on exec situation
+  // @TODO: replace this with better command scripting stuff when command scripting is done?
   if (canExec) {
-    cmd = _.isArray(command) ? command : require('string-argv')(command);
-    cmd = ['/etc/lando/exec.sh', ...cmd];
+    cmd = ['/etc/lando/exec.sh', 'sh', '-c', _.isArray(command) ? command.join(' ') : command];
   } else {
     cmd = ['/bin/sh', '-c', _.isArray(command) ? command.join(' ') : command];
   }
