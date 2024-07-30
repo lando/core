@@ -171,7 +171,7 @@ module.exports = {
       // add top level volumes
       this.tlvolumes = Object.fromEntries(this.storage
         .filter(volume => volume.type === 'volume')
-        .map(volume => ([volume.name, {external: true}])));
+        .map(volume => ([volume.source, {external: true}])));
 
       // storage volumes
       this.volumes.push(...this.storage
@@ -423,10 +423,18 @@ module.exports = {
       // @TODO: should this be in try block below?
       if (this.storage.filter(volume => volume.type === 'volume').length > 0) {
         const bengine = this.getBengine();
-        await Promise.all(this.storage.filter(volume => volume.type === 'volume').map(async volume => {
+        // get existing volumes
+        const estorage = (await this.getStorageVolumes()).map(volume => volume.source);
+
+        // find any volumes we might need to create
+        const cstorage = this.storage
+          .filter(volume => volume.type === 'volume')
+          .filter(volume => !estorage.includes(volume.source));
+
+        await Promise.all(cstorage.map(async volume => {
           try {
-            await bengine.createVolume({Name: volume.name, Labels: volume.labels});
-            this.debug('created %o storage volume %o with metadata %o', volume.scope, volume.name, volume.labels);
+            await bengine.createVolume({Name: volume.source, Labels: volume.labels});
+            this.debug('created %o storage volume %o with metadata %o', volume.scope, volume.source, volume.labels);
           } catch (error) {
             throw error;
           }
@@ -496,26 +504,18 @@ module.exports = {
       // remove storage if needed
       if (this.storage.filter(volume => volume.type === 'volume').length > 0) {
         const bengine = this.getBengine();
-
-        // find the right volumes to trash
-        const {Volumes} = await bengine.listVolumes();
-        const volumes = Volumes
-          .filter(volume => volume?.Labels?.['dev.lando.storage-volume'] === 'TRUE')
-          .map(volume => ({
-            name: volume.Name,
-            scope: volume?.Labels?.['dev.lando.storage-scope'] ?? 'service',
-            project: volume?.Labels?.['dev.lando.storage-project'],
-            service: volume?.Labels?.['dev.lando.storage-service'],
-          }))
+        // we want to have each service remove the mounts it created
+        const volumes = (await this.getStorageVolumes())
           .filter(volume => volume.project === this.project)
-          .filter(volume => volume.scope === 'service' || volume.scope === 'app')
-          .map(volume => bengine.getVolume(volume.name));
+          .filter(volume => volume.service === this.id)
+          .filter(volume => volume.scope !== 'global')
+          .map(volume => bengine.getVolume(volume.id));
 
         // and then trash them
         await Promise.all(volumes.map(async volume => {
           try {
             await volume.remove({force: true});
-            this.debug('removed %o volume %o', this.project, volume.name);
+            this.debug('removed %o volume %o', this.project, volume.id);
           } catch (error) {
             throw error;
           }
@@ -529,6 +529,24 @@ module.exports = {
         debug: this.debug,
         orchestrator: LandoServiceV4.orchestrator,
       });
+    }
+
+    async getStorageVolumes() {
+      const bengine = this.getBengine();
+
+      // get the right volumes
+      const {Volumes} = await bengine.listVolumes();
+
+      // return
+      return Volumes
+        .filter(volume => volume?.Labels?.['dev.lando.storage-volume'] === 'TRUE')
+        .map(volume => ({
+          id: volume.Name,
+          project: volume?.Labels?.['dev.lando.storage-project'],
+          scope: volume?.Labels?.['dev.lando.storage-scope'] ?? 'service',
+          service: volume?.Labels?.['dev.lando.storage-service'],
+          source: volume.Name,
+        }));
     }
 
     async installPackages() {

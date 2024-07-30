@@ -43,6 +43,7 @@ jobs:
           - list
           - logs
           - long-name
+          # - mounts
           - networking
           - no-services
           - orchestrator
@@ -56,6 +57,7 @@ jobs:
           - security
           - sql-helpers
           - ssh
+          - storage
           - tooling
           - update
           - version

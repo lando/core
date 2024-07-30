@@ -25,6 +25,7 @@ module.exports = ({
   // construct a better message
   // @TODO: does this make sense?
   short = short ||
+    (error && error?.json?.message) ||
     (error && error.reason) ||
     (error && error.body && error.body.error);
   const message = [stdout, stderr].filter(Boolean).join('\n') || all || error.message;
