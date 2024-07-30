@@ -24,38 +24,40 @@ module.exports = (volumes = [], {id, project, appRoot, user, normalizeVolumes, _
       if (volume.dest && !volume.destination) volume.destination = volume.dest;
       // remove dest if we have destination for cleanliness purposes
       if (volume.destination && volume.dest) delete volume.dest;
-      // addume the volume scope is service if unset
+      // add the volume scope is scope if unset
       if (!volume.scope) volume.scope = 'service';
 
       // merge basics
       volume = merge({}, {
-        scope: volume.scope,
-        type: 'volume',
         owner: volume.user ?? user.name ?? 'root',
         permissions: volume.permissions ?? volume.perms,
+        source: volume.source,
+        scope: volume.scope,
+        target: volume.target ?? volume.destination,
+        type: 'volume',
         labels: {
           'dev.lando.storage-scope': volume.scope,
           'dev.lando.storage-volume': 'TRUE',
         },
       }, volume);
 
-      // finally handle the name if still unset, the name implies scope
-      if (!volume.name && volume.scope === 'global') {
-        volume.name = kebabCase(volume.destination);
-      // app
-      } else if (!volume.name && volume.scope === 'app') {
-        volume.name = `${project}-${kebabCase(volume.destination)}`;
-        volume.labels['dev.lando.storage-project'] = project;
-      // service
-      } else {
-        volume.name = `${project}-${id}-${kebabCase(volume.destination)}`;
+      // cleanup props a bit
+      delete volume.destination;
+
+      // handle the source if still unset, the name implies scope
+      if (!volume.source) {
+        if (volume.scope === 'global') volume.source = `lando-${kebabCase(volume.target)}`;
+        else if (volume.scope === 'project') volume.source = `${project}-${kebabCase(volume.target)}`;
+        else if (volume.scope === 'app') volume.source = `${project}-${kebabCase(volume.target)}`;
+        else volume.source = `${project}-${id}-${kebabCase(volume.target)}`;
+      }
+
+      // for non-global mounets lets add additional labels so we know which service is
+      // resonable for removing which volumes
+      if (volume.scope !== 'global') {
         volume.labels['dev.lando.storage-project'] = project;
         volume.labels['dev.lando.storage-service'] = id;
       }
-
-      // map back to target/source
-      volume.source = volume.name;
-      volume.target = volume.destination;
     }
 
     return volume;

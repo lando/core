@@ -7,24 +7,57 @@ services:
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
     storage:
-      # single service scoped volume at /var/lib/mysql
+      # short form single service scoped volume at /var/lib/mysql
       - /var/lib/mysql
+      # long form of the above
+      - destination: /some/other/dir
+        scope: service
+        type: volume
 
-      # single app scoped volume at /var/lib/mysql
-      - destination: /tmp/bob
+      # differently scoped volume mount storage
+      # app|project is available in other services in this app|project
+      # global is available to ANY lando project
+      - destination: /stuff
         scope: app
-      - destination: /tmp/frank
+      - destination: /everywhere
         scope: global
 
+      # storage via a bind mount
+      # short form
+      - ./shared:/shared
+      # long form
+      - source: ./shared
+        target: /shared-again
+        type: bind
+
       # "image" storage basically just sets correct ownership/perms on a dir thats already in the image
+      # you actually can use any type that isnt "bind" or "volume" and this will work the same eg "image"
+      # is just a convention
+      # we need to reset the perms here to run the image non-root since /var/run/mysqld is where the socket
+      # is and it is owned by root
       - destination: /var/run/mysqld
         type: image
 
-      # single bind mounted volume at /var/lib/mysql
-      # should create initial dir first if it doesnt exist? relative to app root?
-      - ./tmp:/tmp/storage
-      - ./tmp:/tmp/storage2
-      - ./tmp:/pirog
+  alpine:
+    api: 4
+    image: alpine:3.20
+    command: sleep infinity
+    persistent-storage:
+      - /some/cache/directory
+      - destination: /stuff
+        scope: project
+      - destination: /everywhere
+        scope: global
+      - ./shared:/shared
+      - source: ./shared
+        target: /shared-again
+        type: bind
+
+      # or if you are clever and know the storage volume names you can remount them elsewhere
+      - source: landostorage-stuff
+        target: /things
+      - source: lando-everywhere
+        target: /universal
 
 plugins:
   "@lando/core": "../.."
