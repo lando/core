@@ -29,8 +29,9 @@ module.exports = async (app, lando) => {
         try {
           await service.destroy();
         } catch (error) {
+          error = require('../utils/make-error')({error});
+          error.context = {id: container};
           ctx.errors.push(error);
-          app.addMessage(require('../messages/image-destroy-v4-service-error')(error), error, true);
           throw error;
         }
       },
