@@ -26,7 +26,6 @@ docker volume inspect landostorage-stuff
 docker volume inspect landostorage-alpine-some-cache-directory
 docker volume inspect landostorage-db-some-other-dir
 docker volume inspect landostorage-db-var-lib-mysql
-docker volume list --filter "label=dev.lando.storage-volume=TRUE" | wc -l
 docker volume list --filter "label=dev.lando.storage-volume=TRUE" | wc -l | grep 6
 
 # Should create storage bind mounts
@@ -67,8 +66,8 @@ lando exec alpine -- ls -lsa /stuff | grep test2
 lando exec alpine -- ls -lsa /stuff | grep test3
 lando exec alpine -- ls -lsa /stuff | wc -l | grep 6
 lando exec alpine -- ls -lsa /things | grep test1
+lando exec alpine -- ls -lsa /things | grep test2
 lando exec alpine -- ls -lsa /things | grep test3
-lando exec alpine -- ls -lsa /things | grep test5
 lando exec alpine -- ls -lsa /things | wc -l | grep 6
 
 # Should share global scoped storage volumes across all lando services
@@ -92,30 +91,30 @@ lando exec alpine -- ls -lsa /universal | grep test4
 lando exec alpine -- ls -lsa /universal | grep test5
 lando exec alpine -- ls -lsa /universal | wc -l | grep 8
 cd ..
-lando exec alpine -- ls -lsa /everywhere | grep test1
-lando exec alpine -- ls -lsa /everywhere | grep test2
-lando exec alpine -- ls -lsa /everywhere | grep test3
-lando exec alpine -- ls -lsa /everywhere | grep test4
-lando exec alpine -- ls -lsa /everywhere | grep test5
-lando exec alpine -- ls -lsa /everywhere | wc -l | grep 8
 lando exec db -- ls -lsa /everywhere | grep test1
 lando exec db -- ls -lsa /everywhere | grep test2
 lando exec db -- ls -lsa /everywhere | grep test3
 lando exec db -- ls -lsa /everywhere | grep test4
 lando exec db -- ls -lsa /everywhere | grep test5
 lando exec db -- ls -lsa /everywhere | wc -l | grep 8
-lando exec db -- ls -lsa /universal | grep test1
-lando exec db -- ls -lsa /universal | grep test2
-lando exec db -- ls -lsa /universal | grep test3
-lando exec db -- ls -lsa /universal | grep test4
-lando exec db -- ls -lsa /universal | grep test5
-lando exec db -- ls -lsa /universal | wc -l | grep 8
+lando exec alpine -- ls -lsa /everywhere | grep test1
+lando exec alpine -- ls -lsa /everywhere | grep test2
+lando exec alpine -- ls -lsa /everywhere | grep test3
+lando exec alpine -- ls -lsa /everywhere | grep test4
+lando exec alpine -- ls -lsa /everywhere | grep test5
+lando exec alpine -- ls -lsa /everywhere | wc -l | grep 8
+lando exec alpine -- ls -lsa /universal | grep test1
+lando exec alpine -- ls -lsa /universal | grep test2
+lando exec alpine -- ls -lsa /universal | grep test3
+lando exec alpine -- ls -lsa /universal | grep test4
+lando exec alpine -- ls -lsa /universal | grep test5
+lando exec alpine -- ls -lsa /universal | wc -l | grep 8
 
 # Should share storage bind mounts across all services to which they are mounted
-lando exec alpine -- touch /shared/test1
-lando exec alpine -- touch /shared-again/test2
 lando exec db -- touch /shared/test3
 lando exec db -- touch /shared-again/test4
+lando exec alpine -- touch /shared/test1
+lando exec alpine -- touch /shared-again/test2
 cd app2
 lando start
 lando exec alpine -- touch /shared/test5
@@ -126,18 +125,6 @@ lando exec alpine -- ls -lsa /shared | grep test4
 lando exec alpine -- ls -lsa /shared | grep test5
 lando exec alpine -- ls -lsa /shared | wc -l | grep 8
 cd ..
-lando exec alpine -- ls -lsa /shared | grep test1
-lando exec alpine -- ls -lsa /shared | grep test2
-lando exec alpine -- ls -lsa /shared | grep test3
-lando exec alpine -- ls -lsa /shared | grep test4
-lando exec alpine -- ls -lsa /shared | grep test5
-lando exec alpine -- ls -lsa /shared | wc -l | grep 8
-lando exec alpine -- ls -lsa /shared-again | grep test1
-lando exec alpine -- ls -lsa /shared-again | grep test2
-lando exec alpine -- ls -lsa /shared-again | grep test3
-lando exec alpine -- ls -lsa /shared-again | grep test4
-lando exec alpine -- ls -lsa /shared-again | grep test5
-lando exec alpine -- ls -lsa /shared-again | wc -l | grep 8
 lando exec db -- ls -lsa /shared | grep test1
 lando exec db -- ls -lsa /shared | grep test2
 lando exec db -- ls -lsa /shared | grep test3
@@ -150,6 +137,18 @@ lando exec db -- ls -lsa /shared-again | grep test3
 lando exec db -- ls -lsa /shared-again | grep test4
 lando exec db -- ls -lsa /shared-again | grep test5
 lando exec db -- ls -lsa /shared-again | wc -l | grep 8
+lando exec alpine -- ls -lsa /shared | grep test1
+lando exec alpine -- ls -lsa /shared | grep test2
+lando exec alpine -- ls -lsa /shared | grep test3
+lando exec alpine -- ls -lsa /shared | grep test4
+lando exec alpine -- ls -lsa /shared | grep test5
+lando exec alpine -- ls -lsa /shared | wc -l | grep 8
+lando exec alpine -- ls -lsa /shared-again | grep test1
+lando exec alpine -- ls -lsa /shared-again | grep test2
+lando exec alpine -- ls -lsa /shared-again | grep test3
+lando exec alpine -- ls -lsa /shared-again | grep test4
+lando exec alpine -- ls -lsa /shared-again | grep test5
+lando exec alpine -- ls -lsa /shared-again | wc -l | grep 8
 
 # Should allow source/target syntax to mount storage into different places
 skip
