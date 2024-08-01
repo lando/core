@@ -455,8 +455,10 @@ module.exports = {
         // run user build scripts if we have them
         if (this.buildScript && typeof this.buildScript === 'string') {
           this.addHookFile(this.buildScript, {stage: 'app', hook: 'user'});
-          await this.runHook(['app', 'user']);
         };
+
+        // Run user app build.
+        await this.runHook(['app', 'user']);
 
         // state
         this.info = {state: {APP: 'BUILT'}};
