@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Changed user build script to always run (for now)
+
 ## v3.22.0-beta.2 - [July 30, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.2)
 
 ### Bug Fixes
