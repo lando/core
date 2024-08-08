@@ -9,7 +9,7 @@ module.exports = async (lando, options) => {
   const {caCert} = lando.config;
 
   // skip the installation of the CA if set
-  if (options.skipInstallCA) return;
+  if (options.skipInstallCa) return;
 
   // install ca
   options.tasks.push({

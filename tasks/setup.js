@@ -92,7 +92,7 @@ module.exports = lando => {
     },
     'skip-install-ca': {
       describe: 'Disables the installation of the Lando Certificate Authority (CA)',
-      default: defaults.skipInstallCA,
+      default: defaults.skipInstallCa,
       boolean: true,
     },
     'skip-networking': {
