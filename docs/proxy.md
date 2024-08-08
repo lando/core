@@ -245,7 +245,7 @@ proxyCommand:
   - "--entrypoints.https.address=:443"
   - "--entrypoints.http.address=:80"
   - "--providers.docker.exposedbydefault=false"
-  - "--providers.file.directory=/lando/proxy/config"
+  - "--providers.file.directory=/proxy_config"
   - "--providers.file.watch=true"
 # This is an object you can use to configure dynamic traefik 2 config
 # NOTE: that it must be in YAML format
