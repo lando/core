@@ -14,7 +14,7 @@ const defaultConfig = {
     '/entrypoint.sh',
     '--log.level=DEBUG',
     '--api.insecure=true',
-    '--api.dashboard=false',
+    '--api.dashboard=true',
     '--providers.docker=true',
     '--entrypoints.https.address=:443',
     '--entrypoints.http.address=:80',

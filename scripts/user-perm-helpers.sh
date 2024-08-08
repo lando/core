@@ -10,17 +10,10 @@ LANDO_MODULE="userperms"
 add_user() {
   local USER=$1
   local GROUP=$2
-  local UID=$3
-  local GID=$4
-  local DISTRO=$5
-  local EXTRAS="$6"
-  if [ "$DISTRO" = "alpine" ]; then
-    if ! groups | grep "$GROUP" > /dev/null 2>&1; then addgroup -g "$GID" "$GROUP" 2>/dev/null; fi
-    if ! id -u "$GROUP" > /dev/null 2>&1; then adduser -H -D -G "$GROUP" -u "$UID" "$USER" "$GROUP" 2>/dev/null; fi
-  else
-    if ! groups | grep "$GROUP" > /dev/null 2>&1; then groupadd --force --gid "$GID" "$GROUP" 2>/dev/null; fi
-    if ! id -u "$GROUP" > /dev/null 2>&1; then useradd --gid "$GID" --uid "$UID" $EXTRAS "$USER" 2>/dev/null; fi
-  fi;
+  local WEBROOT_UID=$3
+  local WEBROOT_GID=$4
+  if ! getent group | cut -d: -f1 | grep "$GROUP" > /dev/null 2>&1; then addgroup -g "$WEBROOT_GID" "$GROUP" 2>/dev/null; fi
+  if ! id -u "$USER" > /dev/null 2>&1; then adduser -H -D -G "$GROUP" -u "$WEBROOT_UID" "$USER" "$GROUP" 2>/dev/null; fi
 }
 
 # Verify user
@@ -29,12 +22,12 @@ verify_user() {
   local GROUP=$2
   local DISTRO=$3
   id -u "$USER" > /dev/null 2>&1
-  groups | grep "$GROUP" > /dev/null 2>&1
-  if [ "$DISTRO" = "alpine" ]; then
+  groups "$USER" | grep "$GROUP" > /dev/null 2>&1
+  if command -v chsh > /dev/null 2>&1 ; then
+    chsh -s /bin/bash $USER || true
+  else
     true
     # is there a chsh we can use? do we need to?
-  else
-    chsh -s /bin/bash $USER || true
   fi;
 }
 
@@ -97,7 +90,6 @@ perm_sweep() {
   nohup find /user/.ssh -not -user $USER -execdir chown $USER:$GROUP {} \+ > /tmp/perms.out 2> /tmp/perms.err &
   nohup find /var/www -not -user $USER -execdir chown $USER:$GROUP {} \+ > /tmp/perms.out 2> /tmp/perms.err &
   nohup find /usr/local/bin -not -user $USER -execdir chown $USER:$GROUP {} \+ > /tmp/perms.out 2> /tmp/perms.err &
-  nohup chmod -R 755 /var/www >/dev/null 2>&1 &
 
   # Lets also make some /usr/locals chowned
   nohup find /usr/local/lib -not -user $USER -execdir chown $USER:$GROUP {} \+ > /tmp/perms.out 2> /tmp/perms.err &

@@ -35,10 +35,15 @@ module.exports = async (app, lando) => {
 
   // get v3 buildable services
   const buildServices = _.get(app, 'opts.services', app.services);
+  const dockerComposeServices = _(app.info)
+    .filter(info => info.type === 'docker-compose')
+    .map(info => info.service)
+    .value();
   const buildV3Services = _(app.parsedV3Services)
     .filter(service => _.includes(buildServices, service.name))
     .map(service => service.name)
-    .value();
+    .value()
+    .concat(dockerComposeServices);
   app.log.debug('going to build v3 services if applicable', buildV3Services);
 
   // Make sure containers for this app exist; if they don't and we have build locks, we need to kill them

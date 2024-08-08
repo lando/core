@@ -85,8 +85,8 @@ lando env | grep SERVICE | grep web
 lando whoami | grep nginx
 
 # should set http/https metadata as needed
-docker inspect l337_web_1 | grep dev.lando.http-ports | grep "8888"
-docker inspect l337_web_1 | grep dev.lando.https-ports | grep '"",'
+docker inspect l337-web-1 | grep dev.lando.http-ports | grep "8888"
+docker inspect l337-web-1 | grep dev.lando.https-ports | grep '"",'
 
 # should automatically set appMount if appRoot is volume mounted
 lando pwd | grep /site
