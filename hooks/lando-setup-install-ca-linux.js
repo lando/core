@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+const os = require('os');
 
 module.exports = async (lando, options) => {
   const debug = require('../utils/debug-shim')(lando.log);
