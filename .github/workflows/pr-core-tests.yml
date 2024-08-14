@@ -24,6 +24,7 @@ jobs:
           - certs
           - config
           - debug
+          - destroy
           - envfile
           # - environment
           - events
