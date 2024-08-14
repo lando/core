@@ -111,7 +111,7 @@ services:
 
 #### Mount with a different flag
 
-Set `app_mount` to any valid Docker bind mount [third field](https://docs.docker.com/storage/bind-mounts/).
+Set `app_mount` to any valid Docker bind mount [third field](https://docs.docker.com/engine/storage/bind-mounts/).
 
 **Landofile**
 ```yaml
