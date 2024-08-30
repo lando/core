@@ -13,7 +13,7 @@ Generally you will want to use a more specific service like `type: php` but this
 * Using Docker Compose config from other projects
 * Need a service not currently provided by Lando itself
 
-It implements a super-set of the [Docker Compose Version 3 Spec](https://docs.docker.com/compose/compose-file/) and _usually_ requires some [slight tweaks](#caveats) of existing Docker Compose configuration to work correctly.
+It implements a super-set of the [Docker Compose Version 3 Spec](https://docs.docker.com/reference/compose-file/) and _usually_ requires some [slight tweaks](#caveats) of existing Docker Compose configuration to work correctly.
 
 Here is a birds-eye view of all its options:
 
@@ -51,7 +51,7 @@ services:
 
 ## Services, Networks, Volumes
 
-These three: `services,` `networks` and `volumes` map directly to the [Docker Compose Version 3 Spec](https://docs.docker.com/compose/compose-file/) which means that the below is a valid Landofile:
+These three: `services,` `networks` and `volumes` map directly to the [Docker Compose Version 3 Spec](https://docs.docker.com/reference/compose-file/) which means that the below is a valid Landofile:
 
 **Landofile**
 ```yaml
@@ -111,7 +111,7 @@ services:
 
 #### Mount with a different flag
 
-Set `app_mount` to any valid Docker bind mount [third field](https://docs.docker.com/storage/bind-mounts/).
+Set `app_mount` to any valid Docker bind mount [third field](https://docs.docker.com/engine/storage/bind-mounts/).
 
 **Landofile**
 ```yaml
@@ -351,7 +351,7 @@ Since [Lando 3.14.0](https://github.com/lando/lando/releases/tag/v3.14.0) servic
 
 ## Overrides
 
-Lando services are just an abstraction layer on top of the [Docker compose v3 file format](https://docs.docker.com/compose/compose-file/). What this means is that behind the scenes your Landofile is being translated into a *SHLOAD* of *SUPERNASTY* looking `docker-compose` files which are then being used to power your app.
+Lando services are just an abstraction layer on top of the [Docker compose v3 file format](https://docs.docker.com/reference/compose-file/). What this means is that behind the scenes your Landofile is being translated into a *SHLOAD* of *SUPERNASTY* looking `docker-compose` files which are then being used to power your app.
 
 We give you access to the Docker Compose layer with the `overrides` key.
 
