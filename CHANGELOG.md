@@ -2,6 +2,8 @@
 
 ## Bug Fixes
 
+* Fixed `os` not defined during `lando setup` on `linux`
+* Fixed inconsistent usage of `skipInstallCa`
 * Renamed `lash` and `landorc` to `lash.sh` and `landorc.sh` for more consistent naming and packaging
 
 ## v3.22.0-beta.3 - [August 1, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.3)
