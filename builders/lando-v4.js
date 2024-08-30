@@ -136,12 +136,12 @@ module.exports = {
     }
 
     #setupBoot() {
-      this.addContext(`${path.join(__dirname, '..', 'scripts', 'lash')}:/bin/lash`);
+      this.addContext(`${path.join(__dirname, '..', 'scripts', 'lash.sh')}:/bin/lash`);
       this.addLSF(path.join(__dirname, '..', 'scripts', 'boot.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'exec.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'run-hooks.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'start.sh'));
-      this.addLSF(path.join(__dirname, '..', 'scripts', 'landorc'));
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'landorc.sh'), 'landorc');
       this.addLSF(path.join(__dirname, '..', 'scripts', 'utils.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'environment.sh'), 'environment');
       this.addLSF(path.join(__dirname, '..', 'scripts', 'install-updates.sh'));
