@@ -75,14 +75,17 @@ module.exports = options => {
   if (typeof config.orchestratorBin === 'string'
     && path.isAbsolute(config.orchestratorBin)
     && fs.existsSync(config.orchestratorBin)) {
-    delete config.orchestratorVersion;
+
+    // get the version
+    config.orchestratorVersion = require('./get-compose-version')(config.orchestratorBin);
+    
   // Otherwise remove orchestratorBin and rely on orchestratorVersion alone
   } else {
     delete config.orchestratorBin;
   }
 
   // if orchestrator is not a valid version then remove it and try to use a system provided orchestrator
-  // @note: if orchestratorBin was valid, orchestratorVersion will not exist
+  // @note: if orchestratorBin was valid, orchestratorVersion should be valid
   if (!config.orchestratorBin && require('semver/functions/valid')(config.orchestratorVersion) === null) {
     config.orchestratorBin = require('./get-compose-x')(config);
     delete config.orchestratorVersion;
