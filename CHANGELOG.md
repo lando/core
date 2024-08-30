@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.22.0-beta.4 - [August 30, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.4)
+
 ## Bug Fixes
 
 * Fixed `os` not defined during `lando setup` on `linux`
