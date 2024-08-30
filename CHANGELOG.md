@@ -1,5 +1,9 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## Bug Fixes
+
+* Renamed `lash` and `landorc` to `lash.sh` and `landorc.sh` for more consistent naming and packaging
+
 ## v3.22.0-beta.3 - [August 1, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.3)
 
 * Changed user build script to always run (for now)
