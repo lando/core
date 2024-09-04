@@ -202,7 +202,10 @@ module.exports = (app, lando) => {
       })
 
       // Warn the user if this fails
-      .catch(error => app.addWarning(require('./messages/cannot-start-proxy-warning')(error.message), error));
+      .catch(error => {
+        if (!error.message || error.message === '') error.message = 'UNKNOWN ERROR';
+        app.addWarning(require('./messages/cannot-start-proxy-warning')(error.message), error);
+      });
     });
 
     // Add proxy URLS to our app info

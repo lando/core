@@ -1,5 +1,9 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed bug preventing non-boot image build hooks from running
+* Fixed bug causing hook files to be `COPY`ed to early in Imagefile
+* Fixed bug causing `appMount` to be not correctly added as a `git` `safe.directory`
+
 ## v3.22.0-beta.4 - [August 30, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.4)
 
 ## Bug Fixes
