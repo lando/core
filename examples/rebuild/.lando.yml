@@ -29,5 +29,10 @@ services:
     app-mount:
       destination: /usr/share/nginx/html
 
+tooling:
+  do-i-exist:
+    service: web2
+    cmd: echo icachethereforeiam
+
 plugins:
   "@lando/core": "../.."

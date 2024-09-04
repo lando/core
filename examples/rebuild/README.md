@@ -41,6 +41,11 @@ docker ps --filter label=com.docker.compose.project=landorebuild | grep landoreb
 docker ps --filter label=com.docker.compose.project=landorebuild | grep landorebuild_web2_1
 docker ps --filter label=com.docker.compose.project=landorebuild | grep landorebuild_web3_1
 docker ps --filter label=com.docker.compose.project=landorebuild | grep landorebuild_web4_1
+
+# Should persist tooling cache between rebuilds
+lando do-i-exist | grep icachethereforeiam
+lando rebuild -y
+lando do-i-exist | grep icachethereforeiam
 ```
 
 ## Destroy tests
