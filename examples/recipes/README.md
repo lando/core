@@ -29,6 +29,11 @@ lando recipe | grep "I WORKED\!"
 # Should load in correct recipe tooling
 lando env | grep LANDO_SERVICE_NAME | grep web
 
+# Should persist recipe tooling cache between rebuilds
+lando do-i-exist | grep icachethereforeiam
+lando rebuild -y
+lando do-i-exist | grep icachethereforeiam
+
 # Should add recipe services
 skip
 

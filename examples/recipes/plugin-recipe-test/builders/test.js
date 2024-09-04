@@ -12,9 +12,15 @@ module.exports = {
   config: {
     proxy: {},
     services: {},
-    tooling: {env: {
-      service: 'web',
-    }},
+    tooling: {
+      'do-i-exist': {
+        service: 'web',
+        cmd: 'echo icachethereforeiam',
+      },
+      'env': {
+        service: 'web',
+      },
+    },
   },
   builder: (parent, config) => class LandoDrupal7 extends parent {
     constructor(id, options = {}) {

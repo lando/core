@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* This release contains only tests and is mostly to keep version sync with the CLI
+
 ## v3.22.0-beta.5 - [September 4, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.5)
 
 ### New Features
