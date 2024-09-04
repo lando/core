@@ -16,7 +16,7 @@ jobs:
           # uncomment to test against edge cli
           - 3-edge-slim
           # uncomment to test against dev cli
-          - 3-dev-slim
+          # - 3-dev-slim
         leia-test:
           - badname
           - build
