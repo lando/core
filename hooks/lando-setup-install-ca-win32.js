@@ -49,6 +49,7 @@ module.exports = async (lando, options) => {
 
         // finish up
         task.title = 'Installed Lando Development Certificate Authority (CA)';
+
         return result;
       } catch (error) {
         throw error;
