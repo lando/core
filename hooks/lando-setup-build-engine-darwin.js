@@ -3,10 +3,10 @@
 const os = require('os');
 const path = require('path');
 const semver = require('semver');
-
 const {color} = require('listr2');
-
 const buildIds = {
+  '4.34.0': '165256',
+  '4.33.0': '160616',
   '4.32.0': '157355',
   '4.31.0': '153195',
   '4.30.0': '149282',
@@ -44,7 +44,7 @@ const getVersion = version => {
 /*
  * Helper to get docker compose v2 download url
  */
-const getEngineDownloadUrl = (id = '126437') => {
+const getEngineDownloadUrl = (id = '165256') => {
   const arch = process.arch === 'arm64' ? 'arm64' : 'amd64';
   return `https://desktop.docker.com/mac/main/${arch}/${id}/Docker.dmg`;
 };

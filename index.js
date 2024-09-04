@@ -74,8 +74,9 @@ module.exports = async lando => {
   // flush update cache if it needs to be
   lando.events.on('ready', async () => await require('./hooks/lando-flush-updates-cache')(lando));
 
-  // this is a gross hack we need to do to reset the engine because the lando 3 runtime had no idea
+  // this is a gross hack we need to do to reset the engine because the lando 3 runtime has no idea
   lando.events.on('almost-ready', 1, async () => await require('./hooks/lando-reset-orchestrator')(lando));
+  lando.events.on('post-setup', 1, async () => await require('./hooks/lando-reset-orchestrator')(lando));
 
   // run engine compat checks
   lando.events.on('almost-ready', 2, async () => await require('./hooks/lando-get-compat')(lando));
