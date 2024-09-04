@@ -1,23 +1,24 @@
 name: core.docs
+proxy:
+  cli:
+    - core.docs.lndo.site:5173
 services:
   cli:
-    api: 3
-    type: lando
-    services:
-      image: node:16
-      command: sleep infinity
-      working_dir: /app
-      ports:
-        - 8080:8080
-    build:
-      - npm install
+    api: 4
+    image: node:18
+    command: sleep infinity
+    ports:
+      - 5173:5173/http
     scanner: false
-    ssl: false
-    sslExpose: false
+    user: node
+    build:
+      app: |
+        npm install
 tooling:
   node:
     service: cli
-  vuepress:
-    service: cli
   npm:
     service: cli
+  vitepress:
+    service: cli
+    cmd: npx vitepress
