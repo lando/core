@@ -76,6 +76,6 @@ jobs:
           config: |
             setup.skipCommonPlugins=true
       - name: Lando tests
-        run:
+        run: |
           lando start
           lando vitepress build docs
