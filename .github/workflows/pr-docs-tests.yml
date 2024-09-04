@@ -37,3 +37,51 @@ jobs:
         run: npm run docs:mvb
       - name: Test build
         run: npm run docs:build
+
+  lando-docs-tests:
+    runs-on: ${{ matrix.os }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DEBUG: "@lando/*"
+    strategy:
+      matrix:
+        lando-version:
+          # - 3-slim
+          # uncomment to test against edge cli
+          - 3-edge-slim
+          # uncomment to test against dev cli
+          # - 3-dev-slim
+        os:
+          - ubuntu-24.04
+        node-version:
+          - "18"
+    steps:
+      - name: Install node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org
+          cache: npm
+      - name: Install dependencies
+        run: npm clean-install --prefer-offline --frozen-lockfile
+      # bundle deps is needed so local plugin installation succeeds
+      - name: Bundle Deps
+        uses: lando/prepare-release-action@v3
+        with:
+          lando-plugin: true
+          version: dev
+          sync: false
+      # note that we need a custom auto-setup command because dogfooding core can impact the
+      # subsequent lando setup
+      - name: Setup lando ${{ matrix.lando-version }}
+        uses: lando/setup-lando@v3
+        with:
+          auto-setup: lando plugin-add @lando/core@file:${{ github.workspace }} && lando setup
+          lando-version: ${{ matrix.lando-version }}
+          telemetry: false
+          config: |
+            setup.skipCommonPlugins=true
+      - name: Lando tests
+        run:
+          lando start
+          lando vitepress build
