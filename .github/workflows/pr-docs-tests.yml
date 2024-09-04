@@ -84,4 +84,4 @@ jobs:
       - name: Lando tests
         run:
           lando start
-          lando vitepress build
+          lando vitepress build docs
