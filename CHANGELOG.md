@@ -1,5 +1,16 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+### New Features
+
+* Updated default Docker Compose version to `2.29.2`
+* Updated default Docker Desktop version to `4.34.0`
+* Updated default Docker Engine version to `27.2.0`
+* Updated tested Docker Desktop range to `<=4.34`
+* Updated tested Docker Compose range to `<=2.29.2`
+
+### Bug Fixes
+
+* Fixed bug causing autosetup to still `U Need Setup` after installing new orchestrator on `lando start`y events
 * Fixed bug preventing non-boot image build hooks from running
 * Fixed bug causing hook files to be `COPY`ed to early in Imagefile
 * Fixed bug causing `appMount` to be not correctly added as a `git` `safe.directory`

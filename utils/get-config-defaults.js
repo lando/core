@@ -8,18 +8,18 @@ const os = require('os');
 const getBuildEngineVersion = () => {
   switch (process.platform) {
     case 'darwin':
-      return '4.32.0';
+      return '4.34.0';
     case 'linux':
-      return '27.0.3';
+      return '27.2.0';
     case 'win32':
-      return '4.32.0';
+      return '4.34.0';
   }
 };
 
 // Default config
 const defaultConfig = options => ({
   orchestratorSeparator: '_',
-  orchestratorVersion: '2.27.1',
+  orchestratorVersion: '2.29.2',
   configSources: [],
   disablePlugins: [],
   dockerBin: require('../utils/get-docker-x')(),
