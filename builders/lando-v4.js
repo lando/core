@@ -159,13 +159,23 @@ module.exports = {
     }
 
     #setupHooks() {
-      for (const hook of Object.keys(this._data.groups).filter(group => parseInt(group.weight) <= 100)) {
+      // filter out early stage hooks
+      const groups = this?._data?.groups ?? {};
+      const hooks = Object.keys(this._data.groups)
+        .filter(group => parseInt(groups?.[group]?.weight ?? 1000) > 100)
+        .map(group => ([group, groups?.[group]?.user ?? 'root']));
+
+      // add hooks for each post boot image build group
+      for (const [hook, user] of hooks) {
         this.addSteps({group: hook, instructions: `
+          USER root
           RUN mkdir -p /etc/lando/build/image/${hook}.d
+          USER ${user}
           RUN /etc/lando/run-hooks.sh image ${hook}
         `});
       }
     }
+
 
     #setupStorage() {
       // add top level volumes
@@ -366,8 +376,8 @@ module.exports = {
       // image stage should add directly to the build context
       if (stage === 'image') {
         this.addContext(
-          `${file}:/etc/lando/build/image/${hook}.d/${priority}-${path.basename(file)}`,
-          `${hook}-1000-before`,
+          `${file}:/etc/lando/build/image/${hook}.d/${path.basename(file)}`,
+          `${hook}-1-before`,
         );
 
       // app context should mount into the app
