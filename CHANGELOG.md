@@ -1,5 +1,10 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## Bug Fixes
+
+* Fixed bug causing preexisting `urls` in `lando info` to be clobbered by `localhost` port discovery
+* Fixed bug causing `allServices` to sometimes be unset in some recipe tasks
+
 ## v3.22.0-beta.6 - [September 4, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.6)
 
 * This release contains only tests and is mostly to keep version sync with the CLI
