@@ -59,7 +59,7 @@ module.exports = (lando, config = lando.appConfig) => ({
     }
 
     // nice things
-    const aservices = app.config.allServices ?? [];
+    const aservices = app?.config?.allServices ?? app?.allServices ?? [];
     const choices = `[${color.green('choices:')} ${aservices.map(service => `"${service}"`).join(', ')}]`;
 
     // gather our options
