@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.22.0-beta.7 - [September 5, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.7)
+
 ## Bug Fixes
 
 * Fixed bug causing preexisting `urls` in `lando info` to be clobbered by `localhost` port discovery
