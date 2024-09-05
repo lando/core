@@ -32,5 +32,15 @@ module.exports = async (app, lando) => {
       getHttpsPorts(data),
       lando.config.bindAddress,
     ))
-    .map(data => _.find(app.info, {service: data.service}).urls = data.urls);
+    // add data to existing info
+    .map(data => {
+      // get info
+      const info = _.find(app.info, {service: data.service});
+      // remove existing localhosts because they are probably stale
+      _.remove(info.urls, url => url.startsWith('http://localhost'));
+      _.remove(info.urls, url => url.startsWith('https://localhost'));
+      // and then reset
+      info.urls = _.uniq([...info.urls, ...data.urls]);
+    });
+    ;
 };
