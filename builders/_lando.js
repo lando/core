@@ -81,6 +81,7 @@ module.exports = {
       const environment = {
         LANDO_SERVICE_NAME: name,
         LANDO_SERVICE_TYPE: type,
+        LANDO_SERVICE_API: 3,
       };
 
       // Handle labels
