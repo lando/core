@@ -24,7 +24,9 @@ module.exports = (config, injected) => {
     // Get an interable of our commandz
     .then(() => _.map(require('./parse-tooling-config')(cmd, service, options, answers, canExec)))
     // Build run objects
-    .map(({command, service}) => require('./build-tooling-runner')(app, command, service, user, env, dir, appMount))
+    .map(
+      ({command, service}) =>
+        require('./build-tooling-runner')(app, command, service, name, user, env, dir, appMount, !answers.deps ?? false))
     // Try to run the task quickly first and then fallback to compose launch
     .each(runner => require('./build-docker-exec')(injected, stdio, runner).catch(execError => {
       return injected.engine.isRunning(runner.id).then(isRunning => {

@@ -20,7 +20,7 @@ const getContainerPath = (appRoot, appMount = undefined) => {
   return dir.join('/');
 };
 
-module.exports = (app, command, service, user, env = {}, dir = undefined, appMount = undefined) => ({
+module.exports = (app, command, service, user, env = {}, dir = undefined, appMount = undefined, noDeps = false) => ({
   id: getContainer(app, service),
   compose: app.compose,
   project: app.project,
@@ -33,5 +33,6 @@ module.exports = (app, command, service, user, env = {}, dir = undefined, appMou
     services: _.compact([service]),
     hijack: false,
     autoRemove: true,
+    noDeps,
   }, _.identity),
 });
