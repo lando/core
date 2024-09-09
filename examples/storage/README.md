@@ -22,13 +22,13 @@ Run the following commands to verify things work as expected
 ```bash
 # Should create storage volumes with names that imply the scope
 docker volume inspect lando-everywhere
-docker volume inspect landostorage-stuff
-docker volume inspect landostorage-alpine-some-cache-directory
-docker volume inspect landostorage-db-some-other-dir
-docker volume inspect landostorage-db-var-lib-mysql
-docker volume inspect landostorage-owners-someplace
-docker volume inspect landostorage-owners-someplace-free
-docker volume inspect landostorage-owners-someplace-secret
+docker volume inspect lando-storage-stuff
+docker volume inspect lando-storage-alpine-some-cache-directory
+docker volume inspect lando-storage-db-some-other-dir
+docker volume inspect lando-storage-db-var-lib-mysql
+docker volume inspect lando-storage-owners-someplace
+docker volume inspect lando-storage-owners-someplace-free
+docker volume inspect lando-storage-owners-someplace-secret
 docker volume list --filter "label=dev.lando.storage-volume=TRUE" | wc -l | grep 9
 
 # Should create storage bind mounts
@@ -39,22 +39,22 @@ docker volume inspect lando-everywhere | grep "dev.lando.storage-volume" | grep 
 docker volume inspect lando-everywhere | grep "dev.lando.storage-scope" | grep global
 docker volume inspect lando-everywhere | grep "dev.lando.storage-project" || echo "$?" | grep 1
 docker volume inspect lando-everywhere | grep "dev.lando.storage-service" || echo "$?" | grep 1
-docker volume inspect landostorage-stuff | grep "dev.lando.storage-volume" | grep TRUE
-docker volume inspect landostorage-stuff | grep "dev.lando.storage-scope" | grep app
-docker volume inspect landostorage-stuff | grep "dev.lando.storage-project" | grep landostorage
-docker volume inspect landostorage-stuff | grep "dev.lando.storage-service" | grep db
-docker volume inspect landostorage-alpine-some-cache-directory | grep "dev.lando.storage-volume" | grep TRUE
-docker volume inspect landostorage-alpine-some-cache-directory | grep "dev.lando.storage-scope" | grep service
-docker volume inspect landostorage-alpine-some-cache-directory | grep "dev.lando.storage-project" | grep landostorage
-docker volume inspect landostorage-alpine-some-cache-directory | grep "dev.lando.storage-service" | grep alpine
-docker volume inspect landostorage-db-some-other-dir | grep "dev.lando.storage-volume" | grep TRUE
-docker volume inspect landostorage-db-some-other-dir | grep "dev.lando.storage-scope" | grep service
-docker volume inspect landostorage-db-some-other-dir | grep "dev.lando.storage-project" | grep landostorage
-docker volume inspect landostorage-db-some-other-dir | grep "dev.lando.storage-service" | grep db
-docker volume inspect landostorage-db-var-lib-mysql | grep "dev.lando.storage-volume" | grep TRUE
-docker volume inspect landostorage-db-var-lib-mysql | grep "dev.lando.storage-scope" | grep service
-docker volume inspect landostorage-db-var-lib-mysql | grep "dev.lando.storage-project" | grep landostorage
-docker volume inspect landostorage-db-var-lib-mysql | grep "dev.lando.storage-service" | grep db
+docker volume inspect lando-storage-stuff | grep "dev.lando.storage-volume" | grep TRUE
+docker volume inspect lando-storage-stuff | grep "dev.lando.storage-scope" | grep app
+docker volume inspect lando-storage-stuff | grep "dev.lando.storage-project" | grep lando-storage
+docker volume inspect lando-storage-stuff | grep "dev.lando.storage-service" | grep db
+docker volume inspect lando-storage-alpine-some-cache-directory | grep "dev.lando.storage-volume" | grep TRUE
+docker volume inspect lando-storage-alpine-some-cache-directory | grep "dev.lando.storage-scope" | grep service
+docker volume inspect lando-storage-alpine-some-cache-directory | grep "dev.lando.storage-project" | grep lando-storage
+docker volume inspect lando-storage-alpine-some-cache-directory | grep "dev.lando.storage-service" | grep alpine
+docker volume inspect lando-storage-db-some-other-dir | grep "dev.lando.storage-volume" | grep TRUE
+docker volume inspect lando-storage-db-some-other-dir | grep "dev.lando.storage-scope" | grep service
+docker volume inspect lando-storage-db-some-other-dir | grep "dev.lando.storage-project" | grep lando-storage
+docker volume inspect lando-storage-db-some-other-dir | grep "dev.lando.storage-service" | grep db
+docker volume inspect lando-storage-db-var-lib-mysql | grep "dev.lando.storage-volume" | grep TRUE
+docker volume inspect lando-storage-db-var-lib-mysql | grep "dev.lando.storage-scope" | grep service
+docker volume inspect lando-storage-db-var-lib-mysql | grep "dev.lando.storage-project" | grep lando-storage
+docker volume inspect lando-storage-db-var-lib-mysql | grep "dev.lando.storage-service" | grep db
 
 # Should share app scoped storage volumes across all app services
 lando exec db -- touch /stuff/test1
@@ -177,10 +177,10 @@ lando exec alpine -- stat /universal/test1
 # Should not persist non-global storage volumes across rebuilds
 lando destroy -y
 docker volume inspect lando-everywhere
-docker volume inspect landostorage-stuff || echo "$?" | grep 1
-docker volume inspect landostorage-alpine-some-cache-directory || echo "$?" | grep 1
-docker volume inspect landostorage-db-some-other-dir || echo "$?" | grep 1
-docker volume inspect landostorage-db-var-lib-mysql || echo "$?" | grep 1
+docker volume inspect lando-storage-stuff || echo "$?" | grep 1
+docker volume inspect lando-storage-alpine-some-cache-directory || echo "$?" | grep 1
+docker volume inspect lando-storage-db-some-other-dir || echo "$?" | grep 1
+docker volume inspect lando-storage-db-var-lib-mysql || echo "$?" | grep 1
 docker volume list --filter "label=dev.lando.storage-volume=TRUE" | wc -l | grep 2
 lando start
 lando exec db -- mysql -u root -e "SHOW DATABASES;" | grep vibes || echo "$?" | grep 1
@@ -190,10 +190,10 @@ lando exec alpine -- stat /things/test1 || echo "$?" | grep 1
 # Should persist global storage across destroys
 lando destroy -y
 docker volume inspect lando-everywhere
-docker volume inspect landostorage-stuff || echo "$?" | grep 1
-docker volume inspect landostorage-alpine-some-cache-directory || echo "$?" | grep 1
-docker volume inspect landostorage-db-some-other-dir || echo "$?" | grep 1
-docker volume inspect landostorage-db-var-lib-mysql || echo "$?" | grep 1
+docker volume inspect lando-storage-stuff || echo "$?" | grep 1
+docker volume inspect lando-storage-alpine-some-cache-directory || echo "$?" | grep 1
+docker volume inspect lando-storage-db-some-other-dir || echo "$?" | grep 1
+docker volume inspect lando-storage-db-var-lib-mysql || echo "$?" | grep 1
 docker volume list --filter "label=dev.lando.storage-volume=TRUE" | wc -l | grep 2
 lando start
 lando exec alpine -- stat /universal/test1
@@ -227,9 +227,9 @@ lando exec owners -- stat /someplace-free/me
 
 # Should allow for top level volumes to still be used with overrides.volumes
 docker volume inspect my-data || echo "$?" | grep 1
-docker volume inspect landostorage_my-data
-docker volume inspect landostorage_my-data | grep com.docker.compose.project | grep landostorage
-docker volume inspect landostorage_my-data | grep com.docker.compose.volume | grep my-data
+docker volume inspect lando-storage_my-data
+docker volume inspect lando-storage_my-data | grep com.docker.compose.project | grep lando-storage
+docker volume inspect lando-storage_my-data | grep com.docker.compose.volume | grep my-data
 lando exec --user root db -- touch /my-data/thing
 ```
 

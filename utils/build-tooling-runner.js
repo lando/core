@@ -4,7 +4,7 @@ const _ = require('lodash');
 const path = require('path');
 
 const getContainer = (app, service) => {
-  return app?.containers?.[service] ?? `${app.project}_${service}_1`;
+  return app?.containers?.[service] ?? `${app.project}-${service}-1`;
 };
 
 const getContainerPath = (appRoot, appMount = undefined) => {

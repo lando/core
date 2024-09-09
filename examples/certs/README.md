@@ -20,8 +20,8 @@ Run the following commands to verify things work as expected
 
 ```bash
 # Should set the environment variables correctly
-lando exec web -- env | grep LANDO_SERVICE_CERT | grep /lando/certs/web.landocerts.crt
-lando exec web -- env | grep LANDO_SERVICE_KEY | grep /lando/certs/web.landocerts.key
+lando exec web -- env | grep LANDO_SERVICE_CERT | grep /lando/certs/web.lando-certs.crt
+lando exec web -- env | grep LANDO_SERVICE_KEY | grep /lando/certs/web.lando-certs.key
 lando exec web2 -- env | grep LANDO_SERVICE_CERT | grep /etc/lando/certs/cert.crt
 lando exec web2 -- env | grep LANDO_SERVICE_KEY | grep /etc/lando/certs/cert.key
 lando exec web3 -- env | grep LANDO_SERVICE_CERT | grep /certs/cert.crt
@@ -70,21 +70,21 @@ lando certinfo --service web4 | grep Issuer | grep "Lando Development CA"
 
 # Should have the correct cert SANS
 lando certinfo | grep DNS | grep -w localhost
-lando certinfo | grep DNS | grep -w web.landocerts.internal
+lando certinfo | grep DNS | grep -w web.lando-certs.internal
 lando certinfo | grep DNS | grep -w web
 lando certinfo | grep "IP Address" | grep 127.0.0.1
 lando certinfo --service web2 | grep DNS | grep -w localhost
 lando certinfo --service web2 | grep DNS | grep -w web2.lndo.site
-lando certinfo --service web2 | grep DNS | grep -w web2.landocerts.internal
+lando certinfo --service web2 | grep DNS | grep -w web2.lando-certs.internal
 lando certinfo --service web2 | grep DNS | grep -w web2
 lando certinfo --service web2 | grep "IP Address" | grep 127.0.0.1
 lando certinfo --service web3 | grep DNS | grep -w vibes.rising
 lando certinfo --service web3 | grep DNS | grep -w localhost
-lando certinfo --service web3 | grep DNS | grep -w web3.landocerts.internal
+lando certinfo --service web3 | grep DNS | grep -w web3.lando-certs.internal
 lando certinfo --service web3 | grep DNS | grep -w web3
 lando certinfo --service web3 | grep "IP Address" | grep 127.0.0.1
 lando certinfo --service web4 | grep DNS | grep -w localhost
-lando certinfo --service web4 | grep DNS | grep -w web4.landocerts.internal
+lando certinfo --service web4 | grep DNS | grep -w web4.lando-certs.internal
 lando certinfo --service web4 | grep DNS | grep -w web4
 lando certinfo --service web4 | grep "IP Address" | grep 127.0.0.1
 

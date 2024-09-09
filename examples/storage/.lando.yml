@@ -49,7 +49,7 @@ services:
         type: image
 
       # remount for fun?
-      - source: landostorage-db-var-lib-mysql
+      - source: lando-storage-db-var-lib-mysql
         target: /var/lib/mysql-backup
   alpine:
     api: 4

@@ -38,7 +38,7 @@ module.exports = lando => ({
           .map(async container => await lando.engine.scan(container))
           .filter(container => {
             if (!options.service) return true;
-            return options.service.map(service => `/${app.project}_${service}_1`).includes(container.Name);
+            return options.service.map(service => `/${app.project}-${service}-1`).includes(container.Name);
           });
 
       // normal info

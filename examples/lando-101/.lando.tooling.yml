@@ -15,3 +15,6 @@ tooling:
   phpcs:
     service: appserver
     cmd: /app/vendor/bin/phpcs
+
+plugins:
+  "@lando/core": "../../.."

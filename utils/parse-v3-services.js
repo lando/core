@@ -20,7 +20,7 @@ module.exports = (config, app) => _(config)
     app: app.name,
     confDest: path.join(app._config.userConfRoot, 'config', service.type.split(':')[0]),
     data: `data_${service.name}`,
-    home: app._config.home,
+    home: app.config.home || app._config.home,
     project: app.project,
     root: app.root,
     type: service.type.split(':')[0],

@@ -38,7 +38,7 @@ lando info --deep --format json | grep "^\[{\""
 
 # Should output tabular data with --format table
 lando info --format table | grep Key | grep Value
-lando info --deep --format table | grep NetworkSettings.Networks.lando_bridge_network.Aliases | grep web4.landoinfo.internal
+lando info --deep --format table | grep NetworkSettings.Networks.lando_bridge_network.Aliases | grep web4.lando-info.internal
 
 # Should return a specified --path when given with lando info
 lando info --path "[0]" | grep service | wc -l | grep 1
@@ -59,7 +59,7 @@ lando destroy -y
 lando info --service web --path urls | grep "\[\]"
 lando info --service web --path type | grep docker-compose
 lando info --service web --path healthy | grep unknown
-lando info --service web --path hostnames | grep web.landoinfo.internal
+lando info --service web --path hostnames | grep web.lando-info.internal
 lando info --service web2 --path urls | grep "\[\]"
 lando info --service web2 --path type | grep lando
 lando info --service web2 --path healthy | grep unknown
@@ -67,7 +67,7 @@ lando info --service web2 --path version | grep custom
 lando info --service web2 --path meUser | grep www-data
 lando info --service web2 --path hasCerts | grep "false"
 lando info --service web2 --path api | grep 3
-lando info --service web2 --path hostnames | grep web2.landoinfo.internal
+lando info --service web2 --path hostnames | grep web2.lando-info.internal
 lando info --service web3 --path urls | grep "\[\]"
 lando info --service web3 --path type | grep l337
 lando info --service web3 --path healthy | grep unknown
@@ -77,7 +77,7 @@ lando info --service web3 --path primary | grep "true"
 lando info --service web3 --path image | grep nginx
 lando info --service web3 --path user | grep root
 lando info --service web3 --path appMount | grep /usr/share/nginx/html
-lando info --service web3 --path hostnames | grep web3.landoinfo.internal
+lando info --service web3 --path hostnames | grep web3.lando-info.internal
 lando info --service web4 --path urls | grep "\[\]"
 lando info --service web4 --path type | grep lando
 lando info --service web4 --path healthy | grep unknown
@@ -88,14 +88,14 @@ lando info --service web4 --path primary | grep "false"
 lando info --service web4 --path image | grep nginxinc/nginx-unprivileged:1.26.1
 lando info --service web4 --path user | grep nginx
 lando info --service web4 --path appMount | grep /usr/share/nginx/html
-lando info --service web4 --path hostnames | grep web4.landoinfo.internal
+lando info --service web4 --path hostnames | grep web4.lando-info.internal
 
 # Should have the correct info after a start and/or rebuild
 lando start
 lando info --service web --path urls | grep "\[\]"
 lando info --service web --path type | grep docker-compose
 lando info --service web --path healthy | grep unknown
-lando info --service web --path hostnames | grep web.landoinfo.internal
+lando info --service web --path hostnames | grep web.lando-info.internal
 lando info --service web2 --path urls | grep "http://localhost"
 lando info --service web2 --path type | grep lando
 lando info --service web2 --path healthy | grep unknown
@@ -103,7 +103,7 @@ lando info --service web2 --path version | grep custom
 lando info --service web2 --path meUser | grep www-data
 lando info --service web2 --path hasCerts | grep "false"
 lando info --service web2 --path api | grep 3
-lando info --service web2 --path hostnames | grep web2.landoinfo.internal
+lando info --service web2 --path hostnames | grep web2.lando-info.internal
 lando info --service web3 --path urls | grep "http://localhost"
 lando info --service web3 --path type | grep l337
 lando info --service web3 --path healthy | grep unknown
@@ -114,7 +114,7 @@ lando info --service web3 --path primary | grep "true"
 lando info --service web3 --path image | grep nginx
 lando info --service web3 --path user | grep root
 lando info --service web3 --path appMount | grep /usr/share/nginx/html
-lando info --service web3 --path hostnames | grep web3.landoinfo.internal
+lando info --service web3 --path hostnames | grep web3.lando-info.internal
 lando info --service web4 --path urls | grep "http://localhost"
 lando info --service web4 --path type | grep lando
 lando info --service web4 --path healthy | grep unknown
@@ -126,12 +126,12 @@ lando info --service web4 --path primary | grep "false"
 lando info --service web4 --path image | grep nginxinc/nginx-unprivileged:1.26.1
 lando info --service web4 --path user | grep nginx
 lando info --service web4 --path appMount | grep /usr/share/nginx/html
-lando info --service web4 --path hostnames | grep web4.landoinfo.internal
+lando info --service web4 --path hostnames | grep web4.lando-info.internal
 lando rebuild -y
 lando info --service web --path urls | grep "\[\]"
 lando info --service web --path type | grep docker-compose
 lando info --service web --path healthy | grep unknown
-lando info --service web --path hostnames | grep web.landoinfo.internal
+lando info --service web --path hostnames | grep web.lando-info.internal
 lando info --service web2 --path urls | grep "http://localhost"
 lando info --service web2 --path type | grep lando
 lando info --service web2 --path healthy | grep unknown
@@ -139,7 +139,7 @@ lando info --service web2 --path version | grep custom
 lando info --service web2 --path meUser | grep www-data
 lando info --service web2 --path hasCerts | grep "false"
 lando info --service web2 --path api | grep 3
-lando info --service web2 --path hostnames | grep web2.landoinfo.internal
+lando info --service web2 --path hostnames | grep web2.lando-info.internal
 lando info --service web3 --path urls | grep "http://localhost"
 lando info --service web3 --path type | grep l337
 lando info --service web3 --path healthy | grep unknown
@@ -150,7 +150,7 @@ lando info --service web3 --path primary | grep "true"
 lando info --service web3 --path image | grep nginx
 lando info --service web3 --path user | grep root
 lando info --service web3 --path appMount | grep /usr/share/nginx/html
-lando info --service web3 --path hostnames | grep web3.landoinfo.internal
+lando info --service web3 --path hostnames | grep web3.lando-info.internal
 lando info --service web4 --path urls | grep "http://localhost"
 lando info --service web4 --path type | grep lando
 lando info --service web4 --path healthy | grep unknown
@@ -162,7 +162,7 @@ lando info --service web4 --path primary | grep "false"
 lando info --service web4 --path image | grep nginxinc/nginx-unprivileged:1.26.1
 lando info --service web4 --path user | grep nginx
 lando info --service web4 --path appMount | grep /usr/share/nginx/html
-lando info --service web4 --path hostnames | grep web4.landoinfo.internal
+lando info --service web4 --path hostnames | grep web4.lando-info.internal
 ```
 
 ## Destroy tests

@@ -34,10 +34,10 @@ Run the following commands to verify things work as expected
 ```bash
 # Should have the correct internal hostname info
 cd lamp
-lando info -s appserver | grep hostnames: | grep appserver.landolamp.internal
+lando info -s appserver | grep hostnames: | grep appserver.lando-lamp.internal
 cd .. && cd lemp
-lando info -s appserver | grep hostnames: | grep appserver.landolemp.internal
-lando info -s appserver_nginx | grep hostnames: | grep appserver_nginx.landolemp.internal
+lando info -s appserver | grep hostnames: | grep appserver.lando-lemp.internal
+lando info -s appserver_nginx | grep hostnames: | grep appserver_nginx.lando-lemp.internal
 
 # Should be able to self connect from lamp
 cd lamp
@@ -52,20 +52,20 @@ lando exec appserver_nginx -- curl https://localhost:8443
 # Should be able to curl lemp from lamp at proxy addresses and internal hostnames
 cd lamp
 lando exec appserver -- curl http://lando-lemp.lndo.site
-lando exec appserver -- curl http://appserver_nginx.landolemp.internal:8080
+lando exec appserver -- curl http://appserver_nginx.lando-lemp.internal:8080
 lando exec appserver -- curl https://lando-lemp.lndo.site
-lando exec appserver -- curl https://appserver_nginx.landolemp.internal:8443
+lando exec appserver -- curl https://appserver_nginx.lando-lemp.internal:8443
 
 # Should be able to curl lamp from lemp at proxy addresses and internal hostname
 cd lemp
 lando exec appserver_nginx -- curl http://lando-lamp.lndo.site
-lando exec appserver_nginx -- curl http://appserver.landolamp.internal
+lando exec appserver_nginx -- curl http://appserver.lando-lamp.internal
 lando exec appserver_nginx -- curl https://lando-lamp.lndo.site
-lando exec appserver_nginx -- curl https://appserver.landolamp.internal
+lando exec appserver_nginx -- curl https://appserver.lando-lamp.internal
 
 # Should even be able to connect to a database in a different app
 cd lamp
-lando exec database -- mysql -uroot -h database.landolemp.internal -e "quit"
+lando exec database -- mysql -uroot -h database.lando-lemp.internal -e "quit"
 ```
 
 Destroy tests
