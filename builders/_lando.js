@@ -103,6 +103,7 @@ module.exports = {
         LANDO_WEBROOT_USER: meUser,
         LANDO_WEBROOT_GROUP: meUser,
         LANDO_MOUNT: appMount,
+        LANDO_SERVICE_API: 3,
       };
 
       // Handle labels

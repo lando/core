@@ -39,26 +39,8 @@ module.exports = (services, app, rootSteps = [], buildSteps= [], prestart = fals
       }
     });
   });
-  // Let's silent run user-perm stuff and add a "last" flag
+  // Let's add a "last" flag
   if (!_.isEmpty(build)) {
-    const permsweepers = _(build)
-      .map(command => ({id: command.id, services: _.get(command, 'opts.services', [])}))
-      .uniqBy('id')
-      .value();
-    _.forEach(permsweepers, ({id, services}) => {
-      build.unshift({
-        id,
-        cmd: '/helpers/user-perms.sh --silent',
-        compose: app.compose,
-        project: app.project,
-        opts: {
-          mode: 'attach',
-          prestart,
-          user: 'root',
-          services,
-        },
-      });
-    });
     // Denote the last step in the build if its happening before start
     const last = _.last(build);
     last.opts.last = prestart;

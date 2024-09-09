@@ -52,17 +52,25 @@ mkdir -p /var/www/.ssh
 mkdir -p /user/.ssh
 mkdir -p /app
 
+# Get the webroot user's home directory
+WEBROOT_HOME=$(getent passwd "$LANDO_WEBROOT_USER" | cut -d : -f 6)
+if [ -z "$WEBROOT_HOME" ]; then
+  WEBROOT_HOME="/var/www"
+fi
+
+lando_info "meUsers home directory: $WEBROOT_HOME"
+
 # Symlink the gitconfig
-if [ -f "/user/.gitconfig" ]; then
-  rm -f /var/www/.gitconfig
-  ln -sf /user/.gitconfig /var/www/.gitconfig
+if [ -f "/user/.gitconfig" ] && [ ! -f "$WEBROOT_HOME/.gitconfig" ]; then
+  mkdir -p "$WEBROOT_HOME"
+  ln -sf /user/.gitconfig "$WEBROOT_HOME/.gitconfig"
   lando_info "Symlinked users .gitconfig."
 fi
 
 # Symlink the known_hosts
-if [ -f "/user/.ssh/known_hosts" ]; then
-  rm -f /var/www/.ssh/known_hosts
-  ln -sf /user/.ssh/known_hosts /var/www/.ssh/known_hosts
+if [ -f "/user/.ssh/known_hosts" ] && [ ! -f "$WEBROOT_HOME/.ssh/known_hosts" ]; then
+  mkdir -p "$WEBROOT_HOME/.ssh"
+  ln -sf /user/.ssh/known_hosts "$WEBROOT_HOME/.ssh/known_hosts"
   lando_info "Symlinked users known_hosts"
 fi
 
@@ -101,4 +109,4 @@ lando_info "$LANDO_WEBROOT_USER:$LANDO_WEBROOT_GROUP is now running as $(id $LAN
 # Make sure we set the ownership of the mount and HOME when we start a service
 lando_info "And here. we. go."
 lando_info "Doing the permission sweep."
-perm_sweep $LANDO_WEBROOT_USER $(getent group "$LANDO_HOST_GID" | cut -d: -f1) $LANDO_RESET_DIR
+perm_sweep $LANDO_WEBROOT_USER $(getent group "$LANDO_HOST_GID" | cut -d: -f1) $WEBROOT_HOME $LANDO_RESET_DIR

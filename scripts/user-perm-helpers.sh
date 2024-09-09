@@ -71,32 +71,31 @@ reset_user() {
 perm_sweep() {
   local USER=$1
   local GROUP=$2
-  local OTHER_DIR=$3
-
-  # Start with the directories that are likely blockers
-  chown -R $USER:$GROUP /usr/local/bin
-  chown $USER:$GROUP /var/www
-  chown $USER:$GROUP /app
-  chmod 755 /var/www
+  local USER_HOME=$3
+  local OTHER_DIR=$4
 
   # Do other dirs first if we have them
   if [ ! -z "$OTHER_DIR" ]; then
-    chown -R $USER:$GROUP $OTHER_DIR >/dev/null 2>&1 &
+    chown -R $USER:$GROUP $OTHER_DIR > /tmp/perms.out 2> /tmp/perms.err || true
   fi
 
-  # Do a background sweep
-  nohup find /app -not -user $USER -execdir chown $USER:$GROUP {} \+ > /tmp/perms.out 2> /tmp/perms.err &
-  nohup find /var/www/.ssh -not -user $USER -execdir chown $USER:$GROUP {} \+ > /tmp/perms.out 2> /tmp/perms.err &
-  nohup find /user/.ssh -not -user $USER -execdir chown $USER:$GROUP {} \+ > /tmp/perms.out 2> /tmp/perms.err &
-  nohup find /var/www -not -user $USER -execdir chown $USER:$GROUP {} \+ > /tmp/perms.out 2> /tmp/perms.err &
-  nohup find /usr/local/bin -not -user $USER -execdir chown $USER:$GROUP {} \+ > /tmp/perms.out 2> /tmp/perms.err &
+  # Do permission sweep and wait for completion
+  chown -R $USER:$GROUP /app > /tmp/perms.out 2> /tmp/perms.err || true
+  lando_info "chowned /app"
+  chown -R $USER:$GROUP /tmp > /tmp/perms.out 2> /tmp/perms.err || true
+  lando_info "chowned /tmp"
+  [ -d /user ] && chown -R $USER:$GROUP /user > /tmp/perms.out 2> /tmp/perms.err || true
+  lando_info "chowned /user"
+  chown -R $USER:$GROUP /var/www > /tmp/perms.out 2> /tmp/perms.err || true
+  lando_info "chowned /var/www"
+  chmod 755 /var/www
 
-  # Lets also make some /usr/locals chowned
-  nohup find /usr/local/lib -not -user $USER -execdir chown $USER:$GROUP {} \+ > /tmp/perms.out 2> /tmp/perms.err &
-  nohup find /usr/local/share -not -user $USER -execdir chown $USER:$GROUP {} \+ > /tmp/perms.out 2> /tmp/perms.err &
-  nohup find /usr/local -not -user $USER -execdir chown $USER:$GROUP {} \+ > /tmp/perms.out 2> /tmp/perms.err &
+  chown -R $USER:$GROUP /usr/local > /tmp/perms.out 2> /tmp/perms.err || true
+  lando_info "chowned /usr/local"
 
   # Make sure we chown the $USER home directory
-  nohup find $(getent passwd $USER | cut -d : -f 6) -not -user $USER -execdir chown $USER:$GROUP {} \+ > /tmp/perms.out 2> /tmp/perms.err &
-  nohup find /lando -not -user $USER -execdir chown $USER:$GROUP {} \+ > /tmp/perms.out 2> /tmp/perms.err &
+  [ -d "$USER_HOME" ] && chown -R $USER:$GROUP "$USER_HOME" > /tmp/perms.out 2> /tmp/perms.err || true
+  lando_info "chowned $USER_HOME"
+  [ -d /lando/keys ] && chown -R $USER:$GROUP /lando/keys > /tmp/perms.out 2> /tmp/perms.err || true
+  lando_info "chowned /lando"
 }
