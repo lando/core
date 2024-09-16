@@ -60,7 +60,7 @@ lando exec web4 -- cat /etc/lando/certs/cert.crt
 lando exec web4 -- cat /etc/lando/certs/cert.key
 
 # Should not generate certs if certs is disable-y
-lando exec web5 -- ls -lsa /etc/lando/certs || echo $? | grep 1
+lando exec web5 -- ls -lsa /etc/lando/certs || echo $? | grep 2
 
 # Should have the correct cert issuer
 lando certinfo | grep Issuer | grep "Lando Development CA"
