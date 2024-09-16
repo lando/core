@@ -9,6 +9,10 @@ const write = require('../utils/write-file');
 const toPosixPath = require('../utils/to-posix-path');
 
 const states = {APP: 'UNBUILT'};
+const stages = {
+  app: 'Commands to build an application.',
+  workers: 'Background processes for whatever else?',
+};
 const groups = {
   'boot': {
     description: 'Required packages that every subsequent group needs',
@@ -236,9 +240,6 @@ module.exports = {
       // consolidate user info with any incoming stuff
       const user = merge({}, {gid, uid, name: username}, require('../utils/parse-v4-user')(config.user));
 
-      // add some upstream stuff and legacy stuff
-      // @NOTE: does this actually do something?
-      upstream.appMount = config['app-mount'].destination;
       // this will change but for right now i just need the image stuff to passthrough
       upstream.config = {image: config.image, ports: config.ports};
       // make sure we also pass the user
@@ -252,7 +253,7 @@ module.exports = {
       };
 
       // get this
-      super(id, merge({}, {groups}, {states}, upstream), app, lando);
+      super(id, merge({}, {stages}, {groups}, {states}, upstream), app, lando);
 
       // props
       this.canExec = true;
