@@ -71,6 +71,11 @@ unset LANDO_WEBROOT_USER
 # envvar so we can test if this loaded
 export LANDO_ENVIRONMENT="loaded"
 
+# if we have a project mount then reset LANDO_MOUNT
+if [ -z ${LANDO_PROJECT_MOUNT+x} ]; then
+  export LANDO_MOUNT="$LANDO_PROJECT_MOUNT"
+fi
+
 # Execute sh scripts in /etc/lando/env.d
 for script in /etc/lando/env.d/*.sh; do
   if [ -e "$script" ]; then
