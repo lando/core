@@ -61,13 +61,14 @@ module.exports = {
       'healthcheck': false,
       'hostnames': [],
       'labels': {},
+      'mounts': [],
+      'overrides': {},
       'packages': {
         'git': true,
         'ssh-agent': true,
         'sudo': true,
       },
       'persistent-storage': [],
-      'overrides': {},
       'ports': [],
       'security': {
         'ca': [],
@@ -176,6 +177,15 @@ module.exports = {
       }
     }
 
+    #setupMounts() {
+      // loop through mounts and add them
+      for (const mount of this.mounts) {
+        // as a volume
+        if (mount.type === 'bind') this.volumes.push(mount);
+        // or as build context
+        else if (mount.type === 'copy') this.addContext(`${mount.source}:${mount.target}`, mount.group);
+      }
+    }
 
     #setupStorage() {
       // add top level volumes
@@ -214,7 +224,6 @@ module.exports = {
 
     constructor(id, options, app, lando) {
       // @TODO: overrides for this.run()?
-      // @TODO: better appmount logix?
       // @TODO: allow additonal users to be installed in config.users?
       // @TODO: change lando literal to "lando product"
       // @TODO: debug/lando_debug should be set with env?
@@ -228,6 +237,7 @@ module.exports = {
       const user = merge({}, {gid, uid, name: username}, require('../utils/parse-v4-user')(config.user));
 
       // add some upstream stuff and legacy stuff
+      // @NOTE: does this actually do something?
       upstream.appMount = config['app-mount'].destination;
       // this will change but for right now i just need the image stuff to passthrough
       upstream.config = {image: config.image, ports: config.ports};
@@ -261,10 +271,12 @@ module.exports = {
       this.command = config.command;
       this.healthcheck = config.healthcheck;
       this.hostnames = uniq([...config.hostnames, `${this.id}.${this.project}.internal`]);
+      this.mounts = require('../utils/normalize-mounts')(config.mounts, this);
       this.packages = config.packages;
       this.security = config.security;
       this.security.cas.push(caCert, path.join(path.dirname(caCert), `${caDomain}.pem`));
       this.storage = [
+        // @TODO: add any storage from mounts excludes
         ...require('../utils/normalize-storage')(config.storage, this),
         ...require('../utils/normalize-storage')(config['persistent-storage'], this),
       ];
@@ -273,10 +285,15 @@ module.exports = {
       // top level stuff
       this.tlnetworks = {[this.network]: {external: true}};
 
+      // @TODO: add in app-mount?
+      // @TODO: add in tmp-storage and home-storage?
+
       // boot stuff
       this.#setupBoot();
       // hook system
       this.#setupHooks();
+      // mounting system
+      this.#setupMounts();
       // storage system
       this.#setupStorage();
 
@@ -348,6 +365,7 @@ module.exports = {
         networks: {[this.network]: {aliases: this.hostnames}},
         user: this.user.name,
         volumes: this.volumes,
+        working_dir: this.appMount,
       });
 
       // add any overrides on top
@@ -536,6 +554,10 @@ module.exports = {
           }
         }));
       }
+
+      // finally remove the build context
+      fs.rmdirSync(this.context, {force: true, maxRetries: 10, recursive: true});
+      this.debug('removed %o-%o build-context %o', this.project, this.id, this.context);
     }
 
     getBengine() {

@@ -5,7 +5,7 @@ const kebabCase = require('lodash/kebabCase');
 const merge = require('lodash/merge');
 const toPosixPath = require('./to-posix-path');
 
-module.exports = (volumes = [], {id, project, appRoot, user, normalizeVolumes, _data}) => {
+module.exports = (volumes = [], {_data, appRoot, id, normalizeVolumes, project, user}) => {
   return volumes.map(volume => {
     // if volume is a single string then its either a bind mount
     if (typeof volume === 'string' && toPosixPath(volume).split(':').length > 1) {

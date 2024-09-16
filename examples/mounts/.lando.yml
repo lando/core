@@ -1,15 +1,52 @@
 name: lando-mounts
 services:
-  web3:
+  web1:
     api: 4
-    image:
-      imagefile: nginxinc/nginx-unprivileged:1.26.1
-      context:
-        - ./default-ssl.conf:/etc/nginx/conf.d/default.conf
+    image: nginxinc/nginx-unprivileged:1.26.1
     user: nginx
     ports:
       - 8080/http
       - 8443/https
+    mounts:
+      # bind mount a single file
+      - ./default-ssl.conf:/etc/nginx/conf.d/default.conf
+
+      # bind mount a single file using object notation
+      - source: ./default-ssl.conf
+        target: /etc/lando/config/default-ssl-2.conf
+
+      # bind mount the contents to the target file
+      - target: /etc/lando/config/obiwan
+        contents: |
+          hello
+          there!
+
+      # copy contents to target during config stage of image build
+      - target: /etc/lando/config/anakin
+        type: copy
+        group: config
+        content: |
+          this is where the fun begins
+
+      # copy content to target during user stage of image build
+      - target: /etc/lando/config/ahsoka
+        type: copy
+        content: |
+          skyguy
+
+  web2:
+    api: 4
+    image: node:18
+    command: npm run dev
+    ports:
+      - 3000/http
+    user: node
+    build:
+      app: |
+        npm install
+
+    mounts:
+      - ./:/somewhere/else
 
 plugins:
   "@lando/core": "../.."
