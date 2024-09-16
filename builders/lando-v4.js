@@ -286,7 +286,6 @@ module.exports = {
       // top level stuff
       this.tlnetworks = {[this.network]: {external: true}};
 
-      // @TODO: add in app-mount?
       // @TODO: add in tmp-storage and home-storage?
 
       // boot stuff
