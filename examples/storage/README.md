@@ -40,7 +40,7 @@ docker volume inspect lando-everywhere | grep "dev.lando.storage-scope" | grep g
 docker volume inspect lando-everywhere | grep "dev.lando.storage-project" || echo "$?" | grep 1
 docker volume inspect lando-everywhere | grep "dev.lando.storage-service" || echo "$?" | grep 1
 docker volume inspect landostorage-stuff | grep "dev.lando.storage-volume" | grep TRUE
-docker volume inspect landostorage-stuff | grep "dev.lando.storage-scope" | grep dev.lando.storage-scope && exit 1
+docker volume inspect landostorage-stuff | grep "dev.lando.storage-scope" | grep app
 docker volume inspect landostorage-stuff | grep "dev.lando.storage-project" | grep landostorage
 docker volume inspect landostorage-stuff | grep "dev.lando.storage-service" | grep db
 docker volume inspect landostorage-alpine-some-cache-directory | grep "dev.lando.storage-volume" | grep TRUE
