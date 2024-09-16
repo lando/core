@@ -1,0 +1,19 @@
+{
+  "name": "@lando/mounts-example",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "fastify start -l info app.js",
+    "dev": "fastify start -w -l info -P app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/autoload": "^5.0.0",
+    "@fastify/sensible": "^5.0.0",
+    "fastify": "^4.26.1",
+    "fastify-cli": "^6.3.0",
+    "fastify-plugin": "^4.0.0"
+  }
+}

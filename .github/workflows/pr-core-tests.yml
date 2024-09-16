@@ -43,7 +43,7 @@ jobs:
           - list
           - logs
           - long-name
-          # - mounts
+          - mounts
           - networking
           - no-services
           - orchestrator
