@@ -281,6 +281,7 @@ module.exports = {
         ...require('../utils/normalize-storage')(config.storage, this),
         ...require('../utils/normalize-storage')(config['persistent-storage'], this),
       ];
+
       this.volumes = config.volumes;
 
       // top level stuff
@@ -452,20 +453,22 @@ module.exports = {
       // create storage if needed
       // @TODO: should this be in try block below?
       if (this.storage.filter(volume => volume.type === 'volume').length > 0) {
-        const bengine = this.getBengine();
         // get existing volumes
-        const estorage = (await this.getStorageVolumes()).map(volume => volume.source);
+        const estorage = (await this.getStorageVolumes()).map(volume => volume.id);
 
-        // find any volumes we might need to create
+        // find any service level volumes we might need to create
+        // @TODO: note that app/project/global storage is created at the app level and not here
         const cstorage = this.storage
           .filter(volume => volume.type === 'volume')
-          .filter(volume => !estorage.includes(volume.source))
+          .filter(volume => !estorage.includes(volume.id))
+          .filter(volume => volume.scope === 'service')
           .filter(volume => volume?.labels?.['dev.lando.storage-volume'] === 'TRUE');
 
         await Promise.all(cstorage.map(async volume => {
+          const bengine = this.getBengine();
           try {
             await bengine.createVolume({Name: volume.source, Labels: volume.labels});
-            this.debug('created %o storage volume %o with metadata %o', volume.scope, volume.source, volume.labels);
+            this.debug('created service storage volume %o with metadata %o', volume.id, volume.labels);
           } catch (error) {
             throw error;
           }
