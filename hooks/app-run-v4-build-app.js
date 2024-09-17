@@ -17,9 +17,42 @@ module.exports = async app => {
     .filter(service => service?.info?.state?.APP !== 'BUILT')
     .value();
 
-  app.log.debug('going to build v4 apps', services.map(service => service.id));
+  // start by getting existing storage
+  const estorage = _(await Promise.all(services.map(async service => await service.getStorageVolumes())))
+    .flatten()
+    .filter(volume => volume !== 'service')
+    .uniqBy('id')
+    .map(volume => volume.id)
+    .value();
+  app.log.debug('found existing non-service scoped storage volumes %o', estorage);
 
-  // and then run them in parallel
+  // and then new storage that needs to be created
+  const cstorage = _(services)
+    .map(service => service.storage)
+    .flatten()
+    .filter(volume => volume.type === 'volume')
+    .filter(volume => !estorage.includes(volume.id))
+    .filter(volume => volume.scope !== 'service')
+    .filter(volume => volume?.labels?.['dev.lando.storage-volume'] === 'TRUE')
+    .groupBy('target')
+    .map(group => group[0])
+    .value();
+  app.log.debug('missing storage volumes %o', cstorage.map(volume => volume.source));
+
+  // create any missing volumes
+  await Promise.all(cstorage.map(async volume => {
+    // if this iterates is it gauranteed that the below will always work?
+    const bengine = services[0].getBengine();
+    try {
+      await bengine.createVolume({Name: volume.source, Labels: volume.labels});
+      app.log.debug('created %o storage volume %o with metadata %o', volume.scope, volume.source, volume.labels);
+    } catch (error) {
+      throw error;
+    }
+  }));
+
+  // run all build services methods
+  app.log.debug('going to build v4 services', services.map(service => service.id));
   await Promise.all(services.map(async service => {
     try {
       await service.buildApp();
