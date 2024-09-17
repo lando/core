@@ -36,6 +36,7 @@ services:
 
   web2:
     api: 4
+    app-mount: /app
     image: node:18
     command: npm run dev
     ports:
@@ -44,9 +45,6 @@ services:
     build:
       app: |
         npm install
-
-    mounts:
-      - ./:/somewhere/else
 
 plugins:
   "@lando/core": "../.."
