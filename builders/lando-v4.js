@@ -55,16 +55,13 @@ module.exports = {
   parent: 'l337',
   defaults: {
     config: {
-      'app-mount': {
-        type: 'bind',
-        destination: '/app',
-        exclude: [],
-      },
+      'app-mount': '/app',
       'certs': true,
       'environment': {},
       'healthcheck': false,
       'hostnames': [],
       'labels': {},
+      'mount': [],
       'mounts': [],
       'overrides': {},
       'packages': {
@@ -87,14 +84,6 @@ module.exports = {
   router: () => ({}),
   builder: (parent, defaults) => class LandoServiceV4 extends parent {
     static debug = require('debug')('@lando/l337-service-v4');
-
-    #appMount = {
-      type: 'bind',
-      destination: '/app',
-      exclude: [],
-      volumes: [],
-      binds: [],
-    }
 
     #run = {
       environment: [],
@@ -179,6 +168,24 @@ module.exports = {
           RUN /etc/lando/run-hooks.sh image ${hook}
         `});
       }
+    }
+
+    #setupAppMount() {
+      // if appMount is a string then we need to add prepend the appRoot
+      if (typeof this.appMount === 'string') this.appMount = `${this.appRoot}:${this.appMount}`;
+
+      // unshift it onto mounts
+      this.mounts.unshift(...require('../utils/normalize-mounts')([this.appMount], this));
+
+      // then normalize it so we can get the target
+      this.appMount = this.normalizeVolumes([this.appMount])?.[0]?.target;
+
+      // set stuff
+      this.info = {appMount: this.appMount};
+      this.addLandoServiceData({
+        environment: {LANDO_PROJECT_MOUNT: this.appMount},
+        working_dir: this.appMount,
+      });
     }
 
     #setupMounts() {
@@ -268,21 +275,20 @@ module.exports = {
       this.router = upstream.router;
 
       // config
+      this.appMount = config.appMount ?? config.appmount ?? config['app-mount'];
       this.certs = config.certs;
       this.command = config.command;
       this.healthcheck = config.healthcheck;
       this.hostnames = uniq([...config.hostnames, `${this.id}.${this.project}.internal`]);
-      this.mounts = require('../utils/normalize-mounts')(config.mounts, this);
+      this.mounts = require('../utils/normalize-mounts')([...config.mounts, ...config.mount], this);
       this.packages = config.packages;
       this.security = config.security;
       this.security.cas.push(caCert, path.join(path.dirname(caCert), `${caDomain}.pem`));
-      this.storage = [
-        // @TODO: add any storage from mounts excludes
-        ...require('../utils/normalize-storage')(config.storage, this),
-        ...require('../utils/normalize-storage')(config['persistent-storage'], this),
-      ];
-
+      this.storage = require('../utils/normalize-storage')([...config.storage, ...config['persistent-storage']], this);
       this.volumes = config.volumes;
+
+      // if app mount is enabled then hook that up
+      if (!require('../utils/is-disabled')(this.appMount)) this.#setupAppMount();
 
       // top level stuff
       this.tlnetworks = {[this.network]: {external: true}};
@@ -316,9 +322,6 @@ module.exports = {
       // @TODO: halfbaked
       this.buildScript = config?.build?.app ?? false;
 
-      // volumes
-      if (config['app-mount']) this.setAppMount(config['app-mount']);
-
       // info things
       this.info = {hostnames: this.hostnames};
 
@@ -342,7 +345,6 @@ module.exports = {
         LANDO_HOST_USER: require('../utils/get-username')(),
         LANDO_LEIA: lando.config.leia === false ? '0' : '1',
         LANDO_PROJECT: this.project,
-        LANDO_PROJECT_MOUNT: this.appMount,
         LANDO_SERVICE_API: 4,
         LANDO_SERVICE_NAME: this.id,
         LANDO_SERVICE_TYPE: this.type,
@@ -366,7 +368,6 @@ module.exports = {
         networks: {[this.network]: {aliases: this.hostnames}},
         user: this.user.name,
         volumes: this.volumes,
-        working_dir: this.appMount,
       });
 
       // add any overrides on top
@@ -605,7 +606,6 @@ module.exports = {
     async run(command, {
       attach = true,
       user = this.user.name,
-      workingDir = this.appMount,
       entrypoint = ['/bin/bash', '-c'],
     } = {}) {
       const bengine = this.getBengine();
@@ -617,7 +617,6 @@ module.exports = {
         interactive: this.isInteractive,
         createOptions: {
           User: user,
-          WorkingDir: workingDir,
           Entrypoint: entrypoint,
           Env: this.#run.environment,
           Labels: this.#run.labels,
@@ -626,6 +625,9 @@ module.exports = {
           },
         },
       };
+
+      // add in workingDir if we have an appMount
+      if (!require('../utils/is-disabled')(this.appMount)) runOpts.createOptions.WorkingDir = this.appMount;
 
       try {
         // run me
@@ -662,54 +664,6 @@ module.exports = {
       this.addLandoServiceData({volumes: mounts});
       this.npmrc = contents.join('\n');
       this.npmrcFile = npmauthfile;
-    }
-
-    // @TODO: more powerful syntax eg go as many levels as you want and maybe ! syntax?
-    setAppMount(config) {
-      // reset the destination
-      this.#appMount.destination = config.destination;
-
-      // its easy if we dont have any excludes
-      if (config.exclude.length === 0) {
-        this.#appMount.binds = [`${this.appRoot}:${config.destination}`];
-
-      // if we have excludes then we need to compute somethings
-      // @TODO: this is busted and needs to be redone when we have a deeper "mounting"
-      // system
-      } else {
-        // named volumes for excludes
-        this.#appMount.volumes = config.exclude.map(vol => `app-mount-${vol}`);
-        // get all paths to be considered
-        const binds = [
-          ...fs.readdirSync(this.appRoot).filter(path => !config.exclude.includes(path)),
-          ...config.exclude,
-        ];
-        // map into bind mounts
-        this.#appMount.binds = binds.map(path => {
-          if (config.exclude.includes(path)) return `app-mount-${path}:${this.#appMount.destination}/${path}`;
-          else return `${this.appRoot}/${path}:${this.#appMount.destination}/${path}`;
-        });
-        // and again for appBuild stuff b w/ full mount name
-        binds.map(path => {
-          if (config.exclude.includes(path)) {
-            // this.addAppBuildVolume(`${this.project}_app-mount-${path}:${this.#appMount.destination}/${path}`);
-          } else {
-            // this.addAppBuildVolume(`${this.appRoot}/${path}:${this.#appMount.destination}/${path}`);
-          }
-        });
-      }
-
-      // add named volumes if we need to
-      if (this.#appMount.volumes.length > 0) {
-        this.addComposeData({volumes: Object.fromEntries(this.#appMount.volumes.map(vol => ([vol, {}])))});
-      }
-
-      // set bindz
-      this.addLandoServiceData({volumes: this.#appMount.binds});
-
-      // set infp
-      this.appMount = config.destination;
-      this.info = {appMount: this.appMount};
     }
   },
 };
