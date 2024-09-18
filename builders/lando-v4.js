@@ -173,6 +173,8 @@ module.exports = {
     #setupAppMount() {
       // if appMount is a string then we need to add prepend the appRoot
       if (typeof this.appMount === 'string') this.appMount = `${this.appRoot}:${this.appMount}`;
+      // if its an object we need to force the source
+      if (isObject(this.appMount)) this.appMount = {...this.appMount, source: this.appRoot};
 
       // unshift it onto mounts
       this.mounts.unshift(...require('../utils/normalize-mounts')([this.appMount], this));
