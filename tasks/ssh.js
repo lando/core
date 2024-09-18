@@ -50,10 +50,11 @@ module.exports = (lando, app) => ({
         // for v3 services if it is set however it is technically unsupported
         if (_.find(services, s => s.id === service)) {
           const config = _.find(services, s => s.id === service);
+          const workdir = config?.config?.overrides?.working_dir ?? config?.config?.working_dir;
           // prefer appmount
           if (config.appMount) opts[1] = config.appMount;
           // fallback to working dir if available
-          if (!config.appMount && _.has(config, 'config.working_dir')) opts[0] = config.config.working_dir;
+          if (!config.appMount && workdir) opts[0] = workdir;
         }
 
         // continue
