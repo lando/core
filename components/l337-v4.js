@@ -242,6 +242,8 @@ class L337ServiceV4 extends EventEmitter {
 
     // update app with new stuff
     this.#app.compose = require('../utils/dump-compose-data')(this.#app.composeData, this.#app._dir);
+
+    // update and log
     this.#app.v4.updateComposeCache();
     this.debug('%o added top level compose data %o', this.id, data);
   }

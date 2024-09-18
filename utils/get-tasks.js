@@ -82,9 +82,12 @@ const engineRunner = (config, command) => (argv, lando) => {
 
   // mix in mount if applicable
   if (!task.dir && _.has(app, `mounts.${service}`)) task.appMount = app.mounts[service];
+
   // and working dir data if no dir or appMount
-  if (!task.dir && !_.has(app, `mounts.${service}`) && _.has(app, `config.services.${service}.working_dir`)) {
-    task.dir = app.config.services[service].working_dir;
+  if (!task.dir) {
+    const sconf = _.get(app, `config.services.${service}`, {});
+    const workdir = sconf?.overrides?.working_dir ?? sconf?.working_dir;
+    if (workdir) task.dir = app.config.services[service].working_dir;
   }
 
   // Final event to modify and then load and run
