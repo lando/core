@@ -179,6 +179,7 @@ module.exports = {
 
       // then normalize it so we can get the target
       this.appMount = this.normalizeVolumes([this.appMount])?.[0]?.target;
+      this.workdir = this.appMount;
 
       // set stuff
       this.info = {appMount: this.appMount};
@@ -189,8 +190,15 @@ module.exports = {
     }
 
     #setupMounts() {
-      // loop through mounts and add them
-      for (const mount of this.mounts) {
+      // start with any storage mounts so we can do it one fell swoop
+      const storage = this.mounts.filter(mount => mount.type.startsWith('storage'))
+        .map(storage => ({...storage, type: storage.type.split(':')[1] ?? 'volume'}));
+
+      // normalize and pass on storage if applicable
+      if (storage.length > 0) this.storage.push(...require('../utils/normalize-storage')(storage, this));
+
+      // loop through non-storage mounts and add them
+      for (const mount of this.mounts.filter(mount => !mount.type.startsWith('storage'))) {
         // as a volume
         if (mount.type === 'bind') this.volumes.push(mount);
         // or as build context
@@ -217,17 +225,30 @@ module.exports = {
 
       // set initial storage volume ownerships/perms
       for (const volume of this.storage) {
+        // by default assume our dir creation is the volume target
+        volume.dir = volume.target;
+
+        // but if volume if a bind and file then BACK IT UP
+        try {
+          if (volume.type === 'bind' && fs.statSync(volume.source).isFile()) {
+            volume.dir = path.dirname(volume.target);
+          }
+        } catch (error) {
+          error.message = `Error bind mounting storage: ${error.message}`;
+          throw error;
+        }
+
         // recreate and chown
         this.addSteps({group: 'storage', instructions: `
-          RUN rm -rf ${volume.target} \
-            && mkdir -p ${volume.target} \
-            && chown -R ${volume.owner ?? this.user.name} ${volume.target}
+          RUN rm -rf ${volume.dir} \
+            && mkdir -p ${volume.dir} \
+            && chown -R ${volume.owner ?? this.user.name} ${volume.dir}
         `});
 
         // optionally set perms
         if (volume.permissions) {
           this.addSteps({group: 'storage', instructions: `
-            RUN chmod -R ${volume.permissions} ${volume.target}
+            RUN chmod -R ${volume.permissions} ${volume.dir}
           `});
         }
       }
@@ -281,14 +302,18 @@ module.exports = {
       this.healthcheck = config.healthcheck;
       this.hostnames = uniq([...config.hostnames, `${this.id}.${this.project}.internal`]);
       this.mounts = require('../utils/normalize-mounts')([...config.mounts, ...config.mount], this);
+      this.overrides = config.overrides;
       this.packages = config.packages;
       this.security = config.security;
       this.security.cas.push(caCert, path.join(path.dirname(caCert), `${caDomain}.pem`));
       this.storage = require('../utils/normalize-storage')([...config.storage, ...config['persistent-storage']], this);
       this.volumes = config.volumes;
+      this.workdir = undefined;
 
       // if app mount is enabled then hook that up
       if (!require('../utils/is-disabled')(this.appMount)) this.#setupAppMount();
+      // if not then we need to sus out a workign directory
+      else this.workdir = config?.overrides?.working_dir ?? config?.working_dir ?? '/';
 
       // top level stuff
       this.tlnetworks = {[this.network]: {external: true}};
@@ -605,8 +630,9 @@ module.exports = {
 
     async run(command, {
       attach = true,
-      user = this.user.name,
       entrypoint = ['/bin/bash', '-c'],
+      user = this.user.name,
+      workdir = this.workdir,
     } = {}) {
       const bengine = this.getBengine();
 
@@ -620,14 +646,12 @@ module.exports = {
           Entrypoint: entrypoint,
           Env: this.#run.environment,
           Labels: this.#run.labels,
+          WorkingDir: workdir,
           HostConfig: {
             Binds: this.#run.mounts,
           },
         },
       };
-
-      // add in workingDir if we have an appMount
-      if (!require('../utils/is-disabled')(this.appMount)) runOpts.createOptions.WorkingDir = this.appMount;
 
       try {
         // run me

@@ -184,12 +184,6 @@ module.exports = async (app, lando) => {
   // Reset app info on a stop, this helps prevent wrong/duplicate information being reported on a restart
   app.events.on('post-stop', async () => require('./utils/get-app-info-defaults')(app));
 
-  // Remove meta cache on destroy
-  app.events.on('post-destroy', async () => await require('./hooks/app-purge-metadata-cache')(app, lando));
-
-  // Run v4 service destroy methods
-  app.events.on('post-destroy', async () => await require('./hooks/app-run-v4-destroy-service')(app, lando));
-
   // remove v3 build locks
   app.events.on('post-uninstall', async () => await require('./hooks/app-purge-v3-build-locks')(app, lando));
 
@@ -202,10 +196,16 @@ module.exports = async (app, lando) => {
   // remove tooling cache
   app.events.on('post-uninstall', async () => await require('./hooks/app-purge-recipe-cache')(app, lando));
 
-  // remove compose cache on destroy
+  // Remove meta cache on destroy
+  app.events.on('post-destroy', async () => await require('./hooks/app-purge-metadata-cache')(app, lando));
+
+  // Run v4 service destroy methods
+  app.events.on('post-destroy', async () => await require('./hooks/app-run-v4-destroy-service')(app, lando));
+
+  // remove compose cache
   app.events.on('post-destroy', 9999, async () => await require('./hooks/app-purge-compose-cache')(app, lando));
 
-  // remove compose cache directory destroy
+  // remove compose cache directory
   app.events.on('post-destroy', 9999, async () => await require('./hooks/app-purge-compose-dir')(app, lando));
 
   // process events

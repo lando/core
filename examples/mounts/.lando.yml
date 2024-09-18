@@ -36,14 +36,26 @@ services:
 
   web2:
     api: 4
-    app-mount: /app
+    app-mount: false
+    overrides:
+      working_dir: /app
+    mounts:
+      - source: ./
+        destination: /app
+        excludes:
+          - "depth1/depth2"
+          - "!depth1/depth2/test4"
+          - "node_modules"
+          - "other-deps/that-go-here"
+
     image: node:18
-    command: npm run dev
+    command: bash -c "pwd && npm run dev"
     ports:
       - 3000/http
     user: node
     build:
       app: |
+        pwd
         npm install
 
 plugins:

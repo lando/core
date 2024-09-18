@@ -123,7 +123,8 @@ module.exports = (lando, config = lando.appConfig) => ({
     app.mounts = _.merge({}, v3Mounts, app.mounts);
 
     // and working dir data if no dir or appMount
-    ropts.push(app?.config?.services?.[options.service]?.working_dir);
+    const sconf = app?.config?.services?.[options.service] ?? {};
+    ropts.push(sconf?.overrides?.working_dir ?? sconf?.working_dir);
     // mix in mount if applicable
     ropts.push(app?.mounts[options.service]);
 
