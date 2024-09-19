@@ -52,8 +52,10 @@ module.exports = async (app, lando) => {
         context: path.join(app.v4._dir, 'build-contexts', config.name),
         debug: app.v4._debugShim,
         info,
+        project: app.project,
         tag: `${_.get(lando, 'product', 'lando')}/${app.name}-${app.id}-${config.name}:latest`,
         tlvolumes: app.config.volumes,
+        tmpdir: path.join(app.v4._dir, 'tmp', config.name),
       },
       ...config,
     }, app, lando);

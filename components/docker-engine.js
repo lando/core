@@ -118,19 +118,20 @@ class DockerEngine extends Dockerode {
 
     // extend debugger in appropriate way
     const debug = id ? this.debug.extend(id) : this.debug.extend('docker-engine:build');
-    // collect some args we can merge into promise resolution
-    // @TODO: obscure auth?
-    const args = {command: 'dockerode buildImage', args: {dockerfile, tag, sources}};
-    // create an event emitter we can pass into the promisifier
-    const builder = new EventEmitter();
 
-    // ensure context dir exists
+    // wipe context dir so we get a fresh slate each build
+    fs.removeSync(context, {force: true, maxRetries: 10, recursive: true});
     fs.mkdirSync(context, {recursive: true});
 
     // move other sources into the build context
     for (const source of sources) {
-      fs.copySync(source.source, path.join(context, source.destination));
-      debug('copied %o into build context %o', source.source, path.join(context, source.destination));
+      try {
+        fs.copySync(source.source, path.join(context, source.destination), {dereference: true});
+        debug('copied %o into build context %o', source.source, path.join(context, source.destination));
+      } catch (error) {
+        error.message = `Failed to copy ${source.source} into build context at ${source.destination}!: ${error.message}`;
+        throw error;
+      }
     }
 
     // copy the dockerfile to the correct place
@@ -145,6 +146,12 @@ class DockerEngine extends Dockerode {
         write(file, read(file), {forcePosixLineEndings: true});
       }
     }
+
+    // collect some args we can merge into promise resolution
+    // @TODO: obscure auth?
+    const args = {command: 'dockerode buildImage', args: {dockerfile, tag, sources}};
+    // create an event emitter we can pass into the promisifier
+    const builder = new EventEmitter();
 
     // call the parent
     // @TODO: consider other opts? https://docs.docker.com/engine/api/v1.43/#tag/Image/operation/ImageBuild args?
@@ -213,6 +220,33 @@ class DockerEngine extends Dockerode {
     // extend debugger in appropriate way
     const debug = id ? this.debug.extend(id) : this.debug.extend('docker-engine:buildx');
 
+    // wipe context dir so we get a fresh slate each build
+    fs.removeSync(context, {force: true, maxRetries: 10, recursive: true});
+    fs.mkdirSync(context, {recursive: true});
+
+    // move sources into the build context if needed
+    for (const source of sources) {
+      try {
+        fs.copySync(source.source, path.join(context, source.destination), {dereference: true});
+        debug('copied %o into build context %o', source.source, path.join(context, source.destination));
+      } catch (error) {
+        error.message = `Failed to copy ${source.source} into build context at ${source.destination}!: ${error.message}`;
+        throw error;
+      }
+    }
+
+    // on windows we want to ensure the build context has linux line endings
+    if (process.platform === 'win32') {
+      for (const file of require('glob').sync(path.join(context, '**/*'), {nodir: true})) {
+        write(file, read(file), {forcePosixLineEndings: true});
+      }
+    }
+
+    // copy the dockerfile to the correct place and reset
+    fs.copySync(dockerfile, path.join(context, 'Dockerfile'));
+    debug('copied Imagefile from %o to %o', dockerfile, path.join(context, 'Dockerfile'));
+    dockerfile = path.join(context, 'Dockerfile');
+
     // build initial buildx command
     const args = {
       command: this.builder,
@@ -277,27 +311,6 @@ class DockerEngine extends Dockerode {
         buildxer.emit('success', {code, stdout, stderr});
       }
     });
-
-    // ensure context dir exists
-    fs.mkdirSync(context, {recursive: true});
-
-    // move other sources into the build contex
-    // we read/write so we can make sure we are removing windows line endings
-    for (const source of sources) {
-      fs.copySync(source.source, path.join(context, source.destination));
-      debug('copied %o into build context %o', source.source, path.join(context, source.destination));
-    }
-
-    // copy the dockerfile to the correct place
-    fs.copySync(dockerfile, path.join(context, 'Dockerfile'));
-    debug('copied Imagefile from %o to %o', dockerfile, path.join(context, 'Dockerfile'));
-
-    // on windows we want to ensure the build context has linux line endings
-    if (process.platform === 'win32') {
-      for (const file of require('glob').sync(path.join(context, '**/*'), {nodir: true})) {
-        write(file, read(file), {forcePosixLineEndings: true});
-      }
-    }
 
     // debug
     debug('buildxing image %o from %o with build-args', tag, context, buildArgs);
