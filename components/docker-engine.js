@@ -126,10 +126,10 @@ class DockerEngine extends Dockerode {
     // move other sources into the build context
     for (const source of sources) {
       try {
-        fs.copySync(source.source, path.join(context, source.destination), {dereference: true});
-        debug('copied %o into build context %o', source.source, path.join(context, source.destination));
+        fs.copySync(source.source, path.join(context, source.target), {dereference: true});
+        debug('copied %o into build context %o', source.source, path.join(context, source.target));
       } catch (error) {
-        error.message = `Failed to copy ${source.source} into build context at ${source.destination}!: ${error.message}`;
+        error.message = `Failed to copy ${source.source} into build context at ${source.target}!: ${error.message}`;
         throw error;
       }
     }
@@ -227,10 +227,10 @@ class DockerEngine extends Dockerode {
     // move sources into the build context if needed
     for (const source of sources) {
       try {
-        fs.copySync(source.source, path.join(context, source.destination), {dereference: true});
-        debug('copied %o into build context %o', source.source, path.join(context, source.destination));
+        fs.copySync(source.source, path.join(context, source.target), {dereference: true});
+        debug('copied %o into build context %o', source.source, path.join(context, source.target));
       } catch (error) {
-        error.message = `Failed to copy ${source.source} into build context at ${source.destination}!: ${error.message}`;
+        error.message = `Failed to copy ${source.source} into build context at ${source.target}!: ${error.message}`;
         throw error;
       }
     }
