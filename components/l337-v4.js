@@ -265,18 +265,26 @@ class L337ServiceV4 extends EventEmitter {
     if (context && context.length > 0) {
       this.#data.sources.push(context.map(file => {
         // file is a string with src par
-        if (typeof file === 'string' && toPosixPath(file).split(':').length === 1) file = {src: file, dest: file};
+        if (typeof file === 'string' && toPosixPath(file).split(':').length === 1) file = {source: file, target: file};
         // file is a string with src and dest parts
         if (typeof file === 'string' && toPosixPath(file).split(':').length === 2) {
           const parts = file.split(':');
-          const dest = parts.pop();
-          const src = parts.join(':');
-          file = {src, dest};
+          const target = parts.pop();
+          const source = parts.join(':');
+          file = {source, target};
         }
-        // file is an object with src key
-        if (isObject(file) && file.src) file.source = file.src;
-        // file is an object with dest key
-        if (isObject(file) && file.dest) file.destination = file.dest;
+
+        // normalize object
+        if (isObject(file) && !file.source) {
+          file.source = file.src;
+          delete file.src;
+        }
+        if (isObject(file) && !file.target) {
+          file.target = file.destination ?? file.dest;
+          delete file.dest;
+          delete file.destination;
+        }
+
         // if source is actually a url then lets address that
         try {
           file.url = new URL(toPosixPath(file.source)).href;
@@ -284,8 +292,8 @@ class L337ServiceV4 extends EventEmitter {
         } catch {}
 
         // at this point we need to make sure a desintation is set
-        if (!file.destination && file.source) file.destination = file.source;
-        if (!file.destination && file.url) file.destination = new URL(file.url).pathname;
+        if (!file.target && file.source) file.target = file.source;
+        if (!file.target && file.url) file.target = new URL(file.url).pathname;
         // handle relative source paths
         if (file.source && !path.isAbsolute(file.source)) file.source = path.resolve(this.appRoot, file.source);
 
@@ -301,19 +309,17 @@ class L337ServiceV4 extends EventEmitter {
           file.instructions = file.url ? ['ADD'] : ['COPY'];
           if (file.owner) file.instructions.push(`--chown=${file.owner}`);
           if (file.permissions) file.instructions.push(`--chmod=${file.permissions}`);
-          file.instructions.push(file.url ?? path.join('.', file.destination));
-          file.instructions.push(process.platform === 'win32' ? file.destination : path.resolve('/', file.destination));
+          file.instructions.push(file.url ?? path.join('.', file.target));
+          file.instructions.push(process.platform === 'win32' ? file.target : path.resolve('/', file.target));
           file.instructions = file.instructions.join(' ');
         }
 
         // ensure instructions are an array
         if (typeof file.instructions === 'string') file.instructions = [`${file.instructions}`];
 
-        // remove extraneous keys
-        if (isObject(file) && file.dest) delete file.dest;
+        // remove other extraneous keys
         if (isObject(file) && file.group) delete file.group;
         if (isObject(file) && file.perms) delete file.perms;
-        if (isObject(file) && file.src) delete file.src;
         if (isObject(file) && file.user) delete file.user;
 
         // should be ready for all the things eg pushing as a build step
