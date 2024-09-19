@@ -3,6 +3,9 @@ services:
   web1:
     api: 4
     image: nginxinc/nginx-unprivileged:1.26.1
+    app-mount: false
+    overrides:
+      working_dir: /app
     user: nginx
     ports:
       - 8080/http
@@ -20,6 +23,16 @@ services:
         contents: |
           hello
           there!
+
+      # copy source file to target
+      - source: ./other-deps/that-go-here/dep1
+        target: /deps/dep1
+        type: copy
+
+      # copy app files into webroot
+      - source: ./
+        target: /usr/share/nginx/html
+        type: copy
 
       # copy contents to target during config stage of image build
       - target: /etc/lando/config/anakin
@@ -49,14 +62,33 @@ services:
           - "other-deps/that-go-here"
 
     image: node:18
-    command: bash -c "pwd && npm run dev"
+    command: npm run dev
     ports:
       - 3000/http
     user: node
     build:
       app: |
-        pwd
         npm install
+
+  web3:
+    api: 4
+    app-mount: false
+    overrides:
+      working_dir: /app
+    mounts:
+      - source: ./
+        destination: /app
+        type: copy
+
+    image: node:18
+    command: sleep infinity
+    # command: npm run dev
+    # ports:
+    #   - 3000/http
+    user: node
+    # build:
+    #   image: |ls -
+    #     npm install
 
 plugins:
   "@lando/core": "../.."
