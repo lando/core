@@ -25,6 +25,7 @@ const toPosixPath = require('../utils/to-posix-path');
 class L337ServiceV4 extends EventEmitter {
   #app
   #data
+  #lando
 
   static debug = require('debug')('@lando/l337-service-v4');
   static bengineConfig = {};
@@ -100,21 +101,23 @@ class L337ServiceV4 extends EventEmitter {
   }
 
   constructor(id, {
-    appRoot = path.join(os.tmpdir(), nanoid(), id),
+    appRoot = path.join(os.tmpdir(), project, 'app', id),
     buildArgs = {},
-    context = path.join(os.tmpdir(), nanoid(), id),
+    context = path.join(os.tmpdir(), project, 'build-contexts', id),
     config = {},
     debug = L337ServiceV4.debug,
     groups = {},
     info = {},
     name = id,
     primary = false,
+    project = app.project,
     sshKeys = [],
     sshSocket = false,
     stages = {},
     states = {},
     tag = nanoid(),
     tlvolumes = {},
+    tmpdir = path.join(os.tmpdir(), project, 'tmp', id),
     type = 'l337',
     user = undefined,
   } = {}, app, lando) {
@@ -128,22 +131,26 @@ class L337ServiceV4 extends EventEmitter {
     this.config = config;
     this.context = context;
     this.debug = debug;
-    this.name = name || id;
+    this.name = name ?? id;
     this.primary = primary;
+    this.project = project;
     this.sshKeys = sshKeys;
     this.sshSocket = sshSocket;
-    this.type = type;
     this.tag = tag;
+    this.tmpdir = tmpdir;
+    this.type = type;
 
-    this.imagefile = path.join(context, 'Imagefile');
+    this.imagefile = path.join(tmpdir, 'Imagefile');
     // @TODO: add needed validation for above things?
     // @TODO: error handling on props?
 
     // makre sure the build context dir exists
     fs.mkdirSync(this.context, {recursive: true});
+    fs.mkdirSync(this.tmpdir, {recursive: true});
 
     // initialize our private data
     this.#app = app;
+    this.#lando = lando;
     this.#data = merge(this.#init(), {groups}, {stages}, {states}, {volumes: Object.keys(tlvolumes)});
 
     // rework info based on whatever is passed in
@@ -466,7 +473,7 @@ class L337ServiceV4 extends EventEmitter {
     if (keys === true) {
       keys = [
         path.join(os.homedir(), '.ssh'),
-        path.resolve(this.context, '..', '..', '..', '..', 'keys'),
+        path.resolve(this.#lando.config.userConfRoot, 'keys'),
       ];
     }
 
@@ -538,7 +545,8 @@ class L337ServiceV4 extends EventEmitter {
       // augment error
       error.context = {imagefile, ...context};
       error.logfile = path.join(context.context ?? os.tmpdir(), `error-${nanoid()}.log`);
-      this.debug('image %o build failed with code %o error %o', context.id, error.code, error);
+      this.debug('image %o build failed with code %o error %o', context.id, error.code ?? 1, error.message);
+      this.debug('%o', error?.stack ?? error);
 
       // inject helpful failing stuff to compose
       this.addComposeData({services: {[context.id]: {
@@ -555,6 +563,14 @@ class L337ServiceV4 extends EventEmitter {
       // then throw
       throw error;
     }
+  }
+
+  async destroy() {
+    // remove build contexts and tmp
+    fs.rmSync(this.context, {force: true, maxRetries: 10, recursive: true});
+    fs.rmSync(this.tmpdir, {force: true, maxRetries: 10, recursive: true});
+    this.debug('removed %o-%o build-context %o', this.project, this.id, this.context);
+    this.debug('removed %o-%o tmpdir %o', this.project, this.id, this.tmpdir);
   }
 
   generateBuildContext() {

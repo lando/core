@@ -8,7 +8,7 @@ const toPosixPath = require('./to-posix-path');
 const write = require('./write-file');
 const uniq = require('lodash/uniq');
 
-module.exports = (mounts, {appRoot, context, normalizeVolumes, _data}) => {
+module.exports = (mounts, {_data, appRoot, normalizeVolumes, tmpdir}) => {
   return mounts.map(mount => {
     // if mount is a single string then assume its a bind mount and normalize
     if (typeof mount === 'string' && toPosixPath(mount).split(':').length > 1) {
@@ -35,7 +35,7 @@ module.exports = (mounts, {appRoot, context, normalizeVolumes, _data}) => {
     // note that this means source wins over content|contents if both are present
     if ((mount.contents || mount.content) && !mount.source) {
       // dump contents to file and set source to it
-      mount.source = path.join(context, mount.target.split(path.sep).filter(part => part !== '').join('-'));
+      mount.source = path.join(tmpdir, mount.target.split(path.sep).filter(part => part !== '').join('-'));
       fs.mkdirSync(path.dirname(mount.source), {force: true, maxRetries: 10, recursive: true});
       fs.rmSync(mount.source, {force: true, maxRetries: 10, recursive: true});
       write(mount.source, mount.contents ?? mount.content);

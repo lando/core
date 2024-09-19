@@ -291,7 +291,6 @@ module.exports = {
       this.isInteractive = lando.config.isInteractive;
       this.generateCert = lando.generateCert.bind(lando);
       this.network = lando.config.networkBridge;
-      this.project = app.project;
 
       // upstream
       this.user = user;
@@ -414,8 +413,8 @@ module.exports = {
         const leader = file.find(line => line.length > 0).match(/^\s*/)[0].length ?? 0;
         const contents = file.map(line => line.slice(leader)).join('\n');
 
-        // reset file to a path
-        file = path.join(this.context, id ? `${priority}-${id}.sh` : `${priority}-${stage}-${hook}.sh`);
+        // reset file to a path and make executable
+        file = path.join(this.tmpdir, id ? `${priority}-${id}.sh` : `${priority}-${stage}-${hook}.sh`);
         write(file, contents, {forcePosixLineEndings: true});
         fs.chmodSync(file, '755');
       }
@@ -586,9 +585,8 @@ module.exports = {
         }));
       }
 
-      // finally remove the build context
-      fs.rmdirSync(this.context, {force: true, maxRetries: 10, recursive: true});
-      this.debug('removed %o-%o build-context %o', this.project, this.id, this.context);
+      // pass it up
+      await super.destroy();
     }
 
     getBengine() {
@@ -679,7 +677,7 @@ module.exports = {
       contents.push('');
 
       // write to file
-      const npmauthfile = path.join(this.context, 'npmrc');
+      const npmauthfile = path.join(this.tmpdir, 'npmrc');
       write(npmauthfile, contents.join('\n'));
 
       // ensure mount
