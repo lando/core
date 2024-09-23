@@ -2,6 +2,6 @@
 
 module.exports = async function(fastify, opts) {
   fastify.get('/', async function(request, reply) {
-    return 'this is a thing2';
+    return 'this is a thing';
   });
 };
