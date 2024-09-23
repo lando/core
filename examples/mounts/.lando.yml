@@ -74,10 +74,10 @@ services:
     api: 4
     app-mount: false
     overrides:
-      working_dir: /app
+      working_dir: /serve/me
     mounts:
       - source: ./
-        destination: /app
+        destination: /serve/me
         type: copy
 
     image: node:18
