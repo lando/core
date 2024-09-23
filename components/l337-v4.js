@@ -231,7 +231,7 @@ class L337ServiceV4 extends EventEmitter {
     this.setBaseImage(path.join(data.context, data.dockerfile), data);
     // make sure we are adding the dockerfile context directly as a source so COPY/ADD instructions work
     // @NOTE: we are not adding a "context" because that also injects dockerfile instructions which we might already have
-    this.#data.sources.push(({source: data.context, destination: '.'}));
+    this.#data.sources.push(({source: data.context, target: '.'}));
   }
 
   // just pushes the compose data directly into our thing
@@ -373,7 +373,7 @@ class L337ServiceV4 extends EventEmitter {
     // sure the files exists
     // @TODO: move this to a static method?
     if (hasInstructions(this.#data.imageInstructions, ['COPY', 'ADD']) && this.#data.imageFileContext) {
-      this.#data.sources.push(({source: this.#data.imageFileContext, destination: '.'}));
+      this.#data.sources.push(({source: this.#data.imageFileContext, target: '.'}));
     }
 
     // if we have context data then lets pass that in as well
@@ -603,7 +603,7 @@ class L337ServiceV4 extends EventEmitter {
         .filter(step => hasInstructions(step.step, ['COPY', 'ADD']))
         .map(step => step.contexted)
         .reduce((contexted, step) => contexted || !step, false)) {
-        this.#data.sources.push(({source: this.#data.imageFileContext || this.appRoot, destination: '.'}));
+        this.#data.sources.push(({source: this.#data.imageFileContext || this.appRoot, target: '.'}));
       }
 
       // attempt to normalize newling usage mostly for aesthetic considerations
