@@ -119,7 +119,33 @@ module.exports = (mounts, {_data, appRoot, normalizeVolumes, tmpdir, user}) => {
       return mount;
     }
 
-    // @TODO: handle includes/copy
+    // if copy and includes then add additional mounts
+    if (mount.type === 'copy' && (mount.include || mount.includes)) {
+      // normalize and combine
+      const includes = orderBy(uniq([mount.include, mount.includes]
+        .map(include => !Array.isArray(include) ? [include] : include)
+        .flat(Number.POSITIVE_INFINITY))
+        .filter(include => include)
+        .map(include => toPosixPath(include))
+        .map(include => ({path: include, depth: include.split('/').length})), ['depth'], ['asc'])
+        .map(include => include.path);
+
+      // reset mount for inception
+      delete mount.include;
+      delete mount.includes;
+      mount = [mount];
+
+      // push on includes in the correct order
+      if (includes.length > 0) {
+        for (const include of includes) {
+          mount.push({
+            source: path.join(appRoot, include),
+            target: path.join(mount[0].target, include),
+            type: 'bind',
+          });
+        }
+      }
+    }
 
     return mount;
   }).flat(Number.POSITIVE_INFINITY);
