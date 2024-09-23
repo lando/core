@@ -34,14 +34,19 @@ const groups = {
     weight: 400,
     user: 'root',
   },
-  'config': {
-    description: 'Configuration file stuff',
+  'storage': {
+    description: 'Set ownership and permission of storage mounts',
     weight: 500,
     user: 'root',
   },
-  'storage': {
-    description: 'Set ownership and permission of storage mounts',
-    weight: 9999,
+  'config': {
+    description: 'Configuration file stuff',
+    weight: 600,
+    user: 'root',
+  },
+  'user-image': {
+    description: 'User contributed build steps',
+    weight: 900,
     user: 'root',
   },
 };
@@ -343,10 +348,29 @@ module.exports = {
         };
       }
 
-      // build script
+      // user app build stuff
+      // @TODO: app:first, app:changed, app:every
       // @TODO: handle array content?
-      // @TODO: halfbaked
-      this.buildScript = config?.build?.app ?? false;
+      // @TODO: improve this, a lot
+      // @TODO: allow for file path and single line contents
+      if (config?.build?.app && typeof config.build.app === 'string') {
+        this.addHookFile(config?.build?.app, {stage: 'app', hook: 'user'});
+      };
+
+      // user image build stuff
+      // @TODO: image:user image:root?
+      // @TODO: allow for "step" objects?
+      // @TODO: allow path content as well?
+      if (config?.build?.image && typeof config.build.image === 'string') {
+        const runner = config.build.image
+          .split('\n')
+          .filter(line => line && line !== '')
+          .join(' && ');
+        this.addSteps({group: 'user', instructions: `
+          WORKDIR ${this.workdir}
+          RUN ${runner}
+        `});
+      };
 
       // info things
       this.info = {hostnames: this.hostnames};
@@ -506,18 +530,10 @@ module.exports = {
       try {
         // set state
         this.info = {state: {APP: 'BUILDING'}};
-
         // run internal root app build first
         await this.runHook(['app', 'internal-root'], {attach: false, user: 'root'});
-
-        // run user build scripts if we have them
-        if (this.buildScript && typeof this.buildScript === 'string') {
-          this.addHookFile(this.buildScript, {stage: 'app', hook: 'user'});
-        };
-
         // Run user app build.
         await this.runHook(['app', 'user']);
-
         // state
         this.info = {state: {APP: 'BUILT'}};
         // log

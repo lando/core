@@ -79,16 +79,18 @@ services:
       - source: ./
         destination: /serve/me
         type: copy
+        includes:
+          - routes
 
     image: node:18
-    command: sleep infinity
-    # command: npm run dev
-    # ports:
-    #   - 3000/http
+    command: npm run dev
+    ports:
+      - 3000/http
     user: node
-    # build:
-    #   image: |ls -
-    #     npm install
+    build:
+      image: |
+        pwd
+        npm install
 
 plugins:
   "@lando/core": "../.."
