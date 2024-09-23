@@ -1,4 +1,9 @@
 name: lando-mounts
+proxy:
+  web2:
+    - binded.lando-mounts.lndo.site:3000
+  web3:
+    - copied.lando-mounts.lndo.site:3000
 services:
   web1:
     api: 4
@@ -80,6 +85,7 @@ services:
         destination: /serve/me
         type: copy
         includes:
+          - routes/example
           - routes
 
     image: node:18
