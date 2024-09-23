@@ -8,7 +8,7 @@ const toPosixPath = require('./to-posix-path');
 const write = require('./write-file');
 const uniq = require('lodash/uniq');
 
-module.exports = (mounts, {_data, appRoot, normalizeVolumes, tmpdir}) => {
+module.exports = (mounts, {_data, appRoot, normalizeVolumes, tmpdir, user}) => {
   return mounts.map(mount => {
     // if mount is a single string then assume its a bind mount and normalize
     if (typeof mount === 'string' && toPosixPath(mount).split(':').length > 1) {
@@ -22,6 +22,12 @@ module.exports = (mounts, {_data, appRoot, normalizeVolumes, tmpdir}) => {
       const error = new Error('Mount is not an object!');
       error.details = mount;
       throw error;
+    }
+
+    // allow a few other things like src to be used instead of source
+    if (!mount.source) {
+      mount.source = mount.src;
+      delete mount.src;
     }
 
     // allow a few other things like dest|destination to be used instead of target
@@ -45,11 +51,17 @@ module.exports = (mounts, {_data, appRoot, normalizeVolumes, tmpdir}) => {
       delete mount.content;
     }
 
-    // if mount is a typeless or mount object then also normalize
-    if (!mount.type) {
-      if (normalizeVolumes.bind({_data, appRoot})([mount]).length > 0) {
-        mount = normalizeVolumes.bind({_data, appRoot})([mount])[0];
-      }
+    // if copy mount then merge in defaults and normalize
+    // normalize copy mount stuff
+    if (mount.type === 'copy') {
+      // rebase on defaults
+      mount = {group: 'user', user: user.name, ...mount};
+      // normalize path if needed
+      if (!path.isAbsolute(mount.source)) mount.source = path.join(appRoot, mount.source);
+
+    // otherwise if its typeless or bind do the usual downstream normalization
+    } else if (mount.type === 'bind' || !mount.type) {
+      mount = normalizeVolumes.bind({_data, appRoot})([mount])[0] ?? {};
     }
 
     // @TODO: throw error if no target|source?
@@ -106,9 +118,6 @@ module.exports = (mounts, {_data, appRoot, normalizeVolumes, tmpdir}) => {
 
       return mount;
     }
-
-    // if this is a copy mount then make sure the group is set
-    if (mount.type === 'copy' && !mount.group) mount.group = 'user';
 
     // @TODO: handle includes/copy
 

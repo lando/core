@@ -204,7 +204,7 @@ module.exports = {
         // as a volume
         if (mount.type === 'bind') this.volumes.push(mount);
         // or as build context
-        else if (mount.type === 'copy') this.addContext(`${mount.source}:${mount.target}`, mount.group);
+        else if (mount.type === 'copy') this.addContext(mount, mount.group);
       }
     }
 
