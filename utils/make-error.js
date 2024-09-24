@@ -9,6 +9,7 @@ module.exports = ({
   args,
   code,
   command,
+  context,
   error,
   errorCode,
   short,
@@ -44,6 +45,7 @@ module.exports = ({
   error.all = all;
   error.code = code;
   error.command = command;
+  error.context = context;
   error.args = args;
   error.errorCode = errorCode ?? code;
   error.exitCode = exitCode ?? code;

@@ -1,0 +1,105 @@
+name: lando-command
+services:
+  web1:
+    api: 4
+    app-mount: false
+    image: node:18
+    command: ./scripts/start.sh
+    user: node
+    mounts:
+      - source: ./
+        destination: /app
+        type: copy
+    ports:
+      - 3000/http
+    overrides:
+      working_dir: /app
+    build:
+      image: |
+        npm install
+
+  web2:
+    api: 4
+    app-mount: false
+    image: node:18
+    command: npm run dev
+    user: node
+    mounts:
+      - source: ./
+        destination: /app
+        type: copy
+    ports:
+      - 3000/http
+    overrides:
+      working_dir: /app
+    build:
+      image: |
+        npm install
+
+  web3:
+    api: 4
+    app-mount: false
+    image: node:18
+    command: |
+      #!/bin/sh
+      pwd
+      npm run dev
+
+    user: node
+    mounts:
+      - source: ./
+        destination: /app
+        type: copy
+    ports:
+      - 3000/http
+    overrides:
+      working_dir: /app
+    build:
+      image: |
+        npm install
+
+  web4:
+    api: 4
+    app-mount: false
+    image: node:18
+    command: file://scripts/start.sh
+    user: node
+    mounts:
+      - source: ./
+        destination: /app
+        type: copy
+    ports:
+      - 3000/http
+    overrides:
+      working_dir: /app
+    build:
+      image: |
+        npm install
+
+  web5:
+    api: 4
+    app-mount: false
+    image: |
+      FROM node:18
+      RUN echo "npm run dev" > /run.sh
+      RUN chmod +x /run.sh
+    command: /run.sh
+    user: node
+    mounts:
+      - source: ./
+        destination: /app
+        type: copy
+    ports:
+      - 3000/http
+    overrides:
+      working_dir: /app
+    build:
+      image: |
+        npm install
+
+plugins:
+  "@lando/core": "../.."
+  "@lando/healthcheck": "../../plugins/healthcheck"
+  "@lando/networking": "../../plugins/networking"
+  "@lando/proxy": "../../plugins/proxy"
+  "@lando/scanner": "../../plugins/scanner"
