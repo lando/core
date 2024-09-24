@@ -4,9 +4,12 @@ const fs = require('fs');
 const isObject = require('lodash/isPlainObject');
 const merge = require('lodash/merge');
 const path = require('path');
+const read = require('../utils/read-file');
 const uniq = require('lodash/uniq');
 const write = require('../utils/write-file');
 const toPosixPath = require('../utils/to-posix-path');
+
+const LandoError = require('../components/error');
 
 const states = {APP: 'UNBUILT'};
 const stages = {
@@ -157,6 +160,31 @@ module.exports = {
       `});
     }
 
+    #setupCommand() {
+      // go through the preliminaries
+      if (!fs.existsSync(this.command)) {
+        throw new LandoError(`Cannot find command file for ${this.id} at ${this.command}!`, {context: this});
+      }
+
+      // reset commandfile over
+      this.command = require('../utils/scripty-to-file')(read(this.command), {
+        base: this.appRoot,
+        id: `${this.id}-start.sh`,
+        tmpdir: this.tmpdir,
+      });
+
+      // if commandfile is not executable throw an error
+      try {
+        fs.accessSync(this.command, fs.constants.X_OK);
+      } catch {
+        throw new LandoError(`Command file ${this.command} for ${this.id} is not executable!`, {context: this});
+      };
+
+      // now complete the final mapping for container injection
+      this.addLSF(this.command, `${this.id}-start.sh`, 'user');
+      this.command = `/etc/lando/${this.id}-start.sh`;
+    }
+
     #setupHooks() {
       // filter out early stage hooks
       const groups = this?._data?.groups ?? {};
@@ -297,14 +325,23 @@ module.exports = {
       this.generateCert = lando.generateCert.bind(lando);
       this.network = lando.config.networkBridge;
 
-      // upstream
-      this.user = user;
+      // upstream requirements
       this.router = upstream.router;
+      this.user = user;
+
+      // top level stuff
+      this.tlnetworks = {[this.network]: {external: true}};
+
+      // command
+      this.command = require('../utils/scripty-to-file')(config.command, {
+        base: this.appRoot,
+        id: `${id}-command.sh`,
+        tmpdir: this.tmpdir,
+      });
 
       // config
       this.appMount = config.appMount ?? config.appmount ?? config['app-mount'];
       this.certs = config.certs;
-      this.command = config.command;
       this.healthcheck = config.healthcheck;
       this.hostnames = uniq([...config.hostnames, `${this.id}.${this.project}.internal`]);
       this.mounts = require('../utils/normalize-mounts')([...config.mounts, ...config.mount], this);
@@ -321,13 +358,12 @@ module.exports = {
       // if not then we need to sus out a workign directory
       else this.workdir = config?.overrides?.working_dir ?? config?.working_dir ?? '/';
 
-      // top level stuff
-      this.tlnetworks = {[this.network]: {external: true}};
-
       // @TODO: add in tmp-storage and home-storage?
 
       // boot stuff
       this.#setupBoot();
+      // command stuff
+      this.#setupCommand();
       // hook system
       this.#setupHooks();
       // mounting system
@@ -560,19 +596,21 @@ module.exports = {
       // build the image
       const image = await super.buildImage();
 
-      // determine the command and normalize it for wrapper
-      const command = this.command ?? image?.info?.Config?.Cmd ?? image?.info?.ContainerConfig?.Cmd;
+      // if command is still undefined try to set it from the image info
+      if (!this.command) this.command = image?.info?.Config?.Cmd ?? image?.info?.ContainerConfig?.Cmd;
 
-      // if command if null or undefined then throw error
-      // @TODO: better error?
-      if (command === undefined || command === null) {
-        throw new Error(`${this.id} has no command set!`);
+      // final check that the command is set
+      if (!this.command || this.command === undefined || this.command === null || this.command === '') {
+        throw new LandoError(`${this.id} has no command set!`, {context: this});
       }
 
       // parse command
       const parseCommand = command => typeof command === 'string' ? require('string-argv')(command) : command;
+
       // add command wrapper to image
-      this.addLandoServiceData({command: ['/etc/lando/start.sh', ...parseCommand(command)]});
+      this.addLandoServiceData({
+        command: ['/etc/lando/start.sh', ...parseCommand(this.command)],
+      });
 
       // return
       return image;
