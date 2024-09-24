@@ -14,6 +14,7 @@ class LandoError extends Error {
     args = [],
     code = 1,
     command = '',
+    context = {},
     stdout = '',
     stderr = '',
     short,
@@ -25,6 +26,7 @@ class LandoError extends Error {
     this.args = args;
     this.code = code;
     this.command = command;
+    this.context = context;
     this.short = short ?? message;
     this.stdout = stdout;
     this.stderr = stderr;
