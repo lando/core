@@ -358,12 +358,13 @@ module.exports = {
       // if not then we need to sus out a workign directory
       else this.workdir = config?.overrides?.working_dir ?? config?.working_dir ?? '/';
 
+      // if we have a command then also set that up
+      if (!require('../utils/is-disabled')(this.command)) this.#setupCommand();
+
       // @TODO: add in tmp-storage and home-storage?
 
       // boot stuff
       this.#setupBoot();
-      // command stuff
-      this.#setupCommand();
       // hook system
       this.#setupHooks();
       // mounting system

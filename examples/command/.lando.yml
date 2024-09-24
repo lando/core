@@ -97,6 +97,13 @@ services:
       image: |
         npm install
 
+  web6:
+    api: 4
+    image: nginxinc/nginx-unprivileged:1.26.1
+    user: nginx
+    ports:
+      - 8080/http
+
 plugins:
   "@lando/core": "../.."
   "@lando/healthcheck": "../../plugins/healthcheck"
