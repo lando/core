@@ -50,7 +50,7 @@ export default defineConfig({
   themeConfig: {
     sidebar: sidebar(),
     multiVersionBuild: {
-      satisfies: '>=3.20.0',
+      satisfies: '>3.21.2',
     },
     sidebarEnder,
   },
