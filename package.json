@@ -40,6 +40,7 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "docs:dev": "vitepress dev docs --debug",
     "docs:build": "vitepress build docs",
+    "docs:mvb": "npx mvb docs",
     "docs:preview": "vitepress preview docs",
     "lint": "eslint . --ext .js --ext .mjs ",
     "test:unit": "nyc --reporter=html --reporter=text mocha --timeout 5000 test/**/*.spec.js",
