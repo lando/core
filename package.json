@@ -66,7 +66,7 @@
     "is-interactive": "^1",
     "is-online": "^9",
     "is-root": "^2",
-    "js-yaml": "^3.4.6",
+    "js-yaml": "^4.1.0",
     "jsonfile": "^2.4.0",
     "listr2": "^6.6.1",
     "lodash": "^4.17.21",
