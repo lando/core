@@ -758,7 +758,7 @@ class L337ServiceV4 extends EventEmitter {
     // if the data is raw imagefile instructions then dump it to a file and set to that file
     if (image.split('\n').length > 1) {
       const content = image;
-      image = path.join(require('os').tmpdir(), nanoid(), 'Imagefile');
+      image = path.join(this.tmpdir, 'Imagefile');
       fs.mkdirSync(path.dirname(image), {recursive: true});
       write(image, content);
       this.#data.imageFileContext = this.appRoot;

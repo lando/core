@@ -11,7 +11,7 @@ const yaml = require('js-yaml');
  */
 const loadLandoFile = file => {
   try {
-    return yaml.safeLoad(fs.readFileSync(file));
+    return yaml.load(fs.readFileSync(file));
   } catch (e) {
     throw new Error(`There was a problem with parsing ${file}. Ensure it is valid YAML! ${e}`);
   }

@@ -39,6 +39,7 @@ module.exports = (file, {base = os.tmpdir(), id = nanoid(), tmpdir = os.tmpdir()
 
     // reset file to a path and make executable
     file = path.join(tmpdir, id);
+    fs.mkdirSync(path.dirname(file), {recursive: true});
     write(file, contents, {forcePosixLineEndings: true});
     fs.chmodSync(file, '755');
     file = `file://${file}`;
