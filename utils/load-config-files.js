@@ -52,7 +52,7 @@ module.exports = files => _(files)
   .filter(source => fs.existsSync(source) || fs.existsSync(source.file))
   // If the file is just a string lets map it to an object
   .map(source => {
-    return _.isString(source) ? {file: source, data: yaml.safeLoad(fs.readFileSync(source))} : source;
+    return _.isString(source) ? {file: source, data: yaml.load(fs.readFileSync(source))} : source;
   })
   // Add on the root directory for mapping purposes
   .map(source => _.merge({}, source, {root: path.dirname(source.file)}))

@@ -1,0 +1,4 @@
+thing: !import ../.npmignore
+pic: !import ../docs/public/images/icon.png @binary
+package: !import ../package.json @json
+stuff: !import ../plugin.yml @yaml

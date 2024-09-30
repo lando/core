@@ -464,6 +464,10 @@ module.exports = {
     }
 
     addHookFile(file, {id = undefined, hook = 'boot', stage = 'image', priority = '100'} = {}) {
+      // hook files are assumed to be on t
+      // @TODO: addLocalHookFile?
+
+
       // if file is actually script content we need to normalize and dump it first
       if (!require('valid-path')(toPosixPath(file), {simpleReturn: true})) {
         // split the file into lines
