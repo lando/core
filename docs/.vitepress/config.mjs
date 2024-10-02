@@ -1,22 +1,24 @@
 import {createRequire} from 'module';
 
-import {defineConfig} from '@lando/vitepress-theme-default-plus/config';
 import {default as isDevRelease} from '@lando/vitepress-theme-default-plus/is-dev-release';
+
+import {defineConfig} from '@lando/vitepress-theme-default-plus/config';
 
 const require = createRequire(import.meta.url);
 
+// get plugin stuff
 const {name, version} = require('../../package.json');
 const landoPlugin = name.replace('@lando/', '');
 
 const sidebarEnder = landoPlugin && version ? {
-  text: `${landoPlugin}@v${version}`,
+  text: process?.env?.LANDO_MVB_VERSION ? process.env.LANDO_MVB_VERSION : `v${version}`,
   collapsed: true,
   items: [
     {
       text: 'Other Doc Versions',
       items: [
-        {text: 'stable', target: '_blank', link: '/v/stable/'},
-        {text: 'edge', target: '_blank', link: '/v/edge/'},
+        {rel: 'mvb', text: 'stable', target: '_blank', link: '/v/stable/'},
+        {rel: 'mvb', text: 'edge', target: '_blank', link: '/v/edge/'},
         {text: '<strong>see all versions</strong>', link: '/v/'},
       ],
     },
@@ -50,7 +52,7 @@ export default defineConfig({
   themeConfig: {
     sidebar: sidebar(),
     multiVersionBuild: {
-      satisfies: '>3.21.2',
+      satisfies: '>=3.21.2',
     },
     sidebarEnder,
   },
