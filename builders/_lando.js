@@ -182,6 +182,7 @@ module.exports = {
       info.meUser = meUser;
       info.hasCerts = ssl;
       info.api = 3;
+      info.appMount = appMount;
 
       // Add the healthcheck if it exists
       if (healthcheck) info.healthcheck = healthcheck;
