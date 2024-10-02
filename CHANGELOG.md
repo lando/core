@@ -113,9 +113,76 @@
 
 ## v3.21.0 - [May 25, 2024](https://github.com/lando/core/releases/tag/v3.21.0)
 
-### Bug Fixes
+### New Features
 
+* Added ability to autostart Docker Desktop for Windows from within WSL instances [#164](https://github.com/lando/core/pull/164)
+* Added `autostart` Docker Engine support to Linux
+* Added `lando update` command so Lando and installed plugins can self-update
+* Added hidden `lando setup` command to replace package installers
+* Added hidden `lando plugin-add` command to install external plugins
+* Added hidden `lando plugin-remove` command to remove external plugins
+* Added new _very low level_ generic [L337 Service](https://docs.lando.dev/core/v3/services/l337.html)
+* Improved `healthcheck` so it can now be disabled with `healthcheck: false`
+* Improved method for locating and starting Docker Desktop on Windows [#164](https://github.com/lando/core/pull/164)
+* Improved `lando version` to give more total version information
+* Introduced "Untested Docker Version" notice
+* Improved `sudo` user detection on Linux
+* Improved Docker compatibility messages
+* Improved `wsl` status detection
+* Improved `spawn` debugging output
+* Updated default Docker Compose version to `2.27.0`
+* Updated default Docker Desktop version to `4.30.0`
+* Updated default Docker Engine version to `26.1.1`
+* Updated tested Docker Desktop range to `<=4.30`
+* Updated tested Docker Engine range to `<27`
+* Updated `sql-export.sh` to use `mariadb-dump` command (if available). [#148](https://github.com/lando/core/pull/148)
+
+### Fixes
+
+* Added general purpose error `trap` to Docker Desktop install script on Windows, maybe fixes [#118](https://github.com/lando/core/issues/118)
+* Fixed bug that prevented password prompts from rendering
+* Fixed inescapable password prompt when starting aborting a lando start
+* Fixed prompt showing in `non-interactive` environments
+* Fixed errors caused by "legacy" plugins [#127](https://github.com/lando/core/issues/127)
+* Fixed `warnings is not defined` error when trying to bring up `proxy`
+* Fixed Docker Engine autostart for users using `service` instead of `systemctl` [#110](https://github.com/lando/core/issues/110)
+* Fixed `once` events running more than `once`
+* Fixed broken Docker Compose|Desktop|Engine links
+* Fixed bug causing `lando` services to report `Up` when they actually `Exited` non-zero
+* Fixed CLI update issues on Windows [#109](https://github.com/lando/core/issues/109) [#122](https://github.com/lando/core/issues/122)
+* Fixed encoding error in default `write-file`
+* Fixed bug that caused Lando to be too impatient when starting Docker Desktop [#164](https://github.com/lando/core/pull/164)
+* Fixed unclear error when cancelling certain prompts
+* Fixed longstanding bug causing some debug output to print to `stdout` instead of `stderr`
+* Fixed bug causing `healthy` info to not persist correctly
+* Fixed bug causing proxy `502 Bad Gateway` when assiging duplicate `urls` with different `ports`
+* Fixed inconsistent container shutdown by switching from `kill` to `stop`
+* Fixed inconsistent error display in `dc2` `listr` renderer
 * Fixed `Could not find suitable download url` CLI update error caused by a release posted before assets are available
+* Improved post-start status message granularity, they can one of `tip|info|warn|error` now
+* Improved post-start status message accessibility
+* Improved "Update Available" warning to be less **INTENSE**, is now a post-start info message
+* Improved `MINMAX UID/GID` assignment to reduce exporting layers weirdness
+
+### Internal
+
+* Added `buildkit` as an alias for `buildx` in `l337` service `image` key
+* Added `app.addMessage` for more granular and accessible post-start app status reporting
+* Bumped minimum `node` version to `18`
+* Changed `download-x` to prefer `ipv4` [#165](https://github.com/lando/core/pull/165)
+* Changed `lando.log` and `app.log` to be more like `debug`
+* Changed `rebuild` to `kill` instead of `stop`
+* Improved error handling on `download-x` [#165](https://github.com/lando/core/pull/165)
+* Removed lingering and dangling should-now-be-in-plugins code eg `_drupaly.js`
+* Reorganized core to be more like `@lando/core-next` (eg Lando 4)
+* Removed `github` dependency
+* Removed `mkdirp` dependency
+* Switched (fully, finally) from `github` to `@octokit/rest`
+* Switched plugin package manager to `npm`
+
+### DEPRECATIONS
+
+* DEPRECATED `app.addWarning` in favor of `app.addMessage`
 
 ## v3.21.0-beta.20 - [May 9, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.20)
 
@@ -720,9 +787,7 @@ So, basically, if you have real work you need to do we recommend you [don't try 
 
 * `config.yml` from `@lando/core` is now loaded after the `config.yml` from `@lando/cli`
 
-### DEPRECATIONS
 
-#
 ### Global Config
 
   * `composeBin` is now discouraged in favor of `orchestratorVersion`. [Read more](https://docs.lando.dev/core/v3/orchestrator.html).
