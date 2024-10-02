@@ -37,6 +37,8 @@ jobs:
         run: npm run docs:mvb
       - name: Test build
         run: npm run docs:build
+      - name: Test mvb
+        run: npm run docs:mvb
 
   lando-docs-tests:
     runs-on: ${{ matrix.os }}

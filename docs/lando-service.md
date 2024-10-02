@@ -27,7 +27,7 @@ services:
     type: lando
 
     # these directly map to docker compose things
-    # see: https://docs.docker.com/compose/compose-file/
+    # see: https://docs.docker.com/reference/compose-file/
     # note that these are only available if you invoke the service directly
     services: {}
     networks: {}
