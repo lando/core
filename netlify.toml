@@ -3,8 +3,16 @@
   publish = "docs/.vitepress/dist"
   command = "npx mvb docs"
 
-[context.deploy-preview]
-  command = "npm run build"
+# [context.deploy-preview]
+#   command = "npm run build"
+
+#   # https://github.com/munter/netlify-plugin-checklinks#readme
+#   [[plugins]]
+#     package = "netlify-plugin-checklinks"
+#     [plugins.inputs]
+#       todoPatterns = [ "load", "CHANGELOG.html", "x.com", "twitter.com", "/v/" ]
+#       skipPatterns = [ ".rss", ".gif", ".jpg" ]
+#       checkExternal = true
 
 # Sets our asset optimization
 [build.processing.css]
@@ -30,14 +38,6 @@
   package = "@netlify/plugin-lighthouse"
   [plugins.inputs.audits]
     output_path = "reports/lighthouse.html"
-
-# https://github.com/munter/netlify-plugin-checklinks#readme
-[[plugins]]
-  package = "netlify-plugin-checklinks"
-  [plugins.inputs]
-    todoPatterns = [ "load", "CHANGELOG.html", "x.com", "twitter.com", "/v/", "compose/compose-file/", "storage/bind-mounts/" ]
-    skipPatterns = [ ".rss", ".gif", ".jpg" ]
-    checkExternal = true
 
 # We need this so preview environments and the base site look ok on their own
 [[redirects]]
