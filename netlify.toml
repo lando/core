@@ -3,8 +3,8 @@
   publish = "docs/.vitepress/dist"
   command = "npx mvb docs"
 
-# [context.deploy-preview]
-#   command = "npm run build"
+[context.deploy-preview]
+  command = "npm run build"
 
 # Sets our asset optimization
 [build.processing.css]
@@ -35,7 +35,7 @@
 [[plugins]]
   package = "netlify-plugin-checklinks"
   [plugins.inputs]
-    todoPatterns = [ "load", "CHANGELOG.html", "x.com", "twitter.com", '/v/' ]
+    todoPatterns = [ "load", "CHANGELOG.html", "x.com", "twitter.com", "/v/", "compose/compose-file/", "storage/bind-mounts/" ]
     skipPatterns = [ ".rss", ".gif", ".jpg" ]
     checkExternal = true
 
