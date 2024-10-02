@@ -6,13 +6,13 @@
 [context.deploy-preview]
   command = "npm run docs:build"
 
+[[context.deploy-preview.plugins]]
   # https://github.com/munter/netlify-plugin-checklinks#readme
-  [[plugins]]
-    package = "netlify-plugin-checklinks"
-    [plugins.inputs]
-      todoPatterns = [ "load", "CHANGELOG.html", "x.com", "twitter.com", "/v/" ]
-      skipPatterns = [ ".rss", ".gif", ".jpg" ]
-      checkExternal = true
+  package = "netlify-plugin-checklinks"
+  [context.deploy-preview.plugins.inputs]
+    todoPatterns = [ "load", "CHANGELOG.html", "x.com", "twitter.com", "/v/" ]
+    skipPatterns = [ ".rss", ".gif", ".jpg" ]
+    checkExternal = true
 
 # Sets our asset optimization
 [build.processing.css]
