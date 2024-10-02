@@ -6,8 +6,8 @@
 [context.deploy-preview]
   command = "npm run docs:build"
 
+# https://github.com/munter/netlify-plugin-checklinks#readme
 [[context.deploy-preview.plugins]]
-  # https://github.com/munter/netlify-plugin-checklinks#readme
   package = "netlify-plugin-checklinks"
   [context.deploy-preview.plugins.inputs]
     todoPatterns = [ "load", "CHANGELOG.html", "x.com", "twitter.com", "/v/" ]
