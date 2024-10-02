@@ -1,7 +1,5 @@
 import {createRequire} from 'module';
 
-import {default as isDevRelease} from '@lando/vitepress-theme-default-plus/is-dev-release';
-
 import {defineConfig} from '@lando/vitepress-theme-default-plus/config';
 
 const require = createRequire(import.meta.url);
@@ -9,30 +7,6 @@ const require = createRequire(import.meta.url);
 // get plugin stuff
 const {name, version} = require('../../package.json');
 const landoPlugin = name.replace('@lando/', '');
-
-const sidebarEnder = landoPlugin && version ? {
-  text: process?.env?.LANDO_MVB_VERSION ? process.env.LANDO_MVB_VERSION : `v${version}`,
-  collapsed: true,
-  items: [
-    {
-      text: 'Other Doc Versions',
-      items: [
-        {rel: 'mvb', text: 'stable', target: '_blank', link: '/v/stable/'},
-        {rel: 'mvb', text: 'edge', target: '_blank', link: '/v/edge/'},
-        {text: '<strong>see all versions</strong>', link: '/v/'},
-      ],
-    },
-    {text: 'Other Releases', link: 'https://github.com/lando/core/releases'},
-  ],
-} : false;
-
-// add release notes
-if (sidebarEnder && !isDevRelease(version)) {
-  sidebarEnder.items.splice(1, 0, {
-    text: 'Release Notes',
-    link: `https://github.com/lando/core/releases/tag/v${version}`,
-  });
-}
 
 export default defineConfig({
   title: 'Lando Core',
@@ -54,7 +28,6 @@ export default defineConfig({
     multiVersionBuild: {
       satisfies: '>=3.21.2',
     },
-    sidebarEnder,
   },
 });
 
