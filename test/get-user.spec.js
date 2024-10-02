@@ -29,6 +29,11 @@ describe('get-user', function() {
     expect(getUser('test-service', info)).to.equal('www-data');
   });
 
+  it('should return specified user if service is a "no-api" docker-compose service and user is specified', function() {
+    const info = [{service: 'test-service', type: 'docker-compose', meUser: 'custom-user'}];
+    expect(getUser('test-service', info)).to.equal('custom-user');
+  });
+
   it('should return "www-data" if service.api is 4 but no user is specified', function() {
     const info = [{service: 'test-service', api: 4}];
     expect(getUser('test-service', info)).to.equal('www-data');

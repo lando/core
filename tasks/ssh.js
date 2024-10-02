@@ -40,6 +40,8 @@ module.exports = (lando, app) => ({
         const api = _.get(_.find(app.info, {service}), 'api', 3);
         // set additional opt defaults if possible
         const opts = [undefined, api === 4 ? undefined : '/app'];
+        opts[2] = !app._config.command.deps ?? false;
+        opts[3] = app._config.command.autoRemove ?? true;
         // mix any v4 service info on top of app.config.services
         const services = _(_.get(app, 'config.services', {}))
           .map((service, id) => _.merge({}, {id}, service))
@@ -53,7 +55,7 @@ module.exports = (lando, app) => ({
           // prefer appmount
           if (config.appMount) opts[1] = config.appMount;
           // fallback to working dir if available
-          if (!config.appMount && _.has(config, 'config.working_dir')) opts[0] = config.config.working_dir;
+          if (!config.appMount && _.has(config, 'working_dir')) opts[0] = config.working_dir;
         }
 
         // continue
