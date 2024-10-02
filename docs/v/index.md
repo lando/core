@@ -29,12 +29,12 @@ prev: false
 <br />
 
 <div>
-  <VPLVersionLink :dev="true" :text="aliases.dev" href="/v/dev/" />
+  <VPLVersionLink :dev="true" :text="aliases.dev" :href="aliasLinks.dev" />
 </div>
 
 <script setup>
 import {useTags} from '@lando/vitepress-theme-default-plus';
 import {VPLCollectionPage, VPLCollectionPageSection, VPLCollectionPageTitle, VPLVersionLink} from '@lando/vitepress-theme-default-plus';
 
-const {aliases, links} = useTags();
+const {aliases, aliasLinks, links} = useTags();
 </script>
