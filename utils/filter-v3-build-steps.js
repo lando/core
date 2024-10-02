@@ -4,6 +4,7 @@ const _ = require('lodash');
 
 module.exports = (services, app, rootSteps = [], buildSteps= [], prestart = false) => {
   const getUser = require('../utils/get-user');
+  const getAppMount = require('../utils/get-app-mount');
   // compute stdid based on compose major version
   const cstdio = _.get(app, '_config.orchestratorMV', 2) ? 'inherit' : ['inherit', 'pipe', 'pipe'];
   // Start collecting them
@@ -29,6 +30,7 @@ module.exports = (services, app, rootSteps = [], buildSteps= [], prestart = fals
               mode: 'attach',
               cstdio,
               prestart,
+              workdir: getAppMount(service, app.info),
               user: (_.includes(rootSteps, section)) ? 'root' : getUser(service, app.info),
               services: [service],
             },

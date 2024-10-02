@@ -95,6 +95,7 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
     opts: {
       cstdio,
       mode: 'attach',
+      workdir: require('./get-app-mount')(service, app.info),
       user: require('./get-user')(service, app.info),
       services: [service],
       environment: {
