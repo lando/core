@@ -3,16 +3,16 @@
   publish = "docs/.vitepress/dist"
   command = "npx mvb docs"
 
-# [context.deploy-preview]
-#   command = "npm run build"
+[context.deploy-preview]
+  command = "npm run docs:build"
 
-#   # https://github.com/munter/netlify-plugin-checklinks#readme
-#   [[plugins]]
-#     package = "netlify-plugin-checklinks"
-#     [plugins.inputs]
-#       todoPatterns = [ "load", "CHANGELOG.html", "x.com", "twitter.com", "/v/" ]
-#       skipPatterns = [ ".rss", ".gif", ".jpg" ]
-#       checkExternal = true
+  # https://github.com/munter/netlify-plugin-checklinks#readme
+  [[plugins]]
+    package = "netlify-plugin-checklinks"
+    [plugins.inputs]
+      todoPatterns = [ "load", "CHANGELOG.html", "x.com", "twitter.com", "/v/" ]
+      skipPatterns = [ ".rss", ".gif", ".jpg" ]
+      checkExternal = true
 
 # Sets our asset optimization
 [build.processing.css]
