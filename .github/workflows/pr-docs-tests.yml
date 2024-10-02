@@ -17,6 +17,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Cache version builds
+        uses: actions/cache@v4
+        with:
+          key: lando-mvb-docs
+          path: docs/.vitepress/cache/@lando/mvb
+          save-always: true
       - name: Install node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
