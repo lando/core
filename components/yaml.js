@@ -5,9 +5,8 @@ const path = require('path');
 const yaml = require('js-yaml');
 const validPath = require('valid-path');
 
-// @TODO: autodetect type?
-// @TODO: integrate and rebase using read?
 // @TODO: add in fileloader mapping?
+// @TODO: integrate and rebase using read?
 // @TODO: debugger?
 
 // helper to extract type tag
