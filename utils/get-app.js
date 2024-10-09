@@ -4,7 +4,7 @@ const _ = require('lodash');
 const fs = require('fs');
 const lmerge = require('./legacy-merge');
 const path = require('path');
-const yaml = require('js-yaml');
+const yaml = require('../components/yaml');
 
 /*
  * Helper to load landofile
