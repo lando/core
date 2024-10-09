@@ -1,5 +1,28 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## New Features
+
+* Added `!import` `yaml` tag for future `v4` services things
+* Added build context `tmp` directory to house various build assets
+* Improved build context generation error handling
+* Improved consisteny of `mounty` APIs re `source:` and `target:`
+* Improved `working_dir` discover in `v4` services
+
+## Bug Fixes
+
+* Fixed bug preventing some error codes from bubbling up correctly
+* Fixed bug causing race condition when setting non-service scoped `storage` labels
+* Fixed bug causing preexisting `urls` in `lando info` to be clobbered by `localhost` port discovery
+* Fixed bug causing `allServices` to sometimes be unset in some recipe tasks
+* Fixed bug causing build contexts to not wipe correctly between rebuilds
+* Fixed bug causing build context directories and compose caches to grow indefinitely over time
+
+## Internal
+
+* Rebased `yaml` libraries on new `yaml` component
+* Updated `@lando/cli` release pointer to `@lando/core` for pending MERGE
+* Upgraded `js-yaml` to `^4.1.0`
+
 ## v3.22.0-beta.7 - [September 5, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.7)
 
 ## Bug Fixes
