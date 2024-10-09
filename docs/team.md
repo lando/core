@@ -10,7 +10,7 @@ title: Team
       Team
     </template>
     <template #lead>
-      We are the people who built Lando Core.
+      We are the people who built Lando.
     </template>
   </VPLTeamPageTitle>
   <VPLTeamMembers :members="members" size="small"/>
