@@ -119,6 +119,12 @@ yaml._load = yaml.load;
 yaml._dump = yaml.dump;
 
 yaml.load = (data, options = {}) => {
+  // if data is buffer then just pass it through
+  if (Buffer.isBuffer(data)) return yaml._load(data, {schema: getLandoSchema(options.base), ...options});
+  // ditto for multiline strings
+  else if (data.split('\n').length > 1) return yaml._load(data, {schema: getLandoSchema(options.base), ...options});
+
+  // if we get here its either the path to a file or not
   // if data is actually a file then we do some extra stuff
   if (validPath(data) && fs.existsSync(data)) {
     data = fs.readFileSync(data, {encoding: 'utf8'});
