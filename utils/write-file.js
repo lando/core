@@ -32,7 +32,7 @@ module.exports = (file, data, options = {}) => {
       // otherwise use the normal js-yaml dump
       } else {
         try {
-          fs.writeFileSync(file, require('js-yaml').dump(data, options));
+          fs.writeFileSync(file, require('../components/yaml').dump(data, options));
         } catch (error) {
           throw new Error(error);
         }
