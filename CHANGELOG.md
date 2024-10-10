@@ -61,6 +61,7 @@
 * Moved Lando Development Certificate Authority creation to `setup` framework
 * Moved Landonet 2 upgrade to `setup` framework
 * Rebased `yaml` libraries on new `yaml` component
+* Rebased `git` history on `lando/cli` for pending MERGE
 * Renamed `lash` and `landorc` to `lash.sh` and `landorc.sh` for more consistent naming and packaging
 * Removed `_casetup` builder in favor of native CA generation
 * Removed `ip` `npm` package
