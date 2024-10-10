@@ -22,7 +22,6 @@ logs
 node_modules
 
 # lando config
-FATCORE
 env.yaml
 env.yml
 lando.env

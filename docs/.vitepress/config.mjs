@@ -24,6 +24,43 @@ export default defineConfig({
     'lando-service.md': 'services/lando.md',
   },
   themeConfig: {
+    contributors: {
+      merge: 'name',
+      debotify: true,
+      include: [
+        {
+          name: 'Mike Pirog',
+          email: 'mike@thinktandem.io',
+          title: 'Co-founder',
+          org: 'lando.dev',
+          orgLink: 'https://lando.dev',
+          desc: 'SLAVE4U',
+          links: [
+            {icon: 'github', link: 'https://github.com/pirog'},
+            {icon: 'x', link: 'https://x.com/pirogcommamike'},
+          ],
+          sponsor: 'https://lando.dev/sponsor',
+          maintainer: true,
+          mergeOnly: true,
+        },
+        {
+          avatar: 'https://avatars.githubusercontent.com/u/1153738',
+          name: 'Alec Reynolds',
+          email: 'alec+git@thinktandem.io',
+          title: 'Co-founder',
+          org: 'lando.dev',
+          orgLink: 'https://lando.dev',
+          desc: 'A chill dude',
+          links: [
+            {icon: 'github', link: 'https://github.com/reynoldsalec'},
+            {icon: 'x', link: 'https://x.com/reynoldsalec'},
+          ],
+          sponsor: 'https://lando.dev/sponsor',
+          maintainer: true,
+          mergeOnly: true,
+        },
+      ],
+    },
     sidebar: sidebar(),
     multiVersionBuild: {
       satisfies: '>=3.21.2',
