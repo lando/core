@@ -70,6 +70,7 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
   ) {
     throw new Error(`This app has no service called ${service}`);
   }
+
   // Add the build command
   return {
     id: app.containers[service],
