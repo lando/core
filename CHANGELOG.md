@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.22.0 - [October 10, 2024](https://github.com/lando/core/releases/tag/v3.22.0)
+
 ## New Features
 
 * Added new [`lando exec`](https://docs.lando.dev/cli/exec.html) command
