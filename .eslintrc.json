@@ -5,18 +5,19 @@
   },
   "parser": "@babel/eslint-parser",
   "parserOptions": {
-    "sourceType": "script",
+    "sourceType": "module",
     "ecmaVersion": 8,
     "requireConfigFile": false
   },
   "extends": "google",
   "rules": {
-    "arrow-parens": ["error", "as-needed"],
+    "arrow-parens": ["error",
+      "as-needed"
+    ],
     "max-len": ["error", {
-      "code": 150,
+      "code": 120,
       "ignoreComments": true
     }],
-    "no-extra-semi": ["error"],
     "require-jsdoc": ["error", {
       "require": {
         "FunctionDeclaration": true,
@@ -25,7 +26,6 @@
         "ArrowFunctionExpression": false,
         "FunctionExpression": false
       }
-    }],
-    "strict": ["error", "global"]
+    }]
   }
 }

@@ -1,10 +1,262 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
-## v3.22.0-beta.7 - [September 5, 2024](https://github.com/lando/cli/releases/tag/v3.22.0-beta.7)
+## New Features
 
-* Updated `@lando/core` to [`v3.22.0-beta.7`](https://github.com/lando/core/releases/tag/v3.22.0-beta.7)
+* Added `!import` `yaml` tag for future `v4` services things
+* Added build context `tmp` directory to house various build assets
+* Improved build context generation error handling
+* Improved consisteny of `mounty` APIs re `source:` and `target:`
+* Improved `working_dir` discover in `v4` services
 
-## v3.22.0-beta.6 - [September 4, 2024](https://github.com/lando/cli/releases/tag/v3.22.0-beta.6)
+## Bug Fixes
+
+* Fixed bug preventing some error codes from bubbling up correctly
+* Fixed bug causing race condition when setting non-service scoped `storage` labels
+* Fixed bug causing preexisting `urls` in `lando info` to be clobbered by `localhost` port discovery
+* Fixed bug causing `allServices` to sometimes be unset in some recipe tasks
+* Fixed bug causing build contexts to not wipe correctly between rebuilds
+* Fixed bug causing build context directories and compose caches to grow indefinitely over time
+
+## Internal
+
+* Rebased `yaml` libraries on new `yaml` component
+* Updated `@lando/cli` release pointer to `@lando/core` for pending MERGE
+* Upgraded `js-yaml` to `^4.1.0`
+
+## v3.22.0-beta.7 - [September 5, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.7)
+
+## Bug Fixes
+
+* Fixed bug causing preexisting `urls` in `lando info` to be clobbered by `localhost` port discovery
+* Fixed bug causing `allServices` to sometimes be unset in some recipe tasks
+
+## v3.22.0-beta.6 - [September 4, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.6)
+
+* This release contains only tests and is mostly to keep version sync with the CLI
+
+## v3.22.0-beta.5 - [September 4, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.5)
+
+### New Features
+
+* Updated default Docker Compose version to `2.29.2`
+* Updated default Docker Desktop version to `4.34.0`
+* Updated default Docker Engine version to `27.2.0`
+* Updated tested Docker Desktop range to `<=4.34`
+* Updated tested Docker Compose range to `<=2.29.2`
+
+### Bug Fixes
+
+* Fixed bug causing autosetup to still `U Need Setup` after installing new orchestrator on `lando start`y events
+* Fixed bug preventing non-boot image build hooks from running
+* Fixed bug causing hook files to be `COPY`ed to early in Imagefile
+* Fixed bug causing `appMount` to be not correctly added as a `git` `safe.directory`
+
+## v3.22.0-beta.4 - [August 30, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.4)
+
+## Bug Fixes
+
+* Fixed `os` not defined during `lando setup` on `linux`
+* Fixed inconsistent usage of `skipInstallCa`
+* Renamed `lash` and `landorc` to `lash.sh` and `landorc.sh` for more consistent naming and packaging
+
+## v3.22.0-beta.3 - [August 1, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.3)
+
+* Changed user build script to always run (for now)
+
+## v3.22.0-beta.2 - [July 30, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.2)
+
+### Bug Fixes
+
+* Fixed bug causing new `lando exec` command to incorrectly shell wrap
+* Fixed bug causing `compose` directories to bloat indefinitely
+* Fixed bug causing `stop` to not `kill` when it can just `kill`
+
+## Internal
+
+* Improved `run` volume mounting
+* Improved `volume` type detection
+
+## v3.22.0-beta.1 - [July 25, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.1)
+
+### New Features
+
+* Added new [`lando exec`](https://docs.lando.dev/cli/exec.html) command
+* Added cross platform `host.lando.internal` for container-to-host access
+* Added limited auto setup to app start-y events
+* Added Install Certificate Authority `setup` task
+* Added limit `app` support in `task` functions
+* Added `usage`, `examples` and `positionals` support to `task` and `tooling` objects
+* Added `LANDO_SERVICE_CERT` and `LANDO_SERVICE_KEY` envvars
+* Improved CA and cert generation
+* Improved tooling, events, etc to honor `&` for proper backgrounding with `--detach`
+* Improved `v3` plugin script automoving (finally!)
+* Updated default Docker Compose version to `2.27.1`
+* Updated default Docker Desktop for macOS version to `4.32.0`
+* Updated default Docker Desktop for Windows version to `4.32.0`
+* Updated default Docker Engine version to `27.0.3`
+* Updated tested Docker Desktop range to `<=4.32`
+
+### Bug Fixes
+
+* Fixed bug causing `EISDIR: illegal operation on a directory` on some mounts [#169](https://github.com/lando/core/pull/169)
+* Fixed bug causing `COLUMNS` to be forced to `256` [#1847](https://github.com/lando/core/pull/179)
+* Fixed bug causing weird array merging in dynamic override tasks
+* Fixed bug causing debug output showing in some errors
+* Fixed bug causing compose cache to not properly empty on `destroy`
+* Fixed bug causing `docker-engine.run` to double emit errors
+* Fixed bug causing `undefined` to show on some user password prompts
+* Fixed bug causing Docker Desktop `version` information to not load correctly in some circumstances
+* Fixed various `dc2` renderer bugs
+
+### DEPRECATIONS
+
+* **DEPRECATED** `lando ssh` in favor of new `lando exec`
+* Defunct `lando share` command is now a hidden command
+
+### Internal
+
+* Changed `.ps1` scripts to use `-Option` style option convention
+* Changed `LANDO_HOST_IP` to now use new `host.lando.internal`
+* Moved Lando Development Certificate Authority creation to `setup` framework
+* Moved Landonet 2 upgrade to `setup` framework
+* Removed `_casetup` builder in favor of native CA generation
+* Removed `ip` `npm` package
+
+## v3.21.2 - [June 20, 2024](https://github.com/lando/core/releases/tag/v3.21.2)
+
+### Bug Fixes
+
+* Fixed bug causing legacy `meUser` auto detection to fail in some situation for new Lando 4 service [#178](https://github.com/lando/core/pull/178)
+
+## v3.21.1 - [June 19, 2024](https://github.com/lando/core/releases/tag/v3.21.1)
+
+### Bug Fixes
+
+* Fixed issue with importing databases to a service with the "default" `database` named database. [lando/mysql#53](https://github.com/lando/mysql/issues/53)
+
+## v3.21.0 - [May 25, 2024](https://github.com/lando/core/releases/tag/v3.21.0)
+
+### New Features
+
+* Added ability to autostart Docker Desktop for Windows from within WSL instances [#164](https://github.com/lando/core/pull/164)
+* Added `autostart` Docker Engine support to Linux
+* Added `lando update` command so Lando and installed plugins can self-update
+* Added hidden `lando setup` command to replace package installers
+* Added hidden `lando plugin-add` command to install external plugins
+* Added hidden `lando plugin-remove` command to remove external plugins
+* Added new _very low level_ generic [L337 Service](https://docs.lando.dev/core/v3/services/l337.html)
+* Improved `healthcheck` so it can now be disabled with `healthcheck: false`
+* Improved method for locating and starting Docker Desktop on Windows [#164](https://github.com/lando/core/pull/164)
+* Improved `lando version` to give more total version information
+* Introduced "Untested Docker Version" notice
+* Improved `sudo` user detection on Linux
+* Improved Docker compatibility messages
+* Improved `wsl` status detection
+* Improved `spawn` debugging output
+* Updated default Docker Compose version to `2.27.0`
+* Updated default Docker Desktop version to `4.30.0`
+* Updated default Docker Engine version to `26.1.1`
+* Updated tested Docker Desktop range to `<=4.30`
+* Updated tested Docker Engine range to `<27`
+* Updated `sql-export.sh` to use `mariadb-dump` command (if available). [#148](https://github.com/lando/core/pull/148)
+
+### Fixes
+
+* Added general purpose error `trap` to Docker Desktop install script on Windows, maybe fixes [#118](https://github.com/lando/core/issues/118)
+* Fixed bug that prevented password prompts from rendering
+* Fixed inescapable password prompt when starting aborting a lando start
+* Fixed prompt showing in `non-interactive` environments
+* Fixed errors caused by "legacy" plugins [#127](https://github.com/lando/core/issues/127)
+* Fixed `warnings is not defined` error when trying to bring up `proxy`
+* Fixed Docker Engine autostart for users using `service` instead of `systemctl` [#110](https://github.com/lando/core/issues/110)
+* Fixed `once` events running more than `once`
+* Fixed broken Docker Compose|Desktop|Engine links
+* Fixed bug causing `lando` services to report `Up` when they actually `Exited` non-zero
+* Fixed CLI update issues on Windows [#109](https://github.com/lando/core/issues/109) [#122](https://github.com/lando/core/issues/122)
+* Fixed encoding error in default `write-file`
+* Fixed bug that caused Lando to be too impatient when starting Docker Desktop [#164](https://github.com/lando/core/pull/164)
+* Fixed unclear error when cancelling certain prompts
+* Fixed longstanding bug causing some debug output to print to `stdout` instead of `stderr`
+* Fixed bug causing `healthy` info to not persist correctly
+* Fixed bug causing proxy `502 Bad Gateway` when assiging duplicate `urls` with different `ports`
+* Fixed inconsistent container shutdown by switching from `kill` to `stop`
+* Fixed inconsistent error display in `dc2` `listr` renderer
+* Fixed `Could not find suitable download url` CLI update error caused by a release posted before assets are available
+* Improved post-start status message granularity, they can one of `tip|info|warn|error` now
+* Improved post-start status message accessibility
+* Improved "Update Available" warning to be less **INTENSE**, is now a post-start info message
+* Improved `MINMAX UID/GID` assignment to reduce exporting layers weirdness
+
+### Internal
+
+* Added `buildkit` as an alias for `buildx` in `l337` service `image` key
+* Added `app.addMessage` for more granular and accessible post-start app status reporting
+* Bumped minimum `node` version to `18`
+* Changed `download-x` to prefer `ipv4` [#165](https://github.com/lando/core/pull/165)
+* Changed `lando.log` and `app.log` to be more like `debug`
+* Changed `rebuild` to `kill` instead of `stop`
+* Improved error handling on `download-x` [#165](https://github.com/lando/core/pull/165)
+* Removed lingering and dangling should-now-be-in-plugins code eg `_drupaly.js`
+* Reorganized core to be more like `@lando/core-next` (eg Lando 4)
+* Removed `github` dependency
+* Removed `mkdirp` dependency
+* Switched (fully, finally) from `github` to `@octokit/rest`
+* Switched plugin package manager to `npm`
+
+### DEPRECATIONS
+
+* DEPRECATED `app.addWarning` in favor of `app.addMessage`
+
+## v3.21.0-beta.20 - [May 9, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.20)
+
+### New Features
+
+* Improved `sql-import.sh` to drop and recreate `mysql` and `mariadb` tables before importing
+
+### Bug Fixes
+
+* Fixed updating bug caused by improperly named `v3.21.0-beta18` `@lando/cli` release
+
+## v3.21.0-beta.19 - [May 9, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.19)
+
+### New Features
+
+* Added ability to autostart Docker Desktop for Windows from within WSL instances [#164](https://github.com/lando/core/pull/164)
+* Improved method for locating and starting Docker Desktop on Windows [#164](https://github.com/lando/core/pull/164)
+* Updated default Docker Compose version to `2.27.0`
+* Updated default Docker Desktop version to `4.30.0`
+* Updated default Docker Engine version to `26.1.1`
+* Updated tested Docker Desktop range to `<=4.30`
+* Updated tested Docker Engine range to `<27`
+* Updated `sql-export.sh` to use `mariadb-dump` command (if available). [#148](https://github.com/lando/core/pull/148)
+
+### Bug Fixes
+
+* Fixed bug that caused Lando to be too impatient when starting Docker Desktop [#164](https://github.com/lando/core/pull/164)
+* Fixed unclear error when cancelling certain prompts
+
+### Internal
+
+* Added `buildkit` as an alias for `buildx` in `l337` service `image` key
+* Changed `download-x` to prefer `ipv4` [#165](https://github.com/lando/core/pull/165)
+* Changed `rebuild` to `kill` instead of `stop`
+* Improved error handling on `download-x` [#165](https://github.com/lando/core/pull/165)
+
+## v3.21.0-beta.18 - [April 29, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.18)
+
+* Fixed bug that prevented password prompts from rendering
+* Fixed inescapable password prompt when starting aborting a lando start
+* Improved `MINMAX UID/GID` assignment to reduce exporting layers weirdness
+
+## v3.21.0-beta.17 - [April 23, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.17)
+
+* Fixed some stuff in nascent `LandoService4` for demoing puroses
+
+## v3.21.0-beta.16 - [April 23, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.16)
+
+* Added dumb `linux` `ssh-agent` support for nascent `LandoService4`
+
+## v3.21.0-beta.15 - [April 20, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.15)
 
 ### Notes
 
@@ -12,182 +264,202 @@
 
 ### New Features
 
-* Updated `@lando/core` to [`v3.22.0-beta.6`](https://github.com/lando/core/releases/tag/v3.22.0-beta.6)
+* Added `buildx` toggle to `l337` service `image` key
+* Added build `args` support to `l337` service `image` key
+* Added `ssh` support to `l337` service `image` key
+* Changed default `l337` service builder to `buildx`
+* Improved `api: 4` image build errors and handling
 
-### Fixes
+### Bug Fixes
 
-* Fixed bug causing recipe builder `tasks` to not persist across rebuilds
+* Fixed bug causing `healthy` info to not persist correctly
+* Fixed bug causing proxy `502 Bad Gateway` when assiging duplicate `urls` with different `ports`
+* Fixed inconsistent container shutdown by switching from `kill` to `stop`
+* Fixed inconsistent error display in `dc2` `listr` renderer
 
-## v3.22.0-beta.5 - [September 4, 2024](https://github.com/lando/cli/releases/tag/v3.22.0-beta.5)
+### Internal
 
-* Updated `@lando/core` to [`v3.22.0-beta.5`](https://github.com/lando/core/releases/tag/v3.22.0-beta.5)
+* Changed default `healthy` info from `true` to `unknown`
+* Changed `api: 4` service info to provide a `state` key
+* Added `app.updateComposeCache()` and `app.v4.updateComposeCache` for better metadata consistencu
 
-## v3.22.0-beta.4 - [August 30, 2024](https://github.com/lando/cli/releases/tag/v3.22.0-beta.4)
-
-* Updated `@lando/core` to [`v3.22.0-beta.4`](https://github.com/lando/core/releases/tag/v3.22.0-beta.4)
-
-## v3.22.0-beta.3 - [August 1, 2024](https://github.com/lando/cli/releases/tag/v3.22.0-beta.3)
-
-* Updated `@lando/core` to [`v3.22.0-beta.3`](https://github.com/lando/core/releases/tag/v3.22.0-beta.3)
-
-## v3.22.0-beta.2 - [July 30, 2024](https://github.com/lando/cli/releases/tag/v3.22.0-beta.2)
-
-* Updated `@lando/core` to [`v3.22.0-beta.2`](https://github.com/lando/core/releases/tag/v3.22.0-beta.2)
-
-## v3.22.0-beta.1 - [July 25, 2024](https://github.com/lando/cli/releases/tag/v3.22.0-beta.1)
+## v3.21.0-beta.14 - [April 10, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.14)
 
 ### New Features
 
-* Added `examples`, `positional`, and `usage` `yargs` parsing to incomings tasks
-* Added new `oclif` style tabling option
-* Updated `@lando/core` to [`v3.22.0-beta.1`](https://github.com/lando/core/releases/tag/v3.22.0-beta.1)
+* Added better messages on when and how to update Docker components
+* Updated default Docker Compose version to `2.26.1`
+* Updated default Docker Desktop version to `4.29.0`
+* Updated default Docker Engine version to `26.0.0`
+* Updated tested Docker Desktop range to `<=4.29`
+* Updated tested Docker Engine range to `<27`
 
-### Internals
+### Bug Fixes
 
-* Added `yargs` to task middleware
-* Added `appConfig` to `lando` for more powerful tasks
-* Added `primary` to `appConfig` for more powerful tasks
-* Added `otable` to `formatData`
-* Updated to `yargs@15.4.1` for better `--` handling
+* Fixed bug where `lando update` check failures were failing silently
+* Fixed bug where `GITHUB_TOKEN` was being used, if set, to get `lando update` info
 
-## v3.21.2 - [June 20, 2024](https://github.com/lando/cli/releases/tag/v3.21.2)
+### Internal
 
-* Updated `@lando/core` to [`v3.21.2`](https://github.com/lando/core/releases/tag/v3.21.2)
+* Changed `lando update` GitHub `@octokit/rest` auth to use `LANDO_GITHUB_TOKEN` instead of `GITHUB_TOKEN`
 
-## v3.21.1 - [June 20, 2024](https://github.com/lando/cli/releases/tag/v3.21.1)
+## v3.21.0-beta.13 - [April 6, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.13)
 
-* Updated `@lando/core` to [`v3.21.1`](https://github.com/lando/core/releases/tag/v3.21.1)
+### New Features
 
-## v3.21.0 - [May 25, 2024](https://github.com/lando/cli/releases/tag/v3.21.0)
+* Improved `healthcheck` so it can now be disabled with `healthcheck: false`
 
-* Updated `@lando/core` to [`v3.21.0`](https://github.com/lando/core/releases/tag/v3.21.0)
+## v3.21.0-beta.12 - [March 25, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.12)
 
-## v3.21.0-beta.20 - [May 9, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-beta.20)
+* This release has no content and exists so we can switch over to [@lando/setup-lando](https://github.com/lando/setup-lando) for POSIX install
 
-* Updated `@lando/core` to [`v3.21.0-beta.20`](https://github.com/lando/core/releases/tag/v3.21.0-beta.20)
+## v3.21.0-beta.11 - [March 18, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.11)
 
-## v3.21.0-beta.19 - [May 8, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-beta.19)
+### Fixes
 
-* Updated `@lando/core` to [`v3.21.0-beta.19`](https://github.com/lando/core/releases/tag/v3.21.0-beta.19)
+* Fixed `lando shellenv` to remove duplicate `PATH` entries
 
-## v3.21.0-beta.18 - [May 6, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-beta.18)
+## v3.21.0-beta.10 - [March 15, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.10)
 
-* Updated `@lando/core` to [`v3.21.0-beta.18`](https://github.com/lando/core/releases/tag/v3.21.0-beta.18)
-* Added a new cert for signing Windows and Linux binaries. [#261](https://github.com/lando/cli/pull/261)
-* Synced versions of `lando/cli` with `lando/core`
+### New Features
 
-## v3.21.0-beta.14 - [April 10, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-beta.14)
+* Introduced "Untested Docker Version" notice
+* Improved `sudo` user detection on Linux
+* Improved Docker compatibility messages
+* Improved `wsl` status detection
+* Improved `spawn` debugging output
+* Updated default Docker Compose version to `2.24.6`
+* Updated default Docker Desktop version to `4.28.0`
+* Updated supported Docker Desktop range to `>=4.0.0 <5`
+* Updated supported Docker Engine range to `<26`
 
-* Updated `@lando/core` to [`v3.21.0-beta.14`](https://github.com/lando/core/releases/tag/v3.21.0-beta.14)
+### Fixes
 
-## v3.21.0-beta.13 - [April 6, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-beta.13)
+* Fixed `--debug` causing `lando setup -y` to hang in GitHub Actions `windows` runners
+* Fixed errors caused by "legacy" plugins [#127](https://github.com/lando/core/issues/127)
+* Fixed `lando setup` incorrectly reporting double the plugin installed total
+* Fixed `once` events running more than `once`
+* Fixed prompt showing in `non-interactive` environments
+* Updated `lando-experimental` to new plugin format
 
-### CLI
+## v3.21.0-beta.9 - [March 10, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.9)
 
-* Changed CLI to prefer `ipv4` which helps some `plugin-add` issues [#257](https://github.com/lando/cli/issues/257)
+### New Features
 
-### Core
+* Improved `lando shellenv` to work on Windows shells like `powershell.exe`, `cmd.exe` and `bash.exe`
 
-* Updated `@lando/core` to [`v3.21.0-beta.13`](https://github.com/lando/core/releases/tag/v3.21.0-beta.13)
+### Fixes
 
-## v3.21.0-beta.12 - [March 25, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-beta.12)
+* Fixed CLI update issues on Windows [#109](https://github.com/lando/core/issues/109) [#122](https://github.com/lando/core/issues/122)
+* Fixed encoding error in default `write-file`
 
-* Updated `@lando/core` to [`v3.21.0-beta.12`](https://github.com/lando/core/releases/tag/v3.21.0-beta.12)
+## DevOps
 
-## v3.21.0-beta.11 - [March 18, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-beta.11)
+* Switched `leia` tests to run against `3-dev-slim` for now
 
-* Updated `@lando/core` to [`v3.21.0-beta.11`](https://github.com/lando/core/releases/tag/v3.21.0-beta.11)
+### Internal
 
-## v3.21.0-beta.10 - [March 15, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-beta.10)
+* Changed `lando update` to download CLI binaries to the Lando 4 `cacheDir`
+* Improved `download-x` to auto create nonexistent paths as needed
 
-* Updated `@lando/core` to [`v3.21.0-beta.10`](https://github.com/lando/core/releases/tag/v3.21.0-beta.10)
+## v3.21.0-beta.8 - [March 5, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.8)
 
-## v3.21.0-beta.9 - [March 10, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-beta.9)
+* This release has no content it exists to provide version syncing with `@lando/cli`
 
-### CLI
+## v3.21.0-beta.7 - [March 1, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.7)
 
-* Improved CLI to honor `LANDO_ENTRYPOINT_NAME` as the `yargs` `scriptName` if set
+### Fixes
 
-### Core
+* Added general purpose error `trap` to Docker Desktop install script on Windows, maybe fixes [#118](https://github.com/lando/core/issues/118)
+* Changed `lando shellenv` to print to `stderr` when it has no shellenv to print
+* Fixed issue with `wsl.exe` throwing an error when not found [#117](https://github.com/lando/core/issues/117)
+* Fixed issue with `is-group-member` throwing an when target group was nonexistent [#116](https://github.com/lando/core/issues/116)
 
-* Updated `@lando/core` to [`v3.21.0-beta.9`](https://github.com/lando/core/releases/tag/v3.21.0-beta.9)
+### Internal
 
-## v3.21.0-beta.8 - [March 5, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-beta.8)
+* Improved `is-group-member` so it does not require the existence of the target group
+* Improved `run-command`, `run-elevated` and `run-powershell-script` so they correctly handle pre-command executing errors eg `ENOENT`
 
-### CLI
+## v3.21.0-beta.6 - [February 28, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.6)
 
-* Fixed issue with CLI incorrectly reporting `fatcore` status
+### Fixes
 
-### Core
+* Improved `lando shellenv` so it prints a message if your environment is already g2g
 
-* Updated `@lando/core` to [`v3.21.0-beta.8`](https://github.com/lando/core/releases/tag/v3.21.0-beta.8)
+### Internal
 
-## v3.21.0-beta.7 - [March 1, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-beta.7)
+* Improved `get-shellenv-paths` to filter nonexistent paths
 
-### CLI
+## v3.21.0-beta.5 - [February 26, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.5)
 
-* Improved crash handler to only show when `SHELL` is interactive [#242](https://github.com/lando/cli/issues/242)
-* Improved crash handler to respect `-y` if passed in [#242](https://github.com/lando/cli/issues/242)
+### New Features
 
-### Core
+* Added support for `slim` CLI updates
 
-* Updated `@lando/core` to [`v3.21.0-beta.7`](https://github.com/lando/core/releases/tag/v3.21.0-beta.7)
+### Fixes
 
-## v3.21.0-beta.6 - [February 28, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-beta.6)
+* Fixed `Cannot write to ...` CLI update isseus on Linux and macOS [#109](https://github.com/lando/core/issues/109) [#122](https://github.com/lando/core/issues/122)
 
-### CLI
+## v3.21.0-beta.4 - [February 22, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.4)
 
-* Improved CLI metadata to help resolve [#109](https://github.com/lando/core/issues/109) and [#122](https://github.com/lando/core/issues/122)
+### Fixes
 
-### Core
+* Fixed Docker Engine autostart for users using `service` instead of `systemctl` [#110](https://github.com/lando/core/issues/110)
+* Reverted to older `moveConfig` that i guess silently failed in a good way by @pirog in https://github.com/lando/core/pull/115
 
-* Updated `@lando/core` to [`v3.21.0-beta.6`](https://github.com/lando/core/releases/tag/v3.21.0-beta.6)
+### New Contributors
 
-## v3.21.0-beta.5 - [February 27, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-beta.5)
+* @soleneggd made their first contribution in https://github.com/lando/core/pull/113
 
-### CLI
+## v3.21.0-beta.3 - [February 21, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.3)
 
-* Improved `lando setup` message
-* Improved CLI metadata to help resolve [#109](https://github.com/lando/core/issues/109) and [#122](https://github.com/lando/core/issues/122)
-* Renamed `bin` entrypoint to `/bin/lando` from `/bin/lando.js`
+### Fixes
 
-### Core
+* Fixed `warnings is not defined` error when trying to bring up `proxy`
+* Fixed nested plugins eg `@lando/healthcheck` not showing correct update status
+* Fixed incorrect count showing on `lando plugin-add`
+* Fixed Docker Engine autostart for users using `service` instead of `systemctl` [#110](https://github.com/lando/core/issues/110)
 
-* Updated `@lando/core` to [`v3.21.0-beta.5`](https://github.com/lando/core/releases/tag/v3.21.0-beta.5)
+## v3.21.0-beta.2 - [February 20, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.2)
 
-## v3.21.0-beta.2 - [February 20, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-beta.2)
+### New Features
 
-* Updated `@lando/core` to [`v3.21.0-beta.2`](https://github.com/lando/core/releases/tag/v3.21.0-beta.2)
+* Updated default Docker Compose version to `2.24.5`
+* Updated default Docker Desktop version to `4.27.2`
+* Updated default Docker Engine version to `25.0.3`
+* Updated supported Docker Desktop range to `<4.28`
+* Updated supported Docker Engine range to `<26`
 
-## v3.21.0-beta.1 - [February 16, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-beta.1)
+### Fixes
 
-This release is identical to [v3.21.0-beta.1](https://github.com/lando/cli/releases/tag/v3.21.0-beta.1).
+* Fixed `Enquirer is a peer dependency that must be installed separately` showing up on `lando setup` [#105](https://github.com/lando/core/issues/105)
+* Improved dependency version compatibility check to be [more forgiving](https://www.youtube.com/watch?v=1DxFDK8kmPY) [#104](https://github.com/lando/core/issues/104)
 
-## v3.21.0-alpha.10 - [January 15, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-alpha.10)
+### Internal
 
-This release is identical to [v3.21.0-alpha.9](https://github.com/lando/cli/releases/tag/v3.21.0-alpha.9).
+* Changed default `api: 4` service from `l337` to `lando`
+* Renamed `v4.orchestratorVersion` to `v4.composeApi`
 
-## v3.21.0-alpha.9 - [January 11, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-alpha.9)
+## v3.21.0-beta.1 - [February 16, 2024](https://github.com/lando/core/releases/tag/v3.21.0-beta.1)
 
-This release is identical to [v3.21.0-alpha.8](https://github.com/lando/cli/releases/tag/v3.21.0-alpha.8).
+* This release has no content, it exists to move forward our versioning.
 
-## v3.21.0-alpha.8 - [January 3, 2024](https://github.com/lando/cli/releases/tag/v3.21.0-alpha.8)
+## v3.21.0-alpha.10 - [January 3, 2024](https://github.com/lando/core/releases/tag/v3.21.0-alpha.10)
 
-* Updated `@lando/core` to [`v3.21.0-alpha10`](https://github.com/lando/core/releases/tag/v3.21.0-alpha.10).
+* Removed dangling reference to utils.appMachineName to fix init issue.
 
-## v3.21.0-alpha.7 - [December 27, 2023](https://github.com/lando/cli/releases/tag/v3.21.0-alpha.7)
+## v3.21.0-alpha.9 - [December 12, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.9)
 
-* Removed debugging output.
+### Internal
 
-## v3.21.0-alpha.6 - [December 15, 2023](https://github.com/lando/cli/releases/tag/v3.21.0-alpha.6)
+* Removed `copy-dir` in attempt to simplify/minimize/reduce dependencies
+* Removed lingering `db-tools` tests which should happen in implementating plugins now
 
-This release is identical to [v3.21.0-alpha.5](https://github.com/lando/cli/releases/tag/v3.21.0-alpha.5).
+## v3.21.0-alpha.8 - [December 7, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.8)
 
-## v3.21.0-alpha.5 - [December 15, 2023](https://github.com/lando/cli/releases/tag/v3.21.0-alpha.5)
+* This release has no content, it exists to test new `lando update` flows
 
-This release is identical to [v3.21.0-alpha.4](https://github.com/lando/cli/releases/tag/v3.21.0-alpha.4).
-
-## v3.21.0-alpha.4 - [December 12, 2023](https://github.com/lando/cli/releases/tag/v3.21.0-alpha.4)
+## v3.21.0-alpha.7 - [December 5, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.7)
 
 ### **DANGER NOTES**
 
@@ -199,24 +471,47 @@ This is an `alpha` release which means:
 
 So, basically, if you have real work you need to do we recommend you [don't try it](https://www.youtube.com/watch?v=7Ood-IE7sx4)!
 
-### Installation Notes
+### New Features
 
-If you decide to try it out and want `lando update` to grab new versions of the cli then you need to install the cli in a directory owned by your user eg **DO NOT** install it someplace like `/usr/local/bin`.
+* Added `autostart` Docker Engine support to Linux
+* Added `lando update` command so Lando and installed plugins can self-update
+* Added hidden `lando setup` command to replace package installers
+* Added hidden `lando plugin-add` command to install external plugins
+* Added hidden `lando plugin-remove` command to remove external plugins
+* Improved `lando version` to give more total version information
 
-Your best bet is to do something like this:
+### Fixes
 
-```bash
-mkdir -p ~/.lando/bin
-curl https://github.com/lando/cli/releases/download/v3.21.0-alpha.3/lando-macos-arm64-v3.21.0-alpha.4 -fsSLo ~/.lando/bin/lando-v3.21.0-alpha.4
-chmod +x ~/.lando/bin/lando-v3.21.0-alpha.4
-ln -sf ~/.lando/bin/lando-v3.21.0-alpha.4 ~/.lando/bin/lando
-```
+* Fixed broken Docker Compose|Desktop|Engine links
+* Fixed bug causing `lando` services to report `Up` when they actually `Exited` non-zero
+* Fixed longstanding bug causing some debug output to print to `stdout` instead of `stderr`
+* Improved post-start status message granularity, they can one of `tip|info|warn|error` now
+* Improved post-start status message accessibility
+* Improved "Update Available" warning to be less **INTENSE**, is now a post-start info message
+* Improved `LANDO_DEBUG` to also throw a stack trace
 
-Note that you will need to replace the above with a link for your OS and ARCH and then make sure that `~/.lando/bin` is in your `$PATH`.
+### Internal
 
-### Releases
+* Added `app.addMessage` for more granular and accessible post-start app status reporting
+* Changed `lando.log` and `app.log` to be more like `debug`
+* Bumped minimum `node` version to `18`
+* Bumped supported Docker Desktop version to `>4 <4.27`
+* Removed lingering and dangling should-now-be-in-plugins code eg `_drupaly.js`
+* Reorganized core to be more like `@lando/core-next` (eg Lando 4)
+* Switched (fully, finally) from `github` to `@octokit/rest`
+* Switched plugin package manager to `npm`
+* Removed `bundledDependencies` from `package.json`, now handled by `@lando/prepare-release-action@v3`
+* Removed `dayjs` dependency
+* Removed `github` dependency
+* Removed `mkdirp` dependency
 
-* Changed release assets to only include `@lando/core` by default. Run `lando setup` to fetch all the previously packaged plugins. Subsequent releases will offer fully packaged binaries and a `slim` option.
+### DEPRECATIONS
+
+* DEPRECATED `app.addWarning` in favor of `app.addMessage`
+
+## v3.21.0-alpha.6 - [December 5, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.6)
+
+> This will begin to set things right
 
 ### New Features
 
@@ -240,520 +535,363 @@ Note that you will need to replace the above with a link for your OS and ARCH an
 
 * Added `app.addMessage` for more granular and accessible post-start app status reporting
 * Changed `lando.log` and `app.log` to be more like `debug`
-* Changed `lando version` to now track `@lando/core|@lando/core-next` instead of `@lando/cli`
 * Bumped minimum `node` version to `18`
 * Bumped supported Docker Desktop version to `>4 <4.27`
 * Removed lingering and dangling should-now-be-in-plugins code eg `_drupaly.js`
 * Reorganized core to be more like `@lando/core-next` (eg Lando 4)
-* Reorganized cli to be more like `@lando/core-next` (eg Lando 4)
 * Switched (fully, finally) from `github` to `@octokit/rest`
 * Switched plugin package manager to `npm`
 * Removed `bundledDependencies` from `package.json`, now handled by `@lando/prepare-release-action@v3`
 * Removed `dayjs` dependency
 * Removed `github` dependency
 * Removed `mkdirp` dependency
+
+### DEPRECATIONS
+
+* DEPRECATED `app.addWarning` in favor of `app.addMessage`
+
+## v3.21.0-alpha.5 - [December 5, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.5)
+
+> This will begin to set things right
+
+### New Features
+
+* Added `autostart` Docker Engine support to Linux
+* Added `lando update` command so Lando and installed plugins can self-update
+* Added hidden `lando setup` command to replace package installers
+* Added hidden `lando plugin-add` command to install external plugins
+* Added hidden `lando plugin-remove` command to remove external plugins
+* Improved `lando version` to give more total version information
+
+### Fixes
+
+* Fixed broken Docker Compose|Desktop|Engine links
+* Fixed bug causing `lando` services to report `Up` when they actually `Exited` non-zero
+* Fixed longstanding bug causing some debug output to print to `stdout` instead of `stderr`
+* Improved post-start status message granularity, they can one of `tip|info|warn|error` now
+* Improved post-start status message accessibility
+* Improved "Update Available" warning to be less **INTENSE**, is now a post-start info message
+
+### Internal
+
+* Added `app.addMessage` for more granular and accessible post-start app status reporting
+* Changed `lando.log` and `app.log` to be more like `debug`
+* Bumped minimum `node` version to `18`
+* Bumped supported Docker Desktop version to `>4 <4.27`
+* Removed lingering and dangling should-now-be-in-plugins code eg `_drupaly.js`
+* Reorganized core to be more like `@lando/core-next` (eg Lando 4)
+* Switched (fully, finally) from `github` to `@octokit/rest`
+* Switched plugin package manager to `npm`
+* Removed `bundledDependencies` from `package.json`, now handled by `@lando/prepare-release-action@v3`
+* Removed `dayjs` dependency
+* Removed `github` dependency
+* Removed `mkdirp` dependency
+
+### DEPRECATIONS
+
+* DEPRECATED `app.addWarning` in favor of `app.addMessage`
+
+## v3.21.0-alpha.4 - [December 5, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.4)
+
+> This will begin to set things right
+
+### New Features
+
+* Added `autostart` Docker Engine support to Linux
+* Added `lando update` command so Lando and installed plugins can self-update
+* Added hidden `lando setup` command to replace package installers
+* Added hidden `lando plugin-add` command to install external plugins
+* Added hidden `lando plugin-remove` command to remove external plugins
+* Improved `lando version` to give more total version information
+
+### Fixes
+
+* Fixed broken Docker Compose|Desktop|Engine links
+* Fixed bug causing `lando` services to report `Up` when they actually `Exited` non-zero
+* Fixed longstanding bug causing some debug output to print to `stdout` instead of `stderr`
+* Improved post-start status message granularity, they can one of `tip|info|warn|error` now
+* Improved post-start status message accessibility
+* Improved "Update Available" warning to be less **INTENSE**, is now a post-start info message
+
+### Internal
+
+* Added `app.addMessage` for more granular and accessible post-start app status reporting
+* Changed `lando.log` and `app.log` to be more like `debug`
+* Bumped minimum `node` version to `18`
+* Bumped supported Docker Desktop version to `>4 <4.27`
+* Removed lingering and dangling should-now-be-in-plugins code eg `_drupaly.js`
+* Reorganized core to be more like `@lando/core-next` (eg Lando 4)
+* Switched (fully, finally) from `github` to `@octokit/rest`
+* Switched plugin package manager to `npm`
+* Removed `bundledDependencies` from `package.json`, now handled by `@lando/prepare-release-action@v3`
+* Removed `dayjs` dependency
+* Removed `github` dependency
+* Removed `mkdirp` dependency
+
+### DEPRECATIONS
+
+* DEPRECATED `app.addWarning` in favor of `app.addMessage`
+
+## v3.21.0-alpha.3 - [December 4, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.3)
+
+> This will begin to set things right
+
+### New Features
+
+* Added `autostart` Docker Engine support to Linux
+* Added `lando update` command so Lando and installed plugins can self-update
+* Added hidden `lando setup` command to replace package installers
+* Added hidden `lando plugin-add` command to install external plugins
+* Added hidden `lando plugin-remove` command to remove external plugins
+* Improved `lando version` to give more total version information
+
+### Fixes
+
+* Fixed broken Docker Compose|Desktop|Engine links
+* Fixed bug causing `lando` services to report `Up` when they actually `Exited` non-zero
+* Fixed longstanding bug causing some debug output to print to `stdout` instead of `stderr`
+* Improved post-start status message granularity, they can one of `tip|info|warn|error` now
+* Improved post-start status message accessibility
+* Improved "Update Available" warning to be less **INTENSE**, is now a post-start info message
+
+### Internal
+
+* Added `app.addMessage` for more granular and accessible post-start app status reporting
+* Changed `lando.log` and `app.log` to be more like `debug`
+* Bumped minimum `node` version to `18`
+* Bumped supported Docker Desktop version to `>4 <4.27`
+* Removed lingering and dangling should-now-be-in-plugins code eg `_drupaly.js`
+* Reorganized core to be more like `@lando/core-next` (eg Lando 4)
+* Switched (fully, finally) from `github` to `@octokit/rest`
+* Switched plugin package manager to `npm`
+* Removed `bundledDependencies` from `package.json`, now handled by `@lando/prepare-release-action@v3`
+* Removed `dayjs` dependency
+* Removed `github` dependency
+* Removed `mkdirp` dependency
+
+### DEPRECATIONS
+
+* DEPRECATED `app.addWarning` in favor of `app.addMessage`
+
+## v3.21.0-alpha.2 - [December 4, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.2)
+
+> This will begin to set things right
+
+### New Features
+
+* Added `autostart` Docker Engine support to Linux
+* Added `lando update` command so Lando and installed plugins can self-update
+* Added hidden `lando setup` command to replace package installers
+* Added hidden `lando plugin-add` command to install external plugins
+* Added hidden `lando plugin-remove` command to remove external plugins
+* Improved `lando version` to give more total version information
+
+### Fixes
+
+* Fixed broken Docker Compose|Desktop|Engine links
+* Fixed bug causing `lando` services to report `Up` when they actually `Exited` non-zero
+* Fixed longstanding bug causing some debug output to print to `stdout` instead of `stderr`
+* Improved post-start status message granularity, they can one of `tip|info|warn|error` now
+* Improved post-start status message accessibility
+* Improved "Update Available" warning to be less **INTENSE**, is now a post-start info message
+
+### Internal
+
+* Added `app.addMessage` for more granular and accessible post-start app status reporting
+* Bumped minimum `node` version to `18`
+* Bumped supported Docker Desktop version to `>4 <4.26`
+* Removed lingering and dangling should-now-be-in-plugins code eg `_drupaly.js`
+* Reorganized core to be more like `@lando/core-next` (eg Lando 4)
+* Switched (fully, finally) from `github` to `@octokit/rest`
+* Switched plugin package manager to `npm`
+* Removed `github` dependency
+* Removed `mkdirp` dependency
+
+### DEPRECATIONS
+
+* DEPRECATED `app.addWarning` in favor of `app.addMessage`
+
+## v3.21.0-alpha.1 - [December 4, 2023](https://github.com/lando/core/releases/tag/v3.21.0-alpha.1)
+
+> This will begin to set things right
+
+### New Features
+
+* Added `autostart` Docker Engine support to Linux
+* Added `lando update` command so Lando and installed plugins can self-update
+* Added hidden `lando setup` command to replace package installers
+* Added hidden `lando plugin-add` command to install external plugins
+* Added hidden `lando plugin-remove` command to remove external plugins
+* Improved `lando version` to give more total version information
+
+### Fixes
+
+* Fixed broken Docker Compose|Desktop|Engine links
+* Fixed bug causing `lando` services to report `Up` when they actually `Exited` non-zero
+* Fixed longstanding bug causing some debug output to print to `stdout` instead of `stderr`
+* Improved post-start status message granularity, they can one of `tip|info|warn|error` now
+* Improved post-start status message accessibility
+* Improved "Update Available" warning to be less **INTENSE**, is now a post-start info message
+
+### Internal
+
+* Added `app.addMessage` for more granular and accessible post-start app status reporting
+* Bumped minimum `node` version to `18`
+* Bumped supported Docker Desktop version to `>4 <4.26`
+* Removed lingering and dangling should-now-be-in-plugins code eg `_drupaly.js`
+* Reorganized core to be more like `@lando/core-next` (eg Lando 4)
+* Switched (fully, finally) from `github` to `@octokit/rest`
+* Switched plugin package manager to `npm`
+* Removed `github` dependency
+* Removed `mkdirp` dependency
+
+### DEPRECATIONS
+
+* DEPRECATED `app.addWarning` in favor of `app.addMessage`
+
+## v3.20.4 - [October 6, 2023](https://github.com/lando/core/releases/tag/v3.20.4)
+
+### Fixes
+
+* Fixed borked path leading to `Cannot find module './laemp.js'`
+
+## v3.20.3 - [October 6, 2023](https://github.com/lando/core/releases/tag/v3.20.3)
+
+### Fixes
+
+* Fixed `Inappropriate ioctl for device` errors for interactive build steps and events when using `docker-compose` 2 [#70](https://github.com/lando/core/issues/70)
+* Fixed race condition in some init `sources` causing command to run before user was properly setup
+* Fixed `docker-compose` continually autodownloading on Windows [#67](https://github.com/lando/core/issues/67)
+
+### Internal
+
+* Added `inits` directory to list of plugin autoloaders
+* Added `none` recipe for testing purposes
+* Moved `_lamp` and `_drupaly` recipes into `builders` folder
+* Set `inits` directory as the preferred `init` source
+* Switched `github` init `source` to use `@octokit/rest`
+
+## v3.20.2 - [September 30, 2023](https://github.com/lando/core/releases/tag/v3.20.2)
+
+### Fixes
+
+* Fixed regression which broke disabling `tooling` commands [#62](https://github.com/lando/core/issues/62)
+* Improved `docker-compose` auto-download so it is more transparent [#63](https://github.com/lando/core/issues/63)
+* Improved `docker-compose` download verification [#63](https://github.com/lando/core/issues/63)
+
+## v3.20.1 - [September 27, 2023](https://github.com/lando/core/releases/tag/v3.20.1)
+
+### Fixes
+
+* Fixed bug where `tooling` commands using `app` bootstrap would use `/` instead of `appMount`
+
+## v3.20.0 - [September 22, 2023](https://github.com/lando/core/releases/tag/v3.20.0)
+
+### New Features
+
+* Added support for Docker Compose V2 which is now the default orchestrator. [Read more](https://docs.lando.dev/core/v3/orchestrator.html).
+* Added an `orchestratorVersion` option to the global config. [Read more](https://docs.lando.dev/core/v3/orchestrator.html).
+* Added `healthcheck` support to all Lando 3 services. [Read more](https://docs.lando.dev/core/v3/healthcheck.html).
+* Added a generic Lando 3 `lando` service into core. See [Read more](https://docs.lando.dev/core/v3/lando-service.html).
+* Bumped support of Docker Compose to `1.x.x || 2.x.x`
+* Bumped support of Docker Desktop to `>=4.0.0 <4.24`
+* Bumped support of Docker Engine to `>=18 <25`
+* Dropped support for Docker Desktop `<4.0.0`
+
+### Fixes
+
+* Fixed bug where `lando ssh --help` was incorrectly listing `appserver` as the default `service` in some situations
+* Fixed bug where `cli` was needlessly printing `usermod: no changes` [#152](https://github.com/lando/cli/pull/152)
+* Fixed bug where dynamic tooling events were not setting the service with an option correctly
+* Fixed bug where `proxy` service was wiping out `app.compose`
+* Fixed deprecated usage of `network.external.name` on `lando_proxyedge`
 
 ### Internal
 
 * `config.yml` from `@lando/core` is now loaded after the `config.yml` from `@lando/cli`
 
-### DEPRECATIONS
 
-* DEPRECATED `app.addWarning` in favor of `app.addMessage`
+### Global Config
 
-## v3.21.0-alpha.3 - [December 7, 2023](https://github.com/lando/cli/releases/tag/v3.21.0-alpha.3)
+  * `composeBin` is now discouraged in favor of `orchestratorVersion`. [Read more](https://docs.lando.dev/core/v3/orchestrator.html).
+  * `max` and `min` in `dockerSupportedVersions` are now discouraged in favor of `satisfies`. [See example](https://github.com/lando/core/blob/main/config.yml).
 
-### **DANGER NOTES**
+## v3.17.2 - [June 20, 2023](https://github.com/lando/core/releases/tag/v3.17.2)
 
-This is an `alpha` release which means:
+* Fixed busted cutover to new release process take 2
 
-* Definitely don't try it out unless you are into [risky business](https://www.youtube.com/watch?v=G2UVsyVLLcE)
-* It is "feature complete" but has very little automated testing so we cannot guarantee any level of "it works" beyond "it works on our machines" ;)
-* Subsequent releases could be breaking, _very breaking_
+## v3.17.1 - [June 20, 2023](https://github.com/lando/core/releases/tag/v3.17.1)
 
-So, basically, if you have real work you need to do we recommend you [don't try it](https://www.youtube.com/watch?v=7Ood-IE7sx4)!
+* Fixed busted cutover to new release process
 
-### Installation Notes
+## v3.17.0 - [June 20, 2023](https://github.com/lando/core/releases/tag/v3.17.0)
 
-If you decide to try it out and want `lando update` to grab new versions of the cli then you need to install the cli in a directory owned by your user eg **DO NOT** install it someplace like `/usr/local/bin`.
-
-Your best bet is to do something like this:
-
-```bash
-mkdir -p ~/.lando/bin
-curl https://github.com/lando/cli/releases/download/v3.21.0-alpha.3/lando-macos-arm64-v3.21.0-alpha.3 -fsSLo ~/.lando/bin/lando-v3.21.0-alpha.3
-chmod +x ~/.lando/bin/lando-v3.21.0-alpha.3
-ln -sf ~/.lando/bin/lando-v3.21.0-alpha.3 ~/.lando/bin/lando
-```
-
-Note that you will need to replace the above with a link for your OS and ARCH and then make sure that `~/.lando/bin` is in your `$PATH`.
-
-### Releases
-
-* Changed release assets to only include `@lando/core` by default. Run `lando setup` to fetch all the previously packaged plugins. Subsequent releases will offer fully packaged binaries and a `slim` option.
-
-### New Features
-
-* Added `autostart` Docker Engine support to Linux
-* Added `lando update` command so Lando and installed plugins can self-update
-* Added hidden `lando setup` command to replace package installers
-* Added hidden `lando plugin-add` command to install external plugins
-* Added hidden `lando plugin-remove` command to remove external plugins
-* Improved `lando version` to give more total version information
-
-### Fixes
-
-* Fixed broken Docker Compose|Desktop|Engine links
-* Fixed bug causing `lando` services to report `Up` when they actually `Exited` non-zero
-* Fixed longstanding bug causing some debug output to print to `stdout` instead of `stderr`
-* Improved post-start status message granularity, they can one of `tip|info|warn|error` now
-* Improved post-start status message accessibility
-* Improved "Update Available" warning to be less **INTENSE**, is now a post-start info message
-
-### Internal
-
-* Added `app.addMessage` for more granular and accessible post-start app status reporting
-* Changed `lando.log` and `app.log` to be more like `debug`
-* Changed `lando version` to now track `@lando/core|@lando/core-next` instead of `@lando/cli`
-* Bumped minimum `node` version to `18`
-* Bumped supported Docker Desktop version to `>4 <4.27`
-* Removed lingering and dangling should-now-be-in-plugins code eg `_drupaly.js`
-* Reorganized core to be more like `@lando/core-next` (eg Lando 4)
-* Reorganized cli to be more like `@lando/core-next` (eg Lando 4)
-* Switched (fully, finally) from `github` to `@octokit/rest`
-* Switched plugin package manager to `npm`
-* Removed `bundledDependencies` from `package.json`, now handled by `@lando/prepare-release-action@v3`
-* Removed `dayjs` dependency
-* Removed `github` dependency
-* Removed `mkdirp` dependency
-
-### DEPRECATIONS
-
-* DEPRECATED `app.addWarning` in favor of `app.addMessage`
-
-## v3.21.0-alpha.2 - [December 6, 2023](https://github.com/lando/cli/releases/tag/v3.21.0-alpha.2)
-
-### **DANGER NOTES**
-
-This is an `alpha` release which means:
-
-* Definitely don't try it out unless you are into [risky business](https://www.youtube.com/watch?v=G2UVsyVLLcE)
-* It is "feature complete" but has very little automated testing so we cannot guarantee any level of "it works" beyond "it works on our machines" ;)
-* Subsequent releases could be breaking, _very breaking_
-
-So, basically, if you have real work you need to do we recommend you [don't try it](https://www.youtube.com/watch?v=7Ood-IE7sx4)!
-
-### Installation Notes
-
-If you decide to try it out and want `lando update` to grab new versions of the cli then you need to install the cli in a directory owned by your user eg **DO NOT** install it someplace like `/usr/local/bin`.
-
-Your best bet is to do something like this:
-
-```bash
-mkdir -p ~/.lando/bin
-curl https://github.com/lando/cli/releases/download/v3.21.0-alpha.2/lando-macos-arm64-v3.21.0-alpha.2 -fsSLo ~/.lando/bin/lando-v3.21.0-alpha.2
-chmod +x ~/.lando/bin/lando-v3.21.0-alpha.2
-ln -sf ~/.lando/bin/lando-v3.21.0-alpha.2 ~/.lando/bin/lando
-```
-
-Note that you will need to replace the above with a link for your OS and ARCH and then make sure that `~/.lando/bin` is in your `$PATH`.
-
-### Releases
-
-* Changed release assets to only include `@lando/core` by default. Run `lando setup` to fetch all the previously packaged plugins. Subsequent releases will offer fully packaged binaries and a `slim` option.
-
-### New Features
-
-* Added `autostart` Docker Engine support to Linux
-* Added `lando update` command so Lando and installed plugins can self-update
-* Added hidden `lando setup` command to replace package installers
-* Added hidden `lando plugin-add` command to install external plugins
-* Added hidden `lando plugin-remove` command to remove external plugins
-* Improved `lando version` to give more total version information
-
-### Fixes
-
-* Fixed broken Docker Compose|Desktop|Engine links
-* Fixed bug causing `lando` services to report `Up` when they actually `Exited` non-zero
-* Fixed longstanding bug causing some debug output to print to `stdout` instead of `stderr`
-* Improved post-start status message granularity, they can one of `tip|info|warn|error` now
-* Improved post-start status message accessibility
-* Improved "Update Available" warning to be less **INTENSE**, is now a post-start info message
-
-### Internal
-
-* Added `app.addMessage` for more granular and accessible post-start app status reporting
-* Changed `lando.log` and `app.log` to be more like `debug`
-* Changed `lando version` to now track `@lando/core|@lando/core-next` instead of `@lando/cli`
-* Bumped minimum `node` version to `18`
-* Bumped supported Docker Desktop version to `>4 <4.27`
-* Removed lingering and dangling should-now-be-in-plugins code eg `_drupaly.js`
-* Reorganized core to be more like `@lando/core-next` (eg Lando 4)
-* Reorganized cli to be more like `@lando/core-next` (eg Lando 4)
-* Switched (fully, finally) from `github` to `@octokit/rest`
-* Switched plugin package manager to `npm`
-* Removed `bundledDependencies` from `package.json`, now handled by `@lando/prepare-release-action@v3`
-* Removed `dayjs` dependency
-* Removed `github` dependency
-* Removed `mkdirp` dependency
-
-### DEPRECATIONS
-
-* DEPRECATED `app.addWarning` in favor of `app.addMessage`
-
-## v3.21.0-alpha.1 - [December 6, 2023](https://github.com/lando/cli/releases/tag/v3.21.0-alpha.1)
-
-### **DANGER NOTES**
-
-This is an `alpha` release which means:
-
-* Definitely don't try it out unless you are into [risky business](https://www.youtube.com/watch?v=G2UVsyVLLcE)
-* It is "feature complete" but has very little automated testing so we cannot guarantee any level of "it works" beyond "it works on our machines" ;)
-* Subsequent releases could be breaking, _very breaking_
-
-So, basically, if you have real work you need to do we recommend you [don't try it](https://www.youtube.com/watch?v=7Ood-IE7sx4)!
-
-### Installation Notes
-
-If you decide to try it out and want `lando update` to grab new versions of the cli then you need to install the cli in a directory owned by your user eg **DO NOT** install it someplace like `/usr/local/bin`.
-
-Your best bet is to do something like this:
-
-```bash
-mkdir -p ~/.lando/bin
-curl https://github.com/lando/cli/releases/download/v3.21.0-alpha.1/lando-macos-arm64-v3.21.0-alpha.1 -fsSLo ~/.lando/bin/lando-v3.21.0-alpha.1
-chmod +x ~/.lando/bin/lando-v3.21.0-alpha.1
-ln -sf ~/.lando/bin/lando-v3.21.0-alpha.1 ~/.lando/bin/lando
-```
-
-Note that you will need to replace the above with a link for your OS and ARCH and then make sure that `~/.lando/bin` is in your `$PATH`.
-
-### Releases
-
-* Changed release assets to only include `@lando/core` by default. Run `lando setup` to fetch all the previously packaged plugins. Subsequent releases will offer fully packaged binaries and a `slim` option.
-
-### New Features
-
-* Added `autostart` Docker Engine support to Linux
-* Added `lando update` command so Lando and installed plugins can self-update
-* Added hidden `lando setup` command to replace package installers
-* Added hidden `lando plugin-add` command to install external plugins
-* Added hidden `lando plugin-remove` command to remove external plugins
-* Improved `lando version` to give more total version information
-
-### Fixes
-
-* Fixed broken Docker Compose|Desktop|Engine links
-* Fixed bug causing `lando` services to report `Up` when they actually `Exited` non-zero
-* Fixed longstanding bug causing some debug output to print to `stdout` instead of `stderr`
-* Improved post-start status message granularity, they can one of `tip|info|warn|error` now
-* Improved post-start status message accessibility
-* Improved "Update Available" warning to be less **INTENSE**, is now a post-start info message
-
-### Internal
-
-* Added `app.addMessage` for more granular and accessible post-start app status reporting
-* Changed `lando.log` and `app.log` to be more like `debug`
-* Changed `lando version` to now track `@lando/core|@lando/core-next` instead of `@lando/cli`
-* Bumped minimum `node` version to `18`
-* Bumped supported Docker Desktop version to `>4 <4.27`
-* Removed lingering and dangling should-now-be-in-plugins code eg `_drupaly.js`
-* Reorganized core to be more like `@lando/core-next` (eg Lando 4)
-* Reorganized cli to be more like `@lando/core-next` (eg Lando 4)
-* Switched (fully, finally) from `github` to `@octokit/rest`
-* Switched plugin package manager to `npm`
-* Removed `bundledDependencies` from `package.json`, now handled by `@lando/prepare-release-action@v3`
-* Removed `dayjs` dependency
-* Removed `github` dependency
-* Removed `mkdirp` dependency
-
-### DEPRECATIONS
-
-* DEPRECATED `app.addWarning` in favor of `app.addMessage`
-
-## v3.20.5 - [December 5, 2023](https://github.com/lando/cli/releases/tag/v3.20.5)
-
-### CRITICAL
-
-This resolves a breaking upstream issue in the [Pantheon Plugin](https://github.com/lando/pantheon/releases/tag/v0.13.1). If you are having issues using the Pantheon recipe we **HIGHLY RECOMMEND** you update.
-
-### **HOTFIX**
-
-* Updated to `@lando/cli` version [`3.20.5`](https://github.com/lando/cli/releases/tag/v3.20.5)
-
-## v3.20.4 - [October 6, 2023](https://github.com/lando/cli/releases/tag/v3.20.4)
-
-### CLI
-
-* Suppressed autodebug messaging on `runtime: 3` for now [#220](https://github.com/lando/cli/issues/220)
-
-### Plugins
-
-* Updated to `@lando/acquia` version [`0.10.0`](https://github.com/lando/acquia/releases/tag/v0.10.0)
-* Updated to `@lando/core` version [`3.20.4`](https://github.com/lando/core/releases/tag/v3.20.4)
-* Updated to `@lando/drupal` version [`0.12.01`](https://github.com/lando/drupal/releases/tag/v0.12.0)
-* Updated to `@lando/lagoon` version [`0.11.0`](https://github.com/lando/lagoon/releases/tag/v0.11.0)
-* Updated to `@lando/pantheon` version [`0.13.0`](https://github.com/lando/pantheon/releases/tag/v0.13.0)
-
-## v3.20.2 - [September 30, 2023](https://github.com/lando/cli/releases/tag/3.20.2)
-
-### Plugins
-
-* Updated to `@lando/core` version [`3.20.2`](https://github.com/lando/core/releases/tag/v3.20.2)
-
-## v3.20.1 - [September 28, 2023](https://github.com/lando/cli/releases/tag/3.20.1)
-
-### Fixes
-
-* Fixed bug causing `Invalid host defined options` when using `lando` renderer in `packaged` mode [#216](https://github.com/lando/cli/issues/216)
-* Fixed bug causing `engine` level tasks with interactive options to error
-
-### Plugins
-
-* Updated to `@lando/core` version [`3.20.1`](https://github.com/lando/core/releases/tag/v3.20.1)
-
-## v3.20.0 - [September 22, 2023](https://github.com/lando/cli/releases/tag/3.20.0)
-
-### New Features
-
-* Added support for `LANDO_DEBUG`, a special environment variable that can set an initial/default debugging level for both the `v3` and `v4` runtimes.
-
-### Fixes
-
-* Fixed typo in legacy scanner header artwork
-
-### Plugins
-
-* Updated to `@lando/core` version [`3.20.0`](https://github.com/lando/core/releases/tag/v3.20.0)
-* Updated to `@lando/lagoon` version [`0.10.0`](https://github.com/lando/lagoon/releases/tag/v0.10.0)
-
-### Internal
-
-* Added `cli.runTaskList` for unified `listr2` task running
-* Added `debug` `listr2` renderer
-* Renamed `default` `listr2` renderer to `lando`
-* Removed `dockerSupportedVersions` from `config.yml`, it now lives in [@lando/core](https://github.com/lando/core/blob/main/config.yml)
-
-### DEPRECATIONS
-
-* **DEPRECATED* * `cli.getRenderer` in favor of new `cli.runTaskList`
-
-## v3.19.5 - [June 21, 2023](https://github.com/lando/cli/releases/tag/3.19.5)
-
-* Fixed bug preventing new release flow from working take 5
-
-## v3.19.4 - [June 21, 2023](https://github.com/lando/cli/releases/tag/3.19.4)
-
-* Fixed bug preventing new release flow from working take 4
-
-## v3.19.3 - [June 21, 2023](https://github.com/lando/cli/releases/tag/3.19.3)
-
-* Fixed bug preventing new release flow from working take 3
-
-## v3.19.2 - [June 21, 2023](https://github.com/lando/cli/releases/tag/3.19.2)
-
-* Fixed bug preventing new release flow from working take 2
-
-## v3.19.1 - [June 21, 2023](https://github.com/lando/cli/releases/tag/3.19.1)
-
-* Fixed bug preventing new release flow from working
-
-## v3.19.0 - [June 21, 2023](https://github.com/lando/cli/releases/tag/3.19.0)
-
-### DevOps
-
+* Added `~/.lando/bin` as preferred install location for Docker Compose
 * Switched release flow over to [@lando/prepare-release-action](https://github.com/lando/prepare-release-action)
+* Docker Compose `1.29.2` will now be automatically installed to `~/.lando/bin` if a suitable version is not detected, this is to prepare for Docker Compose V1 being removed from Docker Desktop
 
-### Plugins
+## v3.16.2 - [June 5, 2023](https://github.com/lando/core/releases/tag/v3.16.2)
 
-* Updated to `@lando/core` version [`3.17.2`](https://github.com/lando/core/releases/tag/v3.17.2)
+* Fixed bug causing key sanitization to mutate the underlying data
 
-## v3.18.0 - [May 26, 2023](https://github.com/lando/cli/releases/tag/3.18.0)
+## v3.16.1 - [May 25, 2023](https://github.com/lando/core/releases/tag/v3.16.1)
 
-### Plugins
+* Added metadata required for `@lando/core` to be pass plugin validation
 
-* Updated to `@lando/acquia` version [`0.8.0`](https://github.com/lando/acquia/releases/tag/v0.8.0)
-* Updated to `@lando/drupal` version [`0.10.0`](https://github.com/lando/drupal/releases/tag/v0.10.0)
-* Updated to `@lando/pantheon` version [`0.11.0`](https://github.com/lando/pantheon/releases/tag/v0.11.0)
-* Updated to `@lando/redis` version [`0.9.0`](https://github.com/lando/redis/releases/tag/v0.9.0)
+## v3.16.0 - [May 11, 2023](https://github.com/lando/core/releases/tag/v3.16.0)
 
-## v3.17.1 - [May 12, 2023](https://github.com/lando/cli/releases/tag/3.17.1)
+* Added default `okCodes` to the scanner to allow `3xx` and `404` [#39](https://github.com/lando/core/pull/39).
 
-### CLI
+## v3.15.0 - [April 7, 2023](https://github.com/lando/core/releases/tag/v3.15.0)
 
-* Fixed bug that caused an error for apps with integer app names. [#200](https://github.com/lando/cli/issues/200)
+* Added `maxRedirects` as a configurable option of the new `scanner`
+* Reverted new url `scanner` to not follow redirects by default, this is more aligned with the behavior of the older `scanner`. [READ MORE](https://docs.lando.dev/core/v3/scanner.html)
 
-## v3.17.0 - [May 11, 2023](https://github.com/lando/cli/releases/tag/3.17.0)
+## v3.14.0 - [March 1, 2023](https://github.com/lando/core/releases/tag/v3.14.0)
 
-### CLI
+* Added new and improved URL `scanner` provides real time feedback on service status. [READ MORE](https://docs.lando.dev/core/v3/scanner.html)
+* Improved `scanner` reliability by preferring IPv4 [#21](https://github.com/lando/core/issues/21)
 
-* Fixed bug causing run time selector to incorrectly detect app with no-named Landofiles
+## v3.11.0 - [February 26, 2023](https://github.com/lando/core/releases/tag/v3.11.0)
 
-### Plugins
+* Added detection of MySQL 8 DBs for `laemp` recipes to insert appropriate config [lando/lando#1426](https://github.com/lando/lando/issues/1462)
 
-* Updated to `@lando/core` version [`3.16.0`](https://github.com/lando/core/releases/tag/v3.16.0)
-* Updated to `@lando/drupal` version [`0.9.0`](https://github.com/lando/drupal/releases/tag/v0.9.0)
-* Updated to `@lando/go` version [`0.8.0`](https://github.com/lando/go/releases/tag/v0.8.0)
-* Updated to `@lando/nginx` version [`0.8.0`](https://github.com/lando/nginx/releases/tag/v0.8.0)
-* Updated to `@lando/pantheon` version [`0.10.1`](https://github.com/lando/pantheon/releases/tag/v0.10.1)
-* Updated to `@lando/postgres` version [`0.8.0`](https://github.com/lando/postgres/releases/tag/v0.8.0)
-
-## v3.16.0 - [April 21, 2023](https://github.com/lando/cli/releases/tag/3.16.0)
-
-### Plugins
-
-* Updated to `@lando/php` version [`0.8.0`](https://github.com/lando/php/releases/tag/v0.8.0)
-* Updated to `@lando/platformsh` version [`0.8.0`](https://github.com/lando/platformsh/releases/tag/v0.8.0)
-
-## v3.15.0 - [April 7, 2023](https://github.com/lando/cli/releases/tag/3.15.0)
-
-### CLI
-
-* Switched to a hybrid runtime selector to better prep for `v4`
-
-### Plugins
-
-* Updated to `@lando/core` version [`3.15.0`](https://github.com/lando/core/releases/tag/v3.15.0)
-* Updated to `@lando/pantheon` version [`0.10.0`](https://github.com/lando/pantheon/releases/tag/v0.10.0)
-* Updated to `@lando/redis` version [`0.8.0`](https://github.com/lando/redis/releases/tag/v0.8.0)
-
-## v3.14.0 - [March 1, 2023](https://github.com/lando/cli/releases/tag/3.14.0)
-
-### CLI
-
-* Added helpers for new core url scanning upgrade
-* Added support for a system wide plugins directory
-
-### Plugins
-
-* Updated to `@lando/backdrop` version [`0.8.0`](https://github.com/lando/backdrop/releases/tag/v0.8.0)
-* Updated to `@lando/core` version [`3.14.0`](https://github.com/lando/core/releases/tag/v3.14.0)
-* Updated to `@lando/drupal` version [`0.8.0`](https://github.com/lando/drupal/releases/tag/v0.8.0)
-* Updated to `@lando/joomla` version [`0.8.0`](https://github.com/lando/node/releases/tag/v0.8.0)
-* Updated to `@lando/laravel` version [`0.8.0`](https://github.com/lando/laravel/releases/tag/v0.8.0)
-* Updated to `@lando/node` version [`0.8.1`](https://github.com/lando/node/releases/tag/v0.8.1)
-* Updated to `@lando/pantheon` version [`0.9.0`](https://github.com/lando/pantheon/releases/tag/v0.9.0)
-* Updated to `@lando/symfony` version [`0.8.0`](https://github.com/lando/symfony/releases/tag/v0.8.0)
-* Updated to `@lando/wordpress` version [`0.8.0`](https://github.com/lando/wordpress/releases/tag/v0.8.0)
-
-## v3.13.0 - [Februrary 28th, 2023](https://github.com/lando/cli/releases/tag/3.13.0)
-
-### CLI
-
-* Added helpers for new core url scanning upgrade
-
-## v3.12.0 - [Februrary 26th, 2023](https://github.com/lando/cli/releases/tag/3.12.0)
-
-### Plugins
-
-* Updated to `@lando/backdrop` version [`0.8.0`](https://github.com/lando/backdrop/releases/tag/v0.8.0)
-* Updated to `@lando/core` version [`3.11.0`](https://github.com/lando/core/releases/tag/v3.11.0)
-* Updated to `@lando/drupal` version [`0.8.0`](https://github.com/lando/drupal/releases/tag/v0.8.0)
-* Updated to `@lando/laravel` version [`0.8.0`](https://github.com/lando/laravel/releases/tag/v0.8.0)
-* Updated to `@lando/node` version [`0.8.1`](https://github.com/lando/node/releases/tag/v0.8.1)
-* Updated to `@lando/symfony` version [`0.8.0`](https://github.com/lando/symfony/releases/tag/v0.8.0)
-* Updated to `@lando/wordpress` version [`0.8.0`](https://github.com/lando/wordpress/releases/tag/v0.8.0)
-
-## v3.11.0 - [January 27, 2023](https://github.com/lando/cli/releases/tag/3.11.0)
-
-### Plugins
-
-* Updated to `@lando/core` version [`3.10.0`](https://github.com/lando/core/releases/tag/v3.10.0)
-* Updated to `@lando/node` version [`0.8.0`](https://github.com/lando/node/releases/tag/v0.8.0)
-
-## Special Release Notes
-
-* [Down, down](https://www.youtube.com/watch?v=lYBIRHi5-o8)
-
-## v3.10.0 - [January 23, 2023](https://github.com/lando/cli/releases/tag/3.10.0)
+## v3.10.0 - [January 23, 2023](https://github.com/lando/core/releases/tag/v3.10.0)
 
 * Bumped version just to indicate push to stable
 
-## v3.9.1 - [January 20, 2023](https://github.com/lando/cli/releases/tag/v3.9.1)
+## v3.8.5 - [January 20, 2023](https://github.com/lando/core/releases/tag/v3.8.5)
 
-### Plugins
+* Added support for "sandboxed" v3 plugins in anticipation of plugin hybridization
+* Fixed bug causing loading of non V3 plugins on Windows [#27](https://github.com/lando/core/issues/27)
 
-* Updated to `@lando/core` version [`3.8.5`](https://github.com/lando/core/releases/tag/v3.8.5)
+## v3.8.4 - [January 18, 2023](https://github.com/lando/core/releases/tag/v3.8.4)
 
-## v3.9.0 - [January 18, 2023](https://github.com/lando/cli/releases/tag/v3.9.0)
+* Added workaround to help with `VirtioFS` support in Docker Desktop `4.16.1`
+* Bumped supported Docker Desktop version to `4.16.99`
 
-### CLI
+## v3.8.3 - [January 13, 2023](https://github.com/lando/core/releases/tag/v3.8.3)
 
-* Added a `--debug` flag
-* Improved `bin/lando.js` entrypoint to properly "minstrap" before it hands off to the correct runtime
+* Fixed bug causing `null` `lando.versions` to fatally error
 
-### Plugins
+## v3.8.2 - [December 11, 2022](https://github.com/lando/core/releases/tag/v3.8.2)
 
-* Updated to `@lando/core` version [`3.8.4`](https://github.com/lando/core/releases/tag/v3.8.4)
-* Updated to `@lando/php` version [`0.7.1`](https://github.com/lando/php/releases/tag/v0.7.1)
+* Needed fixes to power a deteched `@lando/core`
 
-## v3.8.1 - [December 14, 2022](https://github.com/lando/cli/releases/tag/v3.8.1)
+## v3.8.1 - [December 11, 2022](https://github.com/lando/core/releases/tag/v3.8.1)
 
-* Bumped supported Docker Desktop version to prep for release
+* [Ejected the core](https://www.youtube.com/watch?v=BhQ59YzEdUY)
+* Removed `lando-alliance` core plugin
 
-## v3.8.0 - [December 13, 2022](https://github.com/lando/cli/releases/tag/v3.8.0)
+## v3.8.0 - [December 10, 2022](https://github.com/lando/core/releases/tag/v3.8.0)
 
-### CLI
+* Core ejected
 
-* Decoupled CLI from V3 runtime
+## v3.7.0 - [December 6, 2022](https://github.com/lando/core/releases/tag/v3.7.0)
 
-### Core
+* Tagging a release for docs and prepping for decoupling
 
-* Added preliminary _doesn't-do-anything-yet_ routing for V4 runtime [`@lando/core-next`](https://github.com/lando/core-next)
-* Decoupled V3 runtime into [`@lando/core`](https://github.com/lando/core)
-
-### Plugins
-
-* Updated to `@lando/acquia` version [`0.7.0`](https://github.com/lando/acquia/releases/tag/v0.7.0)
-* Updated to `@lando/apache` version [`0.7.0`](https://github.com/lando/apache/releases/tag/v0.7.0)
-* Updated to `@lando/backdrop` version [`0.7.0`](https://github.com/lando/backdrop/releases/tag/v0.7.0)
-* Updated to `@lando/compose` version [`0.7.0`](https://github.com/lando/compose/releases/tag/v0.7.0)
-* Updated to `@lando/dotnet` version [`0.7.2`](https://github.com/lando/dotnet/releases/tag/v0.7.2)
-* Updated to `@lando/drupal` version [`0.7.0`](https://github.com/lando/drupal/releases/tag/v0.7.0)
-* Updated to `@lando/elasticsearch` version [`0.7.0`](https://github.com/lando/elasticsearch/releases/tag/v0.7.0)
-* Updated to `@lando/go` version [`0.7.0`](https://github.com/lando/go/releases/tag/v0.7.0)
-* Updated to `@lando/joomla` version [`0.7.0`](https://github.com/lando/joomla/releases/tag/v0.7.0)
-* Updated to `@lando/lagoon` version [`0.7.0`](https://github.com/lando/lagoon/releases/tag/v0.7.0)
-* Updated to `@lando/lamp` version [`0.7.0`](https://github.com/lando/lamp/releases/tag/v0.7.0)
-* Updated to `@lando/laravel` version [`0.7.0`](https://github.com/lando/laravel/releases/tag/v0.7.0)
-* Updated to `@lando/lemp` version [`0.7.0`](https://github.com/lando/lemp/releases/tag/v0.7.0)
-* Updated to `@lando/mailhog` version [`0.7.0`](https://github.com/lando/mailhog/releases/tag/v0.7.0)
-* Updated to `@lando/mariadb` version [`0.7.0`](https://github.com/lando/mariadb/releases/tag/v0.7.0)
-* Updated to `@lando/mean` version [`0.7.0`](https://github.com/lando/mean/releases/tag/v0.7.0)
-* Updated to `@lando/memcached` version [`0.7.0`](https://github.com/lando/memcached/releases/tag/v0.7.0)
-* Updated to `@lando/mongo` version [`0.7.0`](https://github.com/lando/mongo/releases/tag/v0.7.0)
-* Updated to `@lando/mssql` version [`0.7.0`](https://github.com/lando/mssql/releases/tag/v0.7.0)
-* Updated to `@lando/mysql` version [`0.7.0`](https://github.com/lando/mysql/releases/tag/v0.7.0)
-* Updated to `@lando/nginx` version [`0.7.0`](https://github.com/lando/nginx/releases/tag/v0.7.0)
-* Updated to `@lando/node` version [`0.7.0`](https://github.com/lando/node/releases/tag/v0.7.0)
-* Updated to `@lando/pantheon` version [`0.7.0`](https://github.com/lando/pantheon/releases/tag/v0.7.0)
-* Updated to `@lando/php` version [`0.7.0`](https://github.com/lando/php/releases/tag/v0.7.0)
-* Updated to `@lando/phpmyadmin` version [`0.7.0`](https://github.com/lando/phpmyadmin/releases/tag/v0.7.0)
-* Updated to `@lando/platformsh` version [`0.7.0`](https://github.com/lando/platformsh/releases/tag/v0.7.0)
-* Updated to `@lando/postgres` version [`0.7.0`](https://github.com/lando/postgres/releases/tag/v0.7.0)
-* Updated to `@lando/python` version [`0.7.0`](https://github.com/lando/python/releases/tag/v0.7.0)
-* Updated to `@lando/redis` version [`0.7.0`](https://github.com/lando/redis/releases/tag/v0.7.0)
-* Updated to `@lando/ruby` version [`0.7.0`](https://github.com/lando/ruby/releases/tag/v0.7.0)
-* Updated to `@lando/solr` version [`0.7.0`](https://github.com/lando/solr/releases/tag/v0.7.0)
-* Updated to `@lando/symfony` version [`0.7.0`](https://github.com/lando/symfony/releases/tag/v0.7.0)
-* Updated to `@lando/tomcat` version [`0.7.0`](https://github.com/lando/tomcat/releases/tag/v0.7.0)
-* Updated to `@lando/varnish` version [`0.7.0`](https://github.com/lando/varnish/releases/tag/v0.7.0)
-* Updated to `@lando/wordpress` version [`0.7.0`](https://github.com/lando/wordpress/releases/tag/v0.7.0)
-
-## v3.7.1 - [December 12, 2022](https://github.com/lando/cli/releases/tag/v3.7.1)
-
-**SECDOND FULLY DECOUPLED RELEASE. ALSO DO NOT USE!!!**
-
-*  Added routing to isolate `@lando/core-next` usage
-
-## v3.7.0 - [December 12, 2022](https://github.com/lando/cli/releases/tag/v3.7.0)
-
-**FIRST FULLY DECOUPLED RELEASE. DO NOT USE!!!**
-
-* Bumped `@vercel/pkg` `node` version to `16`
-* Removed `core` Lando libraries which now exist in [@lando/core](https://github.com/lando/core)
-
-## v3.6.5 - [April 21, 2022](https://github.com/lando/cli/releases/tag/v3.6.5)
+## v3.6.5 - [December 2, 2022](https://github.com/lando/core/releases/tag/v3.6.5)
 
 Lando is **free* * and **open source* * software that relies on contributions from developers like you! If you like Lando then help us spend more time making, updating and supporting it by [contributing](https://github.com/sponsors/lando).
 
@@ -1106,20 +1244,19 @@ Lando is **free* * and **open source* * software that relies on contributions fr
 
 Lando is **free* * and **open source* * software that relies on contributions from developers like you! If you like Lando then help us spend more time making, updating and supporting it by [contributing](https://github.com/sponsors/lando).
 
-  * Added support for `lagoon.type == none` [#2828](https://github.com/lando/lando/issues/2828)
-  * Added `6.0` to list of supported `redis` versions
-  * Added "dumb" support for the `drupal9` `pantheon` framework [#2831](https://github.com/lando/lando/issues/2831)
-  * Fixed bug causing build hook installed `composer` version to not load correctly in `platformsh` recipe [#2826](https://github.com/lando/lando/issues/2826)
-  * Fixed bug causing `nvm` installed `node` versions to not load correctly in `platformsh` recipe when invoked via tooling [#2820](https://github.com/lando/lando/issues/2820)
-  * Fixed bug causing `composer` install to fail on `php` `8.0` [#2729](https://github.com/lando/lando/issues/2729)
-  * Fixed bug causing `port` to not be passed in correctly when authing against custom `lagoon` instance
-  * Improved `lando pull` for `lagoon` recipes to handle other files directory locations [#2762](https://github.com/lando/lando/issues/2762)
-  * Improved error message when `lando` cannot detect any `platformsh` applications for `platformsh` recipes [#2822](https://github.com/lando/lando/issues/2822)
-  * Improved error message when `lando` cannot detect a `lagoon.yml` for `lagoon` recipes [#2818](https://github.com/lando/lando/issues/2818)
-  * Updated `pantheon` recipe to use `wkhtmltopdf` version `0.12.5` in _most_ `php` images
-  * Updated `pantheon` recipe to use `terminus` version `2.5.0`
-  * Updated to Docker Desktop `3.1.0` and provided wider future patch support because https://github.com/docker/roadmap/issues/183
-
+* Added support for `lagoon.type == none` [#2828](https://github.com/lando/lando/issues/2828)
+* Added `6.0` to list of supported `redis` versions
+* Added "dumb" support for the `drupal9` `pantheon` framework [#2831](https://github.com/lando/lando/issues/2831)
+* Fixed bug causing build hook installed `composer` version to not load correctly in `platformsh` recipe [#2826](https://github.com/lando/lando/issues/2826)
+* Fixed bug causing `nvm` installed `node` versions to not load correctly in `platformsh` recipe when invoked via tooling [#2820](https://github.com/lando/lando/issues/2820)
+* Fixed bug causing `composer` install to fail on `php` `8.0` [#2729](https://github.com/lando/lando/issues/2729)
+* Fixed bug causing `port` to not be passed in correctly when authing against custom `lagoon` instance
+* Improved `lando pull` for `lagoon` recipes to handle other files directory locations [#2762](https://github.com/lando/lando/issues/2762)
+* Improved error message when `lando` cannot detect any `platformsh` applications for `platformsh` recipes [#2822](https://github.com/lando/lando/issues/2822)
+* Improved error message when `lando` cannot detect a `lagoon.yml` for `lagoon` recipes [#2818](https://github.com/lando/lando/issues/2818)
+* Updated `pantheon` recipe to use `wkhtmltopdf` version `0.12.5` in _most_ `php` images
+* Updated `pantheon` recipe to use `terminus` version `2.5.0`
+* Updated to Docker Desktop `3.1.0` and provided wider future patch support because https://github.com/docker/roadmap/issues/183
 
 ## v3.0.24 - [December 14, 2020](https://github.com/lando/lando/releases/tag/v3.0.24)
 

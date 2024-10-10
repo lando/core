@@ -34,11 +34,10 @@ dist
 
 # coverage reporting
 .nyc_output
-coverage
+coverage/
 
-# CCI test splitting
-test/split-file.txt
-test/*.func.js
+# lando
+.lando/id
 
 # docs
 .temp
@@ -50,5 +49,5 @@ temp
 config.*.timestamp-*-*.*
 !examples/cache
 
-# Yarn
+# YARN
 yarn.lock

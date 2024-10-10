@@ -1,6 +1,6 @@
 ---
 title: Contact Us
-description: Get help and support for the Lando CLI.
+description: Get help and support for Lando Core.
 ---
 
 # Contact Us

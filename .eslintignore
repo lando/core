@@ -3,6 +3,5 @@ cache
 dist
 _site
 coverage
-.nyc_output
 !.vitepress
 config.mjs.timestamp-*.mjs

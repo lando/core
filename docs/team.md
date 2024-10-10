@@ -1,8 +1,7 @@
 ---
-description: Learn about the team that made Lando CLI.
+description: Learn about the team that made Lando Core.
 layout: page
 title: Team
-contributors: false
 ---
 
 <VPLTeamPage>
@@ -11,7 +10,7 @@ contributors: false
       Team
     </template>
     <template #lead>
-      We are the people who built Lando CLI.
+      We are the people who built Lando.
     </template>
   </VPLTeamPageTitle>
   <VPLTeamMembers :members="members" size="small"/>

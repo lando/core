@@ -10,16 +10,14 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - windows-2022
-          - ubuntu-24.04
           - macos-13
+          - macos-14
+          - ubuntu-24.04
+          - windows-2022
         node-version:
-          - '18'
+          - "18"
     steps:
-
       # Install deps and cache
-      # Eventually it would be great if these steps could live in a separate YAML file
-      # that could be included in line to avoid code duplication
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Install node ${{ matrix.node-version }}
@@ -33,4 +31,3 @@ jobs:
       # Run unit tests
       - name: Run unit tests
         run: npm run test:unit
-        shell: bash

@@ -13,7 +13,7 @@ jobs:
         os:
           - ubuntu-24.04
         node-version:
-          - '18'
+          - "18"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,12 +31,9 @@ jobs:
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile
 
+      # Run tests
       - name: Run linter
         run: npm run lint
-      - name: Test mvb
-        run: npm run docs:mvb
-      - name: Test build
-        run: npm run docs:build
       - name: Test mvb
         run: npm run docs:mvb
       - name: Test build

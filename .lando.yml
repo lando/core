@@ -1,7 +1,7 @@
-name: docs.cli
+name: docs.core
 proxy:
   cli:
-    - docs.cli.lndo.site:5173
+    - docs.core.lndo.site:5173
 services:
   cli:
     api: 4
