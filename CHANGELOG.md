@@ -2,14 +2,49 @@
 
 ## New Features
 
+* Added new [`lando exec`](https://docs.lando.dev/cli/exec.html) command
+* Added cross platform `host.lando.internal` for container-to-host access
+* Added limited auto setup to app start-y events
+* Added Install Certificate Authority `setup` task
+* Added limit `app` support in `task` functions
+* Added `usage`, `examples` and `positionals` support to `task` and `tooling` objects
+* Added `LANDO_SERVICE_CERT` and `LANDO_SERVICE_KEY` envvars
 * Added `!import` `yaml` tag for future `v4` services things
 * Added build context `tmp` directory to house various build assets
 * Improved build context generation error handling
 * Improved consisteny of `mounty` APIs re `source:` and `target:`
 * Improved `working_dir` discover in `v4` services
+* Improved CA and cert generation
+* Improved tooling, events, etc to honor `&` for proper backgrounding with `--detach`
+* Improved `v3` plugin script automoving (finally!)
+* Updated default Docker Compose version to `2.29.2`
+* Updated default Docker Desktop version to `4.34.0`
+* Updated default Docker Engine version to `27.2.0`
+* Updated tested Docker Desktop range to `<=4.34`
+* Updated tested Docker Compose range to `<=2.29.2`
 
 ## Bug Fixes
 
+* Fixed bug causing `EISDIR: illegal operation on a directory` on some mounts [#169](https://github.com/lando/core/pull/169)
+* Fixed bug causing `COLUMNS` to be forced to `256` [#1847](https://github.com/lando/core/pull/179)
+* Fixed bug causing weird array merging in dynamic override tasks
+* Fixed bug causing debug output showing in some errors
+* Fixed bug causing compose cache to not properly empty on `destroy`
+* Fixed bug causing `docker-engine.run` to double emit errors
+* Fixed bug causing `undefined` to show on some user password prompts
+* Fixed bug causing Docker Desktop `version` information to not load correctly in some circumstances
+* Fixed various `dc2` renderer bugs
+* Fixed bug causing new `lando exec` command to incorrectly shell wrap
+* Fixed bug causing `compose` directories to bloat indefinitely
+* Fixed bug causing `stop` to not `kill` when it can just `kill`
+* Fixed `os` not defined during `lando setup` on `linux`
+* Fixed inconsistent usage of `skipInstallCa`
+* Fixed bug causing autosetup to still `U Need Setup` after installing new orchestrator on `lando start`y events
+* Fixed bug preventing non-boot image build hooks from running
+* Fixed bug causing hook files to be `COPY`ed to early in Imagefile
+* Fixed bug causing `appMount` to be not correctly added as a `git` `safe.directory`
+* Fixed bug causing preexisting `urls` in `lando info` to be clobbered by `localhost` port discovery
+* Fixed bug causing `allServices` to sometimes be unset in some recipe tasks
 * Fixed bug preventing some error codes from bubbling up correctly
 * Fixed bug causing race condition when setting non-service scoped `storage` labels
 * Fixed bug causing preexisting `urls` in `lando info` to be clobbered by `localhost` port discovery
@@ -19,9 +54,23 @@
 
 ## Internal
 
+* Changed `.ps1` scripts to use `-Option` style option convention
+* Changed `LANDO_HOST_IP` to now use new `host.lando.internal`
+* Improved `run` volume mounting
+* Improved `volume` type detection
+* Moved Lando Development Certificate Authority creation to `setup` framework
+* Moved Landonet 2 upgrade to `setup` framework
 * Rebased `yaml` libraries on new `yaml` component
+* Renamed `lash` and `landorc` to `lash.sh` and `landorc.sh` for more consistent naming and packaging
+* Removed `_casetup` builder in favor of native CA generation
+* Removed `ip` `npm` package
 * Updated `@lando/cli` release pointer to `@lando/core` for pending MERGE
 * Upgraded `js-yaml` to `^4.1.0`
+
+### DEPRECATIONS
+
+* **DEPRECATED** `lando ssh` in favor of new `lando exec`
+* Defunct `lando share` command is now a hidden command
 
 ## v3.22.0-beta.7 - [September 5, 2024](https://github.com/lando/core/releases/tag/v3.22.0-beta.7)
 
