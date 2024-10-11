@@ -154,7 +154,7 @@ fi
 
 # move all cas to the correct place and update trust
 case $LANDO_LINUX_PACKAGE_MANAGER in
-  dnf|microdnf|yum|pacman)
+  dnf|microdnf|pacman|yum)
     mkdir -p /etc/pki/ca-trust/source/anchors
     cp -r "$CA" /etc/pki/ca-trust/source/anchors/
     update-ca-trust
