@@ -1,41 +1,66 @@
 #!/bin/sh
 . /etc/lando/utils.sh
 
-# Path to the os-release file
+# Paths to the os-release files
 OS_RELEASE_FILE="/etc/os-release"
+USR_OS_RELEASE_FILE="/usr/lib/os-release"
 
-# Check if the os-release file exists
-if [ ! -f "$OS_RELEASE_FILE" ]; then
-  abort "$OS_RELEASE_FILE not found."
+if [ -f "$OS_RELEASE_FILE" ]; then
+  OS_RELEASE_FILE="$USR_OS_RELEASE_FILE"
+else
+  echo "Neither $OS_RELEASE_FILE nor $USR_OS_RELEASE_FILE found." >&2
+  exit 1
 fi
 
 export LANDO_LINUX_DISTRO=$(grep -E '^ID=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
 export LANDO_LINUX_DISTRO_LIKE=$(grep -E '^ID_LIKE=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
+export LANDO_LINUX_NAME=$(grep -E '^NAME=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
+
+# Function to set package manager based on distro
+set_package_manager() {
+  case "$1" in
+    alpine)
+      export LANDO_LINUX_PACKAGE_MANAGER="apk"
+      ;;
+    arch|archarm|endeavouros|manjaro)
+      export LANDO_LINUX_PACKAGE_MANAGER="pacman"
+      ;;
+    centos)
+      export LANDO_LINUX_PACKAGE_MANAGER="yum"
+      ;;
+    debian|linuxmint|pop|ubuntu)
+      export LANDO_LINUX_PACKAGE_MANAGER="apt"
+      ;;
+    fedora)
+      export LANDO_LINUX_PACKAGE_MANAGER="dnf"
+      ;;
+    ol)
+      export LANDO_LINUX_PACKAGE_MANAGER="microdnf"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+  return 0
+}
 
 # Find correct package manager based on DISTRO
-case "$LANDO_LINUX_DISTRO" in
-  alpine)
-    export LANDO_LINUX_PACKAGE_MANAGER="apk"
-    ;;
-  arch|archarm|manjaro|endeavouros)
-    export LANDO_LINUX_PACKAGE_MANAGER="pacman"
-    ;;
-  centos)
-    export LANDO_LINUX_PACKAGE_MANAGER="yum"
-    ;;
-  debian|pop|ubuntu)
-    export LANDO_LINUX_PACKAGE_MANAGER="apt"
-    ;;
-  fedora)
-    export LANDO_LINUX_PACKAGE_MANAGER="dnf"
-    ;;
-  ol)
-    export LANDO_LINUX_PACKAGE_MANAGER="microdnf"
-    ;;
-  *)
-    abort "$LANDO_LINUX_DISTRO not supported! Could not locate package manager!"
-    ;;
-esac
+if ! set_package_manager "$LANDO_LINUX_DISTRO"; then
+  # If DISTRO is not recognized, check ID_LIKE
+  IFS=' ' read -ra DISTRO_LIKE <<< "$LANDO_LINUX_DISTRO_LIKE"
+  for distro in "${DISTRO_LIKE[@]}"; do
+    if set_package_manager "$distro"; then
+      debug "$LANDO_LINUX_NAME ($LANDO_LINUX_DISTRO) is not directly supported. Falling back to $distro-like behavior."
+      break
+    fi
+  don
+
+  # If still not set, exit with error
+if [ -z "$LANDO_LINUX_PACKAGE_MANAGER" ]; then
+  echo "$LANDO_LINUX_DISTRO not supported! Could not locate package manager!" >&2
+  exit 1
+fie
+fi
 
 # Use PACKAGE_MANAGER env var if available, argument if not
 if ! command -v "$LANDO_LINUX_PACKAGE_MANAGER" > /dev/null 2>&1; then
