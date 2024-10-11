@@ -5,18 +5,24 @@
 OS_RELEASE_FILE="/etc/os-release"
 USR_OS_RELEASE_FILE="/usr/lib/os-release"
 
+# Paths to the os-release files
+OS_RELEASE_FILE="/etc/os-release"
+USR_OS_RELEASE_FILE="/usr/lib/os-release"
+
+# prefer system level one if it exists as it is more reliable
 if [ -f "$USR_OS_RELEASE_FILE" ]; then
   OS_RELEASE_FILE="$USR_OS_RELEASE_FILE"
-elif [ -f "$OS_RELEASE_FILE" ]; then
-  OS_RELEASE_FILE="$OS_RELEASE_FILE"
-else
+fi
+
+# throw error if OS_RELEASE_FILE does not exist
+if [ ! -f "$OS_RELEASE_FILE" ]; then
   echo "Neither $OS_RELEASE_FILE nor $USR_OS_RELEASE_FILE found." >&2
   exit 1
 fi
 
-LANDO_LINUX_DISTRO=$(grep -E '^ID=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
-LANDO_LINUX_DISTRO_LIKE=$(grep -E '^ID_LIKE=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
-LANDO_LINUX_NAME=$(grep -E '^NAME=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
+LANDO_LINUX_DISTRO=$(grep -E '^ID=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"' || echo "unknown")
+LANDO_LINUX_DISTRO_LIKE=$(grep -E '^ID_LIKE=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"' || echo "")
+LANDO_LINUX_NAME=$(grep -E '^NAME=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"' || echo "unknown")
 
 export LANDO_LINUX_DISTRO
 export LANDO_LINUX_DISTRO_LIKE
@@ -77,7 +83,7 @@ debug LANDO_LINUX_DISTRO="$LANDO_LINUX_DISTRO"
 debug LANDO_LINUX_DISTRO_LIKE="$LANDO_LINUX_DISTRO_LIKE"
 debug LANDO_LINUX_PACKAGE_MANAGER="$LANDO_LINUX_PACKAGE_MANAGER"
 
-# unset some build and legacy stuff just to keep LANDO_* slim
+# Unset some build and legacy stuff just to keep LANDO_* slim
 unset BITNAMI_DEBUG
 unset LANDO_APP_COMMON_NAME
 unset LANDO_APP_NAME
@@ -102,16 +108,16 @@ unset LANDO_WEBROOT_USER
 export LANDO_ENVIRONMENT="loaded"
 
 # if we have a project mount then reset LANDO_MOUNT
-if [ ! -z "$LANDO_PROJECT_MOUNT" ]; then
+if [ -n "$LANDO_PROJECT_MOUNT" ]; then
   export LANDO_MOUNT="$LANDO_PROJECT_MOUNT"
 fi
 
 # Execute sh scripts in /etc/lando/env.d
-for script in /etc/lando/env.d/*.sh; do
-  if [ -e "$script" ]; then
+if ls /etc/lando/env.d/*.sh > /dev/null 2>&1; then
+  for script in /etc/lando/env.d/*.sh; do
     if [ -r "$script" ] && [ -f "$script" ]; then
       debug "Sourcing $script"
       . "$script"
     fi
-  fi
-done
+  done
+fi
