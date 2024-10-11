@@ -17,7 +17,7 @@ case "$LANDO_LINUX_DISTRO" in
   alpine)
     export LANDO_LINUX_PACKAGE_MANAGER="apk"
     ;;
-  arch|archarm|manjaro)
+  arch|archarm|manjaro|endeavouros)
     export LANDO_LINUX_PACKAGE_MANAGER="pacman"
     ;;
   centos)
