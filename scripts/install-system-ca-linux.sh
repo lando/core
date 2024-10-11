@@ -46,16 +46,20 @@ debug "DEBUG: $DEBUG"
 OS_RELEASE_FILE="/etc/os-release"
 USR_OS_RELEASE_FILE="/usr/lib/os-release"
 
-if [ -f "$OS_RELEASE_FILE" ]; then
+# prefer system level one if it exists as it is more reliable
+if [ -f "$USR_OS_RELEASE_FILE" ]; then
   OS_RELEASE_FILE="$USR_OS_RELEASE_FILE"
-else
+fi
+
+# throw error if OS_RELEASE_FILE does not exist
+if [ ! -f "$OS_RELEASE_FILE" ]; then
   echo "Neither $OS_RELEASE_FILE nor $USR_OS_RELEASE_FILE found." >&2
   exit 1
 fi
 
-export LANDO_LINUX_DISTRO=$(grep -E '^ID=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
-export LANDO_LINUX_DISTRO_LIKE=$(grep -E '^ID_LIKE=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
-export LANDO_LINUX_NAME=$(grep -E '^NAME=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
+LANDO_LINUX_DISTRO=$(grep -E '^ID=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"' || echo "unknown")
+LANDO_LINUX_DISTRO_LIKE=$(grep -E '^ID_LIKE=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"' || echo "")
+LANDO_LINUX_NAME=$(grep -E '^NAME=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"' || echo "unknown")
 
 # Function to set package manager based on distro
 set_package_manager() {
