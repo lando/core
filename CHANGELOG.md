@@ -1,6 +1,8 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Added explicit CA install support for `linuxmint` and `endeavouros` [#3749](https://github.com/lando/lando/issues/3749) [#223](https://github.com/lando/core/issues/223) [#225](https://github.com/lando/core/issues/225)
 * Added fallback method for for installing CA on Linux distros that are based on other supported distros
+* Switched `cli` update channel back to `cli` for now
 
 ## v3.22.0 - [October 10, 2024](https://github.com/lando/core/releases/tag/v3.22.0)
 
