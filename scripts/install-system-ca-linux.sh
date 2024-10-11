@@ -63,13 +63,13 @@ set_package_manager() {
     alpine)
       export LANDO_LINUX_PACKAGE_MANAGER="apk"
       ;;
-    arch|archarm|manjaro)
+    arch|archarm|endeavouros|manjaro)
       export LANDO_LINUX_PACKAGE_MANAGER="pacman"
       ;;
     centos)
       export LANDO_LINUX_PACKAGE_MANAGER="yum"
       ;;
-    debian|pop|ubuntu)
+    debian|linuxmint|pop|ubuntu)
       export LANDO_LINUX_PACKAGE_MANAGER="apt"
       ;;
     fedora)
