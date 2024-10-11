@@ -5,16 +5,22 @@
 OS_RELEASE_FILE="/etc/os-release"
 USR_OS_RELEASE_FILE="/usr/lib/os-release"
 
-if [ -f "$OS_RELEASE_FILE" ]; then
+if [ -f "$USR_OS_RELEASE_FILE" ]; then
   OS_RELEASE_FILE="$USR_OS_RELEASE_FILE"
+elif [ -f "$OS_RELEASE_FILE" ]; then
+  OS_RELEASE_FILE="$OS_RELEASE_FILE"
 else
   echo "Neither $OS_RELEASE_FILE nor $USR_OS_RELEASE_FILE found." >&2
   exit 1
 fi
 
-export LANDO_LINUX_DISTRO=$(grep -E '^ID=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
-export LANDO_LINUX_DISTRO_LIKE=$(grep -E '^ID_LIKE=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
-export LANDO_LINUX_NAME=$(grep -E '^NAME=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
+LANDO_LINUX_DISTRO=$(grep -E '^ID=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
+LANDO_LINUX_DISTRO_LIKE=$(grep -E '^ID_LIKE=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
+LANDO_LINUX_NAME=$(grep -E '^NAME=' "$OS_RELEASE_FILE" | cut -d '=' -f 2 | tr -d '"')
+
+export LANDO_LINUX_DISTRO
+export LANDO_LINUX_DISTRO_LIKE
+export LANDO_LINUX_NAME
 
 # Function to set package manager based on distro
 set_package_manager() {
@@ -47,19 +53,19 @@ set_package_manager() {
 # Find correct package manager based on DISTRO
 if ! set_package_manager "$LANDO_LINUX_DISTRO"; then
   # If DISTRO is not recognized, check ID_LIKE
-  IFS=' ' read -ra DISTRO_LIKE <<< "$LANDO_LINUX_DISTRO_LIKE"
-  for distro in "${DISTRO_LIKE[@]}"; do
+  IFS=' ' set -- $LANDO_LINUX_DISTRO_LIKE
+  for distro in "$@"; do
     if set_package_manager "$distro"; then
       debug "$LANDO_LINUX_NAME ($LANDO_LINUX_DISTRO) is not directly supported. Falling back to $distro-like behavior."
       break
     fi
-  don
+  done
 
   # If still not set, exit with error
-if [ -z "$LANDO_LINUX_PACKAGE_MANAGER" ]; then
-  echo "$LANDO_LINUX_DISTRO not supported! Could not locate package manager!" >&2
-  exit 1
-fie
+  if [ -z "$LANDO_LINUX_PACKAGE_MANAGER" ]; then
+    echo "$LANDO_LINUX_DISTRO not supported! Could not locate package manager!" >&2
+    exit 1
+  fi
 fi
 
 # Use PACKAGE_MANAGER env var if available, argument if not
@@ -72,7 +78,6 @@ debug LANDO_LINUX_DISTRO_LIKE="$LANDO_LINUX_DISTRO_LIKE"
 debug LANDO_LINUX_PACKAGE_MANAGER="$LANDO_LINUX_PACKAGE_MANAGER"
 
 # unset some build and legacy stuff just to keep LANDO_* slim
-# @NOTE: is it a mistake to remove some of these?
 unset BITNAMI_DEBUG
 unset LANDO_APP_COMMON_NAME
 unset LANDO_APP_NAME
@@ -97,7 +102,7 @@ unset LANDO_WEBROOT_USER
 export LANDO_ENVIRONMENT="loaded"
 
 # if we have a project mount then reset LANDO_MOUNT
-if [ -z ${LANDO_PROJECT_MOUNT+x} ]; then
+if [ ! -z "$LANDO_PROJECT_MOUNT" ]; then
   export LANDO_MOUNT="$LANDO_PROJECT_MOUNT"
 fi
 

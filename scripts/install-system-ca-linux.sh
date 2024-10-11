@@ -46,8 +46,10 @@ debug "DEBUG: $DEBUG"
 OS_RELEASE_FILE="/etc/os-release"
 USR_OS_RELEASE_FILE="/usr/lib/os-release"
 
-if [ -f "$OS_RELEASE_FILE" ]; then
+if [ -f "$USR_OS_RELEASE_FILE" ]; then
   OS_RELEASE_FILE="$USR_OS_RELEASE_FILE"
+elif [ -f "$OS_RELEASE_FILE" ]; then
+  OS_RELEASE_FILE="$OS_RELEASE_FILE"
 else
   echo "Neither $OS_RELEASE_FILE nor $USR_OS_RELEASE_FILE found." >&2
   exit 1
