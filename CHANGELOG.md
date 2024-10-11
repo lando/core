@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Added fallback method for for installing CA on Linux distros that are based on other supported distros
+
 ## v3.22.0 - [October 10, 2024](https://github.com/lando/core/releases/tag/v3.22.0)
 
 ## New Features
