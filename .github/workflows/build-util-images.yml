@@ -38,6 +38,7 @@ jobs:
         run: echo "tag-suffix=-edge" >> $GITHUB_OUTPUT
       - name: Login to DockerHub
         uses: docker/login-action@v2
+        if: ${{ github.event_name != 'pull_request' }}
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -47,7 +48,7 @@ jobs:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           platforms: linux/amd64,linux/arm64
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: devwithlando/${{ matrix.image }}:${{ matrix.tag }}${{ steps.pr.outputs.tag-suffix }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

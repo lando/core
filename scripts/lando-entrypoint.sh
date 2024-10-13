@@ -73,6 +73,8 @@ fi
 # @TODO: We should def figure out whether we can get away with running everything through exec at some point
 lando_info "Lando handing off to: $@"
 
+touch /tmp/lando-entrypoint-ran
+
 # Try to DROP DOWN to another user if we can
 if [ ! -z ${LANDO_DROP_USER+x} ]; then
   lando_debug "Running command as ${LANDO_DROP_USER}..."
