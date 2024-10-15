@@ -1,8 +1,13 @@
 product: lando
-hyperdrive: hyperdrive
+
 channel: stable
 domain: lndo.site
+hyperdrive: hyperdrive
+landoFile: .lando.yml
 mode: cli
+stats:
+  - report: true
+    url: https://metrics.lando.dev
 
 dockerSupportedVersions:
   compose:
@@ -25,8 +30,3 @@ dockerSupportedVersions:
     tested: "<=27.2.0"
     link:
       linux: https://docs.docker.com/engine/install/debian/#install-using-the-convenience-script
-
-landoFile: .lando.yml
-stats:
-  - report: true
-    url: https://metrics.lando.dev

@@ -19,6 +19,13 @@ const loadLandoFile = file => {
 
 module.exports = (files, userConfRoot) => {
   const config = lmerge({}, ..._.map(files, file => loadLandoFile(file)));
+  // if no name then return empty object
+  if (!config.name) return {};
+  // cast the name to a string...just to make sure.
+  config.name = config.name.toString();
+  // slugify project
+  config.project = require('../utils/slugify')(config.name);
+
   return _.merge({}, config, {
     configFiles: files,
     metaCache: `${config.name}.meta.cache`,
