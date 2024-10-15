@@ -126,9 +126,6 @@ if [ ! -x "$(command -v update-ca-certificates)" ]; then
     apt)
       apt install -y ca-certificates
       ;;
-    pacman)
-      pacman -Sy --noconfirm ca-certificates-utils
-      ;;
   esac
 fi
 
@@ -139,6 +136,9 @@ if [ ! -x "$(command -v update-ca-trust)" ]; then
       ;;
     microdnf)
       microdnf install ca-certificates
+      ;;
+    pacman)
+      pacman -Sy --noconfirm ca-certificates-utils
       ;;
     yum)
       yum install -y ca-certificates
@@ -155,8 +155,7 @@ fi
 # move all cas to the correct place and update trust
 case $LANDO_LINUX_PACKAGE_MANAGER in
   dnf|microdnf|pacman|yum)
-    mkdir -p /etc/pki/ca-trust/source/anchors
-    cp -r "$CA" /etc/pki/ca-trust/source/anchors/
+    trust anchor --store "$CA"
     update-ca-trust
     ;;
   *)
