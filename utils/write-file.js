@@ -12,9 +12,13 @@ module.exports = (file, data, options = {}) => {
   const extension = options.extension || path.extname(file);
   // linux line endings
   const forcePosixLineEndings = options.forcePosixLineEndings ?? false;
+  // set overwrite if not set
+  const overwrite = options.overwrite ?? true;
 
   // data is a string and posixOnly then replace
   if (typeof data === 'string' && forcePosixLineEndings) data = data.replace(/\r\n/g, '\n');
+  // if overwrite is on make sure we purge first
+  if (overwrite) fs.rmSync(file, {force: true, maxRetries: 10, recursive: true});
 
   switch (extension) {
     case '.yaml':
