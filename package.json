@@ -1,6 +1,6 @@
 {
   "name": "@lando/core",
-  "description": "The libraries that power all of Lando.",
+  "description": "The libraries that power Lando",
   "version": "3.22.1",
   "author": "Mike Pirog @pirog",
   "license": "GPL-3.0",
@@ -9,15 +9,17 @@
   "homepage": "https://github.com/lando/core",
   "keywords": [
     "lando",
-    "lando-plugin",
-    "@lando/core",
-    "php"
+    "lando-plugin"
   ],
   "engines": {
     "node": ">=20.0.0"
   },
+  "babel": {},
   "lando": {},
   "main": "lib/lando.js",
+  "bin": {
+    "lando": "./bin/lando"
+  },
   "nyc": {
     "include": [
       "builders/**/*.js",
@@ -43,9 +45,58 @@
     "docs:mvb": "npx mvb docs",
     "docs:preview": "vitepress preview docs",
     "lint": "eslint . --ext .js --ext .mjs ",
+    "pkg": "pkg --config package.json --targets node20 --options dns-result-order=ipv4first bin/lando",
     "test:unit": "nyc --reporter=html --reporter=text mocha --timeout 5000 test/**/*.spec.js",
     "test:leia": "leia \"examples/**/README.md\" -c 'Destroy tests' --stdin",
     "test": "npm run lint && npm run test:unit"
+  },
+  "pkg": {
+    "outputPath": "dist",
+    "assets": [
+      "FATCORE",
+      "config.yml",
+      "package.json",
+      "scripts/**/*",
+      "node_modules/@lando/**/fastcgi_params",
+      "node_modules/@lando/**/*.cnf",
+      "node_modules/@lando/**/*.conf",
+      "node_modules/@lando/**/*.ini",
+      "node_modules/@lando/**/*.inc",
+      "node_modules/@lando/**/*.json",
+      "node_modules/@lando/**/*.php",
+      "node_modules/@lando/**/*.ps1",
+      "node_modules/@lando/**/*.py",
+      "node_modules/@lando/**/*.sh",
+      "node_modules/@lando/**/*.toml",
+      "node_modules/@lando/**/*.tpl",
+      "node_modules/@lando/**/*.tmpl",
+      "node_modules/@lando/**/*.vcl",
+      "node_modules/@lando/**/*.xml",
+      "node_modules/@lando/**/*.yaml",
+      "node_modules/@lando/**/*.yml",
+      "node_modules/figlet/fonts/Small Slant.flf",
+      "node_modules/figlet/fonts/ANSI Shadow.flf"
+    ],
+    "scripts": [
+      "app.js",
+      "index.js",
+      "bin/**/*.js",
+      "builders/**/*.js",
+      "components/**/*.js",
+      "experimental/**/*.js",
+      "hooks/**/*.js",
+      "inits/**/*.js",
+      "lib/**/*.js",
+      "messages/**/*.js",
+      "packages/**/*.js",
+      "plugins/**/*.js",
+      "renderers/**/*.js",
+      "sources/**/*.js",
+      "tasks/**/*.js",
+      "utils/**/*.js",
+      "node_modules/@lando/**/*.cjs",
+      "node_modules/@lando/**/*.js"
+    ]
   },
   "dependencies": {
     "@lando/argv": "^1.1.2",
@@ -66,6 +117,7 @@
     "dockerfile-utils": "^0.15.0",
     "dockerode": "^2.4.2",
     "enquirer": "^2.4.1",
+    "figlet": "^1.8.0",
     "figures": "^3.2.0",
     "fs-extra": "^11.1.1",
     "glob": "^7.1.3",
@@ -112,6 +164,7 @@
     "@babel/eslint-parser": "^7.16.0",
     "@lando/leia": "^1.0.0-beta.4",
     "@lando/vitepress-theme-default-plus": "^1.1.0-beta.14",
+    "@yao-pkg/pkg": "^5.15.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "chai-events": "^0.0.1",

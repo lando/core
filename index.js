@@ -68,6 +68,9 @@ module.exports = async lando => {
   // Ensure we setup docker-compose if needed
   lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-orchestrator')(lando, options));
 
+  // move v3 scripts directories as needed
+  lando.events.on('pre-init', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
+
   // make sure Lando Specification 337 is available to all
   lando.events.on('post-bootstrap-app', async () => await require('./hooks/lando-add-l337-spec')(lando));
 
