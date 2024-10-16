@@ -16,5 +16,7 @@ module.exports = {
     },
     webroot: {when: () => false},
   },
-  build: () => false,
+  build: () => ([
+    {name: 'script-load-test', cmd: '/helpers/init-tester.sh'},
+  ]),
 };

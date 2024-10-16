@@ -11,6 +11,7 @@ Run the following commands to get up and running with this example.
 ```bash
 # Should clone code down from GitHub
 mkdir -p github && cd github
+rm -rf ~/.lando/scripts
 lando init --source github --recipe none --github-auth="$GITHUB_PAT" --github-repo="git@github.com:lando/lando.git" --github-key-name="$GITHUB_KEY_NAME" --yes
 ```
 

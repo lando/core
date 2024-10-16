@@ -65,6 +65,9 @@ module.exports = async lando => {
   lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-create-ca')(lando, options));
   lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-install-ca-${process.platform}`)(lando, options)); // eslint-disable-line max-len
 
+  // also move scripts for init considerations
+  lando.events.on('pre-init', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
+
   // Ensure we setup docker-compose if needed
   lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-orchestrator')(lando, options));
 
