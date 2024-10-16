@@ -48,10 +48,8 @@ case $LANDO_LINUX_PACKAGE_MANAGER in
     update-ca-trust
     ;;
   *)
-    mkdir -p /usr/share/ca-certificates
     mkdir -p /usr/local/share/ca-certificates
     cp -r /etc/lando/ca-certificates/.  /usr/local/share/ca-certificates/
-    cp -r /etc/lando/ca-certificates/.  /usr/share/ca-certificates/
     echo "export LANDO_CA_DIR=/etc/ssl/certs/" >> /etc/lando/env.d/install-ca-certs.sh
     echo "export LANDO_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt" >> /etc/lando/env.d/install-ca-certs.sh
     update-ca-certificates

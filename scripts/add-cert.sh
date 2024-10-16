@@ -26,7 +26,7 @@ fi
 # Vars and defaults
 : ${LANDO_CA_CERT:="/lando/certs/LandoCA.crt"}
 : ${LANDO_CA_KEY:="/lando/certs/LandoCA.key"}
-: ${CA_DIR:="/usr/share/ca-certificates"}
+: ${CA_DIR:="/usr/local/share/ca-certificates"}
 : ${CA_CERT_FILENAME:="LandoCA.crt"}
 : ${CA_CERT_CONTAINER:="$CA_DIR/$CA_CERT_FILENAME"}
 
@@ -61,11 +61,9 @@ chown "$LANDO_HOST_UID:$LANDO_HOST_GID" "$LANDO_SERVICE_CERT"
 chown "$LANDO_HOST_UID:$LANDO_HOST_GID" "$LANDO_SERVICE_KEY"
 
 # Trust our root CA
-if [ ! -f "/usr/share/ca-certificates/${CA_CERT_FILENAME}" ] && [ ! -f "/usr/local/share/ca-certificates/${CA_CERT_FILENAME}" ]; then
-  lando_info "$LANDO_CA_CERT not trusted... copying $LANDO_CA_CERT over"
-  mkdir -p /usr/share/ca-certificates
+if [ ! -f "$CA_CERT_CONTAINER" ]; then
   mkdir -p /usr/local/share/ca-certificates
-  cp -f "$LANDO_CA_CERT" "/usr/share/ca-certificates/${CA_CERT_FILENAME}"
-  cp -f "$LANDO_CA_CERT" "/usr/local/share/ca-certificates/${CA_CERT_FILENAME}"
+  lando_info "$CA_CERT_CONTAINER not found... copying $LANDO_CA_CERT over"
+  cp -f $LANDO_CA_CERT $CA_CERT_CONTAINER
   echo "$CA_CERT_FILENAME" >> /etc/ca-certificates.conf
 fi
