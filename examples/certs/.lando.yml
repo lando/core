@@ -72,7 +72,6 @@ services:
     api: 4
     image: curlimages/curl
     command: sleep infinity
-    user: me
 
 tooling:
   curl:
