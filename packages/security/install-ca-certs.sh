@@ -41,13 +41,17 @@ fi
 # move all cas to the correct place and update trust
 case $LANDO_LINUX_PACKAGE_MANAGER in
   dnf|microdnf|yum)
+    mkdir -p /etc/pki/ca-trust/source/anchors
     cp -r /etc/lando/ca-certificates/.  /etc/pki/ca-trust/source/anchors/
     echo "export LANDO_CA_DIR=/etc/pki/ca-trust/source/anchors" >> /etc/lando/env.d/install-ca-certs.sh
     echo "export LANDO_CA_BUNDLE=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem" >> /etc/lando/env.d/install-ca-certs.sh
     update-ca-trust
     ;;
   *)
+    mkdir -p /usr/share/ca-certificates
+    mkdir -p /usr/local/share/ca-certificates
     cp -r /etc/lando/ca-certificates/.  /usr/local/share/ca-certificates/
+    cp -r /etc/lando/ca-certificates/.  /usr/share/ca-certificates/
     echo "export LANDO_CA_DIR=/etc/ssl/certs/" >> /etc/lando/env.d/install-ca-certs.sh
     echo "export LANDO_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt" >> /etc/lando/env.d/install-ca-certs.sh
     update-ca-certificates
