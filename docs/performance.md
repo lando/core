@@ -27,7 +27,7 @@ rm -rf ~/.lando/scripts
 
 While you _can_ use Lando on your host Windows machine and have it talk to the Docker Desktop WSL2 backend it's probably _best_ to spin up another Linux distribution like Ubuntu and install Lando there. This avoids most file sharing misery and as you might expect is almost as fast as running on Linux natively.
 
-In this model the user can usually use something like Windows Terminal to directly interface with the WSL2 machine or something like the [WSL2 Extension in VSCODE](https://code.visualstudio.com/docs/remote/wsl) to directly edit their files on the same machine.
+In this model the user can usually use something like Windows Terminal to directly interface with the WSL2 machine and something like the Visual Studio Code WSL Extension to directly edit their files on the same machine.
 
 To install Lando on your Linux environment in WSL2, follow the appropriate [Linux installation instructions](https://docs.lando.dev/install/linux.html).
 
