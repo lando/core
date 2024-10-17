@@ -47,7 +47,6 @@ module.exports = {
         supported = ['custom'],
         supportedIgnore = false,
         root = '',
-        volumes = [],
         webroot = '/app',
       } = {},
       ...sources
@@ -66,9 +65,6 @@ module.exports = {
       if (_.includes(legacy, version)) {
         console.error(color.yellow(`${type} version ${version} is a legacy version! We recommend upgrading.`));
       }
-
-      // ensure volumes is actually an array
-      if (!Array.isArray(volumes)) volumes = [];
 
       // Move our config into the userconfroot if we have some
       // NOTE: we need to do this because on macOS and Windows not all host files
@@ -96,12 +92,12 @@ module.exports = {
       const logging = {driver: 'json-file', options: {'max-file': '3', 'max-size': '10m'}};
 
       // Handle volumes
-      volumes.push(
+      const volumes = [
         `${userConfRoot}:/lando:cached`,
         `${scriptsDir}:/helpers`,
         `${entrypointScript}:/lando-entrypoint.sh`,
         `${dataHome}:/var/www`,
-      );
+      ];
 
       // Handle ssl
       if (ssl) {
@@ -145,17 +141,6 @@ module.exports = {
       const namedVols = {};
       _.set(namedVols, data, {});
       _.set(namedVols, dataHome, {});
-
-      // filter out any volumes with non-existant sources
-      volumes = volumes.filter(volume => {
-        const source = volume.split(':')[0];
-        // if souce is a named volume then true
-        if (Object.keys(namedVols).includes(source)) return true;
-        // also just skip relative paths
-        if (!path.isAbsolute(source)) return true;
-        // finally return only if the source file exists
-        return fs.existsSync(source);
-      });
 
       sources.push({
         services: _.set({}, name, {
