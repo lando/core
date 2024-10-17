@@ -8,16 +8,15 @@ module.exports = (plugin, {
   dir = os.tmpdir(),
   Plugin = require('../components/plugin'),
 } = {}) => {
-  // parse into a full package
-  const pkg = require('./parse-package-name')(plugin);
-
   return {
-    title: `Adding ${pkg.raw}`,
-    id: `install-${pkg.name}`,
-    description: pkg.name,
+    title: `Adding ${plugin}`,
+    id: `install-${plugin}`,
+    description: plugin,
     isInstalled: async () => {
-      const location = pkg.scope === '@lando'
-        ? path.join(dir, '@lando', pkg.package) : path.join(dir, pkg.package);
+      // parse into a full package
+      const pkg = require('./parse-package-name')(plugin);
+      // get location
+      const location = pkg.scope === '@lando' ? path.join(dir, '@lando', pkg.package) : path.join(dir, pkg.package);
 
       try {
         const plugin = new Plugin(location);

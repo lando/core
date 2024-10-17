@@ -3,6 +3,7 @@
 * Fixed bug causing `lando init` failures when it is the _first_ command run
 * Fixed bug clobbering `v3` certificates in some certificates
 * Fixed bug causing some core `v3` volume mounts to incorrectly mount a directory
+* Fixed bug causing `lando plugin-add` to fail in the wrong place when it's passed `encodeURIComponent` encodeys
 
 ## v3.22.1 - [October 11, 2024](https://github.com/lando/core/releases/tag/v3.22.1)
 
