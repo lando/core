@@ -1,5 +1,9 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed bug causing `lando init` failures when it is the _first_ command run
+* Fixed bug clobbering `v3` certificates in some certificates
+* Fixed bug causing some core `v3` volume mounts to incorrectly mount a directory
+
 ## v3.22.1 - [October 11, 2024](https://github.com/lando/core/releases/tag/v3.22.1)
 
 * Added explicit CA install support for `linuxmint` and `endeavouros` [#3749](https://github.com/lando/lando/issues/3749) [#223](https://github.com/lando/core/issues/223) [#225](https://github.com/lando/core/issues/225)

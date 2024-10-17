@@ -90,15 +90,13 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile
-      # bundle deps is needed so local plugin installation succeeds
       - name: Bundle Deps
         uses: lando/prepare-release-action@v3
         with:
           lando-plugin: true
           version: dev
           sync: false
-      # note that we need a custom auto-setup command because dogfooding core can impact the
-      # subsequent lando setup
+      # setup.plugins.@lando/core=/home/runner/work/core/core
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v3
         with:
