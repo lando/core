@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.22.2 - [October 17, 2024](https://github.com/lando/core/releases/tag/v3.22.2)
+
 * Fixed bug causing `lando init` failures when it is the _first_ command run
 * Fixed bug clobbering `v3` certificates in some certificates
 * Fixed bug causing `lando plugin-add` to fail in the wrong place when it's passed `encodeURIComponent` encodeys
