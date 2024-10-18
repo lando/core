@@ -3,6 +3,7 @@
 const fs = require('fs');
 const get = require('lodash/get');
 const path = require('path');
+const remove = require('./remove');
 
 // @TODO: maybe extension should be in {options}?
 module.exports = (file, data, options = {}) => {
@@ -18,7 +19,7 @@ module.exports = (file, data, options = {}) => {
   // data is a string and posixOnly then replace
   if (typeof data === 'string' && forcePosixLineEndings) data = data.replace(/\r\n/g, '\n');
   // if overwrite is on make sure we purge first
-  if (overwrite) fs.rmSync(file, {force: true, maxRetries: 10, recursive: true});
+  if (overwrite) remove(file, {force: true, maxRetries: 10, recursive: true});
 
   switch (extension) {
     case '.yaml':

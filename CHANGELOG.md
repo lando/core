@@ -5,6 +5,7 @@
 * Improved `LandoCA` support on `archlinux`
 * Improved `dc2` renderer error selection on multiline errors
 * Improved error messages and fixed typos on Linux build engine setup
+* Standardized removey operations and made `remove` more "deletey"
 
 ## v3.22.2 - [October 17, 2024](https://github.com/lando/core/releases/tag/v3.22.2)
 

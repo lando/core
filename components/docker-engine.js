@@ -16,6 +16,7 @@ const makeSuccess = require('../utils/make-success');
 const mergePromise = require('../utils/merge-promise');
 
 const read = require('../utils/read-file');
+const remove = require('../utils/remove');
 const write = require('../utils/write-file');
 
 class DockerEngine extends Dockerode {
@@ -120,7 +121,7 @@ class DockerEngine extends Dockerode {
     const debug = id ? this.debug.extend(id) : this.debug.extend('docker-engine:build');
 
     // wipe context dir so we get a fresh slate each build
-    fs.removeSync(context, {force: true, maxRetries: 10, recursive: true});
+    remove(context, {force: true, maxRetries: 10, recursive: true});
     fs.mkdirSync(context, {recursive: true});
 
     // move other sources into the build context
@@ -221,7 +222,7 @@ class DockerEngine extends Dockerode {
     const debug = id ? this.debug.extend(id) : this.debug.extend('docker-engine:buildx');
 
     // wipe context dir so we get a fresh slate each build
-    fs.removeSync(context, {force: true, maxRetries: 10, recursive: true});
+    remove(context, {force: true, maxRetries: 10, recursive: true});
     fs.mkdirSync(context, {recursive: true});
 
     // move sources into the build context if needed
