@@ -64,8 +64,7 @@ module.exports = async (lando, options) => {
             message: `Enter computer password for ${lando.config.username} to install the CA`,
             validate: async (input, state) => {
               const options = {debug, ignoreReturnCode: true, password: input};
-              const response =
-                await require('../utils/run-elevated')(['echo', 'Validating elevated access'], options);
+              const response = await require('../utils/run-elevated')(['echo', 'Validating elevated access'], options);
               if (response.code !== 0) return response.stderr;
               return true;
             },

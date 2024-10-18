@@ -21,20 +21,24 @@ Run the following commands to verify things work as expected
 ```bash
 # Should have the correct default cert issuer
 lando certinfo | grep Issuer | grep "Lando Development CA"
+lando certinfo --service arch | grep Issuer | grep "Lando Development CA"
 lando certinfo --service fedora | grep Issuer | grep "Lando Development CA"
 
 # Should set the environment variables correctly
-lando exec web -- env | grep LANDO_CA_DIR | grep /etc/ssl/certs/
-lando exec web -- env | grep LANDO_CA_BUNDLE | grep /etc/ssl/certs/ca-certificates.crt
+lando exec arch -- env | grep LANDO_CA_DIR | grep /etc/ca-certificates/trust-source/anchors
+lando exec arch -- env | grep LANDO_CA_BUNDLE | grep /etc/ssl/certs/ca-certificates.crt
 lando exec fedora -- env | grep LANDO_CA_DIR | grep /etc/pki/ca-trust/source/anchors
 lando exec fedora -- env | grep LANDO_CA_BUNDLE | grep /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
-lando exec web -- "cat \$LANDO_CA_BUNDLE"
-lando exec fedora -- "cat \$LANDO_CA_BUNDLE" | grep "Lando Development CA"
-lando exec fedora -- "cat \$LANDO_CA_BUNDLE" | grep "Solo Development CA"
+lando exec web -- env | grep LANDO_CA_DIR | grep /etc/ssl/certs/
+lando exec web -- env | grep LANDO_CA_BUNDLE | grep /etc/ssl/certs/ca-certificates.crt
 
 # Should have installed the CAs
-lando exec web -- "ls -lsa \$LANDO_CA_DIR" | grep LandoCA.pem
+lando exec arch -- "cat \$LANDO_CA_BUNDLE" | grep "Lando Development CA"
 lando exec fedora -- "ls -lsa \$LANDO_CA_DIR" | grep LandoCA.crt
+lando exec fedora -- "cat \$LANDO_CA_BUNDLE" | grep "Lando Development CA"
+lando exec fedora -- "cat \$LANDO_CA_BUNDLE" | grep "Solo Development CA"
+lando exec web -- "cat \$LANDO_CA_BUNDLE"
+lando exec web -- "ls -lsa \$LANDO_CA_DIR" | grep LandoCA.pem
 
 # Should use additional CAs if specified
 lando exec web -- "ls -lsa \$LANDO_CA_DIR" | grep SoloCA.crt

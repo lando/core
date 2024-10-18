@@ -154,13 +154,19 @@ fi
 
 # move all cas to the correct place and update trust
 case $LANDO_LINUX_PACKAGE_MANAGER in
-  dnf|microdnf|pacman|yum)
-    trust anchor --store "$CA"
+  dnf|microdnf|yum)
+    mkdir -p /etc/pki/ca-trust/source/anchors
+    cp -rf "$CA" /etc/pki/ca-trust/source/anchors/
+    update-ca-trust
+    ;;
+  pacman)
+    mkdir -p /etc/ca-certificates/trust-source/anchors
+    cp -rf "$CA" /etc/ca-certificates/trust-source/anchors/
     update-ca-trust
     ;;
   *)
     mkdir -p /usr/local/share/ca-certificates
-    cp -r "$CA" /usr/local/share/ca-certificates/
+    cp -rf "$CA" /usr/local/share/ca-certificates/
     update-ca-certificates
     ;;
 esac
