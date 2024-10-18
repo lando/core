@@ -35,6 +35,9 @@ module.exports = async (tasks, {
     fallbackRendererOptions = rendererOptions;
   }
 
+  // if terminal is DUMB then force the verbose renderer
+  if (process?.env?.TERM === 'dumb') renderer = 'verbose';
+
   const defaults = {
     ctx: {data: {}, errors: [], results: [], skipped: 0, ran: 0, total: 0},
     concurrent: true,
