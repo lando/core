@@ -3,6 +3,8 @@
 * Added _maybe-it-works?_ renderer handling for `TERM=dumb`
 * Changed and standardized `nonTTY` renderer to/from `simple`
 * Improved `LandoCA` support on `archlinux`
+* Improved `dc2` renderer error selection on multiline errors
+* Improved error messages and fixed typos on Linux build engine setup
 
 ## v3.22.2 - [October 17, 2024](https://github.com/lando/core/releases/tag/v3.22.2)
 
