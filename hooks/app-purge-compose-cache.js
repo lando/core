@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const remove = require('../utils/remove');
 
 module.exports = async (app, lando) => {
   // reset v4 service state
@@ -16,7 +17,7 @@ module.exports = async (app, lando) => {
     .filter(dangler => !app.compose.includes(dangler))
     .map(dangler => {
       try {
-        fs.unlinkSync(dangler);
+        remove(dangler);
       } catch {
         app.log.info('Could not remove dangling compose file %s', dangler);
         return dangler;

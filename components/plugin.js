@@ -57,7 +57,7 @@ class Plugin {
       Plugin.debug('extracted plugin %o to %o from %o using %o', info._id, tmp, resolved, config);
 
       // if we get this far then we can safely move the plugin to dest
-      remove(dest, {recursive: true, force: true});
+      remove(dest);
       fs.mkdirSync(dest, {recursive: true});
       fs.copySync(tmp, dest, {overwrite: true});
       Plugin.debug('moved plugin from %o to %o', tmp, dest);
@@ -369,7 +369,7 @@ class Plugin {
    */
   remove() {
     this.debug('removed %o from %o', this.spec, this.location);
-    return remove(this.root, {recursive: true, force: true});
+    return remove(this.root);
   }
 }
 

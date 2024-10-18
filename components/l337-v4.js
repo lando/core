@@ -574,8 +574,8 @@ class L337ServiceV4 extends EventEmitter {
 
   async destroy() {
     // remove build contexts and tmp
-    remove(this.context, {force: true, maxRetries: 10, recursive: true});
-    remove(this.tmpdir, {force: true, maxRetries: 10, recursive: true});
+    remove(this.context);
+    remove(this.tmpdir);
     this.debug('removed %o build-context %o', `${this.project}-${this.id}`, this.context);
     this.debug('removed %o tmpdir %o', `${this.project}-${this.id}`, this.id, this.tmpdir);
   }

@@ -121,7 +121,7 @@ class DockerEngine extends Dockerode {
     const debug = id ? this.debug.extend(id) : this.debug.extend('docker-engine:build');
 
     // wipe context dir so we get a fresh slate each build
-    remove(context, {force: true, maxRetries: 10, recursive: true});
+    remove(context);
     fs.mkdirSync(context, {recursive: true});
 
     // move other sources into the build context
@@ -222,7 +222,7 @@ class DockerEngine extends Dockerode {
     const debug = id ? this.debug.extend(id) : this.debug.extend('docker-engine:buildx');
 
     // wipe context dir so we get a fresh slate each build
-    remove(context, {force: true, maxRetries: 10, recursive: true});
+    remove(context);
     fs.mkdirSync(context, {recursive: true});
 
     // move sources into the build context if needed

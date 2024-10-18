@@ -33,7 +33,7 @@ module.exports = (src, dest = os.tmpdir()) => {
     }
 
     // Try to take corrective action
-    fs.unlinkSync(f);
+    remove(f);
     copydir.sync(src, dest, filter);
     require('./make-executable')(_(fs.readdirSync(dest))
       .filter(file => path.extname(file) === '.sh')
