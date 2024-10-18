@@ -5,6 +5,7 @@ const copydir = require('copy-dir');
 const fs = require('fs-extra');
 const os = require('os');
 const path = require('path');
+const remove = require('./remove');
 
 module.exports = (src, dest = os.tmpdir()) => {
   // Copy opts and filter out all js files
@@ -27,7 +28,7 @@ module.exports = (src, dest = os.tmpdir()) => {
 
     // Catch this so we can try to repair
     if (code !== 'EISDIR' || syscall !== 'open' || !!fs.mkdirSync(f, {recursive: true})) {
-      fs.removeSync(f);
+      remove(f);
       throw new Error(error);
     }
 

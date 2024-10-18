@@ -7,6 +7,7 @@ const os = require('os');
 const merge = require('lodash/merge');
 const path = require('path');
 const read = require('../utils/read-file');
+const remove = require('../utils/remove');
 const write = require('../utils/write-file');
 const uniq = require('lodash/uniq');
 
@@ -573,8 +574,8 @@ class L337ServiceV4 extends EventEmitter {
 
   async destroy() {
     // remove build contexts and tmp
-    fs.rmSync(this.context, {force: true, maxRetries: 10, recursive: true});
-    fs.rmSync(this.tmpdir, {force: true, maxRetries: 10, recursive: true});
+    remove(this.context, {force: true, maxRetries: 10, recursive: true});
+    remove(this.tmpdir, {force: true, maxRetries: 10, recursive: true});
     this.debug('removed %o build-context %o', `${this.project}-${this.id}`, this.context);
     this.debug('removed %o tmpdir %o', `${this.project}-${this.id}`, this.id, this.tmpdir);
   }
