@@ -3,12 +3,31 @@ set -eo pipefail
 
 DEBUG=0
 INSTALLER="get-docker.sh"
-VERSION="25.0.3"
+VERSION="27.3.1"
 OPTS=
 
 debug() {
   if [ "${DEBUG}" == 1 ]; then printf '%s\n' "$1" >&2; fi
 }
+
+trap '{
+  EXITCODE=$?
+
+  debug "******************************************************************************"
+  debug ""
+  debug "DOCKER ENGINE INSTALL FAILED!"
+  debug ""
+  debug "Usually this happens if you are installing on an unsupported OS or distro."
+  debug ""
+  debug "Please manually install Docker Engine first and then rereun lando setup."
+  debug ""
+  debug "You can find the Linux Docker Engine install docs over here:"
+  debug "https://docs.docker.com/engine/install/"
+  debug ""
+  debug "*******************************************************************************"
+
+  exit $EXITCODE;
+}' ERR
 
 # PARSE THE ARGZZ
 while (( "$#" )); do
@@ -53,7 +72,7 @@ debug "INSTALLER: $INSTALLER"
 debug "VERSION: $VERSION"
 
 # run
-sh "$INSTALLER" --version "$VERSION"
+sh "$INSTALLER" --version "$VERSION" 1>&2
 
 # add group
 groupadd docker || true

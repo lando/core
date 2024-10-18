@@ -575,8 +575,8 @@ class L337ServiceV4 extends EventEmitter {
     // remove build contexts and tmp
     fs.rmSync(this.context, {force: true, maxRetries: 10, recursive: true});
     fs.rmSync(this.tmpdir, {force: true, maxRetries: 10, recursive: true});
-    this.debug('removed %o-%o build-context %o', this.project, this.id, this.context);
-    this.debug('removed %o-%o tmpdir %o', this.project, this.id, this.tmpdir);
+    this.debug('removed %o build-context %o', `${this.project}-${this.id}`, this.context);
+    this.debug('removed %o tmpdir %o', `${this.project}-${this.id}`, this.id, this.tmpdir);
   }
 
   generateBuildContext() {

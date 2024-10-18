@@ -49,11 +49,20 @@ class DC2Renderer extends LandoRenderer {
     // super
     super(tasks, options, $renderHook);
 
-    // normalize output data
+
+    // normalize error data to handle multiline and atttempt generic error discovery
     for (const task of this.tasks) {
       task.on(ListrTaskEventType.MESSAGE, message => {
         if (message?.error && typeof message.error === 'string') {
-          message.error = message.error.trim();
+          if (message.error.split('\n').length > 1) {
+            const lines = message.error.split('\n').filter(line => line !== '');
+            const errors = lines.filter(line => {
+              return line.toUpperCase().startsWith('ERROR:') || line.toUpperCase().startsWith('E:');
+            });
+            message.error = errors.length > 0 ? errors[errors.length - 1] : lines[lines.length - 1];
+          }
+
+          task.message.error = message.error.trim();
         }
       });
     }
@@ -122,8 +131,10 @@ class DC2Renderer extends LandoRenderer {
     output.flatMap((line, index) => {
       const task = tasks.filter(task => task.enabled)[index];
       const vibe = this.options.states[task.state] ?? this.options.states['STARTED'];
+
       task.spacer = this.getSpacer(task?.message?.error ?? task.title ?? task.initialTitle, this.getMax(tasks));
       task.status = color[vibe.color](vibe.message);
+
       output[index] = `${line}${task.spacer}${task.status}`;
     });
 

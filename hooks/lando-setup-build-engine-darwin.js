@@ -3,7 +3,9 @@
 const os = require('os');
 const path = require('path');
 const semver = require('semver');
+
 const {color} = require('listr2');
+
 const buildIds = {
   '4.34.0': '165256',
   '4.33.0': '160616',
