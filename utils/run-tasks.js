@@ -13,7 +13,7 @@ const {Listr} = require('listr2');
 // adds required methods to ensure the lando v3 debugger can be injected into v4 things
 module.exports = async (tasks, {
   ctx = {},
-  fallbackRenderer = 'verbose',
+  fallbackRenderer = 'simple',
   fallbackRendererOptions = {},
   renderer = 'lando',
   rendererForce = false,
