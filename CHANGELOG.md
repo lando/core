@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Added _maybe-it-works?_ renderer handling for `TERM=dumb`
+* Changed and standardized `nonTTY` renderer to/from `simple`
 * Improved `LandoCA` support on `archlinux`
 
 ## v3.22.2 - [October 17, 2024](https://github.com/lando/core/releases/tag/v3.22.2)
