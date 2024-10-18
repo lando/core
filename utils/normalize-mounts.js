@@ -44,7 +44,7 @@ module.exports = (mounts, {_data, appRoot, normalizeVolumes, tmpdir, user}) => {
       // dump contents to file and set source to it
       mount.source = path.join(tmpdir, mount.target.split(path.sep).filter(part => part !== '').join('-'));
       fs.mkdirSync(path.dirname(mount.source), {force: true, maxRetries: 10, recursive: true});
-      remove(mount.source, {force: true, maxRetries: 10, recursive: true});
+      remove(mount.source);
       write(mount.source, mount.contents ?? mount.content);
 
       // clean up

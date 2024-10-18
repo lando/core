@@ -19,7 +19,7 @@ module.exports = (file, data, options = {}) => {
   // data is a string and posixOnly then replace
   if (typeof data === 'string' && forcePosixLineEndings) data = data.replace(/\r\n/g, '\n');
   // if overwrite is on make sure we purge first
-  if (overwrite) remove(file, {force: true, maxRetries: 10, recursive: true});
+  if (overwrite) remove(file);
 
   switch (extension) {
     case '.yaml':
