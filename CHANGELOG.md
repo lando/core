@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Improved `LandoCA` support on `archlinux`
+
 ## v3.22.2 - [October 17, 2024](https://github.com/lando/core/releases/tag/v3.22.2)
 
 * Fixed bug causing `lando init` failures when it is the _first_ command run
