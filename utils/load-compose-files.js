@@ -12,7 +12,7 @@ const remove = require('./remove');
 module.exports = async (files, dir, landoComposeConfigDir = undefined, outputConfigFunction = undefined) => {
   const composeFilePaths = _(require('./normalize-files')(files, dir)).value();
   if (_.isEmpty(composeFilePaths)) {
-    return {};
+    return [];
   }
 
   if (undefined === outputConfigFunction) {
@@ -29,5 +29,5 @@ module.exports = async (files, dir, landoComposeConfigDir = undefined, outputCon
   fs.unlinkSync(outputFile);
   remove(path.dirname(outputFile));
 
-  return result;
+  return [result];
 };
