@@ -1,9 +1,12 @@
 'use strict';
 
 const _ = require('lodash');
+const remove = require('../utils/remove');
+const path = require('path');
+const formatters = require('../lib/formatters');
 
 module.exports = async (app, lando, cmds, data, event) => {
-  const eventCommands = require('./../utils/parse-events-config')(cmds, app, data);
+  const eventCommands = require('./../utils/parse-events-config')(cmds, app, data, lando);
   // add perm sweeping to all v3 services
   if (!_.isEmpty(eventCommands)) {
     const permsweepers = _(eventCommands)
@@ -27,7 +30,28 @@ module.exports = async (app, lando, cmds, data, event) => {
     });
   }
   const injectable = _.has(app, 'engine') ? app : lando;
-  return injectable.engine.run(eventCommands).catch(err => {
+
+  const splitEventCommands = [];
+  while (!_.isEmpty(eventCommands)) {
+    splitEventCommands.push(
+      _.takeWhile(eventCommands,
+        (eventCommand, index) => index === 0 || (!!eventCommand.toolingTask === !!eventCommands[index - 1].toolingTask),
+      ),
+    );
+    eventCommands.splice(0, _.last(splitEventCommands).length);
+  }
+
+  return lando.Promise.mapSeries(splitEventCommands, eventCommands => {
+    return lando.Promise.mapSeries(eventCommands, eventCommand => {
+      if (undefined !== eventCommand.toolingTask) {
+        const inquiry = formatters.getInteractive(eventCommand.toolingTask.options, eventCommand.answers);
+        return formatters.handleInteractive(inquiry, eventCommand.answers, eventCommand.toolingTask.command, lando)
+          .then(answers => eventCommand.toolingTask.run(_.merge(eventCommand.answers, answers)));
+      } else {
+        return injectable.engine.run(eventCommands);
+      }
+    });
+  }).catch(err => {
     const command = _.tail(event.split('-')).join('-');
     if (app.addMessage) {
       const message = _.trim(_.get(err, 'message')) || 'UNKNOWN ERROR';
@@ -44,5 +68,16 @@ module.exports = async (app, lando, cmds, data, event) => {
     } else {
       lando.exitCode = 12;
     }
+  }).finally(() => {
+    const initToolingRunners = _.filter(_.flatten(splitEventCommands), eventCommand => true === eventCommand.isInitEventCommand);
+    if (_.isEmpty(initToolingRunners)) {
+      return;
+    }
+    const run = _.first(initToolingRunners);
+
+    run.opts = {purge: true, mode: 'attach'};
+    return injectable.engine.stop(run)
+      .then(() => injectable.engine.destroy(run))
+      .then(() => remove(path.dirname(run.compose[0])));
   });
 };

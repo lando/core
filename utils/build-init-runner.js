@@ -10,5 +10,7 @@ module.exports = config => ({
     user: config.user,
     services: ['init'],
     autoRemove: config.remove,
+    workdir: config.workdir,
+    prestart: config.prestart,
   },
 });

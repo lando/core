@@ -26,5 +26,7 @@ module.exports = (lando, options) => {
     user: 'www-data',
     compose: initFiles,
     remove: false,
+    workdir: '/',
+    prestart: true,
   };
 };

@@ -36,7 +36,7 @@ const getService = (cmd, data = {}, defaultService = 'appserver') => {
 };
 
 // adds required methods to ensure the lando v3 debugger can be injected into v4 things
-module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
+module.exports = (cmds, app, data, lando) => _.map(cmds, cmd => {
   // Discover the service
   const service = getService(cmd, data, app._defaultService);
   // compute stdio based on compose major version
@@ -75,6 +75,19 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
     _(app.info).filter(service => service.api === 4).map('service').value(),
     _.get(app, 'v4.servicesList', []),
   ]).flatten().compact().uniq().value();
+
+
+  if ('_init' === service) {
+    return _.merge(
+      {},
+      require('./build-init-runner')(_.merge(
+        {},
+        require('./get-init-runner-defaults')(lando, {destination: app.root, name: app.project}),
+        {cmd, workdir: '/app'},
+      )),
+      {isInitEventCommand: true},
+    );
+  }
 
   // Validate the service if we can
   // @NOTE fast engine runs might not have this data yet

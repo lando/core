@@ -13,6 +13,8 @@ module.exports = {
     version: 'custom',
     type: 'init',
     name: 'init',
+    data: null,
+    dataHome: null,
   },
   builder: (parent, config) => class LandoInit extends parent {
     constructor(userConfRoot, home, app, env = {}, labels = {}, image = 'devwithlando/util:4') {
