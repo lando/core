@@ -64,7 +64,6 @@ module.exports = async (app, lando) => {
       overrides: {
         tooling: app._coreToolingOverrides,
       },
-
     }, {persist: true});
   };
 

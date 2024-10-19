@@ -53,6 +53,8 @@ const engineRunner = (config, command) => (argv, lando) => {
   const AsyncEvents = require('./../lib/events');
   // Build a minimal app
   const app = lando.cache.get(path.basename(config.composeCache));
+  app._lando = lando;
+  app._config = lando.config;
   app.config = config;
   app.events = new AsyncEvents(lando.log);
 

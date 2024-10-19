@@ -14,7 +14,7 @@ module.exports = (lando, config = lando.appConfig) => ({
   describe: 'Runs command(s) on a service',
   usage: '$0 exec <service> [--user <user>] -- <command>',
   override: true,
-  level: 'engine',
+  level: 'app',
   examples: [
     '$0 exec appserver -- lash bash',
     '$0 exec nginx --user root -- whoami',
@@ -25,7 +25,7 @@ module.exports = (lando, config = lando.appConfig) => ({
     service: {
       describe: 'Runs on this service',
       type: 'string',
-      choices: config?.allServices ?? [],
+      choices: config?.allServices ?? _.keys(lando.appConfig.services) ?? [],
     },
   },
   options: {
@@ -38,9 +38,10 @@ module.exports = (lando, config = lando.appConfig) => ({
     // construct a minapp from various places
     const minapp = !_.isEmpty(config) ? config : lando.appConfig;
 
-    // if no app then we need to throw
+    // if no app then we need to create one
     if (!fs.existsSync(minapp.composeCache)) {
-      throw new Error('Could not detect a built app. Rebuild or move into the correct location!');
+      const app = lando.getApp(options._app.root);
+      await app.init();
     }
 
     // Build a minimal app
@@ -49,6 +50,8 @@ module.exports = (lando, config = lando.appConfig) => ({
 
     // augment
     app.config = minapp;
+    app._lando = lando;
+    app._config = lando.config;
     app.events = new AsyncEvents(lando.log);
 
     // Load only what we need so we don't pay the appinit penalty
@@ -127,6 +130,8 @@ module.exports = (lando, config = lando.appConfig) => ({
     ropts.push(sconf?.overrides?.working_dir ?? sconf?.working_dir);
     // mix in mount if applicable
     ropts.push(app?.mounts[options.service]);
+    ropts.push(!options.deps ?? false);
+    ropts.push(options.autoRemove ?? true);
 
     // emit pre-exec
     await app.events.emit('pre-exec', config);
@@ -137,18 +142,12 @@ module.exports = (lando, config = lando.appConfig) => ({
     // try to run it
     try {
       lando.log.debug('running exec command %o on %o', runner.cmd, runner.id);
-      await require('../utils/build-docker-exec')(lando, 'inherit', runner);
+      await lando.engine.run(runner);
 
     // error
     } catch (error) {
-      return lando.engine.isRunning(runner.id).then(isRunning => {
-        if (!isRunning) {
-          throw new Error(`Looks like your app is stopped! ${color.bold('lando start')} it up to exec your heart out.`);
-        } else {
-          error.hide = true;
-          throw error;
-        }
-      });
+      error.hide = true;
+      throw error;
 
     // finally
     } finally {
@@ -156,3 +155,4 @@ module.exports = (lando, config = lando.appConfig) => ({
     }
   },
 });
+
