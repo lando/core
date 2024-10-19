@@ -1,9 +1,11 @@
 'use strict';
 
 const _ = require('lodash');
+const remove = require('../utils/remove');
+const path = require('path');
 
 module.exports = async (app, lando, cmds, data, event) => {
-  const eventCommands = require('./../utils/parse-events-config')(cmds, app, data);
+  const eventCommands = require('./../utils/parse-events-config')(cmds, app, data, lando);
   const injectable = _.has(app, 'engine') ? app : lando;
   return injectable.engine.run(eventCommands).catch(err => {
     const command = _.tail(event.split('-')).join('-');
@@ -22,5 +24,14 @@ module.exports = async (app, lando, cmds, data, event) => {
     } else {
       lando.exitCode = 12;
     }
+  }).finally(() => {
+    const run = _.first(
+      _.filter(eventCommands, eventCommand => true === eventCommand.isInitEventCommand),
+    );
+
+    run.opts = {purge: true, mode: 'attach'};
+    return injectable.engine.stop(run)
+      .then(() => injectable.engine.destroy(run))
+      .then(() => remove(path.dirname(run.compose[0])));
   });
 };
