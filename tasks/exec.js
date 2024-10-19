@@ -127,6 +127,8 @@ module.exports = (lando, config = lando.appConfig) => ({
     ropts.push(sconf?.overrides?.working_dir ?? sconf?.working_dir);
     // mix in mount if applicable
     ropts.push(app?.mounts[options.service]);
+    ropts.push(!options.deps ?? true);
+    ropts.push(options.autoRemove ?? false);
 
     // emit pre-exec
     await app.events.emit('pre-exec', config);
@@ -137,18 +139,12 @@ module.exports = (lando, config = lando.appConfig) => ({
     // try to run it
     try {
       lando.log.debug('running exec command %o on %o', runner.cmd, runner.id);
-      await require('../utils/build-docker-exec')(lando, 'inherit', runner);
+      await lando.engine.run(runner);
 
     // error
     } catch (error) {
-      return lando.engine.isRunning(runner.id).then(isRunning => {
-        if (!isRunning) {
-          throw new Error(`Looks like your app is stopped! ${color.bold('lando start')} it up to exec your heart out.`);
-        } else {
-          error.hide = true;
-          throw error;
-        }
-      });
+      error.hide = true;
+      throw error;
 
     // finally
     } finally {
