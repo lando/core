@@ -34,7 +34,7 @@ const getService = (cmd, data = {}, defaultService = 'appserver') => {
 };
 
 // adds required methods to ensure the lando v3 debugger can be injected into v4 things
-module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
+module.exports = (cmds, app, data, lando) => _.map(cmds, cmd => {
   // Discover the service
   const command = getCommand(cmd);
   const service = getService(cmd, data, app._defaultService);
@@ -60,6 +60,18 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
     cmd = ['/etc/lando/exec.sh', 'sh', '-c', _.isArray(command) ? command.join(' ') : command];
   } else {
     cmd = ['/bin/sh', '-c', _.isArray(command) ? command.join(' ') : command];
+  }
+
+  if ('_init' === service) {
+    return _.merge(
+      {},
+        require('./build-init-runner')(_.merge(
+        {},
+        require('./get-init-runner-defaults')(lando, {destination: app.root, name: app.project}),
+        {cmd, workdir: '/app'},
+      )),
+      {isInitEventCommand: true},
+    );
   }
 
   // Validate the service if we can

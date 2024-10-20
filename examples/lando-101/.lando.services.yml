@@ -8,3 +8,6 @@ services:
     portforward: true
     hogfrom:
       - appserver
+
+plugins:
+  "@lando/core": "../../.."

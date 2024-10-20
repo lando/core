@@ -11,3 +11,6 @@ services:
 proxy:
   mailhog:
     - mail.lando-101.lndo.site
+
+plugins:
+  "@lando/core": "../../.."

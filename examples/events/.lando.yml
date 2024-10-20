@@ -25,6 +25,8 @@ services:
       SERVICE: web2
     ports:
       - 8080/http
+  alpine:
+    meUser: root
 
 events:
   pre-start:

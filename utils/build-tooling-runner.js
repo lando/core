@@ -4,7 +4,7 @@ const _ = require('lodash');
 const path = require('path');
 
 const getContainer = (app, service) => {
-  return app?.containers?.[service] ?? `${app.project}_${service}_1`;
+  return app?.containers?.[service] ?? `${app.project}-${service}-1`;
 };
 
 const getContainerPath = (appRoot, appMount = undefined) => {
@@ -20,7 +20,17 @@ const getContainerPath = (appRoot, appMount = undefined) => {
   return dir.join('/');
 };
 
-module.exports = (app, command, service, user, env = {}, dir = undefined, appMount = undefined) => ({
+module.exports = (
+  app,
+  command,
+  service,
+  user,
+  env = {},
+  dir = undefined,
+  appMount = undefined,
+  noDeps = false,
+  autoRemove = true,
+) => ({
   id: getContainer(app, service),
   compose: app.compose,
   project: app.project,
@@ -32,6 +42,8 @@ module.exports = (app, command, service, user, env = {}, dir = undefined, appMou
     user: (user === null) ? require('./get-user')(service, app.info) : user,
     services: _.compact([service]),
     hijack: false,
-    autoRemove: true,
+    autoRemove,
+    noDeps,
+    prestart: !autoRemove,
   }, _.identity),
 });

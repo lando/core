@@ -1,2 +1,5 @@
 name: lando-101
 recipe: lamp
+
+plugins:
+  "@lando/core": "../../.."
