@@ -1,5 +1,20 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.22.3 - [October 18, 2024](https://github.com/lando/core/releases/tag/v3.22.3)
+
+* Added _maybe-it-works?_ renderer handling for `TERM=dumb`
+* Changed and standardized `nonTTY` renderer to/from `simple`
+* Improved `LandoCA` support on `archlinux`
+* Improved `dc2` renderer error selection on multiline errors
+* Improved error messages and fixed typos on Linux build engine setup
+* Standardized removey operations and made `remove` more "deletey"
+
+## v3.22.2 - [October 17, 2024](https://github.com/lando/core/releases/tag/v3.22.2)
+
+* Fixed bug causing `lando init` failures when it is the _first_ command run
+* Fixed bug clobbering `v3` certificates in some circumstances
+* Fixed bug causing `lando plugin-add` to fail in the wrong place when it's passed `encodeURIComponent` encodeys
+
 ## v3.22.1 - [October 11, 2024](https://github.com/lando/core/releases/tag/v3.22.1)
 
 * Added explicit CA install support for `linuxmint` and `endeavouros` [#3749](https://github.com/lando/lando/issues/3749) [#223](https://github.com/lando/core/issues/223) [#225](https://github.com/lando/core/issues/225)

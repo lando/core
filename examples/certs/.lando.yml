@@ -68,7 +68,14 @@ services:
     user: nginx
     ports:
       - 8080/http
+  curl:
+    api: 4
+    image: curlimages/curl
+    command: sleep infinity
+
 tooling:
+  curl:
+    service: curl
   certinfo:
     cmd: openssl x509 -in "$LANDO_SERVICE_CERT" -noout -text
     service: :service

@@ -3,6 +3,7 @@
 // Modules
 const fs = require('fs');
 const path = require('path');
+const remove = require('./remove');
 const write = require('./write-file');
 
 module.exports = (installDir, dest, {filename = 'lando', debug = require('debug')('@lando/link-bin')} = {}) => {
@@ -14,7 +15,7 @@ module.exports = (installDir, dest, {filename = 'lando', debug = require('debug'
   // on POSIX this is pretty straightforward
   if (process.platform === 'linux' || process.platform === 'darwin') {
     if (fs.existsSync(posixbin)) {
-      fs.unlinkSync(posixbin);
+      remove(posixbin);
       debug('removed existing symlink %o', posixbin);
     }
 

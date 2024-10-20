@@ -5,6 +5,7 @@ const http = require('http');
 const https = require('https');
 const os = require('os');
 const path = require('path');
+const remove = require('./remove');
 
 const {EventEmitter} = require('events');
 const {create} = require('axios');
@@ -91,7 +92,7 @@ module.exports = (url, {
 
       // otherwise we assume all is well and we emit success!
       } else {
-        if (fs.existsSync(dest)) fs.unlinkSync(dest);
+        if (fs.existsSync(dest)) remove(dest);
         fs.mkdirSync(path.dirname(dest), {recursive: true});
         fs.copyFileSync(download.testfile, dest);
         debug('downloaded %o to %o', url, dest);

@@ -13,9 +13,6 @@ if [ ! -x "$(command -v update-ca-certificates)" ]; then
     apt)
       apt install -y ca-certificates
       ;;
-    pacman)
-      pacman -Sy --noconfirm ca-certificates-utils
-      ;;
   esac
 fi
 
@@ -26,6 +23,9 @@ if [ ! -x "$(command -v update-ca-trust)" ]; then
       ;;
     microdnf)
       microdnf install ca-certificates
+      ;;
+    pacman)
+      pacman -Sy --noconfirm ca-certificates-utils
       ;;
     yum)
       yum install -y ca-certificates
@@ -41,12 +41,21 @@ fi
 # move all cas to the correct place and update trust
 case $LANDO_LINUX_PACKAGE_MANAGER in
   dnf|microdnf|yum)
+    mkdir -p /etc/pki/ca-trust/source/anchors
     cp -r /etc/lando/ca-certificates/.  /etc/pki/ca-trust/source/anchors/
     echo "export LANDO_CA_DIR=/etc/pki/ca-trust/source/anchors" >> /etc/lando/env.d/install-ca-certs.sh
     echo "export LANDO_CA_BUNDLE=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem" >> /etc/lando/env.d/install-ca-certs.sh
     update-ca-trust
     ;;
+  pacman)
+    mkdir -p /etc/ca-certificates/trust-source/anchors
+    cp -r /etc/lando/ca-certificates/.  /etc/ca-certificates/trust-source/anchors/
+    echo "export LANDO_CA_DIR=/etc/ca-certificates/trust-source/anchors" >> /etc/lando/env.d/install-ca-certs.sh
+    echo "export LANDO_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt" >> /etc/lando/env.d/install-ca-certs.sh
+    update-ca-trust
+    ;;
   *)
+    mkdir -p /usr/local/share/ca-certificates
     cp -r /etc/lando/ca-certificates/.  /usr/local/share/ca-certificates/
     echo "export LANDO_CA_DIR=/etc/ssl/certs/" >> /etc/lando/env.d/install-ca-certs.sh
     echo "export LANDO_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt" >> /etc/lando/env.d/install-ca-certs.sh

@@ -13,7 +13,7 @@ const {Listr} = require('listr2');
 // adds required methods to ensure the lando v3 debugger can be injected into v4 things
 module.exports = async (tasks, {
   ctx = {},
-  fallbackRenderer = 'verbose',
+  fallbackRenderer = 'simple',
   fallbackRendererOptions = {},
   renderer = 'lando',
   rendererForce = false,
@@ -34,6 +34,9 @@ module.exports = async (tasks, {
     fallbackRenderer = renderer;
     fallbackRendererOptions = rendererOptions;
   }
+
+  // if terminal is DUMB then force the verbose renderer
+  if (process?.env?.TERM === 'dumb') renderer = 'verbose';
 
   const defaults = {
     ctx: {data: {}, errors: [], results: [], skipped: 0, ran: 0, total: 0},

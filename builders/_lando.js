@@ -141,6 +141,7 @@ module.exports = {
       const namedVols = {};
       _.set(namedVols, data, {});
       _.set(namedVols, dataHome, {});
+
       sources.push({
         services: _.set({}, name, {
           entrypoint,

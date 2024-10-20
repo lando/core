@@ -2,15 +2,23 @@
 
 const path = require('path');
 
+/**
+ * Installs the Lando Development Certificate Authority (CA) on macOS systems.
+ * This module is called by `lando setup` to ensure the Lando CA is trusted by the system.
+ *
+ * @param {Object} lando - The Lando config object
+ * @param {Object} options - Options passed to the setup command
+ * @return {Promise<void>}
+ */
 module.exports = async (lando, options) => {
   const debug = require('../utils/debug-shim')(lando.log);
 
   const {caCert} = lando.config;
 
-  // skip the installation of the CA if set
+  // Skip the installation of the CA if set in options
   if (options.skipInstallCa) return;
 
-  // install ca
+  // Add CA installation task
   options.tasks.push({
     title: `Installing Lando Development CA`,
     id: 'install-ca',
@@ -36,19 +44,19 @@ module.exports = async (lando, options) => {
       try {
         task.title = 'Installing Lando Development Certificate Authority (CA)';
 
-        // assemble
+        // Assemble the installation command
         const fingerprint = require('../utils/get-fingerprint')(caCert);
         const script = path.join(lando.config.userConfRoot, 'scripts', 'install-system-ca-macos.sh');
         const args = ['--ca', caCert, '--fingerprint', fingerprint];
 
-        // add optional args
+        // Add optional arguments
         if (options.debug || options.verbose > 0 || lando.debuggy) args.push('--debug');
         if (!lando.config.isInteractive) args.push('--non-interactive');
 
-        // run
+        // Run the installation command
         const result = await require('../utils/run-command')(script, args, {debug});
 
-        // finish up
+        // Update task title on successful installation
         task.title = 'Installed Lando Development Certificate Authority (CA)';
         return result;
       } catch (error) {

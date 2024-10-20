@@ -2,6 +2,8 @@
 
 const fs = require('fs-extra');
 const path = require('path');
+const remove = require('./remove');
+
 
 /*
  * brief wrapper to accomodate lando 3 conventions when using lando 4 plugin fetching
@@ -21,7 +23,7 @@ module.exports = async (spec, opts, Plugin = require('../components/plugin')) =>
     fs.moveSync(src, dest, {overwrite: true});
     plugin.debug('non-lando org scoped plugin detected, moved up a dir to %s', dest);
     // remove and log
-    fs.removeSync(path.resolve(src, '..'), {recursive: true});
+    remove(path.resolve(src, '..'));
     plugin.debug('removed dangling and presumably/hopefully empty org scope dir %s', orgDir);
 
     // get the plugin info again to confirm we moved it to the correct place

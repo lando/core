@@ -87,6 +87,12 @@ lando certinfo --service web4 | grep DNS | grep -w localhost
 lando certinfo --service web4 | grep DNS | grep -w web4.landocerts.internal
 lando certinfo --service web4 | grep DNS | grep -w web4
 lando certinfo --service web4 | grep "IP Address" | grep 127.0.0.1
+
+# Should be able to access over https from other lando services
+lando curl https://web:8443
+lando curl https://web2:8443
+lando curl https://web3:8443
+lando curl https://web4:8443
 ```
 
 ## Destroy tests

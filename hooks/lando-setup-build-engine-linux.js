@@ -6,7 +6,8 @@ const path = require('path');
 const {color} = require('listr2');
 
 const downloadDockerEngine = (url = 'https://get.docker.com', {debug, task, ctx}) => new Promise((resolve, reject) => {
-  const download = require('../utils/download-x')(url, {debug, test: ['--dry-run']});
+  const download = require('../utils/download-x')(url, {debug});
+
   // success
   download.on('done', result => {
     task.title = `Downloaded build engine`;
@@ -67,7 +68,7 @@ module.exports = async (lando, options) => {
           ctx.password = await task.prompt({
             type: 'password',
             name: 'password',
-            message: `Enter computer password for ${lando.config.username} to add them to docker group`,
+            message: `Enter computer password for ${lando.config.username} to install the build engine`,
             validate: async (input, state) => {
               const options = {debug, ignoreReturnCode: true, password: input};
               const response = await require('../utils/run-elevated')(['echo', 'hello there'], options);
@@ -118,7 +119,7 @@ module.exports = async (lando, options) => {
         ctx.password = await task.prompt({
           type: 'password',
           name: 'password',
-          message: `Enter computer password for ${lando.config.usernam} to install build engine`,
+          message: `Enter computer password for ${lando.config.username} to add them to docker group`,
           validate: async (input, state) => {
             const options = {debug, ignoreReturnCode: true, password: input};
             const response = await require('../utils/run-elevated')(['echo', 'hello there'], options);
