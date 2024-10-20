@@ -21,12 +21,13 @@ module.exports = (lando, options) => {
   const separator = lando.config.orchestratorSeparator;
   // Return
   return {
-    id: [`${project}${separator}init${separator}1`],
+    id: `${project}${separator}init${separator}1`,
     project,
     user: 'www-data',
     compose: initFiles,
     remove: false,
     workdir: '/',
     prestart: true,
+    env: {},
   };
 };

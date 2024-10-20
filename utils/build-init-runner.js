@@ -6,6 +6,7 @@ module.exports = config => ({
   project: config.project,
   cmd: config.cmd,
   opts: {
+    environment: require('./get-cli-env')(config.env),
     mode: 'attach',
     user: config.user,
     services: ['init'],

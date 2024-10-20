@@ -12,7 +12,6 @@ module.exports = ({
   env = {},
   options = {},
   service = '',
-  stdio = 'inherit',
   user = null,
   } = {}) =>
   ({
@@ -25,6 +24,5 @@ module.exports = ({
     describe: description,
     options: options,
     service: service,
-    stdio: stdio,
     user,
   });
