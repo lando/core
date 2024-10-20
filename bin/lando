@@ -95,17 +95,19 @@ const appConfig = (landoFiles.length > 0) ? getApp(landoFiles, userConfRoot) : {
 // if we have an app then normalize runtime and also log some helpful stuff
 if (Object.keys(appConfig).length > 0) debug('detected an app %o at %o', appConfig.name, path.dirname(landoFiles[0]));
 
-// compute path to external core
-const extCore = path.join(config.userConfRoot, 'plugins', '@lando', 'core');
+// gather core candidates
+const cores = [
+  path.join(config.userConfRoot, 'plugins', '@lando', 'core'),
+  path.resolve(__dirname, '..'),
+];
+
 // if appConfig points to a different core lets set that here
 if (typeof _.get(appConfig, 'plugins.@lando/core') === 'string') {
-  appConfig.appCore = path.resolve(appConfig.root, appConfig.plugins['@lando/core']);
+  cores.unshift(path.resolve(appConfig.root, appConfig.plugins['@lando/core']));
 }
 
-// but if its in the user plugins dir use that instead
-const COREBASE = fs.existsSync(path.join(extCore, 'index.js')) ? extCore : path.resolve(__dirname, '..');
-// but if its referenced in the appConfig then actually use that instead
-if (appConfig.appCore && fs.existsSync(path.join(appConfig.appCore, 'index.js'))) COREBASE = appConfig.appCore;
+// return the first core that exists that we find
+const COREBASE = _.find(cores, core => fs.existsSync(path.join(core, 'index.js')));
 
 // Summon the implementation of @lando/cli@3 that works with @lando/core@3
 const Cli = require(`${COREBASE}/lib/cli`);
