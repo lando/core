@@ -25,9 +25,11 @@ module.exports = async (app, lando, cmds, data, event) => {
       lando.exitCode = 12;
     }
   }).finally(() => {
-    const run = _.first(
-      _.filter(eventCommands, eventCommand => true === eventCommand.isInitEventCommand),
-    );
+    const initToolingRunners = _.filter(eventCommands, eventCommand => true === eventCommand.isInitEventCommand);
+    if (_.isEmpty(initToolingRunners)) {
+      return;
+    }
+    const run = _.first(initToolingRunners);
 
     run.opts = {purge: true, mode: 'attach'};
     return injectable.engine.stop(run)

@@ -28,5 +28,6 @@ module.exports = (lando, options) => {
     remove: false,
     workdir: '/',
     prestart: true,
+    env: {},
   };
 };
