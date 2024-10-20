@@ -102,10 +102,8 @@ if (typeof _.get(appConfig, 'plugins.@lando/core') === 'string') {
   appConfig.appCore = path.resolve(appConfig.root, appConfig.plugins['@lando/core']);
 }
 
-// by default core is in node_modules
-let COREBASE = '@lando/core';
 // but if its in the user plugins dir use that instead
-if (fs.existsSync(path.join(extCore, 'index.js'))) COREBASE = extCore;
+const COREBASE = fs.existsSync(path.join(extCore, 'index.js')) ? extCore : path.resolve(__dirname, '..');
 // but if its referenced in the appConfig then actually use that instead
 if (appConfig.appCore && fs.existsSync(path.join(appConfig.appCore, 'index.js'))) COREBASE = appConfig.appCore;
 
