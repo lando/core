@@ -50,6 +50,7 @@ jobs:
           - plugins
           - proxy
           - rebuild
+          - renderer
           - recipes
           - release-channel
           - restart
@@ -62,7 +63,7 @@ jobs:
           - update
           - version
         node-version:
-          - "18"
+          - "20"
         os:
           # - macos-13
           # - macos-14
@@ -88,19 +89,29 @@ jobs:
           node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org
           cache: npm
-      - name: Install dependencies
-        run: npm clean-install --prefer-offline --frozen-lockfile
       - name: Bundle Deps
         uses: lando/prepare-release-action@v3
         with:
           lando-plugin: true
           version: dev
           sync: false
+      - name: Install pkg dependencies
+        run: npm clean-install --prefer-offline --frozen-lockfile --production
+      - name: Package into node binary
+        uses: lando/pkg-action@v4
+        with:
+          entrypoint: bin/lando
+          node-version: 20
+          options: --options 'dns-result-order=ipv4first'
+          upload: false
+          pkg: "@yao-pkg/pkg@5.15.0"
+      - name: Install full deps
+        run: npm clean-install --prefer-offline --frozen-lockfile
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v3
         with:
+          lando-version: ${{ steps.pkg-action.outputs.file }}
           auto-setup: lando plugin-add @lando/core@file:${{ github.workspace }} && lando setup
-          lando-version: ${{ matrix.lando-version }}
           telemetry: false
           config: |
             setup.skipCommonPlugins=true

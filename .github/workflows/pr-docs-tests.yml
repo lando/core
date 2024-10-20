@@ -13,7 +13,7 @@ jobs:
         os:
           - ubuntu-24.04
         node-version:
-          - "18"
+          - "20"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
