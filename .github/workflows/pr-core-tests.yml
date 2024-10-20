@@ -96,7 +96,7 @@ jobs:
           version: dev
           sync: false
       - name: Install pkg dependencies
-        run: npm clean-install --prefer-offline --frozen-lockfile --production
+        run: npm clean-install --prefer-offline --frozen-lockfile
       - name: Package into node binary
         uses: lando/pkg-action@v5
         id: pkg-action
