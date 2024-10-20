@@ -95,7 +95,8 @@
       "tasks/**/*.js",
       "utils/**/*.js",
       "node_modules/@lando/**/*.cjs",
-      "node_modules/@lando/**/*.js"
+      "node_modules/@lando/**/*.js",
+      "node_modules/axios/dist/node/axios.cjs"
     ]
   },
   "dependencies": {
