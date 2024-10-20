@@ -99,6 +99,7 @@ jobs:
         run: npm clean-install --prefer-offline --frozen-lockfile --production
       - name: Package into node binary
         uses: lando/pkg-action@v4
+        id: pkg-action
         with:
           entrypoint: bin/lando
           node-version: 20
@@ -106,7 +107,9 @@ jobs:
           upload: false
           pkg: "@yao-pkg/pkg@5.15.0"
       - name: Install full deps
-        run: npm clean-install --prefer-offline --frozen-lockfile
+        run: |
+          npm clean-install --prefer-offline --frozen-lockfile
+          echo "${{ steps.pkg-action.outputs.file }}"
       - name: Setup lando ${{ matrix.lando-version }}
         uses: lando/setup-lando@v3
         with:

@@ -1,10 +1,8 @@
-Renderer Example
-================
+# Renderer Example
 
 This example exists primarily to test the fallback non-TTY list renderer.
 
-Start up tests
---------------
+## Start up tests
 
 Run the following commands to get up and running with this example.
 
@@ -13,8 +11,7 @@ Run the following commands to get up and running with this example.
 lando start
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to validate things are rolling as they should.
 
@@ -26,8 +23,7 @@ LANDO_RENDERER_FORCE=1 lando start
 lando start | sed 's/\x1b\[[0-9;]*m//g' | grep --color=never '✔ Healthcheck' | wc -l | grep 3
 ```
 
-Destroy tests
--------------
+## Destroy tests
 
 Run the following commands to trash this app like nothing ever happened.
 
