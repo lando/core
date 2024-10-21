@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.0-beta.1 - [October 21, 2024](https://github.com/lando/core/releases/tag/v3.23.0-beta.1)
+
 ### New Features
 
 * Updated packaged `cli` to use `node20`
