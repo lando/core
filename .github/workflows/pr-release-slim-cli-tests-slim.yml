@@ -1,0 +1,58 @@
+name: PR Slim CLI Release Tests
+
+on:
+  pull_request:
+
+jobs:
+  package:
+    runs-on: ${{ matrix.runner }}
+    env:
+      TERM: xterm
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - macos-14
+          - ubuntu-24.04
+        node-version:
+          - '20'
+        os:
+          - linux
+          - macos
+          - win
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - name: Install dependencies
+        run: npm clean-install --prefer-offline --frozen-lockfile --production
+      - name: Prepare Release
+        uses: lando/prepare-release-action@v3
+        with:
+          version: dev
+          sync: false
+      - name: Package into node binary
+        uses: lando/pkg-action@v5
+        id: pkg-action
+        with:
+          entrypoint: bin/lando
+          node-version: ${{ matrix.node-version }}
+          os: ${{ matrix.os }}
+          options: --options dns-result-order=ipv4first
+          pkg: "@yao-pkg/pkg@5.15.0"
+      - name: Ensure slimcore
+        if: matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
+        run: ./dist/@lando/core config --path fatcore | grep false
+      - name: Ensure ipv4first
+        if: matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
+        run: ./dist/@lando/core config --path cli.args | grep dns-result-order=ipv4first
+      - name: Ensure version
+        if: matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
+        run: ./dist/@lando/core version --all
