@@ -308,7 +308,7 @@ class Plugin {
       const hc = data['dist-tags'].latest === hv ? 'stable' : channel;
 
       // if the hv is lte to what we have then no update is available
-      if (semver.lte(hv, this.version)) {
+      if (require('../utils/is-lte-version')(hv, this.version)) {
         this.debug('cannot be updated on channel %o (%o <= %o)', this.package, channel, hv, this.version);
         return this;
 

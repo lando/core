@@ -20,7 +20,7 @@ jobs:
         leia-test:
           - setup-linux
         node-version:
-          - "18"
+          - "20"
         os:
           - ubuntu-24.04
 

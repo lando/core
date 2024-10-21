@@ -20,7 +20,7 @@ jobs:
         leia-test:
           - setup-windows
         node-version:
-          - "18"
+          - "20"
         os:
           - windows-2022
     steps:

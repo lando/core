@@ -1,5 +1,20 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+### New Features
+
+* Updated packaged `cli` to use `node20`
+
+### Fixes
+
+* Fixed bug causing development release versions from incorrectly reporting as updatable
+* Fixed bug causing updates to fail when `SHELL` environment variable is not set
+* Fixed bug causing error handler error when error code is not an integer
+
+### Internal
+
+* Recombined `@lando/cli` into `@lando/core` eg `lando` binaries are now released here
+* Removed version 4 runtime selector
+
 ## v3.22.3 - [October 18, 2024](https://github.com/lando/core/releases/tag/v3.22.3)
 
 * Added _maybe-it-works?_ renderer handling for `TERM=dumb`
