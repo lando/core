@@ -118,29 +118,13 @@ jobs:
           telemetry: false
           config: |
             setup.skipCommonPlugins=true
-      - name: DEBUGGY
-        run: |
-          cd examples/update
-          lando poweroff --debug
-          # Should be able to add a legacy plugin version.
-          lando config --debug | grep -qv "plugins/@lando/php"
-          lando plugin-add --debug "@lando/php@v0.9.0"
-          lando version -c "@lando/php" --debug | grep -q "v0.9.0"
-
-          # Should be able to run lando update and update legacy plugin.
-          lando update --debug -y
-          lando version -c "@lando/php" --debug | grep -qv "v0.9.0"
-
-          # Should be able to run lando update with a bogus GITHUB_TOKEN
-          GITHUB_TOKEN="BROKEN TOKEN" lando update -y --debug
-
-      # - name: Run Leia Tests
-      #   uses: lando/run-leia-action@v2
-      #   env:
-      #     GITHUB_PAT: ${{ secrets.KYBER_AMPLIFICATION_MATRIX }}
-      #     GITHUB_KEY_NAME: "${{ github.sha }}${{ matrix.os }}"
-      #   with:
-      #     leia-test: "./examples/${{ matrix.leia-test }}/README.md"
-      #     cleanup-header: "Destroy tests"
-      #     shell: ${{ matrix.shell }}
-      #     stdin: true
+      - name: Run Leia Tests
+        uses: lando/run-leia-action@v2
+        env:
+          GITHUB_PAT: ${{ secrets.KYBER_AMPLIFICATION_MATRIX }}
+          GITHUB_KEY_NAME: "${{ github.sha }}${{ matrix.os }}"
+        with:
+          leia-test: "./examples/${{ matrix.leia-test }}/README.md"
+          cleanup-header: "Destroy tests"
+          shell: ${{ matrix.shell }}
+          stdin: true
