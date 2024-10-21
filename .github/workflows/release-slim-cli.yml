@@ -1,4 +1,4 @@
-name: Create Slim Releases
+name: Create Slim CLI Releases
 
 on:
   release:

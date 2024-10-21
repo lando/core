@@ -1,4 +1,4 @@
-name: Create Releases
+name: Create CLI Releases
 
 on:
   release:
