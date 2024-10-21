@@ -68,7 +68,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-         # core-node20-linux-x64-ee71f3ddc39d837d535c28b7e077d06845c6f4b2
           - os: windows-2022
             key: core-node20-win-x64-${{ github.sha }}
             file: lando/core.exe
