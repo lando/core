@@ -73,19 +73,19 @@ jobs:
       matrix:
         include:
           - os: windows-2022
-            key: core-node18-win-x64-${{ github.sha }}
+            key: core-node20-win-x64-${{ github.sha }}
             file: lando/core.exe
             certificate-data: KEYLOCKER_CLIENT_CERT
             certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
             result: lando-win-x64-${{ github.ref_name }}.exe
           - os: windows-2022
-            key: core-node18-win-arm64-${{ github.sha }}
+            key: core-node20-win-arm64-${{ github.sha }}
             file: lando/core.exe
             certificate-data: KEYLOCKER_CLIENT_CERT
             certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
             result: lando-win-arm64-${{ github.ref_name }}.exe
           - os: macos-14
-            key: core-node18-macos-x64-${{ github.sha }}
+            key: core-node20-macos-x64-${{ github.sha }}
             file: lando/core
             certificate-data: APPLE_CERT_DATA
             certificate-password: APPLE_CERT_PASSWORD
@@ -96,7 +96,7 @@ jobs:
             options: --options runtime --entitlements entitlements.xml
             result: lando-macos-x64-${{ github.ref_name }}
           - os: macos-14
-            key: core-node18-macos-arm64-${{ github.sha }}
+            key: core-node20-macos-arm64-${{ github.sha }}
             file: lando/core
             certificate-data: APPLE_CERT_DATA
             certificate-password: APPLE_CERT_PASSWORD
@@ -107,13 +107,13 @@ jobs:
             options: --options runtime --entitlements entitlements.xml
             result: lando-macos-arm64-${{ github.ref_name }}
           - os: ubuntu-24.04
-            key: core-node18-linux-x64-${{ github.sha }}
+            key: core-node20-linux-x64-${{ github.sha }}
             file: lando/core
             certificate-data: KEYLOCKER_CLIENT_CERT
             certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
             result: lando-linux-x64-${{ github.ref_name }}
           - os: ubuntu-24.04
-            key: core-node18-linux-arm64-${{ github.sha }}
+            key: core-node20-linux-arm64-${{ github.sha }}
             file: lando/core
             certificate-data: KEYLOCKER_CLIENT_CERT
             certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
