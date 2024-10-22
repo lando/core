@@ -164,8 +164,8 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.0",
     "@lando/leia": "^1.0.0-beta.4",
-    "@yao-pkg/pkg": "^5.15.0",
     "@lando/vitepress-theme-default-plus": "^1.1.0-beta.15",
+    "@yao-pkg/pkg": "^5.16.1",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "chai-events": "^0.0.1",

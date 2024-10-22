@@ -48,7 +48,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           os: ${{ matrix.os }}
           options: --options dns-result-order=ipv4first
-          pkg: "@yao-pkg/pkg@5.15.0"
+          pkg: "@yao-pkg/pkg@5.16.1"
       - name: Ensure fatcore
         if: matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
         run: ./dist/@lando/core config --path fatcore | grep true
