@@ -58,3 +58,9 @@ You can also use the environment variable `LANDO_HOST_IP`.
 ```sh
 lando exec my-service -- ping "\$LANDO_HOST_IP" -c 3
 ```
+
+## Network Limits
+
+By default Docker has a limit of 32 networks. If you're running a large number of sites, you'll see a message `Lando has detected you are at Docker's network limit`, after which Lando will attempt to clean up unused networks to put you below the network limit.
+
+If you've [modified your Docker daemon](https://discussion.fedoraproject.org/t/increase-limit-of-30-docker-networks-in-a-clean-way/96622/4) to allow more networks, you can set Lando's network limit to a higher number by setting the `networkLimit` variable in [Lando's global config](./global.html).
