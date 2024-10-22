@@ -36,6 +36,11 @@ jobs:
         run: npm run lint
       - name: Run unit tests
         run: npm run test:unit
+      - name: Prepare Release
+        uses: lando/prepare-release-action@v3
+        with:
+          lando-plugin: true
+          sync: false
 
       # Deploy
       - name: Publish to npm
