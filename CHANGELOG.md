@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.0-beta.4 - [October 22, 2024](https://github.com/lando/core/releases/tag/v3.23.0-beta.4)
+
 * Updating for release considerations
 
 ## v3.23.0-beta.3 - [October 22, 2024](https://github.com/lando/core/releases/tag/v3.23.0-beta.3)
