@@ -8,7 +8,7 @@ const _ = require('lodash');
  */
 const cleanNetworks = lando => lando.engine.getNetworks()
   .then(networks => {
-    if (_.size(networks) >= 32) {
+    if (_.size(networks) >= lando.config.networkLimit) {
       // Warn user about this action
       lando.log.warn('Lando has detected you are at Docker\'s network limit!');
       lando.log.warn('Give us a moment as we try to make space by cleaning up old networks...');
