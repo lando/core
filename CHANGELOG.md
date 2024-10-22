@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed critical bug where `core` was not being loaded when it only exists internally
+
 ## v3.23.0-beta.2 - [October 21, 2024](https://github.com/lando/core/releases/tag/v3.23.0-beta.2)
 
 * Updating for release considerations
