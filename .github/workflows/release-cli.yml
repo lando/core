@@ -197,6 +197,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile
+      - name: Ensure version
+        run: node ./bin/lando version
       - name: Update release helpers
         shell: bash
         run: |
@@ -206,57 +208,51 @@ jobs:
               echo "${{ github.event.release.tag_name }}" > release-aliases/3-STABLE
             fi
           fi
-      - name: Ensure version
-        run: node ./bin/lando version
+      - name: Prepare Release
+        uses: lando/prepare-release-action@v3
+        with:
+          lando-plugin: true
+          sync-token: ${{ secrets.RTFM47_COAXIUM_INJECTOR }}
+          sync-email: rtfm47@lando.dev
+          sync-username: rtfm-47
       - name: Push release to lando/lando
         uses: softprops/action-gh-release@v2
         with:
-          repository: lando/core
+          repository: lando/lando
           name: ${{ github.event.release.tag_name }}
           draft: ${{ github.event.release.draft }}
           prerelease: ${{ github.event.release.prerelease }}
           tag_name: ${{ github.event.release.tag_name }}
           token: ${{ secrets.RTFM47_COAXIUM_INJECTOR }}
           body: |
-            **Starting with 3.23.0 Lando is no longer distributed via package installers in these releases**
+            **Starting with v3.21.0-beta.18, Lando is no longer distributed via package installers in here in this releases page!**
 
             To install Lando please visit the [official install docs](https://docs.lando.dev/install).
 
             ## Changelogs
 
             Lando now runs as a distributed plugin-based ecosystem so you will want to check the releases/changelogs in
-            the various repos for relevant notes. That said here are links to the changes reflected in this release
+            the various [plugins](https://docs.lando.dev/plugins.html) for relevant notes.
 
-            * [@lando/core@${{ github.event.release.tag_name }}](https://github.com/lando/core/releases/tag/${{ github.event.release.tag_name }})
+            [Click Here](https://github.com/lando/core/releases/tag/${{ github.event.release.tag_name }}) to check out the notes for `@lando/core@${{ github.event.release.tag_name }}`.
 
             ## Notes
 
             * We will continue to push releases here for backwards compatibility, posterity, etc
             * [Extended release notes](https://lando.dev/blog/2024/01/16/v321-extended.html)
-
 
       - name: Push release to lando/cli
         uses: softprops/action-gh-release@v2
         with:
-          repository: lando/core
+          repository: lando/cli
           name: ${{ github.event.release.tag_name }}
           draft: ${{ github.event.release.draft }}
           prerelease: ${{ github.event.release.prerelease }}
           tag_name: ${{ github.event.release.tag_name }}
           token: ${{ secrets.RTFM47_COAXIUM_INJECTOR }}
           body: |
-            **Starting with 3.23.0 Lando is no longer distributed via package installers in these releases**
+            **Starting with v3.23.0, Lando CLI binaries are no longer distributed here in these releases!**
 
-            To install Lando please visit the [official install docs](https://docs.lando.dev/install).
+            They are now available in the `@lando/core` [releases page](https://github.com/lando/core/releases) including [this ${{ github.event.release.tag_name }} release](https://github.com/lando/core/releases/tag/${{ github.event.release.tag_name }}).
 
-            ## Changelogs
-
-            Lando now runs as a distributed plugin-based ecosystem so you will want to check the releases/changelogs in
-            the various repos for relevant notes. That said here are links to the changes reflected in this release
-
-            * [@lando/core@${{ github.event.release.tag_name }}](https://github.com/lando/core/releases/tag/${{ github.event.release.tag_name }})
-
-            ## Notes
-
-            * We will continue to push releases here for backwards compatibility, posterity, etc
-            * [Extended release notes](https://lando.dev/blog/2024/01/16/v321-extended.html)
+            All that said we don't recommned you use these binaries directly. Instead, to install Lando please visit the [official install docs](https://docs.lando.dev/install).

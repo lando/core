@@ -51,7 +51,9 @@ jobs:
           pkg: "@yao-pkg/pkg@5.16.1"
       - name: Ensure fatcore
         if: matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
-        run: ./dist/@lando/core config --path fatcore | grep true
+        run: |
+          ./dist/@lando/core config --path fatcore | grep true
+          ./dist/@lando/core config --path plugins | grep -q "node_modules/@lando/wordpress"
       - name: Ensure ipv4first
         if: matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
         run: ./dist/@lando/core config --path cli.args | grep dns-result-order=ipv4first
