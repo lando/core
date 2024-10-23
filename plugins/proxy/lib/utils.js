@@ -157,7 +157,6 @@ exports.parseRoutes = (service, urls = [], sslReady, labels = {}) => {
   return labels;
 };
 
-
 /*
  * Helper to parse a url
  */
