@@ -111,7 +111,6 @@ services:
   web5:
     api: 4
     image: nginx:1.22.1
-    command: /docker-entrypoint.sh nginx -g "daemon off;"
     certs: false
     volumes:
       - "./default.conf.template:/etc/nginx/templates/default.conf.template"
