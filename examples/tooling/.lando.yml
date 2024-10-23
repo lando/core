@@ -201,6 +201,10 @@ tooling:
     cmd: pwd
     service: web
     dir: /tmp
+  emptyopter:
+    cmd: pwd
+    service: web
+    options:
   pwd:
     cmd: pwd
     service: :service
