@@ -153,6 +153,10 @@ exports.parseRoutes = (service, urls = [], sslReady, labels = {}) => {
       labels[`traefik.http.routers.${rule.id}-secured.middlewares`] = _.map(rule.middlewares, 'name').join(',');
       labels[`traefik.http.services.${rule.id}-secured-service.loadbalancer.server.port`] = rule.port;
     }
+
+    // add the protocols label for testing purposes
+    labels['io.lando.proxy.protocols'] = _.includes(sslReady, service) ? 'http,https' : 'http';
+    labels['dev.lando.proxy.protocols'] = _.includes(sslReady, service) ? 'http,https' : 'http';
   });
   return labels;
 };
