@@ -5,6 +5,7 @@
 * Fixed bug causing https proxy routes to be assigned when they shouldnt be
 * Fixed bug causing cache from repopulating old proxy addresses that have been removed [#209](https://github.com/lando/core/issues/209)
 * Fixed bug in `v4` auto `entrypoint` and `command` population
+* Fixed regression causing empty tooling `options` to throw an error [#240](https://github.com/lando/core/issues/240)
 
 ## v3.23.0-beta.4 - [October 22, 2024](https://github.com/lando/core/releases/tag/v3.23.0-beta.4)
 
