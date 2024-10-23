@@ -33,6 +33,18 @@ curl -s -o /dev/null -I -w "%{http_code}" http://another-way-to-eighty.lndo.site
 curl -s -o /dev/null -I -w "%{http_code}" http://l337.lndo.site | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://lando4.lndo.site | grep 200
 
+# Should only work over http unless service has certs to use
+docker inspect --format='{{ index .Config.Labels "traefik.http.routers.ea93739f6538894ca6a9dd4f29a04cfaa25c65fe.entrypoints" }}' landoproxy_web_1 | grep -w http
+docker inspect --format='{{ index .Config.Labels "traefik.http.routers.ea93739f6538894ca6a9dd4f29a04cfaa25c65fe-secured.entrypoints" }}' landoproxy_web_1 | grep -w https || echo $? | grep 1
+docker inspect --format='{{ index .Config.Labels "traefik.http.routers.37951e3c19ab7bbf0b2f93f9df16f6f6c8f4cdeb.entrypoints" }}' landoproxy_web3_1 | grep -w http
+docker inspect --format='{{ index .Config.Labels "traefik.http.routers.37951e3c19ab7bbf0b2f93f9df16f6f6c8f4cdeb-secured.entrypoints" }}' landoproxy_web3_1 | grep -w https
+docker inspect --format='{{ index .Config.Labels "traefik.http.routers.192efdd3b169f28f7295af47151297b1c20555bf.entrypoints" }}' landoproxy_l337_1 | grep -w http
+docker inspect --format='{{ index .Config.Labels "traefik.http.routers.192efdd3b169f28f7295af47151297b1c20555bf-secured.entrypoints" }}' landoproxy_l337_1 | grep -w https || echo $? | grep 1
+docker inspect --format='{{ index .Config.Labels "traefik.http.routers.0a210fcb99ba12e343d70762fc593e6379c39dd5.entrypoints" }}' landoproxy_web5_1 | grep -w http
+docker inspect --format='{{ index .Config.Labels "traefik.http.routers.0a210fcb99ba12e343d70762fc593e6379c39dd5-secured.entrypoints" }}' landoproxy_web5_1 | grep -w https || echo $? | grep 1
+docker inspect --format='{{ index .Config.Labels "traefik.http.routers.c9f0534b74f375379170eb499fed837cb0a8acfd.entrypoints" }}' landoproxy_web4_1 | grep -w http
+docker inspect --format='{{ index .Config.Labels "traefik.http.routers.c9f0534b74f375379170eb499fed837cb0a8acfd-secured.entrypoints" }}' landoproxy_web4_1 | grep -w https
+
 # Should also work over https if ssl is true and we have certs
 curl -s -o /dev/null -Ik -w "%{http_code}" https://web3.lndo.site | grep 200
 curl -s -o /dev/null -Ik -w "%{http_code}" https://lando4.lndo.site | grep 200
@@ -92,6 +104,13 @@ lando exec web4 -- cat \$LANDO_SERVICE_CERT
 lando exec web4 -- env | grep LANDO_SERVICE_CERT | grep /certs/cert.crt
 lando exec web4 -- cat \$LANDO_SERVICE_KEY
 lando exec web4 -- env | grep LANDO_SERVICE_KEY | grep /certs/cert.key
+
+# Should remove proxy entries when removed from the landofile and rebuild
+cp -rf .lando.yml .lando.old.yml
+cp -rf .lando.stripped.yml .lando.yml
+lando rebuild -y | grep sub.lando-proxy.lndo.site || echo $? | grep 1
+docker inspect --format='{{ index .Config.Labels "traefik.http.routers.b6735d503ac33b70087610e0c8b0074439bbb51e.rule" }}' landoproxy_web_1  | grep sub.lando-proxy.lndo.site || echo $? | grep 1
+cp -rf .lando.old.yml .lando.yml
 ```
 
 ## Destroy tests
