@@ -99,11 +99,17 @@ exports.getProxyRunner = (project, files) => ({
  * Helper to get the trafix rule
  */
 exports.getRule = rule => {
+  // we do this so getRule is backwards campatible with the older rule.host
+  const host = rule.hostname ?? rule.host;
+
   // Start with the rule we can assume
-  const hostRegex = rule.host.replace(new RegExp('\\*', 'g'), '{wildcard:[a-z0-9-]+}');
+  const hostRegex = host.replace(new RegExp('\\*', 'g'), '{wildcard:[a-z0-9-]+}');
   const rules = [`HostRegexp(\`${hostRegex}\`)`];
+
   // Add in the path prefix if we can
   if (rule.pathname.length > 1) rules.push(`PathPrefix(\`${rule.pathname}\`)`);
+
+  // return
   return rules.join(' && ');
 };
 
