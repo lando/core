@@ -26,7 +26,7 @@ module.exports = async (app, lando) => {
       allServices: app.allServices,
       compose: app.compose,
       containers: app.containers,
-      info: app.info,
+      info: _.cloneDeep(app.info).map(service => ({...service, hostname: [], urls: []})),
       name: app.name,
       overrides: {
         tooling: app._coreToolingOverrides,
@@ -53,7 +53,7 @@ module.exports = async (app, lando) => {
       allServices: app.allServices,
       compose: app.compose,
       containers: app.containers,
-      info: app.info,
+      info: _.cloneDeep(app.info).map(service => ({...service, hostname: [], urls: []})),
       executors: require('./utils/get-executors')(_.get(app, 'v4.services', {})),
       name: app.name,
       mounts: require('./utils/get-mounts')(_.get(app, 'v4.services', {})),
