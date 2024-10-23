@@ -39,7 +39,7 @@ const getAllPorts = (noHttp = false, noHttps = false, config) => {
 const hasCerts = (app, id) => {
   const info = app.info.find(service => service.service === id);
   const v4 = _.get(app, 'v4.services', []).find(service => service.id === id);
-  return info?.hasCerts === true || v4?.certs !== false;
+  return info?.hasCerts === true || (v4?.certs !== undefined && v4?.certs !== false);
 };
 
 /*
