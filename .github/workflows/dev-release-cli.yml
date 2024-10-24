@@ -37,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile --production
       - name: Install fatcore
-        run: scripts/fatcore-install.sh --edge
+        run: scripts/fatcore-install.sh
       - name: Prepare Release
         uses: lando/prepare-release-action@v3
         with:

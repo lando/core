@@ -38,7 +38,7 @@ jobs:
       - name: Install fatcore
         run: |
           if [ "${{ github.event.release.prerelease }}" ==  "true" ]; then
-            ./scripts/fatcore-install.sh --edge
+            ./scripts/fatcore-install.sh
           else
             ./scripts/fatcore-install.sh
           fi
