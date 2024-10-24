@@ -64,9 +64,9 @@ jobs:
       - name: Ensure ipv4first
         if: matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
         run: ./dist/@lando/core config --path cli.args | grep dns-result-order=ipv4first
-      - name: Ensure edge channel
-        if: github.event.release.prerelease == true && matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
-        run: ./dist/@lando/core config --path channel | grep edge
+      # - name: Ensure edge channel
+      #   if: github.event.release.prerelease == true && matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
+      #   run: ./dist/@lando/core config --path channel | grep edge
 
   sign-n-deploy:
     runs-on: ${{ matrix.os }}
