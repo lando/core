@@ -1,6 +1,6 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
-* Fixed some packaging problems with new combining `core/cli` and changed tests run 💯 packaged
+* Fixed some packaging problems with new combining `core/cli` and changed so tests run 💯 packaged
 
 ## v3.23.0-beta.5 - [October 24, 2024](https://github.com/lando/core/releases/tag/v3.23.0-beta.5)
 
