@@ -105,6 +105,10 @@ lando exec web4 -- env | grep LANDO_SERVICE_CERT | grep /certs/cert.crt
 lando exec web4 -- cat \$LANDO_SERVICE_KEY
 lando exec web4 -- env | grep LANDO_SERVICE_KEY | grep /certs/cert.key
 
+# Should succcesfully merge same-service same-hostname-pathname routes together correctly
+lando exec php -- curl -sI http://lando-proxy.lndo.site | grep -i "X-Lando-Merge" | grep picard
+lando exec php -- curl -sI http://lando-proxy.lndo.site | grep -i "X-Lando-Merge-Xo" | grep riker
+
 # Should remove proxy entries when removed from the landofile and rebuild
 cp -rf .lando.yml .lando.old.yml
 cp -rf .lando.stripped.yml .lando.yml

@@ -27,7 +27,7 @@ proxy:
       port: 8080
   l337:
     - "give.me.*.lndo.site:8888/more/subs"
-    - "*.wild.l337.lndo.site:8888"
+    - hostname: "*.wild.l337.lndo.site:8888"
     - www.l337.lndo.site:8888
     - hostname: l337.lndo.site
       port: 8888

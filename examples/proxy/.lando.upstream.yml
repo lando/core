@@ -1,0 +1,11 @@
+proxy:
+  web:
+    - hostname: lando-proxy.lndo.site
+      middlewares:
+        - name: test
+          key: headers.customresponseheaders.X-Lando-Merge
+          value: kirk
+
+plugins:
+  "@lando/core": "../.."
+  "@lando/proxy": "../../plugins/proxy"

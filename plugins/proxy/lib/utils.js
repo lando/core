@@ -5,6 +5,8 @@ const _ = require('lodash');
 const hasher = require('object-hash');
 const url = require('url');
 
+const merge = require('../../../utils/merge');
+
 /*
  * Helper to get URLs for app info and scanning purposes
  */
@@ -38,6 +40,50 @@ exports.needsProtocolScan = (current, last, status = {http: true, https: true}) 
 };
 
 /*
+ * Helper to parse a url
+ */
+exports.normalizeRoutes = (services = {}) => Object.fromEntries(_.map(services, (routes, key) => {
+  const defaults = {port: '80', pathname: '/', middlewares: []};
+
+  // normalize routes
+  routes = routes.map(route => {
+    // if route is a string then
+    if (typeof route === 'string') route = {hostname: route};
+
+    // url parse hostname with wildcard stuff if needed
+    route.hostname = route.hostname.replace(/\*/g, '__wildcard__');
+
+    // if hostname does not start with http:// or https:// then prepend http
+    // @TODO: does this allow for protocol selection down the road?
+    if (!route.hostname.startsWith('http://') || !route.hostname.startsWith('https://')) {
+      route.hostname = `http://${route.hostname}`;
+    }
+
+    // at this point we should be able to parse the hostname
+    // @TODO: do we need to try/catch this?
+    const {hostname, port, pathname} = URL.parse(route.hostname);
+
+    // and rebase the whole thing
+    route = merge({}, [defaults, {port: port === '' ? '80' : port, pathname}, route, {hostname}], ['merge:key', 'replace']);
+
+    // wildcard replacement back
+    route.hostname = route.hostname.replace(/__wildcard__/g, '*');
+
+    // generate an id based on protocol/hostname/path so we can groupby and dedupe
+    route.id = hasher(`${route.hostname}-${route.pathname}`);
+
+    // and return
+    return route;
+  });
+
+  // merge together all routes with the same id
+  routes = _(_.groupBy(routes, 'id')).map((routes, id) => merge({}, routes, ['merge:key', 'replace'])).value();
+
+  // return
+  return [key, routes];
+}));
+
+/*
  * Helper to get proxy runner
  */
 exports.getProxyRunner = (project, files) => ({
@@ -53,11 +99,17 @@ exports.getProxyRunner = (project, files) => ({
  * Helper to get the trafix rule
  */
 exports.getRule = rule => {
+  // we do this so getRule is backwards campatible with the older rule.host
+  const host = rule.hostname ?? rule.host;
+
   // Start with the rule we can assume
-  const hostRegex = rule.host.replace(new RegExp('\\*', 'g'), '{wildcard:[a-z0-9-]+}');
+  const hostRegex = host.replace(new RegExp('\\*', 'g'), '{wildcard:[a-z0-9-]+}');
   const rules = [`HostRegexp(\`${hostRegex}\`)`];
+
   // Add in the path prefix if we can
   if (rule.pathname.length > 1) rules.push(`PathPrefix(\`${rule.pathname}\`)`);
+
+  // return
   return rules.join(' && ');
 };
 
@@ -105,20 +157,18 @@ exports.parseConfig = (config, sslReady = []) => _(config)
  */
 exports.parseRoutes = (service, urls = [], sslReady, labels = {}) => {
   // Prepare our URLs for traefik
-  const parsedUrls = _(urls)
-    .map(url => exports.parseUrl(url))
-    .map(parsedUrl => _.merge({}, parsedUrl, {id: hasher(parsedUrl)}))
-    .uniqBy('id')
-    .value();
+  const rules = _(urls).uniqBy('id').value();
 
   // Add things into the labels
-  _.forEach(parsedUrls, rule => {
+  _.forEach(rules, rule => {
     // Add some default middleware
     rule.middlewares.push({name: 'lando', key: 'headers.customrequestheaders.X-Lando', value: 'on'});
+
     // Add in any path stripping middleware we need it
     if (rule.pathname.length > 1) {
       rule.middlewares.push({name: 'stripprefix', key: 'stripprefix.prefixes', value: rule.pathname});
     };
+
     // Ensure we prefix all middleware with the ruleid
     rule.middlewares = _(rule.middlewares)
       .map(middleware => _.merge({}, middleware, {name: `${rule.id}-${middleware.name}`}))
