@@ -11,12 +11,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lando-version:
-          # - 3-slim
-          # uncomment to test against edge cli
-          - 3-edge-slim
-          # uncomment to test against dev cli
-          # - 3-dev-slim
         leia-test:
           - badname
           - build
@@ -107,14 +101,11 @@ jobs:
           upload: false
           pkg: "@yao-pkg/pkg@5.16.1"
       - name: Install full deps
-        run: |
-          npm clean-install --prefer-offline --frozen-lockfile
-          echo "${{ steps.pkg-action.outputs.file }}"
-      - name: Setup lando ${{ matrix.lando-version }}
+        run: npm clean-install --prefer-offline --frozen-lockfile
+      - name: Setup lando ${{ steps.pkg-action.outputs.file }}
         uses: lando/setup-lando@v3
         with:
           lando-version: ${{ steps.pkg-action.outputs.file }}
-          auto-setup: lando plugin-add @lando/core@file:${{ github.workspace }} && lando setup
           telemetry: false
           config: |
             setup.skipCommonPlugins=true
