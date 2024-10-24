@@ -1,13 +1,15 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
-
 ### Fixes
 
+* Fixed run-from-source `#shebang` to be more universal
+* Fixed `flags: 0x5000: no such file or directory: unknown` on WSL when bind mounting certain files the second time [#242](https://github.com/lando/core/issues/242)
 * Fixed bug causing https proxy routes to be assigned when they shouldnt be
 * Fixed bug causing cache from repopulating old proxy addresses that have been removed [#209](https://github.com/lando/core/issues/209)
 * Fixed bug in `v4` auto `entrypoint` and `command` population
 * Fixed regression causing empty tooling `options` to throw an error [#240](https://github.com/lando/core/issues/240)
 * Improved merging of same-service, same-hostname-pathname `proxy` routes, fixes [#246](https://github.com/lando/core/issues/246)
+* Improved `dns` preference of `ipv4first`
 
 ## v3.23.0-beta.4 - [October 22, 2024](https://github.com/lando/core/releases/tag/v3.23.0-beta.4)
 
