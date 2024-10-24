@@ -233,7 +233,7 @@ jobs:
             npm publish --access public --tag edge --dry-run
             npm publish --access public --tag edge
 
-            echo "::notice title=Published $VERSION to $PACKAGE::This is a prerelease published to the default 'edge' npm tag"
+            echo "::notice title=Published $VERSION to $PACKAGE::This is a prerelease published to the 'edge' npm tag"
             echo "::notice title=Updated edge tag to $VERSION::The edge tag now points to $VERSION"
           fi
         env:
