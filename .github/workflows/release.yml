@@ -179,7 +179,6 @@ jobs:
       - sign-n-deploy
     env:
       TERM: xterm
-      PRERELEASE_TAG: edge
     strategy:
       matrix:
         os:
@@ -219,14 +218,23 @@ jobs:
           sync-username: rtfm-47
       - name: Publish to npm
         run: |
+          VERSION=$(node -p "require('./package.json').version")
+          PACKAGE=$(node -p "require('./package.json').name")
+
           if [ "${{ github.event.release.prerelease }}" ==  "false" ]; then
             npm publish --access public --dry-run
             npm publish --access public
-            echo "::notice title=Published ${{ github.ref_name }} to @${{ github.repository }}::This is a stable release published to the default 'latest' npm tag"
+            npm dist-tag add "$PACKAGE@$VERSION" edge
+
+            echo "::notice title=Published $VERSION to $PACKAGE::This is a stable release published to the default 'latest' npm tag"
+            echo "::notice title=Updated latest tag to $VERSION::The stable tag now points to $VERSION"
+            echo "::notice title=Updated edge tag to $VERSION::The edge tag now points to $VERSION"
           else
-            npm publish --access public --tag ${{ env.PRERELEASE_TAG }} --dry-run
-            npm publish --access public --tag ${{ env.PRERELEASE_TAG }}
-            echo "::notice title=Published ${{ github.ref_name }} to @${{ github.repository }}@${{ env.PRERELEASE_TAG }}::This is a pre-release published to the '${{ env.PRERELEASE_TAG }}' npm tag"
+            npm publish --access public --tag edge --dry-run
+            npm publish --access public --tag edge
+
+            echo "::notice title=Published $VERSION to $PACKAGE::This is a prerelease published to the default 'edge' npm tag"
+            echo "::notice title=Updated edge tag to $VERSION::The edge tag now points to $VERSION"
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_DEPLOY_TOKEN }}
