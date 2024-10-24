@@ -11,12 +11,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lando-version:
-          # - 3-slim
-          # uncomment to test against edge cli
-          - 3-edge-slim
-          # uncomment to test against dev cli
-          # - 3-dev-slim
         leia-test:
           - setup-windows
         node-version:
@@ -32,19 +26,30 @@ jobs:
           node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org
           cache: npm
-      - name: Install dependencies
-        run: npm clean-install --prefer-offline --frozen-lockfile
       - name: Bundle Deps
         uses: lando/prepare-release-action@v3
         with:
           lando-plugin: true
           version: dev
           sync: false
-      - name: Setup lando ${{ matrix.lando-version }}
+      - name: Install pkg dependencies
+        run: npm clean-install --prefer-offline --frozen-lockfile --production
+      - name: Package into node binary
+        uses: lando/pkg-action@v5
+        id: pkg-action
+        with:
+          entrypoint: bin/lando
+          node-version: ${{ matrix.node-version }}
+          options: --options dns-result-order=ipv4first
+          upload: false
+          pkg: "@yao-pkg/pkg@5.16.1"
+      - name: Install full deps
+        run: npm clean-install --prefer-offline --frozen-lockfile
+      - name: Setup lando ${{ steps.pkg-action.outputs.file }}
         uses: lando/setup-lando@v3
         with:
           auto-setup: false
-          lando-version: ${{ matrix.lando-version }}
+          lando-version: ${{ steps.pkg-action.outputs.file }}
           telemetry: false
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
