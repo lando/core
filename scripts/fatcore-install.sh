@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eo pipefail
 
-DEBUG=0
+DEBUG="${RUNNER_DEBUG:-0}"
 TAG=$TAG
 
 debug() {
@@ -42,7 +42,7 @@ npm install --no-save \
   @lando/acquia@$TAG \
   @lando/apache@$TAG \
   @lando/backdrop@$TAG \
-  @lando/compose@$TAG \
+  @lando/compose@latest \
   @lando/dotnet@$TAG \
   @lando/drupal@$TAG \
   @lando/elasticsearch@$TAG \
@@ -76,10 +76,11 @@ npm install --no-save \
   @lando/wordpress@$TAG
 
 # if this is fatcore edge then also update the release channel to edge
-if [[ "$NONINTERACTIVE" == "1" ]]; then
-  debug "updating channel to edge in config.yml"
-  sed -i 's/^channel: stable/channel: edge/' config.yml
+if [[ "$TAG" == "edge" ]]; then
+  debug "updating config.yml with channel=edge"
+  sed -i.bak "s/^channel: stable/channel: edge/" config.yml
   debug "$(cat config.yml)"
+  rm -rf config.yml.bak
 fi
 
 # add FATCORE init file
