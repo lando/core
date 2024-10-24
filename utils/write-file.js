@@ -3,7 +3,6 @@
 const fs = require('fs');
 const get = require('lodash/get');
 const path = require('path');
-const remove = require('./remove');
 
 // @TODO: maybe extension should be in {options}?
 module.exports = (file, data, options = {}) => {
