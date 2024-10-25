@@ -16,7 +16,23 @@
 
 ### Internal
 
+* Added `debugShim` to `lando.utils`
+* Added `downloadX` to `lando.utils`
 * Added `getAxios` to `lando.utils`
+* Added `getUserShell` to `lando.utils`
+* Added `getUserShellProfile` to `lando.utils`
+* Added `isVersionLte` to `lando.utils`
+* Added `legacyMerge` to `lando.utils`
+* Added `mergeArrays` to `lando.utils`
+* Added `mergePromise` to `lando.utils`
+* Added `merge` to `lando.utils`
+* Added `readFile` to `lando.utils`
+* Added `remove` to `lando.utils`
+* Added `runCommand` to `lando.utils`
+* Added `runElevated` to `lando.utils`
+* Added `runPowerShell` to `lando.utils`
+* Added `slugify` to `lando.utils`
+* Added `writeFile` to `lando.utils`
 * Switched `URL.parse` to `url.parse` until people are reliably on a `node20` CLI
 
 ## v3.23.0-beta.7 - [October 24, 2024](https://github.com/lando/core/releases/tag/v3.23.0-beta.7)
