@@ -309,7 +309,7 @@ class Plugin {
 
       // if the hv is lte to what we have then no update is available
       if (require('../utils/is-lte-version')(hv, this.version)) {
-        this.debug('cannot be updated on channel %o (%o <= %o)', this.package, channel, hv, this.version);
+        this.debug('cannot be updated on channel %o (%o <= %o)', channel, hv, this.version);
         return this;
 
       // otherwise update is available
@@ -319,8 +319,7 @@ class Plugin {
         this.update.channel = hc;
         this.debug(
           'can be updated to %o on channel %o (%o > %o) ',
-          this.package,
-          this.updateAvailable,
+          hv,
           channel,
           hv,
           this.version,
