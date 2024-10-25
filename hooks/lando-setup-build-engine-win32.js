@@ -1,5 +1,6 @@
 'use strict';
 
+const axios = require('../utils/get-axios')();
 const os = require('os');
 const path = require('path');
 const semver = require('semver');
@@ -90,9 +91,12 @@ module.exports = async (lando, options) => {
   // get stuff from config/opts
   const build = getId(options.buildEngine);
   const version = getVersion(options.buildEngine);
+
   // cosmetics
   const buildEngine = process.platform === 'linux' ? 'docker-engine' : 'docker-desktop';
   const install = version ? `v${version}` : `build ${build}`;
+
+  const url = getEngineDownloadUrl(build);
 
   // win32 install docker desktop task
   options.tasks.push({
@@ -120,8 +124,8 @@ module.exports = async (lando, options) => {
     canRun: async () => {
       // throw if we cannot resolve a semantic version to a buildid
       if (!build) throw new Error(`Could not resolve ${install} to an installable version!`);
-      // throw error if not online
-      if (!await require('is-online')()) throw new Error('Cannot detect connection to internet!');
+      // throw error if we cannot ping the download link
+      await axios.head(url);
       // @TODO: check for wsl2?
       return true;
     },
@@ -135,7 +139,7 @@ module.exports = async (lando, options) => {
     task: async (ctx, task) => {
       try {
         // download the installer
-        ctx.download = await downloadDockerDesktop(getEngineDownloadUrl(build), {ctx, debug, task});
+        ctx.download = await downloadDockerDesktop(url, {ctx, debug, task});
         // script
         const script = [path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1')];
         // args

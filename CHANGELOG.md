@@ -3,7 +3,8 @@
 ### New Features & Improvements
 
 * Changed `lando setup` to pull common plugins based on release `channel` to better mimic fatcore
-* Rebased `axios` on `@npmcli/agent` to improve request consistency across environments
+* Improved internet detection tests [#243](https://github.com/lando/core/issues/243)
+* Rebased `axios` and `octokit`  on `@npmcli/agent` to improve request consistency across environments
 * Updated default Docker Desktop version to `4.34.3`
 * Updated default Docker Engine version to `27.3.1`
 * Udpated recommended Docker Destkop range to `>=4.34.0`
@@ -19,6 +20,7 @@
 * Added `debugShim` to `lando.utils`
 * Added `downloadX` to `lando.utils`
 * Added `getAxios` to `lando.utils`
+* Added `getOctokit` to `lando.utils`
 * Added `getUserShell` to `lando.utils`
 * Added `getUserShellProfile` to `lando.utils`
 * Added `isVersionLte` to `lando.utils`

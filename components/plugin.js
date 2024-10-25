@@ -292,11 +292,6 @@ class Plugin {
     const channel = this.channel === 'stable' ? 'latest' : this.channel;
 
     try {
-      // check internet connection
-      const online = await require('is-online')();
-      // throw error if not online
-      if (!online) throw new Error('Cannot detect connection to internet!');
-      // process to check
       // get release data
       const data = await packument(this.spec, merge({}, [Plugin.config, {fullMetadata: true}]));
       // build a list of highest available versions
