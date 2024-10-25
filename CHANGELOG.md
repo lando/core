@@ -1,5 +1,14 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## New Features & Improvements
+
+* Changed `lando setup` to pull common plugins based on release `channel` to better mimic fatcore
+* Updated default Docker Desktop version to `4.34.3`
+* Updated default Docker Engine version to `27.3.1`
+* Udpated recommended Docker Destkop range to `>=4.34.0`
+* Updated tested Docker Desktop range to `<=4.35`
+* Updated tested Docker Compose range to `<=2.29.2`
+
 # Internal
 
 * Switched `URL.parse` to `url.parse` until people are reliably on a `node20` CLI
