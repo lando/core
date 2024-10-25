@@ -64,7 +64,7 @@ npm install --no-save \
   @lando/pantheon@$TAG \
   @lando/php@$TAG \
   @lando/phpmyadmin@$TAG \
-  @lando/platformsh@$TAG \
+  @lando/platformsh@latest \
   @lando/postgres@$TAG \
   @lando/python@$TAG \
   @lando/redis@$TAG \
