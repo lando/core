@@ -1,6 +1,6 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
-## New Features & Improvements
+### New Features & Improvements
 
 * Changed `lando setup` to pull common plugins based on release `channel` to better mimic fatcore
 * Rebased `axios` on `@npmcli/agent` to improve request consistency across environments
@@ -10,7 +10,11 @@
 * Updated tested Docker Desktop range to `<=4.35`
 * Updated tested Docker Compose range to `<=2.29.2`
 
-# Internal
+### Fixed
+
+* Fixed failed `healthchecks` from reporting `unknown shorthand flag: 'T' in -T` instead of underlying error (thanks to @AaronFeledy)
+
+### Internal
 
 * Added `getAxios` to `lando.utils`
 * Switched `URL.parse` to `url.parse` until people are reliably on a `node20` CLI
