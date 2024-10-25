@@ -7,6 +7,9 @@ const {color} = require('listr2');
 const {nanoid} = require('nanoid');
 
 const buildIds = {
+  '4.34.3': '170107',
+  '4.34.2': '167172',
+  '4.34.1': '166053',
   '4.34.0': '165256',
   '4.33.1': '161083',
   '4.33.0': '160616',
@@ -46,7 +49,7 @@ const getVersion = version => {
 /*
  * Helper to get docker compose v2 download url
  */
-const getEngineDownloadUrl = (id = '165256') => {
+const getEngineDownloadUrl = (id = '170107') => {
   const arch = process.arch === 'arm64' ? 'arm64' : 'amd64';
   return `https://desktop.docker.com/win/main/${arch}/${id}/Docker%20Desktop%20Installer.exe`;
 };
