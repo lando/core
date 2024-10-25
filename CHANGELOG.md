@@ -3,6 +3,7 @@
 ## New Features & Improvements
 
 * Changed `lando setup` to pull common plugins based on release `channel` to better mimic fatcore
+* Rebased `axios` on `@npmcli/agent` to improve request consistency across environments
 * Updated default Docker Desktop version to `4.34.3`
 * Updated default Docker Engine version to `27.3.1`
 * Udpated recommended Docker Destkop range to `>=4.34.0`
@@ -11,6 +12,7 @@
 
 # Internal
 
+* Added `getAxios` to `lando.utils`
 * Switched `URL.parse` to `url.parse` until people are reliably on a `node20` CLI
 
 ## v3.23.0-beta.7 - [October 24, 2024](https://github.com/lando/core/releases/tag/v3.23.0-beta.7)

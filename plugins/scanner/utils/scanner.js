@@ -2,16 +2,9 @@
 
 const _ = require('lodash');
 const debug = require('debug')('@lando/core:scanner');
-const http = require('http');
-const https = require('https');
+const getAxios = require('../../../utils/get-axios');
 
-const request = (maxRedirects = 0) => {
-  return require('axios').create({
-    maxRedirects,
-    httpAgent: new http.Agent({family: 4}),
-    httpsAgent: new https.Agent({rejectUnauthorized: false, family: 4}),
-  });
-};
+const request = (maxRedirects = 0) => getAxios({maxRedirects}, {}, {rejectUnauthorized: false});
 
 module.exports = (baseURL, {okCodes = [], maxRedirects = 0, log = debug, path = '/', timeout = 3000} = {}) => {
   return request(maxRedirects).get(path, {baseURL, timeout})
