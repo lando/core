@@ -1,15 +1,10 @@
 
 // Modules
 const _ = require('lodash');
-const Log = require('../lib/logger');
-const Promise = require('../lib/promise');
+const Log = require('./../lib/logger');
+const Promise = require('./../lib/promise');
 
-/*
- * Helper to load request library
- * We do this for testing so we can stub axios and ensure it isn't auto cached
- * via require when we new Lando()
- */
-const requestClient = () => require('../utils/get-axios')({maxRedirects: 0}, {}, {rejectUnauthorized: false});
+const axios = require('../utils/get-axios')({maxRedirect: 0}, {}, {rejectUnauthorized: false});
 
 // We make this module into a function so we can pass in a logger
 module.exports = (log = new Log()) => {
@@ -52,7 +47,7 @@ module.exports = (log = new Log()) => {
       // If URL contains a wildcard then immediately set fulfill with yellow status
       if (_.includes(url, '*')) return Promise.resolve(setOK(url));
       // Send REST request.
-      return requestClient().get(url)
+      return axios.get(url)
       // Return good responses
       .then(response => {
         log.debug('scan response %s received', url, {
