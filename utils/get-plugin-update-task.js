@@ -14,10 +14,7 @@ module.exports = (plugin, {
     title: `Updating ${pkg.name} to v${pkg.peg}`,
     description: pkg.name,
     canInstall: async () => {
-      const online = await require('is-online')();
-      // throw error if not online
-      if (!online) throw new Error('Cannot detect connection to internet!');
-      // or true
+      await Plugin.info(plugin);
       return true;
     },
     task: async (ctx, task) => {

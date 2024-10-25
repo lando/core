@@ -29,7 +29,7 @@ lando info --deep | grep NetworkSettings
 # Should return filtered data
 lando info --filter service=web4 --path api | grep 4
 lando info --filter api=4 --filter primary=true --path service | grep web3
-lando info --deep --filter Path=/docker-entrypoint.sh --filter Config.User=nginx --path Config.User | grep nginx
+lando info --deep --filter Path=/etc/lando/start.sh --filter Config.User=nginx --path Config.User | grep nginx
 lando info --filter api=4 --path "[0].service" | grep web3
 
 # Should output JSON with --format json

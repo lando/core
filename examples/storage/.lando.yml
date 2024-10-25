@@ -5,7 +5,6 @@ services:
   db:
     api: 4
     image: mysql:8.3
-    command: docker-entrypoint.sh mysqld
     user: mysql
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'

@@ -1,20 +1,14 @@
 'use strict';
 
 const fs = require('fs');
-const http = require('http');
-const https = require('https');
 const os = require('os');
 const path = require('path');
 const remove = require('./remove');
 
 const {EventEmitter} = require('events');
-const {create} = require('axios');
 const {nanoid} = require('nanoid');
 
-const axios = create({
-  httpsAgent: new https.Agent({rejectUnauthorized: false, family: 4}),
-  httpAgent: new http.Agent({family: 4}),
-});
+const axios = require('../utils/get-axios')({}, {}, {rejectUnauthorized: false});
 
 // helper to get a platform spec tmpfile
 const tmpfile = () => {

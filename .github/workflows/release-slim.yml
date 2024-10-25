@@ -1,4 +1,4 @@
-name: Create Slim CLI Releases
+name: Create Slim Releases
 
 on:
   release:
@@ -35,6 +35,11 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile --production
+      - name: Switch to edge channel
+        if: github.event.release.prerelease == true
+        run: |
+            sed -i.bak "s/^channel: stable/channel: edge/" config.yml
+            rm -rf config.yml.bak
       - name: Prepare Release
         uses: lando/prepare-release-action@v3
         with:
@@ -48,13 +53,16 @@ jobs:
           node-version: ${{ matrix.node-version }}
           os: ${{ matrix.os }}
           options: --options dns-result-order=ipv4first
-          pkg: "@yao-pkg/pkg@5.15.0"
+          pkg: "@yao-pkg/pkg@5.16.1"
       - name: Ensure slimcore
         if: matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
         run: ./dist/@lando/core config --path fatcore | grep false
       - name: Ensure ipv4first
         if: matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
         run: ./dist/@lando/core config --path cli.args | grep dns-result-order=ipv4first
+      # - name: Ensure edge channel
+      #   if: github.event.release.prerelease == true && matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
+      #   run: ./dist/@lando/core config --path channel | grep edge
 
   sign-n-deploy:
     runs-on: ${{ matrix.os }}

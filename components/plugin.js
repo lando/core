@@ -292,11 +292,6 @@ class Plugin {
     const channel = this.channel === 'stable' ? 'latest' : this.channel;
 
     try {
-      // check internet connection
-      const online = await require('is-online')();
-      // throw error if not online
-      if (!online) throw new Error('Cannot detect connection to internet!');
-      // process to check
       // get release data
       const data = await packument(this.spec, merge({}, [Plugin.config, {fullMetadata: true}]));
       // build a list of highest available versions
@@ -309,7 +304,7 @@ class Plugin {
 
       // if the hv is lte to what we have then no update is available
       if (require('../utils/is-lte-version')(hv, this.version)) {
-        this.debug('cannot be updated on channel %o (%o <= %o)', this.package, channel, hv, this.version);
+        this.debug('cannot be updated on channel %o (%o <= %o)', channel, hv, this.version);
         return this;
 
       // otherwise update is available
@@ -319,8 +314,7 @@ class Plugin {
         this.update.channel = hc;
         this.debug(
           'can be updated to %o on channel %o (%o > %o) ',
-          this.package,
-          this.updateAvailable,
+          hv,
           channel,
           hv,
           this.version,

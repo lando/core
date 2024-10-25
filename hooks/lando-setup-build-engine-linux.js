@@ -1,5 +1,6 @@
 'use strict';
 
+const axios = require('../utils/get-axios')();
 const os = require('os');
 const path = require('path');
 
@@ -31,6 +32,7 @@ module.exports = async (lando, options) => {
   if (options.buildEngine === false) return;
 
   const version = options.buildEngine;
+  const url = 'https://get.docker.com';
 
   // darwin install task
   options.tasks.push({
@@ -46,8 +48,8 @@ module.exports = async (lando, options) => {
     canRun: async () => {
       // throw if we cannot resolve a semantic version to a buildid
       if (!version) throw new Error(`Could not resolve ${version} to an installable version!`);
-      // throw error if not online
-      if (!await require('is-online')()) throw new Error('Cannot detect connection to internet!');
+      // throw error if we cannot ping the download link
+      await axios.head(url);
       // throw if user is not an admin
       if (!await require('../utils/is-admin-user')()) {
         throw new Error([
@@ -61,7 +63,7 @@ module.exports = async (lando, options) => {
     task: async (ctx, task) => {
       try {
         // download the installer
-        ctx.download = await downloadDockerEngine('https://get.docker.com', {ctx, debug, task});
+        ctx.download = await downloadDockerEngine(url, {ctx, debug, task});
 
         // prompt for password if interactive and we dont have it
         if (ctx.password === undefined && lando.config.isInteractive) {

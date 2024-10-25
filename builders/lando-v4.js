@@ -601,8 +601,11 @@ module.exports = {
       // build the image
       const image = await super.buildImage();
 
-      // if command is still undefined try to set it from the image info
+      // if command and/or entrypoint is/are still undefined try to set it from the image info
       if (!this.command) this.command = image?.info?.Config?.Cmd ?? image?.info?.ContainerConfig?.Cmd;
+      if (!this.entrypoint) {
+        this.entrypoint = image?.info?.Config?.Entrypoint ?? image?.info?.ContainerConfig?.Entrypoint ?? ['sh'];
+      }
 
       // final check that the command is set
       if (!this.command || this.command === undefined || this.command === null || this.command === '') {
@@ -614,7 +617,8 @@ module.exports = {
 
       // add command wrapper to image
       this.addLandoServiceData({
-        command: ['/etc/lando/start.sh', ...parseCommand(this.command)],
+        entrypoint: ['/etc/lando/start.sh'],
+        command: [...parseCommand(this.entrypoint), ...parseCommand(this.command)],
       });
 
       // return

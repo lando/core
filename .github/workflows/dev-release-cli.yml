@@ -36,7 +36,7 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile --production
-      - name: Install plugins
+      - name: Install fatcore
         run: scripts/fatcore-install.sh
       - name: Prepare Release
         uses: lando/prepare-release-action@v3
@@ -54,13 +54,16 @@ jobs:
           node-version: ${{ matrix.node-version }}
           os: ${{ matrix.os }}
           options: --options dns-result-order=ipv4first
-          pkg: "@yao-pkg/pkg@5.15.0"
+          pkg: "@yao-pkg/pkg@5.16.1"
       - name: Ensure fatcore
         if: matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
         run: ./dist/@lando/core config --path fatcore | grep true
       - name: Ensure ipv4first
         if: matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
         run: ./dist/@lando/core config --path cli.args | grep dns-result-order=ipv4first
+      # - name: Ensure edge channel
+      #   if: matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
+      #   run: ./dist/@lando/core config --path channel | grep edge
 
   sign-n-deploy:
     runs-on: ${{ matrix.os }}

@@ -39,7 +39,7 @@ const getAllPorts = (noHttp = false, noHttps = false, config) => {
 const hasCerts = (app, id) => {
   const info = app.info.find(service => service.service === id);
   const v4 = _.get(app, 'v4.services', []).find(service => service.id === id);
-  return info?.hasCerts === true || v4?.certs !== false;
+  return info?.hasCerts === true || (v4?.certs !== undefined && v4?.certs !== false);
 };
 
 /*
@@ -128,6 +128,12 @@ module.exports = (app, lando) => {
 
       // Parse the proxy config to get traefix labels
       .then(() => {
+        // normalize and merge proxy routes
+        app.config.proxy = utils.normalizeRoutes(app.config.proxy);
+
+        // log error for any duplicates across services
+        // @NOTE: this actually just calculates ALL occurences of a given hostname and not within each service
+        // but with the deduping in normalizeRoutes it probably works well enough for right now
         const urlCounts = utils.getUrlsCounts(app.config.proxy);
         if (_.max(_.values(urlCounts)) > 1) {
           app.log.error('You cannot assign url %s to more than one service!', _.findKey(urlCounts, c => c > 1));

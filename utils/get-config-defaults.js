@@ -8,11 +8,11 @@ const os = require('os');
 const getBuildEngineVersion = () => {
   switch (process.platform) {
     case 'darwin':
-      return '4.34.0';
+      return '4.34.3';
     case 'linux':
-      return '27.2.0';
+      return '27.3.1';
     case 'win32':
-      return '4.34.0';
+      return '4.34.3';
   }
 };
 
@@ -21,6 +21,7 @@ const defaultConfig = options => ({
   orchestratorSeparator: '_',
   orchestratorVersion: '2.29.2',
   configSources: [],
+  coreBase: path.resolve(__dirname, '..'),
   disablePlugins: [],
   dockerBin: require('../utils/get-docker-x')(),
   dockerBinDir: require('../utils/get-docker-bin-path')(),
@@ -38,7 +39,7 @@ const defaultConfig = options => ({
     isWsl: os.release().toLowerCase().includes('microsoft'),
   },
   pluginDirs: [{path: path.join(__dirname, '..'), subdir: 'plugins', namespace: '@lando'}],
-  plugins: [{name: '@lando/core', path: path.join(__dirname, '..'), type: 'local'}],
+  plugins: [],
   userConfRoot: os.tmpdir(),
 
   // this governs both autosetup and the defaults of lando setup

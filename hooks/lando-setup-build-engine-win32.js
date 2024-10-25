@@ -1,5 +1,6 @@
 'use strict';
 
+const axios = require('../utils/get-axios')();
 const os = require('os');
 const path = require('path');
 const semver = require('semver');
@@ -7,6 +8,9 @@ const {color} = require('listr2');
 const {nanoid} = require('nanoid');
 
 const buildIds = {
+  '4.34.3': '170107',
+  '4.34.2': '167172',
+  '4.34.1': '166053',
   '4.34.0': '165256',
   '4.33.1': '161083',
   '4.33.0': '160616',
@@ -46,7 +50,7 @@ const getVersion = version => {
 /*
  * Helper to get docker compose v2 download url
  */
-const getEngineDownloadUrl = (id = '165256') => {
+const getEngineDownloadUrl = (id = '170107') => {
   const arch = process.arch === 'arm64' ? 'arm64' : 'amd64';
   return `https://desktop.docker.com/win/main/${arch}/${id}/Docker%20Desktop%20Installer.exe`;
 };
@@ -87,9 +91,12 @@ module.exports = async (lando, options) => {
   // get stuff from config/opts
   const build = getId(options.buildEngine);
   const version = getVersion(options.buildEngine);
+
   // cosmetics
   const buildEngine = process.platform === 'linux' ? 'docker-engine' : 'docker-desktop';
   const install = version ? `v${version}` : `build ${build}`;
+
+  const url = getEngineDownloadUrl(build);
 
   // win32 install docker desktop task
   options.tasks.push({
@@ -117,8 +124,8 @@ module.exports = async (lando, options) => {
     canRun: async () => {
       // throw if we cannot resolve a semantic version to a buildid
       if (!build) throw new Error(`Could not resolve ${install} to an installable version!`);
-      // throw error if not online
-      if (!await require('is-online')()) throw new Error('Cannot detect connection to internet!');
+      // throw error if we cannot ping the download link
+      await axios.head(url);
       // @TODO: check for wsl2?
       return true;
     },
@@ -132,7 +139,7 @@ module.exports = async (lando, options) => {
     task: async (ctx, task) => {
       try {
         // download the installer
-        ctx.download = await downloadDockerDesktop(getEngineDownloadUrl(build), {ctx, debug, task});
+        ctx.download = await downloadDockerDesktop(url, {ctx, debug, task});
         // script
         const script = [path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1')];
         // args

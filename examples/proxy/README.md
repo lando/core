@@ -33,6 +33,18 @@ curl -s -o /dev/null -I -w "%{http_code}" http://another-way-to-eighty.lndo.site
 curl -s -o /dev/null -I -w "%{http_code}" http://l337.lndo.site | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://lando4.lndo.site | grep 200
 
+# Should only work over http unless service has certs to use
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' landoproxy_web_1 | grep -w http
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' landoproxy_web_1 | grep -w "true" || echo $? | grep 1
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' landoproxy_web3_1 | grep -w "http,https"
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' landoproxy_web3_1 | grep -w "true"
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' landoproxy_l337_1 | grep -w http
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' landoproxy_l337_1 | grep -w "true" || echo $? | grep 1
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' landoproxy_web5_1 | grep -w http
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' landoproxy_web5_1 | grep -w "true" || echo $? | grep 1
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' landoproxy_web4_1 | grep -w "http,https"
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' landoproxy_web4_1 | grep -w "true"
+
 # Should also work over https if ssl is true and we have certs
 curl -s -o /dev/null -Ik -w "%{http_code}" https://web3.lndo.site | grep 200
 curl -s -o /dev/null -Ik -w "%{http_code}" https://lando4.lndo.site | grep 200
@@ -92,6 +104,17 @@ lando exec web4 -- cat \$LANDO_SERVICE_CERT
 lando exec web4 -- env | grep LANDO_SERVICE_CERT | grep /certs/cert.crt
 lando exec web4 -- cat \$LANDO_SERVICE_KEY
 lando exec web4 -- env | grep LANDO_SERVICE_KEY | grep /certs/cert.key
+
+# Should succcesfully merge same-service same-hostname-pathname routes together correctly
+lando exec php -- curl -sI http://lando-proxy.lndo.site | grep -i "X-Lando-Merge" | grep picard
+lando exec php -- curl -sI http://lando-proxy.lndo.site | grep -i "X-Lando-Merge-Xo" | grep riker
+
+# Should remove proxy entries when removed from the landofile and rebuild
+cp -rf .lando.yml .lando.old.yml
+cp -rf .lando.stripped.yml .lando.yml
+lando rebuild -y | grep sub.lando-proxy.lndo.site || echo $? | grep 1
+docker inspect --format='{{ index .Config.Labels "traefik.http.routers.b6735d503ac33b70087610e0c8b0074439bbb51e.rule" }}' landoproxy_web_1  | grep sub.lando-proxy.lndo.site || echo $? | grep 1
+cp -rf .lando.old.yml .lando.yml
 ```
 
 ## Destroy tests

@@ -1,5 +1,6 @@
 'use strict';
 
+const axios = require('../utils/get-axios')();
 const os = require('os');
 const path = require('path');
 const semver = require('semver');
@@ -7,6 +8,8 @@ const semver = require('semver');
 const {color} = require('listr2');
 
 const buildIds = {
+  '4.34.3': '170107',
+  '4.34.2': '167172',
   '4.34.0': '165256',
   '4.33.0': '160616',
   '4.32.0': '157355',
@@ -46,7 +49,7 @@ const getVersion = version => {
 /*
  * Helper to get docker compose v2 download url
  */
-const getEngineDownloadUrl = (id = '165256') => {
+const getEngineDownloadUrl = (id = '170107') => {
   const arch = process.arch === 'arm64' ? 'arm64' : 'amd64';
   return `https://desktop.docker.com/mac/main/${arch}/${id}/Docker.dmg`;
 };
@@ -84,6 +87,9 @@ module.exports = async (lando, options) => {
   // cosmetics
   const install = version ? `v${version}` : `build ${build}`;
 
+  // download url
+  const url = getEngineDownloadUrl(build);
+
   // darwin install task
   options.tasks.push({
     title: `Downloading build engine`,
@@ -110,8 +116,8 @@ module.exports = async (lando, options) => {
     canRun: async () => {
       // throw if we cannot resolve a semantic version to a buildid
       if (!build) throw new Error(`Could not resolve ${install} to an installable version!`);
-      // throw error if not online
-      if (!await require('is-online')()) throw new Error('Cannot detect connection to internet!');
+      // throw error if we cannot ping the download link
+      await axios.head(url);
       // throw if user is not an admin
       if (!await require('../utils/is-admin-user')()) {
         throw new Error([
@@ -125,7 +131,7 @@ module.exports = async (lando, options) => {
     task: async (ctx, task) => {
       try {
         // download the installer
-        ctx.download = await downloadDockerDesktop(getEngineDownloadUrl(build), {ctx, debug, task});
+        ctx.download = await downloadDockerDesktop(url, {ctx, debug, task});
 
         // prompt for password if interactive
         if (ctx.password === undefined && lando.config.isInteractive) {
