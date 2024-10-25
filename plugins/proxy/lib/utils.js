@@ -61,7 +61,9 @@ exports.normalizeRoutes = (services = {}) => Object.fromEntries(_.map(services, 
 
     // at this point we should be able to parse the hostname
     // @TODO: do we need to try/catch this?
-    const {hostname, port, pathname} = URL.parse(route.hostname);
+    // @NOTE: lets hold off on URL.parse until more people reliable have a node20 ready cli
+    // const {hostname, port, pathname} = URL.parse(route.hostname);
+    const {hostname, port, pathname} = url.parse(route.hostname);
 
     // and rebase the whole thing
     route = merge({}, [defaults, {port: port === '' ? '80' : port, pathname}, route, {hostname}], ['merge:key', 'replace']);
