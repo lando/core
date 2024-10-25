@@ -3,6 +3,7 @@
 // Modules
 const _ = require('lodash');
 const fs = require('fs');
+const getOctokit = require('../utils/get-octokit');
 const os = require('os');
 const path = require('path');
 
@@ -29,7 +30,7 @@ const parseTokens = tokens => _.flatten([getTokens(tokens), [{name: 'add or refr
 
 // Helper to post a github ssh key
 const postKey = (keyDir, token, id) => {
-  const octokit = require('../utils/get-octokit')({auth: token});
+  const octokit = getOctokit({auth: token});
   return octokit.users.createPublicSshKeyForAuthenticatedUser({
     title: id,
     key: _.trim(fs.readFileSync(path.join(keyDir, `${gitHubLandoKey}.pub`), 'utf8')),
@@ -50,7 +51,7 @@ const postKey = (keyDir, token, id) => {
 
 // Helper to set caches
 const setCaches = (options, lando) => {
-  const octokit = require('../utils/get-octokit')({auth: options['github-auth']});
+  const octokit = getOctokit({auth: options['github-auth']});
   return octokit.rest.users.getAuthenticated()
   .then(user => {
     const metaData = lando.cache.get(`${options.name}.meta.cache`) || {};
@@ -72,7 +73,7 @@ const showTokenEntry = (source, answer, tkez = []) => ((_.isEmpty(tkez) || answe
 const getRepos = answers => {
   // Log
   console.log('Getting your GitHub repos... this may take a moment if you have a lot');
-  const octokit = require('../utils/get-octokit')({auth: answers['github-auth']});
+  const octokit = getOctokit({auth: answers['github-auth']});
   return octokit.paginate('GET /user/repos', {affliation: 'owner,collaborator,organization_member', per_page: 100})
   .then(results => results.map(result => ({name: result.full_name, value: result.ssh_url})))
   .catch(gerror => {
