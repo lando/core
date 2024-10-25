@@ -26,11 +26,8 @@ module.exports = (plugin, {
       }
     },
     canInstall: async () => {
-      const online = await require('is-online')();
-      // throw error if not online
-      if (!online) throw new Error('Cannot detect connection to internet!');
-      // attempt ti get info on the plugin
       await Plugin.info(plugin);
+      return true;
     },
     task: async (ctx, task) => {
       try {

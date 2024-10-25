@@ -1,5 +1,6 @@
 'use strict';
 
+const axios = require('../utils/get-axios')();
 const fs = require('fs');
 const path = require('path');
 
@@ -64,10 +65,9 @@ module.exports = async (lando, options) => {
       return !!orchestratorBin && typeof orchestrator === 'string' && fs.existsSync(dest);
     },
     canRun: async () => {
-      const online = await require('is-online')();
-      // throw error if not online
-      if (!online) throw new Error('Cannot detect connection to internet!');
-
+      // throw error if we cannot ping the download link
+      await axios.head(url);
+      // true if we get here
       return true;
     },
     task: async (ctx, task) => new Promise((resolve, reject) => {

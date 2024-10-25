@@ -40,8 +40,6 @@ module.exports = async (lando, options) => {
       }
     },
     canRun: async () => {
-      // Check for internet connection
-      if (!await require('is-online')()) throw new Error('Cannot detect connection to internet!');
       // Check for admin privileges
       if (!await require('../utils/is-admin-user')()) {
         throw new Error([

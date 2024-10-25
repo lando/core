@@ -131,7 +131,6 @@
     "is-class": "^0.0.9",
     "is-docker": "^2.2.1",
     "is-interactive": "^1",
-    "is-online": "^9",
     "is-root": "^2",
     "js-yaml": "^4.1.0",
     "jsonfile": "^2.4.0",
