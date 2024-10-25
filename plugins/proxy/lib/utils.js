@@ -66,7 +66,7 @@ exports.normalizeRoutes = (services = {}) => Object.fromEntries(_.map(services, 
     const {hostname, port, pathname} = url.parse(route.hostname);
 
     // and rebase the whole thing
-    route = merge({}, [defaults, {port: port === '' ? '80' : port, pathname}, route, {hostname}], ['merge:key', 'replace']);
+    route = merge({}, [defaults, {port: _.isNil(port) ? '80' : port, pathname}, route, {hostname}], ['merge:key', 'replace']);
 
     // wildcard replacement back
     route.hostname = route.hostname.replace(/__wildcard__/g, '*');
