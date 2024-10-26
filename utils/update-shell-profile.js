@@ -18,6 +18,8 @@ module.exports = (file, updates = []) => {
     const content = read(file);
     // split into lines
     const lines = content.split('\n');
+    // if we end up with second to last line that is empty then pop
+    if (lines[lines.length - 2].trim() === '') lines.pop();
 
     // loops through the updates and add/update as needed
     for (const [update, search] of updates) {
@@ -30,7 +32,7 @@ module.exports = (file, updates = []) => {
     }
 
     // if the last element doesnt contain a newline
-    if (lines[lines.length - 1].includes(os.EOL)) lines.push();
+    if (!lines[lines.length - 1].includes(os.EOL)) lines.push(os.EOL);
 
     // Write the modified content back to the file
     write(file, lines.join(os.EOL));

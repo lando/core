@@ -166,8 +166,11 @@ module.exports = async (app, lando) => {
   // If the app already is installed but we can't determine the builtAgainst, then set it to something bogus
   app.events.on('pre-start', async () => await require('./hooks/app-update-built-against-pre')(app, lando));
 
-  // Add update tip if needed
+  // Add path info/shellenv tip if needed
   app.events.on('post-start', async () => await require('./hooks/app-add-updates-info')(app, lando));
+
+  // Add update tip if needed
+  app.events.on('post-start', async () => await require('./hooks/app-add-path-info')(app, lando));
 
   // If we don't have a builtAgainst already then we must be spinning up for the first time and its safe to set this
   app.events.on('post-start', async () => await require('./hooks/app-update-built-against-post')(app, lando));

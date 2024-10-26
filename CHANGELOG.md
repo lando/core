@@ -2,8 +2,10 @@
 
 ### New Features & Improvements
 
+* Added helpful `tip` about using `lando shellenv` when it cannot detect `~/.lando/bin` in `PATH`
 * Changed `lando setup` to pull common plugins based on release `channel` to better mimic fatcore
 * Improved internet detection tests [#243](https://github.com/lando/core/issues/243)
+* Improved `lando shellenv` to produce more consistent newliney output
 * Rebased `axios` and `octokit`  on `@npmcli/agent` to improve request consistency across environments
 * Updated default Docker Desktop version to `4.34.3`
 * Updated default Docker Engine version to `27.3.1`
