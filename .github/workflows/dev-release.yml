@@ -253,7 +253,7 @@ jobs:
           find "artifacts" -mindepth 2 -maxdepth 2 -type f -exec mv {} "dist" \;
           ls -lsa dist
       - name: Checksum artifacts
-        run: ./scripts/generate-checksums.sh --directory dist --output checksums-dev-${{ github.sha }}.txt --show --debug
-      - name: Upload dev releases to S3
+        run: ./scripts/generate-checksums.sh --directory dist --output checksums-dev-${{ github.sha }}.txt --show
+      - name: Upload Checksums to S3
         shell: bash
-        run: aws s3 sync checksums-dev-${{ github.sha }}.txt s3://files.lando.dev/core
+        run: aws s3 cp checksums-dev-${{ github.sha }}.txt s3://files.lando.dev/core/
