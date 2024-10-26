@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.0-beta.10 - [October 26, 2024](https://github.com/lando/core/releases/tag/v3.23.0-beta.10)
+
 ### New Features & Improvements
 
 * Added helpful `tip` about using `lando shellenv` when it cannot detect `~/.lando/bin` in `PATH`
