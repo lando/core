@@ -61,9 +61,9 @@ jobs:
       - name: Ensure ipv4first
         if: matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
         run: ./dist/@lando/core config --path cli.args | grep dns-result-order=ipv4first
-      # - name: Ensure edge channel
-      #   if: matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
-      #   run: ./dist/@lando/core config --path channel | grep edge
+      - name: Ensure edge channel
+        if: matrix.os == 'linux' && runner.os == 'Linux' && runner.arch == 'X64'
+        run: ./dist/@lando/core config --path channel | grep edge
 
   sign-n-deploy:
     runs-on: ${{ matrix.os }}
@@ -148,12 +148,19 @@ jobs:
       - name: Rename as needed
         shell: bash
         run: |
+          # create releases
           mkdir -p releases
           cp ${{ steps.code-sign-action.outputs.file }} releases/${{ matrix.result }}
           cp releases/${{ matrix.result }} "releases/$(echo ${{ matrix.result }} | sed 's/${{ github.ref_name }}/latest/;')"
           cp releases/${{ matrix.result }} "releases/$(echo ${{ matrix.result }} | sed 's/${{ github.ref_name }}/dev/;')"
           chmod +x releases/*
-          ls -lsa releases
+
+          # create checksums
+          ./scripts/generate-checksums.sh --directory releases --output checksums-dev-slim.txt
+          # cat the data
+          cat checksums-dev-slim.txt
+          # move the checksums so it is uploaded as well
+          cp checksums-dev-slim.txt releases/checksums-dev-slim.txt
       - name: Configure S3 Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
