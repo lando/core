@@ -241,6 +241,8 @@ jobs:
     env:
       TERM: xterm
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Download for checksumming
         uses: actions/download-artifact@v4
         with:
@@ -249,6 +251,7 @@ jobs:
         run: |
           mkdir -p dist
           find "artifacts" -mindepth 2 -maxdepth 2 -type f -exec mv {} "dist" \;
+          ls -lsa dist
       - name: Checksum artifacts
         run: ./scripts/generate-checksums.sh --directory dist --output checksums-dev-${{ github.sha }}.txt --show --debug
       - name: Upload dev releases to S3
