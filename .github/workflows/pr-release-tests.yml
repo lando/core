@@ -35,9 +35,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
       - name: Install dependencies
-        run: |
-          npm clean-install --prefer-offline --frozen-lockfile --production
-          ./scripts/generate-checksums.sh --directory lib --show --debug
+        run: npm clean-install --prefer-offline --frozen-lockfile --production
       - name: Install fatcore
         if: matrix.type != '-slim'
         run: scripts/fatcore-install.sh
@@ -98,6 +96,11 @@ jobs:
           ls -lsa dist
           ./scripts/generate-checksums.sh --directory dist --show --debug
           ls -lsa
+          stat checksums.txt
+          cat checksums.txt
+          ./scripts/generate-checksums.sh --directory ${{ github.workspace }}/dist --show --debug
+          ls -lsa
+          stat checksums.txt
           cat checksums.txt
       - name: Install node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
