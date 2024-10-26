@@ -246,7 +246,7 @@ jobs:
           aws s3 sync releases s3://files.lando.dev/cli
           aws s3 sync releases s3://files.lando.dev/core
       - name: Upload releases to GitHub Releases
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -260,8 +260,7 @@ jobs:
           overwrite: true
           path: releases/*
 
-  # we run this again at the end and sync here so that we only sync when a build and deploy succeedes
-  bump-and-verify-and-npm:
+  bump-and-npm:
     runs-on: ${{ matrix.os }}
     needs:
       - sign-n-deploy
@@ -276,37 +275,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Download for checksumming
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-      - name: Combine artifacts
-        run: |
-          mkdir -p dist
-          find "artifacts" -mindepth 2 -maxdepth 2 -type f -exec mv {} "dist" \;
-          ls -lsa dist
-      - name: Checksum artifacts
-        run: ./scripts/generate-checksums.sh --directory dist --output checksums-${{ github.ref_name }}.txt --show
-      - name: Configure S3 Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.S3_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-      - name: Upload Checksums to S3
-        shell: bash
-        run: |
-          aws s3 cp checksums-${{ github.ref_name }}.txt s3://files.lando.dev/
-          aws s3 cp checksums-${{ github.ref_name }}.txt s3://files.lando.dev/cli/
-          aws s3 cp checksums-${{ github.ref_name }}.txt s3://files.lando.dev/core/
-      - name: Upload Checksums to GitHub Releases
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          files: checksums-${{ github.ref_name }}.txt
-          fail_on_unmatched_files: true
-
       - name: Install node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -382,6 +350,7 @@ jobs:
 
             * We will continue to push releases here for backwards compatibility, posterity, etc
             * [Extended release notes](https://lando.dev/blog/2024/01/16/v321-extended.html)
+
       - name: Push release to lando/cli
         uses: softprops/action-gh-release@v2
         with:
@@ -397,3 +366,49 @@ jobs:
             They are now available in the `@lando/core` [releases page](https://github.com/lando/core/releases) including [this ${{ github.event.release.tag_name }} release](https://github.com/lando/core/releases/tag/${{ github.event.release.tag_name }}).
 
             All that said we don't recommned you use these binaries directly. Instead, to install Lando please visit the [official install docs](https://docs.lando.dev/install).
+
+  verify:
+    runs-on: ${{ matrix.os }}
+    needs:
+      - sign-n-deploy
+    env:
+      TERM: xterm
+    strategy:
+      matrix:
+        os:
+          - ubuntu-24.04
+        node-version:
+          - '20'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Download for checksumming
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Combine artifacts
+        run: |
+          mkdir -p dist
+          find "artifacts" -mindepth 2 -maxdepth 2 -type f -exec mv {} "dist" \;
+          ls -lsa dist
+      - name: Checksum artifacts
+        run: ./scripts/generate-checksums.sh --directory dist --output checksums-${{ github.ref_name }}.txt --show
+      - name: Configure S3 credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.S3_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Upload checksums to S3
+        shell: bash
+        run: |
+          aws s3 cp checksums-${{ github.ref_name }}.txt s3://files.lando.dev/
+          aws s3 cp checksums-${{ github.ref_name }}.txt s3://files.lando.dev/cli/
+          aws s3 cp checksums-${{ github.ref_name }}.txt s3://files.lando.dev/core/
+      - name: Upload checksums to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: checksums-${{ github.ref_name }}.txt
+          fail_on_unmatched_files: true
