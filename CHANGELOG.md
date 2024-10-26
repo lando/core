@@ -1,5 +1,60 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+
+### New Features & Improvements
+
+* Changed `lando setup` to pull common plugins based on release `channel` to better mimic fatcore
+* Improved internet detection tests [#243](https://github.com/lando/core/issues/243)
+* Improved `lando shellenv` to produce more consistent newliney output
+* Rebased `axios` and `octokit`  on `@npmcli/agent` to improve request consistency across environments
+* Updated default Docker Desktop version to `4.34.3`
+* Updated default Docker Engine version to `27.3.1`
+* Udpated recommended Docker Destkop range to `>=4.34.0`
+* Updated tested Docker Desktop range to `<=4.35`
+* Updated tested Docker Compose range to `<=2.29.2`
+* Updated packaged `cli` to use `node20`
+
+### Fixed
+
+* Fixed some packaging problems with new combining `core/cli` and changed so tests run 💯 packaged
+* Fixed run-from-source `#shebang` to be more universal
+* Fixed `flags: 0x5000: no such file or directory: unknown` on WSL when bind mounting certain files the second time [#242](https://github.com/lando/core/issues/242)
+* Fixed bug causing https proxy routes to be assigned when they shouldnt be
+* Fixed bug causing cache from repopulating old proxy addresses that have been removed [#209](https://github.com/lando/core/issues/209)
+* Fixed bug in `v4` auto `entrypoint` and `command` population
+* Fixed regression causing empty tooling `options` to throw an error [#240](https://github.com/lando/core/issues/240)
+* Fixed _critical_ bug where `core` was not being loaded when it only exists internally
+* Fixed bug causing development release versions from incorrectly reporting as updatable
+* Fixed bug causing updates to fail when `SHELL` environment variable is not set
+* Fixed bug causing error handler error when error code is not an integer
+* Fixed failed `healthchecks` from reporting `unknown shorthand flag: 'T' in -T` instead of underlying error (thanks to @AaronFeledy)
+* Improved merging of same-service, same-hostname-pathname `proxy` routes, fixes [#246](https://github.com/lando/core/issues/246)
+* Improved `dns` preference of `ipv4first`
+
+### Internal
+
+* Added `debugShim` to `lando.utils`
+* Added `downloadX` to `lando.utils`
+* Added `getAxios` to `lando.utils`
+* Added `getOctokit` to `lando.utils`
+* Added `getUserShell` to `lando.utils`
+* Added `getUserShellProfile` to `lando.utils`
+* Added `isVersionLte` to `lando.utils`
+* Added `legacyMerge` to `lando.utils`
+* Added `mergeArrays` to `lando.utils`
+* Added `mergePromise` to `lando.utils`
+* Added `merge` to `lando.utils`
+* Added `readFile` to `lando.utils`
+* Added `remove` to `lando.utils`
+* Added `runCommand` to `lando.utils`
+* Added `runElevated` to `lando.utils`
+* Added `runPowerShell` to `lando.utils`
+* Added `slugify` to `lando.utils`
+* Added `writeFile` to `lando.utils`
+* Recombined `@lando/cli` into `@lando/core` eg `lando` binaries are now released here
+* Removed version 4 runtime selector
+* Switched `URL.parse` to `url.parse` until people are reliably on a `node20` CLI
+
 ## v3.23.0-beta.10 - [October 26, 2024](https://github.com/lando/core/releases/tag/v3.23.0-beta.10)
 
 ### New Features & Improvements
