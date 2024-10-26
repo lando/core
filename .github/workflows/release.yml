@@ -286,7 +286,7 @@ jobs:
           find "artifacts" -mindepth 2 -maxdepth 2 -type f -exec mv {} "dist" \;
           ls -lsa dist
       - name: Checksum artifacts
-        run: ./scripts/generate-checksums.sh --directory dist --output checksums-dev-${{ github.sha }}.txt --show
+        run: ./scripts/generate-checksums.sh --directory dist --output checksums-${{ github.ref_name }}.txt --show
       - name: Configure S3 Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
