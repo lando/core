@@ -1,5 +1,44 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+### New Features & Improvements
+
+* Added helpful `tip` about using `lando shellenv` when it cannot detect `~/.lando/bin` in `PATH`
+* Changed `lando setup` to pull common plugins based on release `channel` to better mimic fatcore
+* Improved internet detection tests [#243](https://github.com/lando/core/issues/243)
+* Improved `lando shellenv` to produce more consistent newliney output
+* Rebased `axios` and `octokit`  on `@npmcli/agent` to improve request consistency across environments
+* Updated default Docker Desktop version to `4.34.3`
+* Updated default Docker Engine version to `27.3.1`
+* Udpated recommended Docker Destkop range to `>=4.34.0`
+* Updated tested Docker Desktop range to `<=4.35`
+* Updated tested Docker Compose range to `<=2.29.2`
+
+### Fixed
+
+* Fixed failed `healthchecks` from reporting `unknown shorthand flag: 'T' in -T` instead of underlying error (thanks to @AaronFeledy)
+
+### Internal
+
+* Added `debugShim` to `lando.utils`
+* Added `downloadX` to `lando.utils`
+* Added `getAxios` to `lando.utils`
+* Added `getOctokit` to `lando.utils`
+* Added `getUserShell` to `lando.utils`
+* Added `getUserShellProfile` to `lando.utils`
+* Added `isVersionLte` to `lando.utils`
+* Added `legacyMerge` to `lando.utils`
+* Added `mergeArrays` to `lando.utils`
+* Added `mergePromise` to `lando.utils`
+* Added `merge` to `lando.utils`
+* Added `readFile` to `lando.utils`
+* Added `remove` to `lando.utils`
+* Added `runCommand` to `lando.utils`
+* Added `runElevated` to `lando.utils`
+* Added `runPowerShell` to `lando.utils`
+* Added `slugify` to `lando.utils`
+* Added `writeFile` to `lando.utils`
+* Switched `URL.parse` to `url.parse` until people are reliably on a `node20` CLI
+
 ## v3.23.0-beta.9 - [October 26, 2024](https://github.com/lando/core/releases/tag/v3.23.0-beta.9)
 
 ### New Features & Improvements
