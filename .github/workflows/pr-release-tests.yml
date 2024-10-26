@@ -63,10 +63,10 @@ jobs:
         if: (matrix.os == 'linux' && runner.os == 'Linux') || (matrix.os == 'macos' && runner.os == 'macOS')
         run: ./dist/@lando/core config --path channel | grep stable
       - name: Ensure slimcore
-        if: (matrix.os == 'linux' && runner.os == 'Linux') || (matrix.os == 'macos' && runner.os == 'macOS') && matrix.type == '-slim'
+        if: ((matrix.os == 'linux' && runner.os == 'Linux') || (matrix.os == 'macos' && runner.os == 'macOS')) && matrix.type == '-slim'
         run: ./dist/@lando/core config --path fatcore | grep false
       - name: Ensure fatcore
-        if: (matrix.os == 'linux' && runner.os == 'Linux') || (matrix.os == 'macos' && runner.os == 'macOS') && matrix.type == ''
+        if: ((matrix.os == 'linux' && runner.os == 'Linux') || (matrix.os == 'macos' && runner.os == 'macOS')) && matrix.type == ''
         run: |
           ./dist/@lando/core config --path fatcore | grep true
           ./dist/@lando/core config | grep -q "node_modules/@lando/wordpress"
