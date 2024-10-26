@@ -1,6 +1,5 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
-
 ### New Features & Improvements
 
 * Changed `lando setup` to pull common plugins based on release `channel` to better mimic fatcore
