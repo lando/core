@@ -94,14 +94,11 @@ jobs:
         run: |
           ls -lsa
           ls -lsa dist
-          ./scripts/generate-checksums.sh --directory dist --show --debug
-          ls -lsa
-          stat checksums.txt
-          cat checksums.txt
-          ./scripts/generate-checksums.sh --directory ${{ github.workspace }}/dist --show --debug
-          ls -lsa
-          stat checksums.txt
-          cat checksums.txt
+          ./scripts/generate-checksums.sh --directory dist --depth 2 --show --debug
+          ./scripts/generate-checksums.sh --directory dist --depth 3 --show --debug
+          stat "dist/lando-linux-x64-slim-*/lando-linux-x64-slim-*""
+          cat checksums.txt | grep "$(sha256sum dist/lando-linux-x64-slim-*/lando-linux-x64-slim-*)"
+
       - name: Install node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:

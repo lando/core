@@ -167,7 +167,7 @@ jobs:
           chmod +x releases/*
 
           # create checksums
-          ./scripts/generate-checksums.sh --directory releases --output checksums-dev.txt
+          ./scripts/generate-checksums.sh --directory releases --output checksums-dev.txt --depth 2
           # cat the data
           cat checksums-dev.txt
           # move the checksums so it is uploaded as well
