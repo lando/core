@@ -89,9 +89,10 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
-          path: lando
+          path: dist
       - name: Verify artifacts
         run: |
+          ls -lsa
           ls -lsa dist
           ./scripts/generate-checksums.sh --directory dist --show
       - name: Install node ${{ matrix.node-version }}
