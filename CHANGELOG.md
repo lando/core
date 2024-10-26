@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.0 - [October 26, 2024](https://github.com/lando/core/releases/tag/v3.23.0)
+
 ### New Features & Improvements
 
 * Changed `lando setup` to pull common plugins based on release `channel` to better mimic fatcore
