@@ -8,7 +8,7 @@
 * Rebased `axios` and `octokit`  on `@npmcli/agent` to improve request consistency across environments
 * Updated default Docker Desktop version to `4.34.3`
 * Updated default Docker Engine version to `27.3.1`
-* Udpated recommended Docker Destkop range to `>=4.34.0`
+* Updated recommended Docker Desktop range to `>=4.34.0`
 * Updated tested Docker Desktop range to `<=4.35`
 * Updated tested Docker Compose range to `<=2.29.2`
 * Updated packaged `cli` to use `node20`
