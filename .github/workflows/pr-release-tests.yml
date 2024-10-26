@@ -92,7 +92,7 @@ jobs:
           path: dist
       - name: Verify artifacts
         run: |
-          ./scripts/generate-checksums.sh --directory dist --depth 2 --show --debug
+          ./scripts/generate-checksums.sh --directory dist --depth 2 --show
           cat checksums.txt | grep "$(sha256sum dist/lando-linux-x64-slim-${{ github.sha }}/core)"
       - name: Install node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
