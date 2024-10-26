@@ -94,7 +94,9 @@ jobs:
         run: |
           ls -lsa
           ls -lsa dist
-          ./scripts/generate-checksums.sh --directory dist --show
+          ./scripts/generate-checksums.sh --directory dist --show --debug
+          ls -lsa
+          cat checksums.txt
       - name: Install node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
