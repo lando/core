@@ -30,6 +30,11 @@ module.exports = lando => {
         array: true,
         default: [],
       },
+      force: {
+        describe: 'Force install the plugin',
+        alias: ['f'],
+        type: 'boolean'
+      }
     },
     run: async options => {
       const getPluginConfig = require('../utils/get-plugin-config');
@@ -42,6 +47,7 @@ module.exports = lando => {
       options.config = merge({}, [
         getPluginConfig(lando.config.pluginConfigFile, lando.config.pluginConfig),
         lopts2Popts(options),
+        { force: !!options.force }
       ]);
 
       // reset Plugin static defaults for v3 purposes

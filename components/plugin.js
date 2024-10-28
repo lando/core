@@ -123,6 +123,9 @@ class Plugin {
    * Takes a plugin eg this or the result of Plugin.info and determines whether its a lando plugin or not
    */
   static isValid(plugin) {
+    // if we are forcing installation then return true
+    if( plugin.config && plugin.config.force ) return true;
+
     // if we are looking at a plugin instance then
     if (isClass(plugin.constructor) && plugin.constructor.name === 'Plugin') {
       return Object.keys(plugin.manifest).length > 0 ||
