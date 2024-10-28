@@ -9,12 +9,12 @@ const {name, version} = require('../../package.json');
 const landoPlugin = name.replace('@lando/', '');
 
 export default defineConfig({
-  title: 'Lando Core',
-  description: 'The offical Lando Core.',
+  title: 'Lando 3',
+  description: 'Documentation',
   landoDocs: 3,
   landoPlugin,
   version,
-  base: '/core/v3/',
+  base: '/v3/',
   head: [
     ['meta', {name: 'viewport', content: 'width=device-width, initial-scale=1'}],
     ['link', {rel: 'icon', href: '/core/favicon.ico', size: 'any'}],
@@ -63,7 +63,8 @@ export default defineConfig({
     },
     sidebar: sidebar(),
     multiVersionBuild: {
-      satisfies: '>=3.21.2',
+      build: 'dev',
+      satisfies: '>=3.23.0',
     },
   },
 });

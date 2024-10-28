@@ -48,3 +48,4 @@
   from = "/core/v3/*"
   to = "/:splat"
   status = 200
+
