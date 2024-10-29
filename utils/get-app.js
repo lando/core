@@ -22,14 +22,13 @@ module.exports = (files, userConfRoot) => {
   // if no name then return empty object
   if (!config.name) return {};
   // cast the name to a string...just to make sure.
-  config.name = config.name.toString();
+  config.name = require('../utils/slugify')(config.name);
   // slugify project
-  config.project = require('../utils/slugify')(config.name);
+  config.project = require('../utils/docker-composify')(config.name);
 
   return _.merge({}, config, {
     configFiles: files,
     metaCache: `${config.name}.meta.cache`,
-    project: _.toLower(config.name).replace(/_|-|\.+/g, ''),
     root: path.dirname(files[0]),
     composeCache: path.join(userConfRoot, 'cache', `${config.name}.compose.cache`),
     recipeCache: path.join(userConfRoot, 'cache', `${config.name}.recipe.cache`),
