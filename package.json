@@ -40,8 +40,8 @@
   },
   "scripts": {
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "docs:build": "LANDO_MVB_VERSION=$(git describe --tags --always --abbrev=1 --match=\"v[0-9].*\") vitepress build docs",
-    "docs:dev": "LANDO_MVB_VERSION=$(git describe --tags --always --abbrev=1 --match=\"v[0-9].*\") vitepress dev docs --debug",
+    "docs:build": "VPL_MVB_VERSION=$(git describe --tags --always --abbrev=1 --match=\"v[0-9].*\") vitepress build docs",
+    "docs:dev": "VPL_BASE_URL=http://localhost:5173 VPL_MVB_VERSION=$(git describe --tags --always --abbrev=1 --match=\"v[0-9].*\") vitepress dev docs --debug",
     "docs:mvb": "npx mvb docs",
     "docs:preview": "vitepress preview docs",
     "lint": "eslint . --ext .js --ext .mjs ",
@@ -167,7 +167,7 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.0",
     "@lando/leia": "^1.0.0-beta.4",
-    "@lando/vitepress-theme-default-plus": "^1.1.0-beta.15",
+    "@lando/vitepress-theme-default-plus": "github:lando/vitepress-theme-default-plus#main",
     "@yao-pkg/pkg": "^5.16.1",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
