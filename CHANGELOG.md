@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.1 - [October 29, 2024](https://github.com/lando/core/releases/tag/v3.23.1)
+
 ### New Features & Improvements
 
 * Added useful `warning` if Lando cannot detect the CLI update location in `PATH` [#259](https://github.com/lando/core/issues/259)
