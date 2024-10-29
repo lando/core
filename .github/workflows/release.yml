@@ -61,29 +61,29 @@ jobs:
           entrypoint: bin/lando
           node-version: ${{ matrix.node-version }}
           os: ${{ matrix.os }}
-          options: --options dns-result-order=ipv4first
+          options: --options dns-result-order=ipv4first --output dist/@lando/lando
           pkg: "@yao-pkg/pkg@5.16.1"
           upload-key: "lando-${{ matrix.os }}-${{ matrix.runner == 'macos-14' && 'arm64' || 'x64' }}${{ matrix.type }}-${{ github.sha }}"
       - name: Ensure version
         if: (matrix.os == 'linux' && runner.os == 'Linux') || (matrix.os == 'macos' && runner.os == 'macOS')
-        run: ./dist/@lando/core version --all
+        run: ./dist/@lando/lando version --all
       - name: Ensure ipv4first
         if: (matrix.os == 'linux' && runner.os == 'Linux') || (matrix.os == 'macos' && runner.os == 'macOS')
-        run: ./dist/@lando/core config --path cli.args | grep dns-result-order=ipv4first
+        run: ./dist/@lando/lando config --path cli.args | grep dns-result-order=ipv4first
       - name: Ensure edge channel
         if: ((matrix.os == 'linux' && runner.os == 'Linux') || (matrix.os == 'macos' && runner.os == 'macOS')) && github.event.release.prerelease == true
-        run: ./dist/@lando/core config --path channel | grep edge
+        run: ./dist/@lando/lando config --path channel | grep edge
       - name: Ensure stable channel
         if: ((matrix.os == 'linux' && runner.os == 'Linux') || (matrix.os == 'macos' && runner.os == 'macOS')) && github.event.release.prerelease == false
-        run: ./dist/@lando/core config --path channel | grep stable
+        run: ./dist/@lando/lando config --path channel | grep stable
       - name: Ensure slimcore
         if: ((matrix.os == 'linux' && runner.os == 'Linux') || (matrix.os == 'macos' && runner.os == 'macOS')) && matrix.type == '-slim'
-        run: ./dist/@lando/core config --path fatcore | grep false
+        run: ./dist/@lando/lando config --path fatcore | grep false
       - name: Ensure fatcore
         if: ((matrix.os == 'linux' && runner.os == 'Linux') || (matrix.os == 'macos' && runner.os == 'macOS')) && matrix.type == ''
         run: |
-          ./dist/@lando/core config --path fatcore | grep true
-          ./dist/@lando/core config | grep -q "node_modules/@lando/wordpress"
+          ./dist/@lando/lando config --path fatcore | grep true
+          ./dist/@lando/lando config | grep -q "node_modules/@lando/wordpress"
 
   sign-n-deploy:
     runs-on: ${{ matrix.os }}
@@ -97,32 +97,32 @@ jobs:
         include:
           - os: windows-2022
             key: lando-win-x64-${{ github.sha }}
-            file: lando/core.exe
+            file: lando/lando.exe
             certificate-data: KEYLOCKER_CLIENT_CERT
             certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
             result: lando-win-x64-${{ github.ref_name }}.exe
           - os: windows-2022
             key: lando-win-arm64-${{ github.sha }}
-            file: lando/core.exe
+            file: lando/lando.exe
             certificate-data: KEYLOCKER_CLIENT_CERT
             certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
             result: lando-win-arm64-${{ github.ref_name }}.exe
           - os: windows-2022
             key: lando-win-x64-slim-${{ github.sha }}
-            file: lando/core.exe
+            file: lando/lando.exe
             certificate-data: KEYLOCKER_CLIENT_CERT
             certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
             result: lando-win-x64-${{ github.ref_name }}-slim.exe
           - os: windows-2022
             key: lando-win-arm64-slim-${{ github.sha }}
-            file: lando/core.exe
+            file: lando/lando.exe
             certificate-data: KEYLOCKER_CLIENT_CERT
             certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
             result: lando-win-arm64-${{ github.ref_name }}-slim.exe
 
           - os: macos-14
             key: lando-macos-x64-${{ github.sha }}
-            file: lando/core
+            file: lando/lando
             certificate-data: APPLE_CERT_DATA
             certificate-password: APPLE_CERT_PASSWORD
             apple-product-id: dev.lando.cli
@@ -133,7 +133,7 @@ jobs:
             result: lando-macos-x64-${{ github.ref_name }}
           - os: macos-14
             key: lando-macos-arm64-${{ github.sha }}
-            file: lando/core
+            file: lando/lando
             certificate-data: APPLE_CERT_DATA
             certificate-password: APPLE_CERT_PASSWORD
             apple-product-id: dev.lando.cli
@@ -144,7 +144,7 @@ jobs:
             result: lando-macos-arm64-${{ github.ref_name }}
           - os: macos-14
             key: lando-macos-x64-slim-${{ github.sha }}
-            file: lando/core
+            file: lando/lando
             certificate-data: APPLE_CERT_DATA
             certificate-password: APPLE_CERT_PASSWORD
             apple-product-id: dev.lando.cli
@@ -155,7 +155,7 @@ jobs:
             result: lando-macos-x64-${{ github.ref_name }}-slim
           - os: macos-14
             key: lando-macos-arm64-slim-${{ github.sha }}
-            file: lando/core
+            file: lando/lando
             certificate-data: APPLE_CERT_DATA
             certificate-password: APPLE_CERT_PASSWORD
             apple-product-id: dev.lando.cli
@@ -167,25 +167,25 @@ jobs:
 
           - os: ubuntu-24.04
             key: lando-linux-x64-${{ github.sha }}
-            file: lando/core
+            file: lando/lando
             certificate-data: KEYLOCKER_CLIENT_CERT
             certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
             result: lando-linux-x64-${{ github.ref_name }}
           - os: ubuntu-24.04
             key: lando-linux-arm64-${{ github.sha }}
-            file: lando/core
+            file: lando/lando
             certificate-data: KEYLOCKER_CLIENT_CERT
             certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
             result: lando-linux-arm64-${{ github.ref_name }}
           - os: ubuntu-24.04
             key: lando-linux-x64-slim-${{ github.sha }}
-            file: lando/core
+            file: lando/lando
             certificate-data: KEYLOCKER_CLIENT_CERT
             certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
             result: lando-linux-x64-${{ github.ref_name }}-slim
           - os: ubuntu-24.04
             key: lando-linux-arm64-slim-${{ github.sha }}
-            file: lando/core
+            file: lando/lando
             certificate-data: KEYLOCKER_CLIENT_CERT
             certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
             result: lando-linux-arm64-${{ github.ref_name }}-slim
@@ -392,7 +392,7 @@ jobs:
           find "artifacts" -mindepth 2 -maxdepth 2 -type f -exec mv {} "dist" \;
           ls -lsa dist
       - name: Checksum artifacts
-        run: ./scripts/generate-checksums.sh --directory dist --output checksums-${{ github.ref_name }}.txt --show
+        run: ./scripts/generate-checksums.sh --directory dist --output sha256sum-${{ github.ref_name }}.txt --show
       - name: Configure S3 credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -402,13 +402,13 @@ jobs:
       - name: Upload checksums to S3
         shell: bash
         run: |
-          aws s3 cp checksums-${{ github.ref_name }}.txt s3://files.lando.dev/
-          aws s3 cp checksums-${{ github.ref_name }}.txt s3://files.lando.dev/cli/
-          aws s3 cp checksums-${{ github.ref_name }}.txt s3://files.lando.dev/core/
+          aws s3 cp sha256sum-${{ github.ref_name }}.txt s3://files.lando.dev/
+          aws s3 cp sha256sum-${{ github.ref_name }}.txt s3://files.lando.dev/cli/
+          aws s3 cp sha256sum-${{ github.ref_name }}.txt s3://files.lando.dev/core/
       - name: Upload checksums to GitHub Releases
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: checksums-${{ github.ref_name }}.txt
+          files: sha256sum-${{ github.ref_name }}.txt
           fail_on_unmatched_files: true
