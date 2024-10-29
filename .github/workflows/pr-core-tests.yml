@@ -50,6 +50,7 @@ jobs:
           - restart
           - scanner
           - security
+          - sluggy
           - sql-helpers
           - ssh
           - storage

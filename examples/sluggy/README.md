@@ -1,8 +1,4 @@
-# Badname Example
-
-This example exists primarily to test the following:
-
-* [Issue #1767](https://github.com/lando/lando/issues/1767)
+# Sluggy Example
 
 ## Start up tests
 
@@ -19,9 +15,8 @@ lando start
 Run the following commands to validate things are rolling as they should.
 
 ```bash
-# Should serve from the app root by default
-lando exec defaults -- curl http://localhost | grep ROOTDIR
-lando exec defaults-v4 -- curl http://localhost | grep ROOTDIR
+# Should correctly match up sluggy names
+lando do-i-exist
 ```
 
 ## Destroy tests
