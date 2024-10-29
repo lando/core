@@ -1,5 +1,11 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+### New Features & Improvements
+
+* Added useful `warning` if Lando cannot detect the CLI update location in `PATH` [#259](https://github.com/lando/core/issues/259)
+
+### Fixed
+
 * Fixed regression causing some recipe `tooling` commands to _disappear_ in apps with characters in their `name` that get altered by `slugification`
 
 ## v3.23.0 - [October 26, 2024](https://github.com/lando/core/releases/tag/v3.23.0)
