@@ -1,0 +1,19 @@
+name: lando-destroy
+services:
+  node1:
+    api: 4
+    image: node
+    command: sleep infinity
+    user: node
+    storage:
+      - /usr/share/node
+  node2:
+    api: 4
+    image: node
+    command: sleep infinity
+    user: node
+    storage:
+      - /usr/share/node
+
+plugins:
+  "@lando/core": "../.."
