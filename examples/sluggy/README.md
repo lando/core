@@ -16,7 +16,19 @@ Run the following commands to validate things are rolling as they should.
 
 ```bash
 # Should correctly match up sluggy names
-lando do-i-exist
+lando do-i-exist | grep icachethereforeiam
+
+# Should be destroyed with success
+lando destroy -y
+
+# Should be renamed to landoSluggy
+echo "name: landoSluggy" > .lando.local.yml
+
+# Should start up successfully
+lando start
+
+# Should correctly match up sluggy names
+lando do-i-exist | grep icachethereforeiam
 ```
 
 ## Destroy tests
