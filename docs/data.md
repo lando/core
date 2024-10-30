@@ -6,6 +6,7 @@ sidebar: false
 sponsors: false
 carbonAds: false
 next: false
+aside: false
 prev:
   text: 'Back'
   link: '/'

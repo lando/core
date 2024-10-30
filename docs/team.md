@@ -10,7 +10,7 @@ title: Team
       Team
     </template>
     <template #lead>
-      We are the people who built Lando 3.
+      We are the people who built Lando.
     </template>
   </VPLTeamPageTitle>
   <VPLTeamMembers :members="members" size="small"/>
@@ -23,3 +23,9 @@ import {useTeam} from '@lando/vitepress-theme-default-plus';
 const members = useTeam();
 
 </script>
+
+<style lang="scss" scoped>
+  .VPTeamPage {
+    margin-top: 0;
+  }
+</style>

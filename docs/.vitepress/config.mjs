@@ -22,8 +22,9 @@ export default defineConfig({
   landoDocs: 3,
   landoPlugin,
   version,
-  base: '/v3/',
+  base: '/',
   baseUrl,
+  navBaseUrl: baseUrl,
   head: [
     ['meta', {name: 'viewport', content: 'width=device-width, initial-scale=1'}],
     ['link', {rel: 'icon', href: '/core/favicon.ico', size: 'any'}],
@@ -93,7 +94,7 @@ export default defineConfig({
       include: [
         {
           name: 'Mike Pirog',
-          email: 'mike@thinktandem.io',
+          email: 'mike@lando.dev',
           title: 'Co-founder',
           org: 'lando.dev',
           orgLink: 'https://lando.dev',

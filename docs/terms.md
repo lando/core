@@ -5,6 +5,7 @@ jobs: false
 sidebar: false
 sponsors: false
 carbonAds: false
+aside: false
 next: false
 prev:
   text: 'Back'
