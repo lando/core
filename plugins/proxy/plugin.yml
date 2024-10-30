@@ -2,3 +2,4 @@ name: "@lando/proxy"
 
 api: 3
 core: true
+is-updateable: true
