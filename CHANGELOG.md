@@ -2,7 +2,7 @@
 
 ## v3.23.2 - [October 30, 2024](https://github.com/lando/core/releases/tag/v3.23.2)
 
-* Fixed bug causing `@lando/core` and its plugins to mistakening report "⚠️ Cannot update. Please update manually."
+* Fixed bug causing `@lando/core` and its plugins to incorrectly report `⚠️ Cannot update. Please update manually.`
 
 ## v3.23.1 - [October 29, 2024](https://github.com/lando/core/releases/tag/v3.23.1)
 
