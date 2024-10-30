@@ -33,7 +33,7 @@ export default defineConfig({
   themeConfig: {
     multiVersionBuild: {
       build: 'dev',
-      satisfies: '>=3.23.0',
+      satisfies: '>=3.23.3',
     },
     collections: {
       guide: {

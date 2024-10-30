@@ -19,7 +19,7 @@ If you want a service in App A to talk to a service in App B then you need to ma
 
 By default, every service will get and be accessible at a hostname of the form `<service>.<app>.internal`. For example, if you have an app called `labouche` and a service called `redis`, it should be accessible from any other container using `redis.labouche.internal`.
 
-Lando will also look at your services [proxy](./proxy.md) settings and alias those addresses to the correct service. This means that you should also be able to access services across apps using any of their proxy hostnames.
+Lando will also look at your services [proxy](../landofile/proxy.md) settings and alias those addresses to the correct service. This means that you should also be able to access services across apps using any of their proxy hostnames.
 
 You can get information about which hostnames and urls map to what services using `lando info`.
 

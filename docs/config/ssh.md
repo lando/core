@@ -42,7 +42,7 @@ lando ssh -s appserver -c "cat /etc/ssh/ssh_config"
 
 Starting with Lando [3.0.0-rrc.5](https://github.com/lando/lando/releases/tag/v3.0.0-rrc.5), users can customize the behavior of key loading. This provides the flexibility for users to handle some edge cases in the ways that make the most sense for them.
 
-Generally, we expect that users put these customizations inside their [userspace Lando Override File](./index.md#override-file) because they are likely going to be user specific.
+Generally, we expect that users put these customizations inside their [userspace Lando Override File](../landofile/index.md#override-file) because they are likely going to be user specific.
 
 ### Disable key loading
 

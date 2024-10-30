@@ -5,7 +5,7 @@ description: Lando shares your application codebase, user folder and lando confi
 
 # Shared Files
 
-While you can also share in additional files and directories via Docker volumes (see [service overrides](./services/lando.md)), we share a few useful host directories into each service by default.
+While you can also share in additional files and directories via Docker volumes (see [service overrides](../services/lando-3.md)), we share a few useful host directories into each service by default.
 
 | Host Location | Container Location |
 | -- | -- |

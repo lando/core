@@ -7,7 +7,7 @@ description: If you've ever tried to run a site with a shload of files using Doc
 
 If you've ever tried to run a site with a shload of files using Docker Desktop then you've likely experienced some of the [very well documented](https://forums.docker.com/t/file-access-in-mounted-volumes-extremely-slow-cpu-bound/8076/89) performance issues associated with doing so. Usually, these performance issues manifest themselves in slow page load times, or exceptionally long cli operations like installing a dependency or clearing an application's cache.
 
-Similarly, since Lando is built on top of these technologies, you likely have experienced them while running big sites on Lando as well; despite the fact that we already [optimize our app mounts](./services/lando.md).
+Similarly, since Lando is built on top of these technologies, you likely have experienced them while running big sites on Lando as well; despite the fact that we already [optimize our app mounts](../services/lando-3.md).
 
 There are, however, a few different things you can do to improve performance.
 

@@ -31,7 +31,7 @@ lando start
 /my/weird/place/for/stuff/lando start
 ```
 
-However, there are some situations where Lando may not be automatically added to `PATH`. For those situations you can use [`lando shellenv`](../shellenv.md) and do the below:
+However, there are some situations where Lando may not be automatically added to `PATH`. For those situations you can use [`lando shellenv`](../cli/shellenv.md) and do the below:
 
 ## Checking if Lando is in `PATH`
 

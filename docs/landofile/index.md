@@ -35,7 +35,7 @@ On the flip side, you might have some user-specific configuration you'd like to 
 
 ## Configuration
 
-The base override and Landofile itself are all configurable via the Lando [global config](./global.md). The default values are shown below:
+The base override and Landofile itself are all configurable via the Lando [global config](../config/global.md). The default values are shown below:
 
 ```yaml
 landoFile: .lando.yml

@@ -24,9 +24,9 @@ There is also a [known issue](https://docs.lando.dev/help/dns-rebind.html) calle
 By default, Lando will attempt to bind the proxy to your host machine's port `80` and `443`. If it cannot bind to these addresses, which is usually the case if something else like a local `apache` service is running, it will fallback to other commonly used ports such as `8888` and `444`. The default and fallback ports Lando uses are all [configurable](#configuration).
 
 ::: warning Will bind to 127.0.0.1 by default
-For security reasons, Lando will force bind your ports to `127.0.0.1` unless you have either explicitly set the Lando [global config](./global.md) option `bindAddress` to something else **OR** you have overridden a service and set the bind.
+For security reasons, Lando will force bind your ports to `127.0.0.1` unless you have either explicitly set the Lando [global config](../config/global.md) option `bindAddress` to something else **OR** you have overridden a service and set the bind.
 
-For more information, check out the [security docs.](./security.md)
+For more information, check out the [security docs.](../config/security.md)
 :::
 
 If you want to use port `80` and `443` but cannot for the life of you figure out what is already using them, you can do a bit of discovery using `lsof` or by visiting `localhost` in your browser and seeing if you recognize what loads.
@@ -44,7 +44,7 @@ sudo kill -9 $PID
 
 You can add routing to various services and their ports using the top-level `proxy` config in your [Landofile](./index.md).
 
-Because our proxy also benefits from our [automatic certificate and CA setup](./security.md), if you have a service with `ssl: true` then it will also be available over `https`. Note that many of our recipes will configure this for you automatically. There are also some caveats to this that you can read more about [below](#using-https).
+Because our proxy also benefits from our [automatic certificate and CA setup](../config/security.md), if you have a service with `ssl: true` then it will also be available over `https`. Note that many of our recipes will configure this for you automatically. There are also some caveats to this that you can read more about [below](#using-https).
 
 ### Routing to port 80
 
@@ -146,7 +146,7 @@ This is still a valid proxy config!
 
 ### Using https
 
-The below assumes that you've read the [Security Documentation](./security.md) and whitelisted our CA. **If you have not done this then you will need to manually handle any browser warnings you get.**
+The below assumes that you've read the [Security Documentation](../config/security.md) and whitelisted our CA. **If you have not done this then you will need to manually handle any browser warnings you get.**
 
 If Lando detects that a service has a cert available it will automatically configure an additional `https` proxy route for each. You can, however, manually trigger this by configuring the `ssl` and `sslExpose` options on each service.
 
@@ -205,7 +205,7 @@ Note that while `name` is arbitrary if it ends in `-secured` it will _only_ be a
 
 ## Configuration
 
-Various parts of the proxy are configurable via the Lando [global config](./global.md).
+Various parts of the proxy are configurable via the Lando [global config](../config/global.md).
 
 **Again, you REALLY, REALLY, REALLY should not change these settings unless you have a good reason and know what you are doing!**
 
@@ -267,7 +267,7 @@ domain: lndo.site
 
 You will need to do a `lando poweroff` to apply these changes.
 
-Note that we generate a [Certificate Authority](./security.md) based on the `domain` and use this CA to sign wildcard certs for each service. This means that we are inherently bound to [certain restrictions](https://en.wikipedia.org/wiki/Wildcard_certificate#Limitations) governing wildcard certificates. For example, if you set `domain` to a top level domain such as `test`, you should not expect our wildcard certs to work correctly. It is recommended you use a first level subdomain such as `me.test` or `local.test`.
+Note that we generate a [Certificate Authority](../config/security.md) based on the `domain` and use this CA to sign wildcard certs for each service. This means that we are inherently bound to [certain restrictions](https://en.wikipedia.org/wiki/Wildcard_certificate#Limitations) governing wildcard certificates. For example, if you set `domain` to a top level domain such as `test`, you should not expect our wildcard certs to work correctly. It is recommended you use a first level subdomain such as `me.test` or `local.test`.
 
 ## Working Offline or Using Custom Domains
 

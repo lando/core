@@ -52,7 +52,7 @@ You can tell Lando to inject additional environment variables into every service
 2. Store credentials in a `.gitignore` file that is not committed to the repo
 3. Set config on a per environment basis
 
-You can accomplish this using the `env_file` top level config in your [Landofile](./index.md).
+You can accomplish this using the `env_file` top level config in your [Landofile](../landofile/index.md).
 
 ```yaml
 env_file:
@@ -96,4 +96,4 @@ For example, in `php` you will want to use something like the [`getenv()`](https
 
 ## Environment Configuration
 
-If you'd like to avoid broad strokes and only inject certain environment variables into particular services, we recommend you make use of [service overrides](./services/lando.md).
+If you'd like to avoid broad strokes and only inject certain environment variables into particular services, we recommend you make use of [service overrides](../services/lando-3.md).

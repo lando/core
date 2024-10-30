@@ -33,7 +33,7 @@ You will then need to `lando rebuild` your service for the changes to take effec
 
 ### 2. Overridding a particular service
 
-If you [override](./services/lando.md) a particular service and specify the external IP then Lando will honor that choice and not force override with the `bindAddress`.
+If you [override](../services/lando-3.md) a particular service and specify the external IP then Lando will honor that choice and not force override with the `bindAddress`.
 
 ```yaml
 # This will find a random port on 0.0.0.0
@@ -78,7 +78,7 @@ lando exec web -- env | grep LANDO_SERVICE_CERT
 lando exec web -- env | grep LANDO_SERVICE_KEY
 ```
 
-Note that in API 3 services you will need to [enable SSL](./services/lando.html#ssl) to get certs. API 4 services will generate certs by default.
+Note that in API 3 services you will need to [enable SSL](../services/lando-3.html#ssl) to get certs. API 4 services will generate certs by default.
 
 ## Trusting the CA
 
