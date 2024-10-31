@@ -7,30 +7,30 @@
   command = "npm run docs:build"
 
 # https://github.com/munter/netlify-plugin-checklinks#readme
-# [[context.deploy-preview.plugins]]
-#   package = "netlify-plugin-checklinks"
-#   [context.deploy-preview.plugins.inputs]
-#     todoPatterns = [
-#       "load",
-#       "CHANGELOG.html",
-#       "x.com",
-#       "twitter.com",
-#       "yargs.js.org/docs",
-#       "https://github.com/issues",
-#       "https://support.patreon.com",
-#       "https://docs.google.com/document",
-#       "https://docs.google.com/forms",
-#       "/v/"
-#     ]
-#     skipPatterns = [
-#       ".gif",
-#       ".jpg",
-#       ".png",
-#       ".rss",
-#       ".svg",
-#       "--lando-core.netlify.app"
-#     ]
-#     checkExternal = true
+[[context.deploy-preview.plugins]]
+  package = "netlify-plugin-checklinks"
+  [context.deploy-preview.plugins.inputs]
+    todoPatterns = [
+      "load",
+      "CHANGELOG.html",
+      "x.com",
+      "twitter.com",
+      "yargs.js.org/docs",
+      "https://github.com/issues",
+      "https://support.patreon.com",
+      "https://docs.google.com/document",
+      "https://docs.google.com/forms",
+      "/v/"
+    ]
+    skipPatterns = [
+      ".gif",
+      ".jpg",
+      ".png",
+      ".rss",
+      ".svg",
+      "--lando-core.netlify.app"
+    ]
+    checkExternal = true
 
 # Sets our asset optimization
 [build.processing.css]
