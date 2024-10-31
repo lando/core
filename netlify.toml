@@ -22,7 +22,7 @@
       "docs.google.com/forms",
       "/v/"
     ]
-    skipPatterns = [ ".rss", ".gif", ".jpg" ]
+    skipPatterns = [ ".rss", ".gif", ".jpg", "--lando-core.netlify.app" ]
     checkExternal = true
 
 # Sets our asset optimization
