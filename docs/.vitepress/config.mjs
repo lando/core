@@ -27,8 +27,8 @@ export default defineConfig({
   navBaseUrl: baseUrl,
   head: [
     ['meta', {name: 'viewport', content: 'width=device-width, initial-scale=1'}],
-    ['link', {rel: 'icon', href: '/core/favicon.ico', size: 'any'}],
-    ['link', {rel: 'icon', href: '/core/favicon.svg', type: 'image/svg+xml'}],
+    ['link', {rel: 'icon', href: '/favicon.ico', size: 'any'}],
+    ['link', {rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml'}],
   ],
   themeConfig: {
     multiVersionBuild: {
