@@ -42,7 +42,7 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "docs:build": "VPL_MVB_VERSION=$(git describe --tags --always --abbrev=1 --match=\"v[0-9].*\") vitepress build docs && npm run docs:rename-sitemap",
     "docs:dev": "VPL_BASE_URL=http://localhost:5173 VPL_MVB_VERSION=$(git describe --tags --always --abbrev=1 --match=\"v[0-9].*\") vitepress dev docs",
-    "docs:mvb": "npx mvb docs",
+    "docs:mvb": "npx mvb docs && npm run docs:rename-sitemap",
     "docs:preview": "vitepress preview docs",
     "docs:rename-sitemap": "node docs/.vitepress/rename-sitemap.js",
     "lint": "eslint . --ext .js --ext .mjs ",
