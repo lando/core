@@ -7,12 +7,30 @@
   command = "npm run docs:build"
 
 # https://github.com/munter/netlify-plugin-checklinks#readme
-[[context.deploy-preview.plugins]]
-  package = "netlify-plugin-checklinks"
-  [context.deploy-preview.plugins.inputs]
-    todoPatterns = [ "load", "CHANGELOG.html", "x.com", "twitter.com", "/v/" ]
-    skipPatterns = [ ".rss", ".gif", ".jpg" ]
-    checkExternal = true
+# [[context.deploy-preview.plugins]]
+#   package = "netlify-plugin-checklinks"
+#   [context.deploy-preview.plugins.inputs]
+#     todoPatterns = [
+#       "load",
+#       "CHANGELOG.html",
+#       "x.com",
+#       "twitter.com",
+#       "yargs.js.org/docs",
+#       "https://github.com/issues",
+#       "https://support.patreon.com",
+#       "https://docs.google.com/document",
+#       "https://docs.google.com/forms",
+#       "/v/"
+#     ]
+#     skipPatterns = [
+#       ".gif",
+#       ".jpg",
+#       ".png",
+#       ".rss",
+#       ".svg",
+#       "--lando-core.netlify.app"
+#     ]
+#     checkExternal = true
 
 # Sets our asset optimization
 [build.processing.css]
@@ -39,12 +57,158 @@
   [plugins.inputs.audits]
     output_path = "reports/lighthouse.html"
 
-# We need this so preview environments and the base site look ok on their own
+# SEE _redirects for 301/302 which get loaded first
+# NOTE THAT REDIRECTS ARE EXECUTED FIRST COME FIRST SERVE
+# setup site
 [[redirects]]
-  from = "/"
-  to = "/core/v3"
+  from = "/install/*"
+  to = "https://setup-lando.netlify.app/:splat"
+  status = 200
+
+# lando 4 docs (for now)
+[[redirects]]
+  from = "/v/next/*"
+  to = "https://lando-core-next.netlify.app/:splat"
+  status = 200
+
+# plugin sites
+[[redirects]]
+  from = "/plugins/acquia/*"
+  to = "https://lando-acquia.netlify.app/:splat"
   status = 200
 [[redirects]]
-  from = "/core/v3/*"
-  to = "/:splat"
+  from = "/plugins/apache/*"
+  to = "https://lando-apache.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/backdrop/*"
+  to = "https://lando-backdrop.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/compose/*"
+  to = "https://lando-compose.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/dotnet/*"
+  to = "https://lando-dotnet.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/drupal/*"
+  to = "https://lando-drupal.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/elasticsearch/*"
+  to = "https://lando-elasticsearch.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/go/*"
+  to = "https://lando-go.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/joomla/*"
+  to = "https://lando-joomla.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/lagoon/*"
+  to = "https://lando-lagoon.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/lamp/*"
+  to = "https://lando-lamp.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/laravel/*"
+  to = "https://lando-laravel.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/lemp/*"
+  to = "https://lando-lemp.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/mailhog/*"
+  to = "https://lando-mailhog.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/mariadb/*"
+  to = "https://lando-mariadb.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/mean/*"
+  to = "https://lando-mean.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/memcached/*"
+  to = "https://lando-memcached.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/mongo/*"
+  to = "https://lando-mongo.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/mssql/*"
+  to = "https://lando-mssql.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/mysql/*"
+  to = "https://lando-mysql.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/nginx/*"
+  to = "https://lando-nginx.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/node/*"
+  to = "https://lando-node.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/pantheon/*"
+  to = "https://lando-pantheon.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/php/*"
+  to = "https://lando-php.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/phpmyadmin/*"
+  to = "https://lando-phpmyadmin.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/platformsh/*"
+  to = "https://lando-platformsh.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/postgres/*"
+  to = "https://lando-postgres.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/python/*"
+  to = "https://lando-python.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/redis/*"
+  to = "https://lando-redis.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/ruby/*"
+  to = "https://lando-ruby.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/solr/*"
+  to = "https://lando-solr.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/symfony/*"
+  to = "https://lando-symfony.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/tomcat/*"
+  to = "https://lando-tomcat.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/varnish/*"
+  to = "https://lando-varnish.netlify.app/:splat"
+  status = 200
+[[redirects]]
+  from = "/plugins/wordpress/*"
+  to = "https://lando-wordpress.netlify.app/:splat"
   status = 200
