@@ -10,7 +10,18 @@
 [[context.deploy-preview.plugins]]
   package = "netlify-plugin-checklinks"
   [context.deploy-preview.plugins.inputs]
-    todoPatterns = [ "load", "CHANGELOG.html", "x.com", "twitter.com", "/v/" ]
+    todoPatterns = [
+      "load",
+      "CHANGELOG.html",
+      "x.com",
+      "twitter.com",
+      "yargs.js.org/docs",
+      "https://github.com/issues",
+      "https://support.patreon.com",
+      "docs.google.com/document",
+      "docs.google.com/forms",
+      "/v/"
+    ]
     skipPatterns = [ ".rss", ".gif", ".jpg" ]
     checkExternal = true
 
