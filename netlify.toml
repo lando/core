@@ -18,11 +18,19 @@
       "yargs.js.org/docs",
       "https://github.com/issues",
       "https://support.patreon.com",
-      "docs.google.com/document",
-      "docs.google.com/forms",
+      "https://docs.google.com/document",
+      "https://docs.google.com/forms",
       "/v/"
     ]
-    skipPatterns = [ ".rss", ".gif", ".jpg", "--lando-core.netlify.app" ]
+    skipPatterns = [
+      "429",
+      ".gif",
+      ".jpg",
+      ".png",
+      ".rss",
+      ".svg",
+      "--lando-core.netlify.app"
+    ]
     checkExternal = true
 
 # Sets our asset optimization
