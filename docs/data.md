@@ -1,5 +1,5 @@
 ---
-description: Learn how to handle file syncing issue when using Lando for local development.
+description: Privacy Policy for Humans
 editLink: false
 jobs: false
 sidebar: false

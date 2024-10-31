@@ -1,5 +1,5 @@
 ---
-description: Lando Documentation's Terms and Conditions
+description: Terms and Conditions
 editLink: false
 jobs: false
 sidebar: false

@@ -1,5 +1,5 @@
 ---
-description: Lando Documentation's Privacy Policy
+description: Privacy Policy
 editLink: false
 jobs: false
 sidebar: false
