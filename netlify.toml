@@ -23,7 +23,7 @@
       "/v/"
     ]
     skipPatterns = [
-      "429",
+      429,
       ".gif",
       ".jpg",
       ".png",
