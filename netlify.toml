@@ -20,16 +20,16 @@
       "https://support.patreon.com",
       "https://docs.google.com/document",
       "https://docs.google.com/forms",
-      "/v/"
-    ]
-    skipPatterns = [
-      429,
+      "/v/",
       ".gif",
       ".jpg",
       ".png",
       ".rss",
       ".svg",
       "--lando-core.netlify.app"
+    ]
+    skipPatterns = [
+      429,
     ]
     checkExternal = true
 
