@@ -608,7 +608,7 @@ lando php -r "phpinfo();"
 
 ## Global Envvars
 
-There is no longer a `containerGlobalEnv` option in the Lando [global config](https://docs.lando.dev/config/config.html). But you can now use `appEnv` to the same effect. **Note that this is for the Lando `config.yml` and NOT for a Landofile**.
+There is no longer a `containerGlobalEnv` option in the Lando [global config](https://docs.lando.dev/config/global.html). But you can now use `appEnv` to the same effect. **Note that this is for the Lando `config.yml` and NOT for a Landofile**.
 
 **old**
 
