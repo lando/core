@@ -11,25 +11,13 @@ This guide contains information to help onboard developers to work on Lando Core
 
 At the very least you will need to have the following installed:
 
-* [Lando 3.21.0+](https://docs.lando.dev/getting-started/installation.html) preferably installed [from source](https://docs.lando.dev/install/source.html).
+* [Lando 3.23.2+](https://docs.lando.dev/getting-started/installation.html) preferably installed [from source](https://docs.lando.dev/install/source.html).
 * [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-* [Node 18](https://nodejs.org/dist/latest-v18.x/)
+* [Node 20](https://nodejs.org/dist/latest-v20.x/)
 
 ## Installation
 
-Working on Lando Core requires that you have both the [Lando CLI](https://github.com/lando/cli) and [Lando Core](https://github.com/lando/core) installed [from source](https://docs.lando.dev/install/source.html). You can then symlink (or use `npm link`) to have `@lando/cli` utilize your locally installed source copy of `@lando/core`:
-
-
-```sh
-# Clone this repo
-git clone https://github.com/lando/core.git && cd core
-
-# Install deps
-npm install
-
-# Symlink @lando/core into your installed @lando/cli
-cd ../cli/node_modules/@lando && rm -r core && ln -s ../../../core core
-```
+Follow the "From Source" [instructions](https://docs.lando.dev/install/source.html) for installing Lando.
 
 ## Working
 
@@ -65,7 +53,7 @@ npm run docs:dev
 npm run docs:build
 
 # preview built docs locally
-npm run docs:build
+npm run docs:preview
 ```
 
 If you are more interested in the internals of the docs they use [VitePress](https://vitepress.dev/) and our [SPECIAL THEME](https://vitepress-theme-default-plus.lando.dev).

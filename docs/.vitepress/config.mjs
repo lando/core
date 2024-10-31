@@ -181,6 +181,7 @@ function rootBar() {
       items: [
         {text: 'Getting Involved', link: '/contrib/index'},
         {text: 'Coding', link: '/contrib/coder'},
+        {text: 'Development', link: '/contrib/development'},
         {text: 'Evangelizing', link: '/contrib/evangelist'},
         {text: 'Sponsoring', link: '/contrib/sponsoring'},
         {text: 'Security', link: '/security'},

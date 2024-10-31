@@ -29,11 +29,11 @@ https://api.lando.dev/*               https://docs.lando.dev/:splat          302
 /core/v3/services/l337.html     /services/l337.html                 301
 /core/v3/team.html              /team.html                          301
 /core/v3/support.html           /support.html                       301
-# /core/v3/development.html       /contrib/development               301
+/core/v3/development.html       /contrib/development                301
 /cli/guides.html                /guides.html                        301
 /cli/team.html                  /team.html                          301
 /cli/support.html               /support.html                       301
-# /cli/development.html          /contrib/development                301
+/cli/development.html          /contrib/development                 301
 /cli/guides/*                   /guides/:splat                      301
 /cli/v/*                        /v/:splat                           301
 /core/v3/v/*                    /v/:splat                           301
@@ -66,6 +66,9 @@ https://api.lando.dev/*               https://docs.lando.dev/:splat          302
 /contrib/evangelist-*                /contrib/evangelist.html                301
 /contrib/sponsor-*                   /contrib/sponsoring.html                301
 /contrib/how.html                    /contrib                                301
+/lando-service.html                  /services/lando-3.html                  301
+/getting-started/updating.html       /guides/updating.html                   301
+/getting-started/uninstalling.html   /guides/uninstalling.html               301
 /requirements                        /getting-started/requirements           301
 /basics/*                            /getting-started/:splat                 301
 /contrib/*                           /contrib                                301
