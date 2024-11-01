@@ -40,9 +40,9 @@ const handleDynamic = (config, options = {}, answers = {}, execs = {}) => {
  * the first three assuming they are [node, lando.js, options.name]'
  * Check to see if we have global lando opts and remove them if we do
  */
-const handleOpts = (config, argopts = []) => {
+const handleOpts = (config, name, argopts = []) => {
   // Append any user specificed opts
-  argopts = argopts.concat(process.argv.slice(3));
+  argopts = argopts.concat(process.argv.slice(process.argv.findIndex(value => value === name.split(' ')[0]) + 1));
   // If we have no args then just return right away
   if (_.isEmpty(argopts)) return config;
   // Return
@@ -68,13 +68,13 @@ const parseCommand = (cmd, service, execs) => ({
 });
 
 // adds required methods to ensure the lando v3 debugger can be injected into v4 things
-module.exports = (cmd, service, options = {}, answers = {}, execs = {}) => _(cmd)
+module.exports = (cmd, service, name, options = {}, answers = {}, execs = {}) => _(cmd)
   // Put into an object so we can handle "multi-service" tooling
   .map(cmd => parseCommand(cmd, service, execs))
   // Handle dynamic services
   .map(config => handleDynamic(config, options, answers, execs))
   // Add in any argv extras if they've been passed in
-  .map(config => handleOpts(config, handlePassthruOpts(options, answers)))
+  .map(config => handleOpts(config, name, handlePassthruOpts(options, answers)))
   // Wrap the command in /bin/sh if that makes sense
   .map(config => _.merge({}, config, {command: require('./shell-escape')(config.command, true, config.args, config.exec)})) // eslint-disable-line max-len
   // Add any args to the command and compact to remove undefined

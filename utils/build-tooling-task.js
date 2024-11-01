@@ -22,7 +22,7 @@ module.exports = (config, injected) => {
     // Kick off the pre event wrappers
     .then(() => app.events.emit(`pre-${eventName}`, config, answers))
     // Get an interable of our commandz
-    .then(() => _.map(require('./parse-tooling-config')(cmd, service, options, answers, canExec)))
+    .then(() => _.map(require('./parse-tooling-config')(cmd, service, name, options, answers, canExec)))
     // Build run objects
     .map(({command, service}) => require('./build-tooling-runner')(app, command, service, user, env, dir, appMount))
     // Try to run the task quickly first and then fallback to compose launch
