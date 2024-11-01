@@ -34,16 +34,16 @@ curl -s -o /dev/null -I -w "%{http_code}" http://l337.lndo.site | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://lando4.lndo.site | grep 200
 
 # Should only work over http unless service has certs to use
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' landoproxy_web_1 | grep -w http
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' landoproxy_web_1 | grep -w "true" || echo $? | grep 1
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' landoproxy_web3_1 | grep -w "http,https"
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' landoproxy_web3_1 | grep -w "true"
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' landoproxy_l337_1 | grep -w http
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' landoproxy_l337_1 | grep -w "true" || echo $? | grep 1
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' landoproxy_web5_1 | grep -w http
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' landoproxy_web5_1 | grep -w "true" || echo $? | grep 1
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' landoproxy_web4_1 | grep -w "http,https"
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' landoproxy_web4_1 | grep -w "true"
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' lando-proxy-web-1 | grep -w http
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' lando-proxy-web-1 | grep -w "true" || echo $? | grep 1
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' lando-proxy-web3-1 | grep -w "http,https"
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' lando-proxy-web3-1 | grep -w "true"
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' lando-proxy-l337-1 | grep -w http
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' lando-proxy-l337-1 | grep -w "true" || echo $? | grep 1
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' lando-proxy-web5-1 | grep -w http
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' lando-proxy-web5-1 | grep -w "true" || echo $? | grep 1
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' lando-proxy-web4-1 | grep -w "http,https"
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' lando-proxy-web4-1 | grep -w "true"
 
 # Should also work over https if ssl is true and we have certs
 curl -s -o /dev/null -Ik -w "%{http_code}" https://web3.lndo.site | grep 200

@@ -1,12 +1,17 @@
 services:
   appserver:
     image: php:7.1-fpm-alpine
+    entrypoint: /helpers/lando-entrypoint.sh
+    command: php-fpm
     environment:
       SERVICE: 'appserver'
   web:
     image: nginx
+    entrypoint: /helpers/lando-entrypoint.sh
+    command: nginx -g daemon off
     environment:
       SERVICE: 'web'
   alpine:
     image: alpine
+    entrypoint: /helpers/lando-entrypoint.sh
     command: tail -f /dev/null

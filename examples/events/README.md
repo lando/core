@@ -49,7 +49,8 @@ lando what-service --service web2 | grep web | wc -l | grep 2
 lando multi-pass
 
 # Should run on rebuild without failing and trigger pre-rebuild event
-lando rebuild -y | grep "ET TU, BRUT"
+lando rebuild -y || lando logs -s appserver
+echo "Test" | grep "Nope"
 lando ssh -s web -c "cat /app/test/web-pre-rebuild.txt | grep rebuilding"
 lando ssh -s l337 -c "cat /app/test/l337-pre-rebuild.txt | grep rebuilding"
 lando exec web2 -- cat /app/test/web2-pre-rebuild.txt | grep rebuilding

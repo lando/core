@@ -68,7 +68,7 @@ services:
         type: bind
 
       # or if you are clever and know the storage volume names you can remount them elsewhere
-      - source: landostorage-stuff
+      - source: lando-storage-stuff
         target: /things
       - source: lando-everywhere
         target: /universal

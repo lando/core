@@ -42,7 +42,7 @@ const handleDynamic = (config, options = {}, answers = {}, execs = {}) => {
  */
 const handleOpts = (config, name, argopts = []) => {
   // Append any user specificed opts
-  argopts = argopts.concat(process.argv.slice(process.argv.findIndex(value => value === name) + 1));
+  argopts = argopts.concat(process.argv.slice(process.argv.findIndex(value => value === name.split(' ')[0]) + 1));
   // If we have no args then just return right away
   if (_.isEmpty(argopts)) return config;
   // Return
