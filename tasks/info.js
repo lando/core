@@ -34,11 +34,12 @@ module.exports = lando => ({
     const getData = async () => {
       // go deep
       if (options.deep) {
+        const separator = _.get(app, '_config.orchestratorSeparator', '_');
         return await lando.engine.list({project: app.project})
           .map(async container => await lando.engine.scan(container))
           .filter(container => {
             if (!options.service) return true;
-            return options.service.map(service => `/${app.project}_${service}_1`).includes(container.Name);
+            return options.service.map(service => `/${app.project}${separator}${service}${separator}1`).includes(container.Name);
           });
 
       // normal info
