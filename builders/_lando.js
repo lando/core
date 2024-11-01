@@ -139,7 +139,8 @@ module.exports = {
       }
 
       // Add in some more dirz if it makes sense
-      if (home) volumes.push(`${home}:/user:cached`);
+      if (home && _.get(_app, '_config.homeMount', true)) volumes.push(`${home}:/user:cached`);
+      else if (home && _.get(_app, 'config.keys', true)) volumes.push(`${path.join(home, '.ssh')}:/user/.ssh:cached`);
 
       // Handle cert refresh
       // @TODO: this might only be relevant to the proxy, if so let's move it there
