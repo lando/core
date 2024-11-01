@@ -34,7 +34,7 @@ describe('get-config-defaults', () => {
     expect(_.hasIn(defaults, 'plugins')).to.equal(true);
     expect(_.hasIn(defaults, 'process')).to.equal(true);
     expect(_.hasIn(defaults, 'userConfRoot')).to.equal(true);
-    expect(_.get(defaults, 'orchestratorSeparator')).to.equal('_');
+    expect(_.get(defaults, 'orchestratorSeparator')).to.equal('-');
     expect(_.get(defaults, 'configSources')).to.be.an('array');
   });
 

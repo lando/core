@@ -34,16 +34,16 @@ curl -s -o /dev/null -I -w "%{http_code}" http://l337.lndo.site | grep 200
 curl -s -o /dev/null -I -w "%{http_code}" http://lando4.lndo.site | grep 200
 
 # Should only work over http unless service has certs to use
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' landoproxy_web_1 | grep -w http
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' landoproxy_web_1 | grep -w "true" || echo $? | grep 1
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' landoproxy_web3_1 | grep -w "http,https"
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' landoproxy_web3_1 | grep -w "true"
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' landoproxy_l337_1 | grep -w http
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' landoproxy_l337_1 | grep -w "true" || echo $? | grep 1
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' landoproxy_web5_1 | grep -w http
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' landoproxy_web5_1 | grep -w "true" || echo $? | grep 1
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' landoproxy_web4_1 | grep -w "http,https"
-docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' landoproxy_web4_1 | grep -w "true"
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' lando-proxy-web-1 | grep -w http
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' lando-proxy-web-1 | grep -w "true" || echo $? | grep 1
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' lando-proxy-web3-1 | grep -w "http,https"
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' lando-proxy-web3-1 | grep -w "true"
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' lando-proxy-l337-1 | grep -w http
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' lando-proxy-l337-1 | grep -w "true" || echo $? | grep 1
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' lando-proxy-web5-1 | grep -w http
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' lando-proxy-web5-1 | grep -w "true" || echo $? | grep 1
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.protocols" }}' lando-proxy-web4-1 | grep -w "http,https"
+docker inspect --format='{{ index .Config.Labels "dev.lando.proxy.has-certs" }}' lando-proxy-web4-1 | grep -w "true"
 
 # Should also work over https if ssl is true and we have certs
 curl -s -o /dev/null -Ik -w "%{http_code}" https://web3.lndo.site | grep 200
@@ -94,12 +94,12 @@ curl http://object-format.lndo.site | grep X-Lando-Test-Ssl || echo $? | grep 1
 curl -k https://object-format.lndo.site | grep X-Lando-Test-Ssl | grep on
 
 # Should generate a default certs config file and put it in the right place
-docker exec landoproxyhyperion5000gandalfedition_proxy_1 cat /proxy_config/default-certs.yaml | grep certFile | grep /certs/cert.crt
-docker exec landoproxyhyperion5000gandalfedition_proxy_1 cat /proxy_config/default-certs.yaml | grep keyFile | grep /certs/cert.key
+docker exec landoproxyhyperion5000gandalfedition-proxy-1 cat /proxy_config/default-certs.yaml | grep certFile | grep /certs/cert.crt
+docker exec landoproxyhyperion5000gandalfedition-proxy-1 cat /proxy_config/default-certs.yaml | grep keyFile | grep /certs/cert.key
 
 # Should generate proxy cert files and move them into the right location as needed
-docker exec landoproxy_web3_1 cat /proxy_config/web3.landoproxy.yaml| grep certFile | grep "/lando/certs/web3.landoproxy.crt"
-docker exec landoproxy_web3_1 cat /proxy_config/web3.landoproxy.yaml| grep keyFile | grep "/lando/certs/web3.landoproxy.key"
+docker exec lando-proxy-web3-1 cat /proxy_config/web3.lando-proxy.yaml| grep certFile | grep "/lando/certs/web3.lando-proxy.crt"
+docker exec lando-proxy-web3-1 cat /proxy_config/web3.lando-proxy.yaml| grep keyFile | grep "/lando/certs/web3.lando-proxy.key"
 lando exec web4 -- cat \$LANDO_SERVICE_CERT
 lando exec web4 -- env | grep LANDO_SERVICE_CERT | grep /certs/cert.crt
 lando exec web4 -- cat \$LANDO_SERVICE_KEY
