@@ -5,6 +5,7 @@ const _ = require('lodash');
 
 // adds required methods to ensure the lando v3 debugger can be injected into v4 things
 module.exports = services => _(services)
+  .pickBy(service => null !== service)
   .map((service, name) => {
     const type = service.type ?? 'lando';
     return _.merge({}, {
