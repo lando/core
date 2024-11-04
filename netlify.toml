@@ -16,10 +16,10 @@
       "x.com",
       "twitter.com",
       "yargs.js.org/docs",
-      "https://github.com/issues",
       "https://support.patreon.com",
       "https://docs.google.com/document",
       "https://docs.google.com/forms",
+      "https://github.com",
       "/v/"
     ]
     skipPatterns = [
