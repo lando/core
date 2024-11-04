@@ -259,7 +259,7 @@ jobs:
           find "artifacts" -mindepth 2 -maxdepth 2 -type f -exec mv {} "dist" \;
           ls -lsa dist
       - name: Checksum artifacts
-        run: ./scripts/generate-checksums.sh --directory dist --output checksums-dev-${{ github.sha }}.txt --show
+        run: ./scripts/generate-checksums.sh --directory dist --output sha256sum.txt --show
       - name: Configure S3 Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -269,6 +269,6 @@ jobs:
       - name: Upload Checksums to S3
         shell: bash
         run: |
-          aws s3 cp checksums-dev-${{ github.sha }}.txt s3://files.lando.dev/
-          aws s3 cp checksums-dev-${{ github.sha }}.txt s3://files.lando.dev/cli/
-          aws s3 cp checksums-dev-${{ github.sha }}.txt s3://files.lando.dev/core/
+          aws s3 cp sha256sum.txt s3://files.lando.dev/sha256sum-${{ github.ref_name }}.txt
+          aws s3 cp sha256sum.txt s3://files.lando.dev/cli/sha256sum-${{ github.ref_name }}.txt
+          aws s3 cp sha256sum.txt s3://files.lando.dev/core/sha256sum-${{ github.ref_name }}.txt

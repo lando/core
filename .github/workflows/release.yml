@@ -392,7 +392,7 @@ jobs:
           find "artifacts" -mindepth 2 -maxdepth 2 -type f -exec mv {} "dist" \;
           ls -lsa dist
       - name: Checksum artifacts
-        run: ./scripts/generate-checksums.sh --directory dist --output checksums-${{ github.ref_name }}.txt --show
+        run: ./scripts/generate-checksums.sh --directory dist --output sha256sum.txt --show
       - name: Configure S3 credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -402,13 +402,13 @@ jobs:
       - name: Upload checksums to S3
         shell: bash
         run: |
-          aws s3 cp checksums-${{ github.ref_name }}.txt s3://files.lando.dev/
-          aws s3 cp checksums-${{ github.ref_name }}.txt s3://files.lando.dev/cli/
-          aws s3 cp checksums-${{ github.ref_name }}.txt s3://files.lando.dev/core/
+          aws s3 cp sha256sum.txt s3://files.lando.dev/sha256sum-${{ github.ref_name }}.txt
+          aws s3 cp sha256sum.txt s3://files.lando.dev/cli/sha256sum-${{ github.ref_name }}.txt
+          aws s3 cp sha256sum.txt s3://files.lando.dev/core/sha256sum-${{ github.ref_name }}.txt
       - name: Upload checksums to GitHub Releases
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: checksums-${{ github.ref_name }}.txt
+          files: sha256sum.txt
           fail_on_unmatched_files: true
