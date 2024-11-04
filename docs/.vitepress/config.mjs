@@ -32,7 +32,7 @@ export default defineConfig({
   ],
   themeConfig: {
     multiVersionBuild: {
-      build: 'dev',
+      build: 'stable',
       satisfies: '>=3.23.3',
     },
     collections: {
