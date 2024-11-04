@@ -19,8 +19,7 @@
       "https://support.patreon.com",
       "https://docs.google.com/document",
       "https://docs.google.com/forms",
-      "https://github.com/issues",
-      "https://github.com/lando/core/edit",
+      "https://github.com",
       "/v/"
     ]
     skipPatterns = [
