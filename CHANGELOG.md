@@ -1,5 +1,23 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.3 - [November 4, 2024](https://github.com/lando/core/releases/tag/v3.23.3)
+
+* Updated to [@lando/vitepress-theme-default-plus@v1.1.0-beta.18](https://github.com/lando/vitepress-theme-default-plus/releases/tag/v1.1.0-beta.18)
+
+## v3.23.2 - [October 30, 2024](https://github.com/lando/core/releases/tag/v3.23.2)
+
+* Fixed bug causing `@lando/core` and its plugins to incorrectly report `⚠️ Cannot update. Please update manually.`
+
+## v3.23.1 - [October 29, 2024](https://github.com/lando/core/releases/tag/v3.23.1)
+
+### New Features & Improvements
+
+* Added useful `warning` if Lando cannot detect the CLI update location in `PATH` [#259](https://github.com/lando/core/issues/259)
+
+### Fixed
+
+* Fixed regression causing some recipe `tooling` commands to _disappear_ in apps with characters in their `name` that get altered by `slugification`
+
 ## v3.23.0 - [October 26, 2024](https://github.com/lando/core/releases/tag/v3.23.0)
 
 ### New Features & Improvements

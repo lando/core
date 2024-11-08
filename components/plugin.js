@@ -234,7 +234,7 @@ class Plugin {
     // add some computed properties
     // @NOTE: do we need a stronger check for isupdateable?
     this.isInstalled = false;
-    this.isUpdateable = has(this.parent, 'dist') || has(this, 'pjson.dist');
+    this.isUpdateable = this.manifest['is-updateable'] || has(this.parent, 'dist') || has(this, 'pjson.dist');
     this.isValid = Plugin.isValid(this);
     this.updateAvailable = false;
 
