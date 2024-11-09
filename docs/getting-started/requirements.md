@@ -44,8 +44,8 @@ We've found the below or better to deliver the best experience.
 Please also verify you meet the requirements needed to run our Docker engine backend. Note that the macOS and Windows Lando installer scripts will install Docker for you if needed. You can also run [`lando setup`](https://docs.lando.dev/cli/setup.html) to install needed requirements.
 
 * Docker Engine for Linux [requirements](https://docs.docker.com/engine/install/)
-* Docker Desktop for Mac [requirements](https://docs.docker.com/desktop/install/mac-install/#system-requirements)
-* Docker Desktop for Windows [requirements](https://docs.docker.com/desktop/install/windows-install/#system-requirements)
+* Docker Desktop for Mac [requirements](https://docs.docker.com/desktop/setup/install/mac-install/#system-requirements)
+* Docker Desktop for Windows [requirements](https://docs.docker.com/desktop/setup/install/windows-install/#system-requirements)
 
 ## Preflight Checks
 
