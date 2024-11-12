@@ -59,11 +59,6 @@
 
 # SEE _redirects for 301/302 which get loaded first
 # NOTE THAT REDIRECTS ARE EXECUTED FIRST COME FIRST SERVE
-# setup site
-[[redirects]]
-  from = "/install/*"
-  to = "https://setup-lando.netlify.app/:splat"
-  status = 200
 
 # lando 4 docs (for now)
 [[redirects]]
