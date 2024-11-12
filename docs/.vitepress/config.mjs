@@ -28,7 +28,7 @@ export default defineConfig({
   themeConfig: {
     multiVersionBuild: {
       build: 'dev',
-      satisfies: '>=3.23.4',
+      satisfies: '>=3.23.3',
     },
     collections: {
       guide: {

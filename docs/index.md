@@ -27,13 +27,20 @@ features:
     title: Liberating
     details: Free yourself from the mind-forged manacles of lesser dev tools. Save time, headaches, frustration and do more real work
 
-footer: Copyright ©2024 Kalabox Inc.
+footer: Copyright ©2025 Kalabox Inc.
 ---
+
 
 <VPHomeHero>
   <template #home-hero-actions-after>
     <div class="actions">
-      <VPButton href="/getting-started/" size="medium" text="Get Started" />
+      <div :class="`VPButton medium version ${version.class} version-select-wrapper`">
+        <a :href="version.href" :target="version.target" >
+          <strong class="alias">{{ version.text }}</strong>
+          <small class="version">{{ version.version }}</small>
+        </a>
+        <VPIconChevronRight class="version-dropdown-icon" @click="toggleVersion"/>
+      </div>
       <a class="VPButton medium alt sponsor" href="https://lando.dev/sponsor" target="_blank" rel="noreferrer">
         <svg class="vibe" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="red" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
         Sponsor
@@ -117,6 +124,41 @@ import {VPHomeHero} from 'vitepress/theme';
 import {VPHomeFeatures} from 'vitepress/theme';
 import {VPSponsors} from 'vitepress/theme';
 import {useData} from 'vitepress';
+
+import VPIconChevronRight from 'vitepress/dist/client/theme-default/components/icons/VPIconChevronRight.vue';
+
+const {theme} = useData();
+
+const versions = [
+  {
+    text: 'go stable',
+    class: 'stable',
+    version: theme.value?.versions?.stable ?? 'stable',
+    href: '/getting-started/',
+  },
+  {
+    text: 'go edge',
+    class: 'edge',
+    version: theme.value?.versions?.edge ?? 'edge',
+    href: '/v/edge/',
+    target: '_blank',
+  },
+  {
+    text: 'go dev',
+    class: 'dev',
+    version: theme.value?.versions?.dev ?? 'dev',
+    href: '/v/dev/',
+    target: '_blank',
+  },
+];
+
+const versionIndex = ref(0);
+const version = computed(() => versions[versionIndex.value]);
+
+const toggleVersion = () => {
+  if (versionIndex.value + 1 === versions.length) versionIndex.value = 0;
+  else versionIndex.value = versionIndex.value + 1;
+}
 
 const getSponsorTier = (sponsors, tier = 'patriot') => {
   if (!Array.isArray(sponsors)) return [];
@@ -324,6 +366,56 @@ onMounted(async () => {
   background-color: var(--vp-button-alt-bg);
 }
 
+.VPButton.medium.version {
+  min-width: 215px;
+  border-color: var(--vp-button-brand-border);
+  color: var(--vp-button-brand-text);
+  background-color: var(--vp-button-brand-bg);
+
+  .alias {
+    text-transform: uppercase;
+    font-weight: 800;
+  }
+  .version {
+    opacity: .75;
+    margin-left: 5px;
+  }
+
+  .version-dropdown-icon {
+    height: 15px;
+    width: 15px;
+    background-color: transparent;
+    margin-left: 5px;
+    cursor: pointer;
+    fill: var(--vp-button-brand-text);
+    stroke: var(--vp-button-brand-text);
+  }
+
+  &.stable {
+    border-color: var(--vp-button-brand-border);
+    color: var(--vp-button-brand-text);
+    background-color: var(--vp-button-brand-bg);
+  }
+  &.edge {
+    border-color: var(--vp-button-brand-border);
+    color: var(--vp-button-brand-text);
+    background-color: var(--vp-c-purple-1);
+    .version-dropdown-icon {
+      fill: var(--vp-button-brand-text);
+      stroke: var(--vp-button-brand-text);
+    }
+  }
+  &.dev {
+    border-color: var(--vp-button-brand-border);
+    color: var(--vp-button-brand-text);
+    background-color: var(--vp-c-purple-1);
+    .version-dropdown-icon {
+      fill: var(--vp-button-brand-text);
+      stroke: var(--vp-button-brand-text);
+    }
+  }
+}
+
 .VPButton.medium {
   border-radius: 20px;
   padding: 0 20px;
@@ -365,6 +457,11 @@ onMounted(async () => {
     .image-bg {
       background-image: linear-gradient(-45deg, var(--vp-c-purple-1) 50%, var(--vp-c-purple-1) 50%) !important;
       opacity: .66;
+    }
+    .version-select-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
   }
   .divider {
