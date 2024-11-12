@@ -154,11 +154,11 @@ function rootBar() {
       text: 'Installation',
       collapsed: false,
       items: [
-        {text: 'macOS', link: 'https://docs.lando.dev/install/macos.html'},
-        {text: 'Linux', link: 'https://docs.lando.dev/install/linux.html'},
-        {text: 'Windows', link: 'https://docs.lando.dev/install/windows.html'},
-        {text: 'GitHub Actions', link: 'https://docs.lando.dev/install/gha.html'},
-        {text: 'Source', link: 'https://docs.lando.dev/install/source.html'},
+        {text: 'macOS', link: '/install/macos.html'},
+        {text: 'Linux', link: '/install/linux.html'},
+        {text: 'Windows', link: '/install/windows.html'},
+        {text: 'GitHub Actions', link: '/install/gha.html'},
+        {text: 'Source', link: '/install/source.html'},
       ],
     },
     {
