@@ -4,6 +4,8 @@ services:
     api: 3
     type: lando
     healthcheck: mysqladmin ping -h mariadb -u test -ptest
+    overrides:
+      platform: linux/amd64
     services:
       image: bitnami/mariadb:10.4
       command: /opt/bitnami/scripts/mariadb/entrypoint.sh /opt/bitnami/scripts/mariadb/run.sh
@@ -17,6 +19,8 @@ services:
     api: 3
     type: lando
     healthcheck: mysqladmin ping -h mariadb-default -u test -ptest
+    overrides:
+      platform: linux/amd64
     services:
       image: bitnami/mariadb:10.4
       command: /opt/bitnami/scripts/mariadb/entrypoint.sh /opt/bitnami/scripts/mariadb/run.sh
@@ -86,7 +90,7 @@ services:
     type: lando
     healthcheck: pg_isready -h postgres16 -U postgres
     services:
-      image: bitnami/postgresql:16
+      image: bitnami/postgresql:16.3.0
       command: /opt/bitnami/scripts/postgresql/entrypoint.sh /opt/bitnami/scripts/postgresql/run.sh
       environment:
         ALLOW_EMPTY_PASSWORD: yes
@@ -97,7 +101,7 @@ services:
     type: lando
     healthcheck: pg_isready -h postgres16-default -U postgres
     services:
-      image: bitnami/postgresql:16
+      image: bitnami/postgresql:16.3.0
       command: /opt/bitnami/scripts/postgresql/entrypoint.sh /opt/bitnami/scripts/postgresql/run.sh
       environment:
         ALLOW_EMPTY_PASSWORD: yes
