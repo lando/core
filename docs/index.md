@@ -35,7 +35,7 @@ footer: Copyright ©2025 Kalabox Inc.
   <template #home-hero-actions-after>
     <div class="actions">
       <div :class="`VPButton medium version ${version.class} version-select-wrapper`">
-        <a :href="version.href" :target="version.target" >
+        <a :href="`${version.base}getting-started/`" :target="version.target" >
           <strong class="alias">{{ version.text }}</strong>
           <small class="version">{{ version.version }}</small>
         </a>
@@ -127,27 +127,28 @@ import {useData} from 'vitepress';
 
 import VPIconChevronRight from 'vitepress/dist/client/theme-default/components/icons/VPIconChevronRight.vue';
 
-const {theme} = useData();
+const {theme, site} = useData();
 
 const versions = [
   {
     text: 'go stable',
     class: 'stable',
     version: theme.value?.versions?.stable ?? 'stable',
-    href: '/getting-started/',
+    base: '/',
+    target: '_self',
   },
   {
     text: 'go edge',
     class: 'edge',
     version: theme.value?.versions?.edge ?? 'edge',
-    href: '/v/edge/',
+    base: '/v/edge/',
     target: '_blank',
   },
   {
     text: 'go dev',
     class: 'dev',
     version: theme.value?.versions?.dev ?? 'dev',
-    href: '/v/dev/',
+    base: '/v/dev/',
     target: '_blank',
   },
 ];
@@ -178,6 +179,10 @@ const heraldcompute = computed(() => parseInt(heralds.value.length + (Date.now()
 
 // if data is a string/needs to be fetched then do that here
 onMounted(async () => {
+  // select the version that matches the base
+  const base = site?.value?.base ?? '/';
+  versionIndex.value = versions.findIndex(version => version.base === base) ?? 0;
+
   // if data is already an array then we good
   if (Array.isArray(sponsors.value)) return;
 
