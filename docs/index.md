@@ -399,6 +399,17 @@ onMounted(async () => {
 }
 
 @media (max-width: 959px) {
+  .VPHome {
+    .VPNav {
+      .VPNavBar:not(.has-sidebar):not(.home.top) {
+        background-color: transparent;
+        .divider {
+          display: none;
+        }
+      }
+    }
+  }
+
   .footer-container {
     flex-direction: column-reverse;
     margin: auto 0.5em;
@@ -421,6 +432,19 @@ onMounted(async () => {
 }
 
 @media (min-width: 960px) {
+  .VPHome {
+    .VPNav {
+      .VPNavBar:not(.has-sidebar):not(.home.top) {
+        background-color: transparent;
+        .divider {
+          display: none;
+        }
+      }
+    }
+    .image {
+      margin-top: 50px;
+    }
+  }
   .VPHero.has-image .actions {
     justify-content: flex-start;
   }
