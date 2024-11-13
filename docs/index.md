@@ -181,8 +181,6 @@ const heraldcompute = computed(() => parseInt(heralds.value.length + (Date.now()
 onMounted(async () => {
   // select the version that matches the base
   const base = site?.value?.base ?? '/';
-  console.log(versions);
-  console.log(versions.findIndex(version => version.base === base));
   versionIndex.value = versions.findIndex(version => version.base === base) ?? 0;
 
   // if data is already an array then we good
