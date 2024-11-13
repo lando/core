@@ -62,8 +62,9 @@
 
 # ensure that the main page is served from dev so we got correct version numbers
 [[redirects]]
-  from = "/index.html"
-  to = "/v/dev/index.html"
+  from = "/"
+  to = "/v/dev/"
+  force = true
   status = 200
 
 # lando 4 docs (for now)
