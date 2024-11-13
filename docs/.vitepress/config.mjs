@@ -18,7 +18,7 @@ export default defineConfig({
   landoDocs: 3,
   landoPlugin,
   version,
-  base: '/',
+  base: '/v/v3.23.5/',
   navrel: 'none',
   head: [
     ['meta', {name: 'viewport', content: 'width=device-width, initial-scale=1'}],

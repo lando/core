@@ -123,11 +123,18 @@ import {VPButton} from 'vitepress/theme';
 import {VPHomeHero} from 'vitepress/theme';
 import {VPHomeFeatures} from 'vitepress/theme';
 import {VPSponsors} from 'vitepress/theme';
-import {useData} from 'vitepress';
+import {useData, useRoute} from 'vitepress';
+
+import {useTags} from '@lando/vitepress-theme-default-plus';
+
 
 import VPIconChevronRight from 'vitepress/dist/client/theme-default/components/icons/VPIconChevronRight.vue';
 
 const {theme, site} = useData();
+
+const tags = useTags();
+
+console.log(tags.value)
 
 const versions = [
   {
@@ -181,7 +188,17 @@ const heraldcompute = computed(() => parseInt(heralds.value.length + (Date.now()
 onMounted(async () => {
   // select the version that matches the base
   const base = site?.value?.base ?? '/';
+  // attempt to find by base first
   versionIndex.value = versions.findIndex(version => version.base === base) ?? 0;
+
+  versionIndex.value = versions.findIndex(version => {
+    console.log(`/v/${version.version}/`, base)
+    return `/v/${version.version}/` === base;
+  })
+
+  console.log(versions)
+  console.log(versionIndex.value)
+  console.log(versions.findIndex(version => version.base === base))
 
   // if data is already an array then we good
   if (Array.isArray(sponsors.value)) return;
