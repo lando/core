@@ -58,7 +58,13 @@
     output_path = "reports/lighthouse.html"
 
 # SEE _redirects for 301/302 which get loaded first
-# NOTE THAT REDIRECTS ARE EXECUTED FIRST COME FIRST SERVE
+# NOTE THAT REDIRECTS/REWRITES ARE EXECUTED FIRST COME FIRST SERVE
+
+# ensure that the main page is served from dev so we got correct version numbers
+[[redirects]]
+  from = "/index.html"
+  to = "/v/dev/index.html"
+  status = 200
 
 # lando 4 docs (for now)
 [[redirects]]
