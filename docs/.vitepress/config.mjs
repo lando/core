@@ -18,7 +18,7 @@ export default defineConfig({
   landoDocs: 3,
   landoPlugin,
   version,
-  base: '/v/v3.23.5/',
+  base: '/',
   navrel: 'none',
   head: [
     ['meta', {name: 'viewport', content: 'width=device-width, initial-scale=1'}],
@@ -28,7 +28,7 @@ export default defineConfig({
   themeConfig: {
     multiVersionBuild: {
       build: 'stable',
-      satisfies: '>=3.23.4',
+      satisfies: '>=3.23.5',
     },
     collections: {
       guide: {

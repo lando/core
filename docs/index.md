@@ -30,16 +30,15 @@ features:
 footer: Copyright ©2025 Kalabox Inc.
 ---
 
-
 <VPHomeHero>
   <template #home-hero-actions-after>
     <div class="actions">
       <div :class="`VPButton medium version ${version.class} version-select-wrapper`">
-        <a :href="`${version.base}getting-started/`" :target="version.target" >
+        <a :href="`${version.href ?? version.base}getting-started/`" :target="version.target" >
           <strong class="alias">{{ version.text }}</strong>
           <small class="version">{{ version.version }}</small>
         </a>
-        <VPIconChevronRight class="version-dropdown-icon" @click="toggleVersion"/>
+        <VPIconChevronRight v-if="showVersionSelector" class="version-dropdown-icon" @click="toggleVersion"/>
       </div>
       <a class="VPButton medium alt sponsor" href="https://lando.dev/sponsor" target="_blank" rel="noreferrer">
         <svg class="vibe" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="red" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
@@ -125,34 +124,40 @@ import {VPHomeFeatures} from 'vitepress/theme';
 import {VPSponsors} from 'vitepress/theme';
 import {useData, useRoute} from 'vitepress';
 
-import {useTags} from '@lando/vitepress-theme-default-plus';
-
-
 import VPIconChevronRight from 'vitepress/dist/client/theme-default/components/icons/VPIconChevronRight.vue';
 
+const VPATH_RE = /^\/v\/v\d+\.\d+\.\d+\/$/;
+
 const {theme, site} = useData();
+const route = useRoute();
 
-const tags = useTags();
+const getVersion = path => {
+  // bail if no version match
+  if (!VPATH_RE.test(path)) return undefined;
 
-console.log(tags.value)
+  // otherwise return the version parth
+  path = path.split('/').filter(part => part !== '');
+  return path.pop();
+};
 
 const versions = [
   {
-    text: 'go stable',
+    text: 'stable docs',
     class: 'stable',
     version: theme.value?.versions?.stable ?? 'stable',
-    base: '/',
+    base: ['/', '/v/stable/'],
+    href: '/',
     target: '_self',
   },
   {
-    text: 'go edge',
+    text: 'edge docs',
     class: 'edge',
     version: theme.value?.versions?.edge ?? 'edge',
     base: '/v/edge/',
     target: '_blank',
   },
   {
-    text: 'go dev',
+    text: 'dev docs',
     class: 'dev',
     version: theme.value?.versions?.dev ?? 'dev',
     base: '/v/dev/',
@@ -160,8 +165,21 @@ const versions = [
   },
 ];
 
+// if we are MVB then add the legacy version as a match possibility
+if (VPATH_RE.test(route.path)) {
+  versions.push({
+    text: 'legacy docs',
+    class: 'legacy',
+    version: getVersion(route.path),
+    base: route.path,
+    target: '_self',
+  })
+}
+
 const versionIndex = ref(0);
 const version = computed(() => versions[versionIndex.value]);
+
+const showVersionSelector = computed(() => route.path === '/');
 
 const toggleVersion = () => {
   if (versionIndex.value + 1 === versions.length) versionIndex.value = 0;
@@ -188,17 +206,17 @@ const heraldcompute = computed(() => parseInt(heralds.value.length + (Date.now()
 onMounted(async () => {
   // select the version that matches the base
   const base = site?.value?.base ?? '/';
-  // attempt to find by base first
-  versionIndex.value = versions.findIndex(version => version.base === base) ?? 0;
+  const pv = getVersion(route.path);
 
-  versionIndex.value = versions.findIndex(version => {
-    console.log(`/v/${version.version}/`, base)
-    return `/v/${version.version}/` === base;
-  })
-
-  console.log(versions)
-  console.log(versionIndex.value)
-  console.log(versions.findIndex(version => version.base === base))
+  // if we have a pv then try to set with that
+  if (pv) versionIndex.value = versions.findIndex(version => version.version === pv);
+  // otherwise get by base
+  else {
+    versionIndex.value = versions.findIndex(version => {
+      if (Array.isArray(version.base)) return version.base.includes(base);
+      else return version.base === base;
+    });
+  }
 
   // if data is already an array then we good
   if (Array.isArray(sponsors.value)) return;
@@ -418,7 +436,7 @@ onMounted(async () => {
     color: var(--vp-button-brand-text);
     background-color: var(--vp-button-brand-bg);
   }
-  &.edge {
+  &.legacy {
     border-color: var(--vp-button-brand-border);
     color: var(--vp-button-brand-text);
     background-color: var(--vp-c-purple-1);
@@ -427,10 +445,19 @@ onMounted(async () => {
       stroke: var(--vp-button-brand-text);
     }
   }
+  &.edge {
+    border-color: var(--vp-button-brand-border);
+    color: var(--vp-button-brand-text);
+    background-color: var(--vp-c-indigo-1);
+    .version-dropdown-icon {
+      fill: var(--vp-button-brand-text);
+      stroke: var(--vp-button-brand-text);
+    }
+  }
   &.dev {
     border-color: var(--vp-button-brand-border);
     color: var(--vp-button-brand-text);
-    background-color: var(--vp-c-purple-1);
+    background-color: var(--vp-c-indigo-1);
     .version-dropdown-icon {
       fill: var(--vp-button-brand-text);
       stroke: var(--vp-button-brand-text);

@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Improved homepage documentation selector part 2
+
 ## v3.23.5 - [November 13, 2024](https://github.com/lando/core/releases/tag/v3.23.5)
 
 * Improved homepage documentation selector
