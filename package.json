@@ -1,7 +1,7 @@
 {
   "name": "@lando/core",
   "description": "The libraries that power all of Lando.",
-  "version": "3.23.3",
+  "version": "3.23.7",
   "author": "Mike Pirog @pirog",
   "license": "GPL-3.0",
   "repository": "lando/core",
@@ -168,7 +168,7 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.0",
     "@lando/leia": "^1.0.0-beta.4",
-    "@lando/vitepress-theme-default-plus": "^1.1.0-beta.18",
+    "@lando/vitepress-theme-default-plus": "^1.1.0-beta.23",
     "@yao-pkg/pkg": "^5.16.1",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
@@ -181,6 +181,7 @@
     "nyc": "^15.1.0",
     "sinon": "^4.3.0",
     "sinon-chai": "^2.14.0",
-    "vitepress": "^1.4.2"
+    "ua-parser-js": "^1.0.39",
+    "vitepress": "^1.5.0"
   }
 }

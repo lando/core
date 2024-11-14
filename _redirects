@@ -67,6 +67,7 @@ https://api.lando.dev/*               https://docs.lando.dev/:splat          302
 /contrib/evangelist-*                /contrib/evangelist.html                301
 /contrib/sponsor-*                   /contrib/sponsoring.html                301
 /contrib/how.html                    /contrib                                301
+/install                             /install/index.html                     301
 /lando-service.html                  /services/lando-3.html                  301
 /getting-started/updating.html       /guides/updating.html                   301
 /getting-started/uninstalling.html   /guides/uninstalling.html               301
