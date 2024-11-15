@@ -23,23 +23,10 @@ jobs:
       os: ${{ matrix.os }}
 
   verify:
-    runs-on: ubuntu-24.04
-    needs:
-      - package
-    env:
-      TERM: xterm
-    strategy:
-      matrix:
-        os:
-          - ubuntu-24.04
-        node-version:
-          - '20'
-    steps:
-      - name: Shasum artifacts
-        uses: ./.github/workflows/generate-checksums.yml
-        with:
-          flatten: true
-          show: true
+    uses: ./.github/workflows/generate-checksums.yml
+    with:
+      flatten: true
+      show: true
 
   npm:
     runs-on: ubuntu-24.04
