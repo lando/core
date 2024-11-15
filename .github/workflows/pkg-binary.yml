@@ -59,12 +59,16 @@ jobs:
         run: |
           sed -i.bak "s/^channel: stable/channel: edge/" config.yml
           rm -rf config.yml.bak
+          echo "${{ inputs.fatcore }}"
+          echo "lando-${{ inputs.os }}-${{ inputs.arch }}${{ inputs.fatcore == 'true' && '' || '-slim' }}-${{ github.sha }}"
+          echo "lando-${{ inputs.os }}-${{ inputs.arch }}${{ inputs.fatcore == true && '' || '-slim' }}-${{ github.sha }}"
+
       - name: Prepare Release
         uses: lando/prepare-release-action@v3
         with:
           version: dev
           sync: false
-      - name: Package into node binary
+      - name: Package into binary
         uses: lando/pkg-action@v6
         with:
           entrypoint: bin/lando
@@ -73,7 +77,7 @@ jobs:
           os: ${{ inputs.os }}
           options: --options dns-result-order=ipv4first
           pkg: "@yao-pkg/pkg@5.16.1"
-          upload-key: lando-${{ inputs.os }}-${{ inputs.arch }}${{ inputs.fatcore == 'true' && '' || '-slim' }}-${{ github.sha }}
+          upload-key: "lando-${{ inputs.os }}-${{ inputs.arch }}${{ inputs.fatcore == 'true' && '' || '-slim' }}-${{ github.sha }}"
       - name: Ensure version
         if: (inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')
         run: ./dist/${{ inputs.filename }} version --all
