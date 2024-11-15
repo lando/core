@@ -72,7 +72,7 @@ debug ""
 > "$OUTPUT_FILE"
 
 # Loop through each file in the directory with specified depth
-find "$DIRECTORY" -maxdepth "$DEPTH" -type f | while read -r file; do
+find "$DIRECTORY" -maxdepth "$DEPTH" -type f | sort | while read -r file; do
   # Calculate the SHA-256 checksum and append to the output file
   sha256sum "${file#./}" >> "$OUTPUT_FILE"
   # debug
