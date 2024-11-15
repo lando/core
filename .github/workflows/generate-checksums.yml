@@ -58,13 +58,13 @@ jobs:
           merge-multiple: ${{ inputs.flatten }}
       - name: Verify files
         run: |
-          echo "::group::Organized checksumed files"
+          echo "::group::Organized checksummed files"
           ls -lsa /tmp/${{ github.sha }}
           echo "::endgroup::"
       - name: Checksum files
         run: |
           cd /tmp/${{ github.sha }}
-          ./scripts/generate-checksums.sh \
+          bash ${{ github.workspace }}/scripts/generate-checksums.sh \
             --depth=${{ inputs.depth }} \
             --output=${{ inputs.output }} \
             ${{ inputs.show == true && '--show' || ''}}
