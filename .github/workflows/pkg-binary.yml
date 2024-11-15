@@ -18,6 +18,11 @@ on:
         required: true
         type: string
         default: linux
+      filename:
+        description: The name of the resulting binary
+        required: false
+        type: string
+        default: lando
       fatcore:
         description: Whether to build a fat binary or not
         required: false
@@ -53,7 +58,7 @@ jobs:
         uses: lando/pkg-action@v6
         with:
           entrypoint: bin/lando
-          filename: lando
+          filename: ${{ inputs.filename }}
           node-version: ${{ inputs.node-version }}
           os: ${{ inputs.os }}
           options: --options dns-result-order=ipv4first

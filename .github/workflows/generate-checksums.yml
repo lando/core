@@ -1,0 +1,57 @@
+name: Generate Checksums
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: The artifact name to download for checksumming
+        type: string
+        default:
+      artifact-pattern:
+        description: The artifact pattern to download for checksumming
+        type: string
+        default:
+      depth:
+        description: The depth to search for files to checksum
+        type: string
+        default: "1"
+      flatten:
+        description: Whether to flatten all downloaded artifacts
+        type: boolean
+        default: false
+      output:
+        description: The name of the checksum file
+        type: string
+        default: sha256sum.txt
+      show:
+        description: Whether to print the checksums in the action
+        type: boolean
+        default: true
+
+jobs:
+  checksum:
+    runs-on: ubuntu-24.04
+    env:
+      TERM: xterm
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: /tmp/${{ github.sha }}
+          pattern: ${{ inputs.artifact-pattern }}
+          merge-multiple: ${{ inputs.flatten }}
+      - name: Verify files
+        run: |
+          echo "::group::Organizing checksumed files"
+          ls -lsa /tmp/${{ github.sha }}
+          echo "::endgroup::"
+      - name: Checksum files
+        run:
+          ./scripts/generate-checksums.sh \
+            --directory=/tmp/${{ github.sha }} \
+            --depth=${{ inputs.depth }} \
+            --output=${{ inputs.output }} \
+            ${{ inputs.show == 'true' && '--show' || ''}}

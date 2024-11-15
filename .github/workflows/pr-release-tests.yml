@@ -17,11 +17,12 @@ jobs:
           - win
     with:
       arch: ${{ matrix.arch }}
+      filename: lando-${{ matrix.os }}-${{ matrix.arch }}-slim-${{ github.sha }}
       node-version: "20"
       os: ${{ matrix.os }}
 
-  release:
-    runs-on: ${{ matrix.os }}
+  verify:
+    runs-on: ubuntu-24.04
     needs:
       - package
     env:
@@ -33,18 +34,25 @@ jobs:
         node-version:
           - '20'
     steps:
+      - name: Shasum artifacts
+        uses: ./.github/workflows/generate-checksums.yml
+        with:
+          flatten: true
+          show: true
+
+  npm:
+    runs-on: ubuntu-24.04
+    needs:
+      - verify
+    env:
+      TERM: xterm
+    strategy:
+      matrix:
+        node-version:
+          - '20'
+    steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: dist
-      - name: Verify artifacts
-        run: |
-          ls -lsa
-          ls -lsa dist
-          ./scripts/generate-checksums.sh --directory dist --depth 2 --show
-          cat checksums.txt | grep "$(sha256sum dist/lando-linux-x64-slim-${{ github.sha }}/core)"
       - name: Install node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
