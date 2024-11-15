@@ -51,8 +51,9 @@ jobs:
           ls -lsa /tmp/${{ github.sha }}
           echo "::endgroup::"
       - name: Checksum files
-        run:
+        run: |
           ./scripts/generate-checksums.sh \
+            --debug \
             --directory=/tmp/${{ github.sha }} \
             --depth=${{ inputs.depth }} \
             --output=${{ inputs.output }} \
