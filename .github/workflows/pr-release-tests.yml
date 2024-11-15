@@ -22,7 +22,7 @@ jobs:
       node-version: "20"
       os: ${{ matrix.os }}
 
-  verify:
+  checksum:
     uses: ./.github/workflows/generate-checksums.yml
     needs:
       - package
@@ -30,10 +30,30 @@ jobs:
       flatten: true
       show: true
 
+  release:
+    runs-on: ubuntu-24.04
+    needs:
+      - checksum
+    steps:
+      - name: Create releases
+        run: mkdir -p /tmp/releases
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/releases
+          merge-multiple: true
+      - name: Upload release files
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-release-test-${{ github.sha }}
+          path: /tmp/releases/*
+          if-no-files-found: error
+          retention-days: 1
+
   npm:
     runs-on: ubuntu-24.04
     needs:
-      - verify
+      - release
     env:
       TERM: xterm
     strategy:

@@ -63,9 +63,8 @@ jobs:
           echo "::endgroup::"
       - name: Checksum files
         run: |
+          cd /tmp/${{ github.sha }}
           ./scripts/generate-checksums.sh \
-            --debug \
-            --directory=/tmp/${{ github.sha }} \
             --depth=${{ inputs.depth }} \
             --output=${{ inputs.output }} \
             ${{ inputs.show == true && '--show' || ''}}
