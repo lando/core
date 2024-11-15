@@ -24,6 +24,8 @@ jobs:
 
   verify:
     uses: ./.github/workflows/generate-checksums.yml
+    needs:
+      - package
     with:
       flatten: true
       show: true

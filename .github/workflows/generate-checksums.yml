@@ -36,6 +36,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Ensure path
+        run: mkdir -p /tmp/${{ github.sha }}
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
