@@ -66,12 +66,12 @@ jobs:
           cd /tmp/${{ github.sha }}
           bash ${{ github.workspace }}/scripts/generate-checksums.sh \
             --depth=${{ inputs.depth }} \
-            --output=${{ inputs.output }} \
+            --output=/tmp/${{ inputs.output }} \
             ${{ inputs.show == true && '--show' || ''}}
       - name: Upload checksums
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.upload-name }}
-          path: /tmp/${{ github.sha }}/${{ inputs.output }}
+          path: /tmp/${{ inputs.output }}
           if-no-files-found: error
           retention-days: 1
