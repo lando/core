@@ -22,7 +22,7 @@ jobs:
       node-version: "20"
       os: ${{ matrix.os }}
 
-  checksum:
+  verify:
     uses: ./.github/workflows/generate-checksums.yml
     needs:
       - package
@@ -33,7 +33,7 @@ jobs:
   release:
     runs-on: ubuntu-24.04
     needs:
-      - checksum
+      - verify
     steps:
       - name: Create releases
         run: mkdir -p /tmp/releases

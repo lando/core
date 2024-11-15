@@ -40,7 +40,7 @@ on:
         type: string
 
 jobs:
-  checksum:
+  generate-checksums:
     runs-on: ubuntu-24.04
     env:
       TERM: xterm
