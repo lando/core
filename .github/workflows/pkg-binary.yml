@@ -4,30 +4,30 @@ on:
   workflow_call:
     inputs:
       arch:
+        default: x64
         description: The architecture to build for eg x64 | arm64
         required: true
         type: string
-        default: x64
       node-version:
+        default: "20"
         description: The node version to build for eg 16 | 18 | 20
         required: true
         type: string
-        default: "20"
       os:
+        default: linux
         description: The os to build for eg linux | macos | win
         required: true
         type: string
-        default: linux
       filename:
+        default: lando
         description: The name of the resulting binary
         required: false
         type: string
-        default: lando
       fatcore:
+        default: false
         description: Whether to build a fat binary or not
         required: false
         type: boolean
-        default: false
 
 jobs:
   pkg-binary:

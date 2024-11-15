@@ -4,29 +4,40 @@ on:
   workflow_call:
     inputs:
       artifact-name:
+        default:
         description: The artifact name to download for checksumming
+        required: false
         type: string
-        default:
       artifact-pattern:
-        description: The artifact pattern to download for checksumming
-        type: string
         default:
+        description: The artifact pattern to download for checksumming
+        required: false
+        type: string
       depth:
-        description: The depth to search for files to checksum
-        type: string
         default: "1"
-      flatten:
-        description: Whether to flatten all downloaded artifacts
-        type: boolean
-        default: false
-      output:
-        description: The name of the checksum file
+        description: The depth to search for files to checksum
+        required: false
         type: string
-        default: sha256sum.txt
-      show:
-        description: Whether to print the checksums in the action
+      flatten:
+        default: false
+        description: Whether to flatten all downloaded artifacts
+        required: false
         type: boolean
+      output:
+        default: sha256sum.txt
+        description: The name of the checksum file
+        required: false
+        type: string
+      show:
         default: true
+        description: Whether to print the checksums in the action
+        required: false
+        type: boolean
+      upload-name:
+        default: checksums-${{ github.sha }}
+        description: The artifact name to upload
+        required: false
+        type: string
 
 jobs:
   checksum:
@@ -58,3 +69,10 @@ jobs:
             --depth=${{ inputs.depth }} \
             --output=${{ inputs.output }} \
             ${{ inputs.show == true && '--show' || ''}}
+      - name: Upload checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.upload-name }}
+          path: ${{ inputs.output }}
+          if-no-files-found: error
+          retention-days: 1
