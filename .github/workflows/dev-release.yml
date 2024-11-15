@@ -21,9 +21,10 @@ jobs:
           - win
         fatcore:
           - false
-          - edge
+          - true
     with:
       arch: ${{ matrix.arch }}
+      edge: true
       fatcore: ${{ matrix.fatcore }}
       filename: lando-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.fatcore == 'false' && '-slim' || '' }}-${{ github.sha }}
       node-version: "20"

@@ -8,6 +8,21 @@ on:
         description: The architecture to build for eg x64 | arm64
         required: true
         type: string
+      edge:
+        default: false
+        description: Whether to build on the edge channel or not
+        required: false
+        type: boolean
+      filename:
+        default: lando
+        description: The name of the resulting binary
+        required: false
+        type: string
+      fatcore:
+        default: false
+        description: Whether to build a fat binary or not
+        required: false
+        type: boolean
       node-version:
         default: "20"
         description: The node version to build for eg 16 | 18 | 20
@@ -17,16 +32,6 @@ on:
         default: linux
         description: The os to build for eg linux | macos | win
         required: true
-        type: string
-      filename:
-        default: lando
-        description: The name of the resulting binary
-        required: false
-        type: string
-      fatcore:
-        default: 'false'
-        description: Whether to build a fat binary or not
-        required: false
         type: string
 
 jobs:
@@ -47,10 +52,10 @@ jobs:
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile --production
       - name: Install fatcore
-        if: inputs.fatcore == 'true' || inputs.fatcore == 'edge'
-        run: scripts/fatcore-install.sh ${{ inputs.fatcore == 'edge' && '--edge' || '' }}
+        if: inputs.fatcore == true
+        run: scripts/fatcore-install.sh ${{ inputs.edge == true && '--edge' || '' }}
       - name: Switch to edge channel
-        if: inputs.fatcore == 'edge'
+        if: inputs.edge == true
         run: |
           sed -i.bak "s/^channel: stable/channel: edge/" config.yml
           rm -rf config.yml.bak
@@ -68,7 +73,7 @@ jobs:
           os: ${{ inputs.os }}
           options: --options dns-result-order=ipv4first
           pkg: "@yao-pkg/pkg@5.16.1"
-          upload-key: "lando-${{ inputs.os }}-${{ inputs.arch }}${{ inputs.fatcore == 'true' && '' || '-slim' }}-${{ github.sha }}"
+          upload-key: "lando-${{ inputs.os }}-${{ inputs.arch }}${{ inputs.fatcore == true && '' || '-slim' }}-${{ github.sha }}"
       - name: Ensure version
         if: (inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')
         run: ./dist/${{ inputs.filename }} version --all
@@ -77,12 +82,12 @@ jobs:
         run: ./dist/${{ inputs.filename }} config --path cli.args | grep dns-result-order=ipv4first
       - name: Ensure channel
         if: (inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')
-        run: ./dist/${{ inputs.filename }} config --path channel | grep ${{ inputs.fatcore == 'edge' && 'edge' || 'stable' }}
+        run: ./dist/${{ inputs.filename }} config --path channel | grep ${{ inputs.edge == true && 'edge' || 'stable' }}
       - name: Ensure slimcore
-        if: ((inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')) && inputs.fatcore == 'false'
+        if: ((inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')) && inputs.fatcore == false
         run: ./dist/${{ inputs.filename }} config --path fatcore | grep false
       - name: Ensure fatcore
-        if: ((inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')) && inputs.fatcore == 'true'
+        if: ((inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')) && inputs.fatcore == true
         run: |
           ./dist/${{ inputs.filename }} config --path fatcore | grep true
           ./dist/${{ inputs.filename }} config | grep -q "node_modules/@lando/wordpress"
