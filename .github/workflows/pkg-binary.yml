@@ -20,7 +20,7 @@ on:
         default: linux
       fatcore:
         description: Whether to build a fat binary or not
-        required: true
+        required: false
         type: boolean
         default: false
 
@@ -50,7 +50,7 @@ jobs:
           version: dev
           sync: false
       - name: Package into node binary
-        uses: lando/pkg-action@v5
+        uses: lando/pkg-action@v6
         with:
           entrypoint: bin/lando
           filename: lando

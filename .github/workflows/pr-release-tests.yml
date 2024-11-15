@@ -11,9 +11,6 @@ jobs:
         arch:
           - x64
           - arm64
-        fatcore:
-          - false
-          - true
         os:
           - linux
           - macos
@@ -22,7 +19,6 @@ jobs:
       arch: ${{ matrix.arch }}
       node-version: "20"
       os: ${{ matrix.os }}
-      fatcore: ${{ matrix.fatcore }}
 
   release:
     runs-on: ${{ matrix.os }}
@@ -45,6 +41,8 @@ jobs:
           path: dist
       - name: Verify artifacts
         run: |
+          ls -lsa
+          ls -lsa dist
           ./scripts/generate-checksums.sh --directory dist --depth 2 --show
           cat checksums.txt | grep "$(sha256sum dist/lando-linux-x64-slim-${{ github.sha }}/core)"
       - name: Install node ${{ matrix.node-version }}
