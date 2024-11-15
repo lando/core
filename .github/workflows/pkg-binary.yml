@@ -66,18 +66,18 @@ jobs:
           upload-key: "lando-${{ inputs.os }}-${{ inputs.arch }}${{ inputs.fatcore == true && '' || '-slim' }}-${{ github.sha }}"
       - name: Ensure version
         if: (inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')
-        run: ./dist/lando version --all
+        run: ./dist/${{ inputs.filename }} version --all
       - name: Ensure ipv4first
         if: (inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')
-        run: ./dist/lando config --path cli.args | grep dns-result-order=ipv4first
+        run: ./dist/${{ inputs.filename }} config --path cli.args | grep dns-result-order=ipv4first
       - name: Ensure stable channel
         if: (inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')
-        run: ./dist/lando config --path channel | grep stable
+        run: ./dist/${{ inputs.filename }} config --path channel | grep stable
       - name: Ensure slimcore
         if: ((inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')) && inputs.fatcore == false
-        run: ./dist/lando config --path fatcore | grep false
+        run: ./dist/${{ inputs.filename }} config --path fatcore | grep false
       - name: Ensure fatcore
         if: ((inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')) && inputs.fatcore == true
         run: |
-          ./dist/lando config --path fatcore | grep true
-          ./dist/lando config | grep -q "node_modules/@lando/wordpress"
+          ./dist/${{ inputs.filename }} config --path fatcore | grep true
+          ./dist/${{ inputs.filename }} config | grep -q "node_modules/@lando/wordpress"
