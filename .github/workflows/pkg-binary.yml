@@ -24,10 +24,10 @@ on:
         required: false
         type: string
       fatcore:
-        default: false
+        default: 'false'
         description: Whether to build a fat binary or not
         required: false
-        type: boolean
+        type: string
 
 jobs:
   pkg-binary:
@@ -47,8 +47,13 @@ jobs:
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile --production
       - name: Install fatcore
-        if: inputs.fatcore == true
-        run: scripts/fatcore-install.sh
+        if: inputs.fatcore == 'true' || inputs.fatcore == 'edge'
+        run: scripts/fatcore-install.sh ${{ inputs.fatcore == 'edge' && '--edge' || '' }}
+      - name: Switch to edge channel
+        if: inputs.fatcore == 'edge'
+        run: |
+          sed -i.bak "s/^channel: stable/channel: edge/" config.yml
+          rm -rf config.yml.bak
       - name: Prepare Release
         uses: lando/prepare-release-action@v3
         with:
@@ -63,21 +68,21 @@ jobs:
           os: ${{ inputs.os }}
           options: --options dns-result-order=ipv4first
           pkg: "@yao-pkg/pkg@5.16.1"
-          upload-key: "lando-${{ inputs.os }}-${{ inputs.arch }}${{ inputs.fatcore == true && '' || '-slim' }}-${{ github.sha }}"
+          upload-key: "lando-${{ inputs.os }}-${{ inputs.arch }}${{ inputs.fatcore == 'true' && '' || '-slim' }}-${{ github.sha }}"
       - name: Ensure version
         if: (inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')
         run: ./dist/${{ inputs.filename }} version --all
       - name: Ensure ipv4first
         if: (inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')
         run: ./dist/${{ inputs.filename }} config --path cli.args | grep dns-result-order=ipv4first
-      - name: Ensure stable channel
+      - name: Ensure channel
         if: (inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')
-        run: ./dist/${{ inputs.filename }} config --path channel | grep stable
+        run: ./dist/${{ inputs.filename }} config --path channel | grep ${{ inputs.fatcore == 'edge' && 'edge' || 'stable' }}
       - name: Ensure slimcore
-        if: ((inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')) && inputs.fatcore == false
+        if: ((inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')) && inputs.fatcore == 'false'
         run: ./dist/${{ inputs.filename }} config --path fatcore | grep false
       - name: Ensure fatcore
-        if: ((inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')) && inputs.fatcore == true
+        if: ((inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')) && inputs.fatcore == 'true'
         run: |
           ./dist/${{ inputs.filename }} config --path fatcore | grep true
           ./dist/${{ inputs.filename }} config | grep -q "node_modules/@lando/wordpress"
