@@ -5,71 +5,24 @@ on:
 
 jobs:
   package:
-    runs-on: ${{ matrix.runner }}
-    env:
-      TERM: xterm
+    uses: ./.github/workflows/pkg-binary.yml
     strategy:
-      fail-fast: false
       matrix:
-        runner:
-          - macos-14
-          - ubuntu-24.04
-        node-version:
-          - '20'
+        arch:
+          - x64
+          - arm64
+        fatcore:
+          - false
+          - true
         os:
           - linux
           - macos
           - win
-        type:
-          - '-slim'
-          - ''
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Install node ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: npm
-      - name: Install dependencies
-        run: npm clean-install --prefer-offline --frozen-lockfile --production
-      - name: Install fatcore
-        if: matrix.type != '-slim'
-        run: scripts/fatcore-install.sh
-      - name: Prepare Release
-        uses: lando/prepare-release-action@v3
-        with:
-          version: dev
-          sync: false
-      - name: Package into node binary
-        uses: lando/pkg-action@v5
-        with:
-          entrypoint: bin/lando
-          node-version: ${{ matrix.node-version }}
-          os: ${{ matrix.os }}
-          options: --options dns-result-order=ipv4first
-          pkg: "@yao-pkg/pkg@5.16.1"
-          upload-key: "lando-${{ matrix.os }}-${{ matrix.runner == 'macos-14' && 'arm64' || 'x64' }}${{ matrix.type }}-${{ github.sha }}"
-      - name: Ensure version
-        if: (matrix.os == 'linux' && runner.os == 'Linux') || (matrix.os == 'macos' && runner.os == 'macOS')
-        run: ./dist/@lando/core version --all
-      - name: Ensure ipv4first
-        if: (matrix.os == 'linux' && runner.os == 'Linux') || (matrix.os == 'macos' && runner.os == 'macOS')
-        run: ./dist/@lando/core config --path cli.args | grep dns-result-order=ipv4first
-      - name: Ensure stable channel
-        if: (matrix.os == 'linux' && runner.os == 'Linux') || (matrix.os == 'macos' && runner.os == 'macOS')
-        run: ./dist/@lando/core config --path channel | grep stable
-      - name: Ensure slimcore
-        if: ((matrix.os == 'linux' && runner.os == 'Linux') || (matrix.os == 'macos' && runner.os == 'macOS')) && matrix.type == '-slim'
-        run: ./dist/@lando/core config --path fatcore | grep false
-      - name: Ensure fatcore
-        if: ((matrix.os == 'linux' && runner.os == 'Linux') || (matrix.os == 'macos' && runner.os == 'macOS')) && matrix.type == ''
-        run: |
-          ./dist/@lando/core config --path fatcore | grep true
-          ./dist/@lando/core config | grep -q "node_modules/@lando/wordpress"
+    with:
+      arch: ${{ matrix.arch }}
+      node-version: "20"
+      os: ${{ matrix.os }}
+      fatcore: ${{ matrix.fatcore }}
 
   release:
     runs-on: ${{ matrix.os }}
