@@ -39,13 +39,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - file: lando-linux-x64-${{ github.sha }}
+          - file: lando-linux-x64-slim-${{ github.sha }}
             os:
-          - file: lando-macos-x64-${{ github.sha }}
+          - file: lando-macos-x64-slim-${{ github.sha }}
             os:
-          - file: lando-win-x64-${{ github.sha }}.exe
+          - file: lando-win-x64-slim-${{ github.sha }}.exe
             os:
-          - file: lando-mac-arm64-${{ github.sha }}.exe
+          - file: lando-mac-arm64-slim-${{ github.sha }}.exe
             os: macos
 
     with:
