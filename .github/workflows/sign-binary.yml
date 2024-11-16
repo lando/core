@@ -36,7 +36,7 @@ on:
         required: false
 
 jobs:
-  sign-binary:
+  codesign-binary:
     runs-on: ${{
       (contains(inputs.os, 'linux') || contains(inputs.file, 'linux')) && 'ubuntu-24.04' ||
       (contains(inputs.os, 'macos') || contains(inputs.file, 'macos')) && 'macos-14' ||
