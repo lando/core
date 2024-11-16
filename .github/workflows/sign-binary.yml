@@ -52,7 +52,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         pattern: lando-*
-        path: mkdir -p /tmp/${{ github.sha }}
+        path: /tmp/${{ github.sha }}
         merge-multiple: true
     - name: Ensure path
       run: |
@@ -67,7 +67,7 @@ jobs:
         apple-team-id: FY8GAUX282
         certificate-data: ${{ secrets.certificate-data }}
         certificate-password: ${{ secrets.certificate-password }}
-        file: ${{ inputs.file }}
+        file: /tmp/${{ github.sha }}/${{ inputs.file }}
         keylocker-api-key: ${{ secrets.keylocker-api-key }}
         keylocker-cert-sha1-hash: ${{ secrets.keylocker-cert-sha1-hash }}
         keylocker-host: https://clientauth.one.digicert.com
