@@ -53,6 +53,7 @@ jobs:
           - lando-win-x64-slim-${{ github.sha }}.exe
 
     with:
+      download-pattern: packaged-lando-*
       file: ${{ matrix.file }}
     secrets:
       apple-notary-user: ${{ secrets.APPLE_NOTARY_USER }}
@@ -63,100 +64,6 @@ jobs:
       keylocker-cert-sha1-hash: ${{ secrets.KEYLOCKER_CERT_SHA1_HASH }}
       keylocker-keypair-alias: ${{ secrets.KEYLOCKER_KEYPAIR_ALIAS }}
 
-
-          # - os: windows-2022
-          #   key: lando-win-x64-${{ github.sha }}
-          #   file: lando/core.exe
-          #   certificate-data: KEYLOCKER_CLIENT_CERT
-          #   certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
-          #   result: lando-win-x64-${{ github.ref_name }}.exe
-          # - os: windows-2022
-          #   key: lando-win-arm64-${{ github.sha }}
-          #   file: lando/core.exe
-          #   certificate-data: KEYLOCKER_CLIENT_CERT
-          #   certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
-          #   result: lando-win-arm64-${{ github.ref_name }}.exe
-          # - os: windows-2022
-          #   key: lando-win-x64-slim-${{ github.sha }}
-          #   file: lando/core.exe
-          #   certificate-data: KEYLOCKER_CLIENT_CERT
-          #   certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
-          #   result: lando-win-x64-${{ github.ref_name }}-slim.exe
-          # - os: windows-2022
-          #   key: lando-win-arm64-slim-${{ github.sha }}
-          #   file: lando/core.exe
-          #   certificate-data: KEYLOCKER_CLIENT_CERT
-          #   certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
-          #   result: lando-win-arm64-${{ github.ref_name }}-slim.exe
-          # - os: macos-14
-          #   key: lando-macos-x64-${{ github.sha }}
-          #   file: lando/core
-          #   certificate-data: APPLE_CERT_DATA
-          #   certificate-password: APPLE_CERT_PASSWORD
-          #   apple-product-id: dev.lando.cli
-          #   apple-team-id: FY8GAUX282
-          #   apple-notary-user: APPLE_NOTARY_USER
-          #   apple-notary-password: APPLE_NOTARY_PASSWORD
-          #   options: --options runtime --entitlements entitlements.xml
-          #   result: lando-macos-x64-${{ github.ref_name }}
-          # - os: macos-14
-          #   key: lando-macos-arm64-${{ github.sha }}
-          #   file: lando/core
-          #   certificate-data: APPLE_CERT_DATA
-          #   certificate-password: APPLE_CERT_PASSWORD
-          #   apple-product-id: dev.lando.cli
-          #   apple-team-id: FY8GAUX282
-          #   apple-notary-user: APPLE_NOTARY_USER
-          #   apple-notary-password: APPLE_NOTARY_PASSWORD
-          #   options: --options runtime --entitlements entitlements.xml
-          #   result: lando-macos-arm64-${{ github.ref_name }}
-          # - os: macos-14
-          #   key: lando-macos-x64-slim-${{ github.sha }}
-          #   file: lando/core
-          #   certificate-data: APPLE_CERT_DATA
-          #   certificate-password: APPLE_CERT_PASSWORD
-          #   apple-product-id: dev.lando.cli
-          #   apple-team-id: FY8GAUX282
-          #   apple-notary-user: APPLE_NOTARY_USER
-          #   apple-notary-password: APPLE_NOTARY_PASSWORD
-          #   options: --options runtime --entitlements entitlements.xml
-          #   result: lando-macos-x64-${{ github.ref_name }}-slim
-          # - os: macos-14
-          #   key: lando-macos-arm64-slim-${{ github.sha }}
-          #   file: lando/core
-          #   certificate-data: APPLE_CERT_DATA
-          #   certificate-password: APPLE_CERT_PASSWORD
-          #   apple-product-id: dev.lando.cli
-          #   apple-team-id: FY8GAUX282
-          #   apple-notary-user: APPLE_NOTARY_USER
-          #   apple-notary-password: APPLE_NOTARY_PASSWORD
-          #   options: --options runtime --entitlements entitlements.xml
-          #   result: lando-macos-arm64-${{ github.ref_name }}-slim
-
-          # - os: ubuntu-24.04
-          #   key: lando-linux-x64-${{ github.sha }}
-          #   file: lando/core
-          #   certificate-data: KEYLOCKER_CLIENT_CERT
-          #   certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
-          #   result: lando-linux-x64-${{ github.ref_name }}
-          # - os: ubuntu-24.04
-          #   key: lando-linux-arm64-${{ github.sha }}
-          #   file: lando/core
-          #   certificate-data: KEYLOCKER_CLIENT_CERT
-          #   certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
-          #   result: lando-linux-arm64-${{ github.ref_name }}
-          # - os: ubuntu-24.04
-          #   key: lando-linux-x64-slim-${{ github.sha }}
-          #   file: lando/core
-          #   certificate-data: KEYLOCKER_CLIENT_CERT
-          #   certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
-          #   result: lando-linux-x64-${{ github.ref_name }}-slim
-          # - os: ubuntu-24.04
-          #   key: lando-linux-arm64-slim-${{ github.sha }}
-          #   file: lando/core
-          #   certificate-data: KEYLOCKER_CLIENT_CERT
-          #   certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
-          #   result: lando-linux-arm64-${{ github.ref_name }}-slim
 
       # - name: Rename as needed
       #   shell: bash

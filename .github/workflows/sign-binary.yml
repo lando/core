@@ -3,6 +3,16 @@ name: Sign Binary
 on:
   workflow_call:
     inputs:
+      download-name:
+        default:
+        description: The artifact name to download for checksumming
+        required: false
+        type: string
+      download-pattern:
+        default:
+        description: The artifact pattern to download for checksumming
+        required: false
+        type: string
       file:
         description: The file to sign
         required: true
@@ -54,9 +64,10 @@ jobs:
         id: download-artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: lando-*
-          path: /tmp/${{ github.sha }}
+          name: ${{ inputs.download-name }}
           merge-multiple: true
+          path: /tmp/${{ github.sha }}
+          pattern: ${{ inputs.download-pattern }}
       - name: Sign and Notarize
         id: code-sign-action
         if: runner.os == 'macOS' || runner.os == 'Windows'
@@ -75,3 +86,10 @@ jobs:
           keylocker-host: https://clientauth.one.digicert.com
           keylocker-keypair-alias: ${{ secrets.keylocker-keypair-alias }}
           options: ${{ runner.os == 'macOS' && '--options runtime --entitlements "$GITHUB_WORKSPACE/entitlements.xml"' || '' }}
+      - name: Upload signed binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-${{ inputs.file }}
+          path: /tmp/${{ inputs.output }}/${{ inputs.file }}
+          if-no-files-found: error
+          retention-days: 1
