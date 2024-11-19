@@ -43,14 +43,16 @@ jobs:
       - name: Mod as needed
         run: |
           mkdir -p /tmp/release-binary
-          cp -rf "/tmp/${{ github.sha }}/${{ inputs.source }}" "/tmp/release-binary/${{ inputs.destination }}"
+          cp -rf \
+            "/tmp/${{ github.sha }}/${{ inputs.source }}${{ runner.os == 'Windows' && !endsWith(inputs.source, '.exe') && '.exe' || '' }}" \
+            "/tmp/release-binary/${{ inputs.destination }}${{ runner.os == 'Windows' && !endsWith(inputs.destination, '.exe') && '.exe' || '' }}"
           chmod +x /tmp/release-binary/*
           ls -lsa /tmp/release-binary
       - name: Upload signed binaries
         uses: actions/upload-artifact@v4
         with:
-          name: release-binary-${{ inputs.destination }}
+          name: release-binary-${{ inputs.destination }}${{ runner.os == 'Windows' && !endsWith(inputs.destination, '.exe') && '.exe' || '' }}"
           overwrite: true
-          path: /tmp/release-binary/${{ inputs.destination }}
+          path: /tmp/release-binary/${{ inputs.destination }}${{ runner.os == 'Windows' && !endsWith(inputs.destination, '.exe') && '.exe' || '' }}"
           if-no-files-found: error
           retention-days: 1

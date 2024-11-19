@@ -45,15 +45,15 @@ jobs:
 
           # - lando-linux-x64-${{ github.sha }}
           # - lando-macos-x64-${{ github.sha }}
-          # - lando-win-x64-${{ github.sha }}.exe
+          # - lando-win-x64-${{ github.sha }}
 
           # - lando-linux-arm64-${{ github.sha }}-slim
           # - lando-macos-arm64-${{ github.sha }}-slim
-          # - lando-win-arm64-${{ github.sha }}-slim.exe
+          # - lando-win-arm64-${{ github.sha }}-slim
 
           - lando-linux-x64-${{ github.sha }}-slim
           - lando-macos-x64-${{ github.sha }}-slim
-          - lando-win-x64-${{ github.sha }}-slim.exe
+          - lando-win-x64-${{ github.sha }}-slim
 
     with:
       download-pattern: packaged-lando-*
@@ -88,9 +88,9 @@ jobs:
           - dev
           - latest
     with:
-      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.alias }}${{ matrix.type }}.exe
+      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.alias }}${{ matrix.type }}${{ matrix.os == 'win' && '.exe' || '' }}
       download-pattern: signed-lando-*
-      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.type }}.exe
+      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.type }}${{ matrix.os == 'win' && '.exe' || '' }}
 
   release-binary-branch:
     uses: ./.github/workflows/release-binary.yml
@@ -110,9 +110,9 @@ jobs:
           - -slim
           -
     with:
-      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}${{ matrix.type }}.exe
+      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}${{ matrix.type }}
       download-pattern: signed-lando-*
-      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.type }}.exe
+      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.type }}
 
 
       # - name: Configure S3 Credentials

@@ -80,7 +80,7 @@ jobs:
           certificate-data: ${{ secrets.certificate-data }}
           certificate-id: FY8GAUX282
           certificate-password: ${{ secrets.certificate-password }}
-          file: ${{ steps.download-artifacts.outputs.download-path }}/${{ inputs.file }}
+          file: ${{ steps.download-artifacts.outputs.download-path }}/${{ inputs.file }}${{ runner.os == 'Windows' && !endsWith(inputs.file, '.exe') && '.exe' || '' }}
           keylocker-api-key: ${{ secrets.keylocker-api-key }}
           keylocker-cert-sha1-hash: ${{ secrets.keylocker-cert-sha1-hash }}
           keylocker-host: https://clientauth.one.digicert.com
