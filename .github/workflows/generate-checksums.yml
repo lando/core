@@ -72,6 +72,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.upload-name }}
-          path: /tmp/checksums/${{ github.sha }}/${{ inputs.output }}
+          path: /tmp/${{ inputs.output }}
           if-no-files-found: error
           retention-days: 1
