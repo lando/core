@@ -67,45 +67,53 @@ jobs:
       keylocker-cert-sha1-hash: ${{ secrets.KEYLOCKER_CERT_SHA1_HASH }}
       keylocker-keypair-alias: ${{ secrets.KEYLOCKER_KEYPAIR_ALIAS }}
 
-  release-binary:
+  release-binary-alias:
     uses: ./.github/workflows/release-binary.yml
     needs:
       - sign
     strategy:
       fail-fast: false
       matrix:
-        file:
-          # - source: lando-linux-arm64-${{ github.sha }}
-          #   destination: lando-linux-arm64-${{ github.ref_name }}
-          # - source: lando-macos-arm64-${{ github.sha }}
-          #   destination: lando-macos-arm64-${{ github.ref_name }}
-          # - source: lando-win-arm64-${{ github.sha }}.exe
-          #   destination: lando-win-arm64-${{ github.ref_name }}.exe
-
-          # - source: lando-linux-x64-${{ github.sha }}
-          #   destination: lando-linux-x64-${{ github.ref_name }}
-          # - source: lando-macos-x64-${{ github.sha }}
-          #   destination: lando-macos-x64-${{ github.ref_name }}
-          # - source: lando-win-x64-${{ github.sha }}.exe
-          #   destination: lando-win-x64-${{ github.ref_name }}.exe
-
-          # - source: lando-linux-arm64-${{ github.sha }}-slim
-          #   destination: lando-linux-arm64-${{ github.ref_name }}-slim
-          # - source: lando-macos-arm64-${{ github.sha }}-slim
-          #   destination: lando-macos-arm64-${{ github.ref_name }}-slim
-          # - source: lando-win-arm64-${{ github.sha }}-slim.exe
-          #   destination: lando-win-arm64-${{ github.ref_name }}-slim.exe
-
-          - source: lando-linux-x64-${{ github.sha }}-slim
-            destination: lando-linux-x64-${{ github.ref_name }}-slim
-          - source: lando-macos-x64-${{ github.sha }}-slim
-            destination: lando-macos-x64-${{ github.ref_name }}-slim
-          - source: lando-win-x64-${{ github.sha }}-slim.exe
-            destination: lando-win-x64-${{ github.ref_name }}-slim.exe
+        arch:
+          - x64
+          # - arm64
+        os:
+          - linux
+          - macos
+          - win
+        type:
+          - -slim
+          # -
+        alias:
+          - dev
+          - latest
     with:
-      destination: ${{ matrix.destination }}
+      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.alias }}${{ matrix.type }}.exe
       download-pattern: signed-lando-*
-      source: ${{ matrix.source }}
+      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.type }}.exe
+
+  release-binary-branch:
+    uses: ./.github/workflows/release-binary.yml
+    needs:
+      - sign
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - x64
+          - arm64
+        os:
+          - linux
+          - macos
+          - win
+        type:
+          - -slim
+          -
+    with:
+      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}${{ matrix.type }}.exe
+      download-pattern: signed-lando-*
+      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.type }}.exe
+
 
       # - name: Configure S3 Credentials
       #   uses: aws-actions/configure-aws-credentials@v4
