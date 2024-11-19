@@ -41,7 +41,7 @@ jobs:
         file:
           # - lando-linux-arm64-${{ github.sha }}
           # - lando-macos-arm64-${{ github.sha }}
-          # - lando-win-arm64-${{ github.sha }}.exe
+          # - lando-win-arm64-${{ github.sha }}
 
           # - lando-linux-x64-${{ github.sha }}
           # - lando-macos-x64-${{ github.sha }}
@@ -88,9 +88,9 @@ jobs:
           - dev
           - latest
     with:
-      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.alias }}${{ matrix.type }}${{ matrix.os == 'win' && '.exe' || '' }}
+      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.alias }}${{ matrix.type }}
       download-pattern: signed-lando-*
-      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.type }}${{ matrix.os == 'win' && '.exe' || '' }}
+      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.type }}
 
   release-binary-branch:
     uses: ./.github/workflows/release-binary.yml
@@ -101,14 +101,14 @@ jobs:
       matrix:
         arch:
           - x64
-          - arm64
+          # - arm64
         os:
           - linux
           - macos
           - win
         type:
           - -slim
-          -
+          # -
     with:
       destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}${{ matrix.type }}
       download-pattern: signed-lando-*
