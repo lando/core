@@ -39,18 +39,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - file: lando-linux-x64-slim-${{ github.sha }}
-            os:
-          - file: lando-macos-x64-slim-${{ github.sha }}
-            os:
-          - file: lando-win-x64-slim-${{ github.sha }}.exe
-            os:
-          - file: lando-mac-arm64-slim-${{ github.sha }}.exe
-            os: macos
-
+          # - lando-linux-x64-${{ github.sha }}
+          # - lando-macos-x64-${{ github.sha }}
+          # - lando-win-x64-${{ github.sha }}.exe
+          - lando-linux-x64-slim-${{ github.sha }}
+          - lando-macos-x64-slim-${{ github.sha }}
+          - lando-win-x64-slim-${{ github.sha }}.exe
     with:
       file: ${{ matrix.file }}
-      os: ${{ matrix.os }}
     secrets:
       apple-notary-user: ${{ secrets.APPLE_NOTARY_USER }}
       apple-notary-password: ${{ secrets.APPLE_NOTARY_PASSWORD }}
