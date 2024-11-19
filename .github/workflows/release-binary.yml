@@ -1,0 +1,56 @@
+name: Release Binary
+
+on:
+  workflow_call:
+    inputs:
+      destination:
+        description: The name of the resulting binary to upload
+        required: true
+        type: string
+      download-name:
+        default:
+        description: The artifact name to download for checksumming
+        required: false
+        type: string
+      download-pattern:
+        default:
+        description: The artifact pattern to download for checksumming
+        required: false
+        type: string
+      source:
+        description: The name of the source binary to use
+        required: true
+        type: string
+
+jobs:
+  release-binary:
+    runs-on: ubuntu-24.04
+    env:
+      TERM: xterm
+    steps:
+      - name: Create and enter path
+        run: |
+          mkdir -p /tmp/${{ github.sha }}
+          cd /tmp/${{ github.sha }}
+      - name: Download binaries
+        id: download-artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.download-name }}
+          merge-multiple: true
+          path: /tmp/${{ github.sha }}
+          pattern: ${{ inputs.download-pattern }}
+      - name: Mod as needed
+        run: |
+          mkdir -p /tmp/release-binary
+          cp -rf "/tmp/${{ github.sha }}/${{ inputs.source }}" "/tmp/release-binary/${{ inputs.destination }}"
+          chmod +x /tmp/release-binary/*
+          ls -lsa /tmp/release-binary
+      - name: Upload signed binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-binary-${{ inputs.destination }}
+          overwrite: true
+          path: /tmp/release-binary/${{ inputs.destination }}
+          if-no-files-found: error
+          retention-days: 1

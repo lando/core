@@ -27,7 +27,7 @@ jobs:
       arch: ${{ matrix.arch }}
       edge: true
       fatcore: ${{ matrix.fatcore }}
-      filename: lando-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.fatcore == false && '-slim' || '' }}-${{ github.sha }}
+      filename: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.fatcore == false && '-slim' || '' }}
       node-version: "20"
       os: ${{ matrix.os }}
 
@@ -42,15 +42,18 @@ jobs:
           # - lando-linux-arm64-${{ github.sha }}
           # - lando-macos-arm64-${{ github.sha }}
           # - lando-win-arm64-${{ github.sha }}.exe
+
           # - lando-linux-x64-${{ github.sha }}
           # - lando-macos-x64-${{ github.sha }}
           # - lando-win-x64-${{ github.sha }}.exe
-          # - lando-linux-arm64-slim-${{ github.sha }}
-          # - lando-macos-arm64-slim-${{ github.sha }}
-          # - lando-win-arm64-slim-${{ github.sha }}.exe
-          - lando-linux-x64-slim-${{ github.sha }}
-          - lando-macos-x64-slim-${{ github.sha }}
-          - lando-win-x64-slim-${{ github.sha }}.exe
+
+          # - lando-linux-arm64-${{ github.sha }}-slim
+          # - lando-macos-arm64-${{ github.sha }}-slim
+          # - lando-win-arm64-${{ github.sha }}-slim.exe
+
+          - lando-linux-x64-${{ github.sha }}-slim
+          - lando-macos-x64-${{ github.sha }}-slim
+          - lando-win-x64-${{ github.sha }}-slim.exe
 
     with:
       download-pattern: packaged-lando-*
@@ -64,19 +67,45 @@ jobs:
       keylocker-cert-sha1-hash: ${{ secrets.KEYLOCKER_CERT_SHA1_HASH }}
       keylocker-keypair-alias: ${{ secrets.KEYLOCKER_KEYPAIR_ALIAS }}
 
+  release-binary:
+    uses: ./.github/workflows/release-binary.yml
+    needs:
+      - sign
+    strategy:
+      fail-fast: false
+      matrix:
+        file:
+          # - source: lando-linux-arm64-${{ github.sha }}
+          #   destination: lando-linux-arm64-${{ github.ref_name }}
+          # - source: lando-macos-arm64-${{ github.sha }}
+          #   destination: lando-macos-arm64-${{ github.ref_name }}
+          # - source: lando-win-arm64-${{ github.sha }}.exe
+          #   destination: lando-win-arm64-${{ github.ref_name }}.exe
 
-      # - name: Rename as needed
-      #   shell: bash
-      #   run: |
-      #     # naming things
-      #     mkdir -p releases
-      #     cp ${{ steps.code-sign-action.outputs.file }} releases/${{ matrix.result }}
-      #     cp releases/${{ matrix.result }} "releases/$(echo ${{ matrix.result }} | sed 's/${{ github.ref_name }}/latest/;')"
-      #     cp releases/${{ matrix.result }} "releases/$(echo ${{ matrix.result }} | sed 's/${{ github.ref_name }}/dev/;')"
+          # - source: lando-linux-x64-${{ github.sha }}
+          #   destination: lando-linux-x64-${{ github.ref_name }}
+          # - source: lando-macos-x64-${{ github.sha }}
+          #   destination: lando-macos-x64-${{ github.ref_name }}
+          # - source: lando-win-x64-${{ github.sha }}.exe
+          #   destination: lando-win-x64-${{ github.ref_name }}.exe
 
-      #     # exec and confirm
-      #     chmod +x releases/*
-      #     ls -lsa releases
+          # - source: lando-linux-arm64-${{ github.sha }}-slim
+          #   destination: lando-linux-arm64-${{ github.ref_name }}-slim
+          # - source: lando-macos-arm64-${{ github.sha }}-slim
+          #   destination: lando-macos-arm64-${{ github.ref_name }}-slim
+          # - source: lando-win-arm64-${{ github.sha }}-slim.exe
+          #   destination: lando-win-arm64-${{ github.ref_name }}-slim.exe
+
+          - source: lando-linux-x64-${{ github.sha }}-slim
+            destination: lando-linux-x64-${{ github.ref_name }}-slim
+          - source: lando-macos-x64-${{ github.sha }}-slim
+            destination: lando-macos-x64-${{ github.ref_name }}-slim
+          - source: lando-win-x64-${{ github.sha }}-slim.exe
+            destination: lando-win-x64-${{ github.ref_name }}-slim.exe
+    with:
+      destination: ${{ matrix.destination }}
+      download-pattern: signed-lando-*
+      source: ${{ matrix.source }}
 
       # - name: Configure S3 Credentials
       #   uses: aws-actions/configure-aws-credentials@v4
