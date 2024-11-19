@@ -110,7 +110,7 @@ jobs:
           - -slim
           # -
     with:
-      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}${{ matrix.type }}
+      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.head_ref || github.ref_name }}${{ matrix.type }}
       download-pattern: signed-lando-*
       source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.type }}
 
