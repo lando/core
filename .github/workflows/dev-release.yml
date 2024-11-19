@@ -114,56 +114,30 @@ jobs:
       download-pattern: signed-lando-*
       source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.type }}
 
+  checksum:
+    uses: ./.github/workflows/generate-checksums.yml
+    needs:
+      - release-binary-alias
+      - release-binary-branch
+    with:
+      download-pattern: release-*
+      flatten: true
+      show: true
+      upload-name: release-checksums-${{ github.sha }}
 
-      # - name: Configure S3 Credentials
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     aws-access-key-id: ${{ secrets.S3_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
-      #     aws-region: us-east-1
-      # - name: Upload dev releases to S3
-      #   shell: bash
-      #   run: |
-      #     aws s3 sync releases s3://files.lando.dev
-      #     aws s3 sync releases s3://files.lando.dev/cli
-      #     aws s3 sync releases s3://files.lando.dev/core
-      # - name: Upload to artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     retention-days: 1
-      #     name: ${{ matrix.key }}
-      #     overwrite: true
-      #     path: releases/*
-
-  # verify:
-  #   runs-on: ubuntu-24.04
-  #   needs:
-  #     - sign
-  #   env:
-  #     TERM: xterm
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-  #     - name: Download for checksumming
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         path: artifacts
-  #     - name: Combine artifacts
-  #       run: |
-  #         mkdir -p dist
-  #         find "artifacts" -mindepth 2 -maxdepth 2 -type f -exec mv {} "dist" \;
-  #         ls -lsa dist
-  #     - name: Checksum artifacts
-  #       run: ./scripts/generate-checksums.sh --directory dist --output sha256sum.txt --show
-  #     - name: Configure S3 Credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         aws-access-key-id: ${{ secrets.S3_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
-  #         aws-region: us-east-1
-  #     - name: Upload Checksums to S3
-  #       shell: bash
-  #       run: |
-  #         aws s3 cp sha256sum.txt s3://files.lando.dev/sha256sum-${{ github.ref_name }}.txt
-  #         aws s3 cp sha256sum.txt s3://files.lando.dev/cli/sha256sum-${{ github.ref_name }}.txt
-  #         aws s3 cp sha256sum.txt s3://files.lando.dev/core/sha256sum-${{ github.ref_name }}.txt
+  deploy-s3:
+    uses: ./.github/workflows/deploy-s3.yml
+    needs:
+      - checksum
+    with:
+      download-pattern: release-*
+    secrets:
+      aws-secret-access-key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+      aws-access-key-id: ${{ secrets.S3_ACCESS_KEY_ID }}
+      aws-region: us-east-1
+  deploy-artifacts:
+    uses: ./.github/workflows/deploy-artifacts.yml
+    needs:
+      - checksum
+    with:
+      download-pattern: release-*

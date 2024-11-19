@@ -24,7 +24,7 @@ on:
         default:
     secrets:
       certificate-data:
-        description: "A `base64` encoded string of your `p12` or `pfx` cert contents. Note: if you use KeyLocker, this will be the base64 encoded client certificate (`SM_CLIENT_CERT_FILE`)"
+        description: "A `base64` encoded string of your `p12` or `pfx` cert contents."
         required: true
       certificate-password:
         description: "The password to unlock the certificate-data"
@@ -90,6 +90,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: signed-${{ inputs.file }}
-          path: /tmp/${{ github.sha }}/${{ inputs.file }}${{ runner.os == 'Windows' == 'win' && !endsWith(inputs.file, '.exe') && '.exe' || '' }}
+          path: /tmp/${{ github.sha }}/${{ inputs.file }}${{ runner.os == 'Windows' && !endsWith(inputs.file, '.exe') && '.exe' || '' }}
           if-no-files-found: error
           retention-days: 1
