@@ -48,22 +48,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Ensure path
-        run: mkdir -p /tmp/${{ github.sha }}
+        run: mkdir -p /tmp/checksums/${{ github.sha }}
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.download-name }}
-          path: /tmp/${{ github.sha }}
+          path: /tmp/checksums/${{ github.sha }}
           pattern: ${{ inputs.download-pattern }}
           merge-multiple: ${{ inputs.flatten }}
       - name: Verify files
         run: |
           echo "::group::Organized checksummed files"
-          ls -lsa /tmp/${{ github.sha }}
+          ls -lsa /tmp/checksums/${{ github.sha }}
           echo "::endgroup::"
       - name: Checksum files
         run: |
-          cd /tmp/${{ github.sha }}
+          /tmp/checksums/${{ github.sha }}
           bash ${{ github.workspace }}/scripts/generate-checksums.sh \
             --depth=${{ inputs.depth }} \
             --output=/tmp/${{ inputs.output }} \
@@ -72,6 +72,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.upload-name }}
-          path: /tmp/${{ inputs.output }}
+          path: /tmp/checksums/${{ github.sha }}/${{ inputs.output }}
           if-no-files-found: error
           retention-days: 1

@@ -1,4 +1,4 @@
-name: Release Binary
+name: Deploy S3
 
 on:
   workflow_call:
@@ -33,7 +33,7 @@ jobs:
       - name: Create and enter path
         run: |
           mkdir -p /tmp/deploy-s3/${{ github.sha }}
-          cd /tmp/${{ github.sha }}
+          cd /tmp/deploy-s3/${{ github.sha }}
       - name: Download binaries
         id: download-artifacts
         uses: actions/download-artifact@v4
