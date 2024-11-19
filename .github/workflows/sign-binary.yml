@@ -51,6 +51,7 @@ jobs:
           mkdir -p /tmp/${{ github.sha }}
           cd /tmp/${{ github.sha }}
       - name: Download binaries
+        id: download-artifacts
         uses: actions/download-artifact@v4
         with:
           pattern: lando-*
@@ -68,7 +69,7 @@ jobs:
           certificate-data: ${{ secrets.certificate-data }}
           certificate-id: FY8GAUX282
           certificate-password: ${{ secrets.certificate-password }}
-          file: /tmp/${{ github.sha }}/${{ inputs.file }}
+          file: ${{ steps.download-artifacts.outputs.download-path }}/${{ inputs.file }}
           keylocker-api-key: ${{ secrets.keylocker-api-key }}
           keylocker-cert-sha1-hash: ${{ secrets.keylocker-cert-sha1-hash }}
           keylocker-host: https://clientauth.one.digicert.com
