@@ -42,7 +42,6 @@ jobs:
           pattern: ${{ inputs.download-pattern }}
       - name: Mod as needed
         run: |
-          mkdir -p /tmp/release-binary
           cp -rf \
             "/tmp/release-binary-source/${{ github.sha }}/${{ inputs.source }}${{ runner.os == 'Windows' && !endsWith(inputs.source, '.exe') && '.exe' || '' }}" \
             "/tmp/release-binary-destination/${{ github.sha }}/${{ inputs.destination }}${{ runner.os == 'Windows' && !endsWith(inputs.destination, '.exe') && '.exe' || '' }}"
@@ -53,6 +52,6 @@ jobs:
         with:
           name: release-binary-${{ inputs.destination }}${{ runner.os == 'Windows' && !endsWith(inputs.destination, '.exe') && '.exe' || '' }}"
           overwrite: true
-          path: /tmp/release-binary/${{ github.sha }}/${{ inputs.destination }}${{ runner.os == 'Windows' && !endsWith(inputs.destination, '.exe') && '.exe' || '' }}"
+          path: /tmp/release-binary-destination/${{ github.sha }}/${{ inputs.destination }}${{ runner.os == 'Windows' && !endsWith(inputs.destination, '.exe') && '.exe' || '' }}"
           if-no-files-found: error
           retention-days: 1

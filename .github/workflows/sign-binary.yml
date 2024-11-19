@@ -56,10 +56,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Create and enter path
-        run: |
-          mkdir -p /tmp/sign/${{ github.sha }}
-          cd /tmp/sign/${{ github.sha }}
+      - name: Create paths
+        run: mkdir -p /tmp/sign/${{ github.sha }}
       - name: Download binaries
         id: download-artifacts
         uses: actions/download-artifact@v4

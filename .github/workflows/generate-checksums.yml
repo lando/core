@@ -63,7 +63,7 @@ jobs:
           echo "::endgroup::"
       - name: Checksum files
         run: |
-          /tmp/checksums/${{ github.sha }}
+          cd /tmp/checksums/${{ github.sha }}
           bash ${{ github.workspace }}/scripts/generate-checksums.sh \
             --depth=${{ inputs.depth }} \
             --output=/tmp/${{ inputs.output }} \
