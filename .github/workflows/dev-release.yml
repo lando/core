@@ -38,13 +38,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
+        file:
+          # - lando-linux-arm64-${{ github.sha }}
+          # - lando-macos-arm64-${{ github.sha }}
+          # - lando-win-arm64-${{ github.sha }}.exe
           # - lando-linux-x64-${{ github.sha }}
           # - lando-macos-x64-${{ github.sha }}
           # - lando-win-x64-${{ github.sha }}.exe
+          # - lando-linux-arm64-slim-${{ github.sha }}
+          # - lando-macos-arm64-slim-${{ github.sha }}
+          # - lando-win-arm64-slim-${{ github.sha }}.exe
           - lando-linux-x64-slim-${{ github.sha }}
           - lando-macos-x64-slim-${{ github.sha }}
           - lando-win-x64-slim-${{ github.sha }}.exe
+
     with:
       file: ${{ matrix.file }}
     secrets:
