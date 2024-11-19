@@ -67,7 +67,7 @@ jobs:
       keylocker-cert-sha1-hash: ${{ secrets.KEYLOCKER_CERT_SHA1_HASH }}
       keylocker-keypair-alias: ${{ secrets.KEYLOCKER_KEYPAIR_ALIAS }}
 
-  release-binary-alias:
+  build-release-binary-alias:
     uses: ./.github/workflows/release-binary.yml
     needs:
       - sign
@@ -92,7 +92,7 @@ jobs:
       download-pattern: signed-lando-*
       source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.type }}
 
-  release-binary-branch:
+  build-release-binary-branch:
     uses: ./.github/workflows/release-binary.yml
     needs:
       - sign
@@ -117,15 +117,15 @@ jobs:
   checksum:
     uses: ./.github/workflows/generate-checksums.yml
     needs:
-      - release-binary-alias
-      - release-binary-branch
+      - build-release-binary-alias
+      - build-release-binary-branch
     with:
       download-pattern: release-*
       flatten: true
       show: true
       upload-name: release-checksums-${{ github.sha }}
 
-  deploy-s3:
+  deploy-releases-s3:
     uses: ./.github/workflows/deploy-s3.yml
     needs:
       - checksum
@@ -135,7 +135,7 @@ jobs:
       aws-secret-access-key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
       aws-access-key-id: ${{ secrets.S3_ACCESS_KEY_ID }}
       aws-region: us-east-1
-  deploy-artifacts:
+  deploy-releases-artifacts:
     uses: ./.github/workflows/deploy-artifacts.yml
     needs:
       - checksum
