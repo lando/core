@@ -137,12 +137,18 @@ jobs:
       - checksum
     with:
       download-pattern: release-*
-  deploy-releases-releases:
+  deploy-releases-releases-binaries:
     uses: ./.github/workflows/deploy-releases.yml
     needs:
       - checksum
     with:
-      download-pattern: release-*
+      download-pattern: release-binary-lando-*-*-${{ github.ref_name }}*
+  deploy-releases-releases-checksum:
+    uses: ./.github/workflows/deploy-releases.yml
+    needs:
+      - checksum
+    with:
+      download-name: release-checksums-${{ github.ref_name }}
   deploy-npm:
     uses: ./.github/workflows/deploy-npm.yml
     needs:
@@ -150,8 +156,10 @@ jobs:
     secrets:
       github-token: ${{ secrets.RTFM47_COAXIUM_INJECTOR }}
       npm-token: ${{ secrets.NPM_DEPLOY_TOKEN }}
-  deploy-legacy:
+  deploy-legacy-notifications:
     runs-on: ubuntu-24.04
+    needs:
+      - checksum
     env:
       TERM: xterm
     steps:
