@@ -120,6 +120,7 @@ jobs:
     with:
       download-pattern: release-*
       flatten: true
+      output: sha256sum-${{ github.sha }}.txt
       show: true
       upload-name: release-checksums-${{ github.sha }}
 
