@@ -119,7 +119,7 @@ jobs:
       download-pattern: release-*
       flatten: true
       show: true
-      upload-name: release-checksums-${{ github.sha }}
+      upload-name: release-checksums-${{ github.ref_name }}
 
   deploy-releases-s3:
     uses: ./.github/workflows/deploy-s3.yml
@@ -137,18 +137,12 @@ jobs:
       - checksum
     with:
       download-pattern: release-*
-  deploy-releases-releases-binaries:
+  deploy-releases-releases:
     uses: ./.github/workflows/deploy-releases.yml
     needs:
       - checksum
     with:
-      download-pattern: release-binary-lando-*-*-${{ github.ref_name }}*
-  deploy-releases-releases-checksum:
-    uses: ./.github/workflows/deploy-releases.yml
-    needs:
-      - checksum
-    with:
-      download-name: release-checksums-${{ github.ref_name }}
+      download-pattern: release-*-${{ github.ref_name }}*
   deploy-npm:
     uses: ./.github/workflows/deploy-npm.yml
     needs:
