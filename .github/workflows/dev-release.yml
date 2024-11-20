@@ -22,7 +22,7 @@ jobs:
           - win
         fatcore:
           - false
-          # - true
+          - true
     with:
       arch: ${{ matrix.arch }}
       edge: true
@@ -39,17 +39,17 @@ jobs:
       fail-fast: false
       matrix:
         file:
-          # - lando-linux-arm64-${{ github.sha }}
-          # - lando-macos-arm64-${{ github.sha }}
-          # - lando-win-arm64-${{ github.sha }}
+          - lando-linux-arm64-${{ github.sha }}
+          - lando-macos-arm64-${{ github.sha }}
+          - lando-win-arm64-${{ github.sha }}
 
-          # - lando-linux-x64-${{ github.sha }}
-          # - lando-macos-x64-${{ github.sha }}
-          # - lando-win-x64-${{ github.sha }}
+          - lando-linux-x64-${{ github.sha }}
+          - lando-macos-x64-${{ github.sha }}
+          - lando-win-x64-${{ github.sha }}
 
-          # - lando-linux-arm64-${{ github.sha }}-slim
-          # - lando-macos-arm64-${{ github.sha }}-slim
-          # - lando-win-arm64-${{ github.sha }}-slim
+          - lando-linux-arm64-${{ github.sha }}-slim
+          - lando-macos-arm64-${{ github.sha }}-slim
+          - lando-win-arm64-${{ github.sha }}-slim
 
           - lando-linux-x64-${{ github.sha }}-slim
           - lando-macos-x64-${{ github.sha }}-slim
@@ -76,14 +76,14 @@ jobs:
       matrix:
         arch:
           - x64
-          # - arm64
+          - arm64
         os:
           - linux
           - macos
           - win
         type:
           - -slim
-          # -
+          -
         alias:
           - dev
           - latest
@@ -101,14 +101,14 @@ jobs:
       matrix:
         arch:
           - x64
-          # - arm64
+          - arm64
         os:
           - linux
           - macos
           - win
         type:
           - -slim
-          # -
+          -
     with:
       destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.head_ref || github.ref_name }}${{ matrix.type }}
       download-pattern: signed-lando-*
