@@ -13,14 +13,14 @@ jobs:
       matrix:
         arch:
           - x64
-          # - arm64
+          - arm64
         os:
           - linux
           - macos
           - win
         fatcore:
           - false
-          # - true
+          - true
     with:
       arch: ${{ matrix.arch }}
       edge: ${{ github.event.release.prerelease }}
@@ -38,17 +38,17 @@ jobs:
       fail-fast: false
       matrix:
         file:
-          # - lando-linux-arm64-${{ github.ref_name }}
-          # - lando-macos-arm64-${{ github.ref_name }}
-          # - lando-win-arm64-${{ github.ref_name }}
+          - lando-linux-arm64-${{ github.ref_name }}
+          - lando-macos-arm64-${{ github.ref_name }}
+          - lando-win-arm64-${{ github.ref_name }}
 
-          # - lando-linux-x64-${{ github.ref_name }}
-          # - lando-macos-x64-${{ github.ref_name }}
-          # - lando-win-x64-${{ github.ref_name }}
+          - lando-linux-x64-${{ github.ref_name }}
+          - lando-macos-x64-${{ github.ref_name }}
+          - lando-win-x64-${{ github.ref_name }}
 
-          # - lando-linux-arm64-${{ github.ref_name }}-slim
-          # - lando-macos-arm64-${{ github.ref_name }}-slim
-          # - lando-win-arm64-${{ github.ref_name }}-slim
+          - lando-linux-arm64-${{ github.ref_name }}-slim
+          - lando-macos-arm64-${{ github.ref_name }}-slim
+          - lando-win-arm64-${{ github.ref_name }}-slim
 
           - lando-linux-x64-${{ github.ref_name }}-slim
           - lando-macos-x64-${{ github.ref_name }}-slim
@@ -74,14 +74,14 @@ jobs:
       matrix:
         arch:
           - x64
-          #- arm64
+          - arm64
         os:
           - linux
           - macos
           - win
         type:
           - -slim
-          # -
+          -
         alias: ${{ github.event.release.prerelease == true && fromJson('["edge"]') || fromJson('["stable", "edge"]') }}
 
     with:
@@ -97,14 +97,14 @@ jobs:
       matrix:
         arch:
           - x64
-          #- arm64
+          - arm64
         os:
           - linux
           - macos
           - win
         type:
           - -slim
-          #-
+          -
     with:
       source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}${{ matrix.type }}
       destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}${{ matrix.type }}
@@ -150,48 +150,48 @@ jobs:
     secrets:
       github-token: ${{ secrets.RTFM47_COAXIUM_INJECTOR }}
       npm-token: ${{ secrets.NPM_DEPLOY_TOKEN }}
-  # deploy-legacy:
-  #   runs-on: ubuntu-24.04
-  #   env:
-  #     TERM: xterm
-  #   steps:
-  #     - name: Push release to lando/lando
-  #       uses: softprops/action-gh-release@v2
-  #       with:
-  #         repository: lando/lando
-  #         name: ${{ github.event.release.tag_name }}
-  #         draft: ${{ github.event.release.draft }}
-  #         prerelease: ${{ github.event.release.prerelease }}
-  #         tag_name: ${{ github.event.release.tag_name }}
-  #         token: ${{ secrets.RTFM47_COAXIUM_INJECTOR }}
-  #         body: |
-  #           **Starting with v3.21.0-beta.18, Lando is no longer distributed via package installers in here in this releases page!**
+  deploy-legacy:
+    runs-on: ubuntu-24.04
+    env:
+      TERM: xterm
+    steps:
+      - name: Push release to lando/lando
+        uses: softprops/action-gh-release@v2
+        with:
+          repository: lando/lando
+          name: ${{ github.event.release.tag_name }}
+          draft: ${{ github.event.release.draft }}
+          prerelease: ${{ github.event.release.prerelease }}
+          tag_name: ${{ github.event.release.tag_name }}
+          token: ${{ secrets.RTFM47_COAXIUM_INJECTOR }}
+          body: |
+            **Starting with v3.21.0-beta.18, Lando is no longer distributed via package installers in here in this releases page!**
 
-  #           To install Lando please visit the [official install docs](https://docs.lando.dev/install).
+            To install Lando please visit the [official install docs](https://docs.lando.dev/install).
 
-  #           ## Changelogs
+            ## Changelogs
 
-  #           Lando now runs as a distributed plugin-based ecosystem so you will want to check the releases/changelogs in
-  #           the various [plugins](https://docs.lando.dev/plugins.html) for relevant notes.
+            Lando now runs as a distributed plugin-based ecosystem so you will want to check the releases/changelogs in
+            the various [plugins](https://docs.lando.dev/plugins.html) for relevant notes.
 
-  #           [Click Here](https://github.com/lando/core/releases/tag/${{ github.event.release.tag_name }}) to check out the notes for `@lando/core@${{ github.event.release.tag_name }}`.
+            [Click Here](https://github.com/lando/core/releases/tag/${{ github.event.release.tag_name }}) to check out the notes for `@lando/core@${{ github.event.release.tag_name }}`.
 
-  #           ## Notes
+            ## Notes
 
-  #           * We will continue to push releases here for backwards compatibility, posterity, etc
-  #           * [Extended release notes](https://lando.dev/blog/2024/01/16/v321-extended.html)
-  #     - name: Push release to lando/cli
-  #       uses: softprops/action-gh-release@v2
-  #       with:
-  #         repository: lando/cli
-  #         name: ${{ github.event.release.tag_name }}
-  #         draft: ${{ github.event.release.draft }}
-  #         prerelease: ${{ github.event.release.prerelease }}
-  #         tag_name: ${{ github.event.release.tag_name }}
-  #         token: ${{ secrets.RTFM47_COAXIUM_INJECTOR }}
-  #         body: |
-  #           **Starting with v3.23.0, Lando CLI binaries are no longer distributed here in these releases!**
+            * We will continue to push releases here for backwards compatibility, posterity, etc
+            * [Extended release notes](https://lando.dev/blog/2024/01/16/v321-extended.html)
+      - name: Push release to lando/cli
+        uses: softprops/action-gh-release@v2
+        with:
+          repository: lando/cli
+          name: ${{ github.event.release.tag_name }}
+          draft: ${{ github.event.release.draft }}
+          prerelease: ${{ github.event.release.prerelease }}
+          tag_name: ${{ github.event.release.tag_name }}
+          token: ${{ secrets.RTFM47_COAXIUM_INJECTOR }}
+          body: |
+            **Starting with v3.23.0, Lando CLI binaries are no longer distributed here in these releases!**
 
-  #           They are now available in the `@lando/core` [releases page](https://github.com/lando/core/releases) including [this ${{ github.event.release.tag_name }} release](https://github.com/lando/core/releases/tag/${{ github.event.release.tag_name }}).
+            They are now available in the `@lando/core` [releases page](https://github.com/lando/core/releases) including [this ${{ github.event.release.tag_name }} release](https://github.com/lando/core/releases/tag/${{ github.event.release.tag_name }}).
 
-  #           All that said we don't recommned you use these binaries directly. Instead, to install Lando please visit the [official install docs](https://docs.lando.dev/install).
+            All that said we don't recommned you use these binaries directly. Instead, to install Lando please visit the [official install docs](https://docs.lando.dev/install).
