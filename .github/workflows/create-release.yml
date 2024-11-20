@@ -1,10 +1,9 @@
-name: Create Dev Releases
+name: Create Releases
 
 on:
-  push:
-    branches:
-      - main
-      - 'preview-**'
+  release:
+    types:
+      - created
 
 jobs:
   package:
@@ -14,22 +13,22 @@ jobs:
       matrix:
         arch:
           - x64
-          - arm64
+          # - arm64
         os:
           - linux
           - macos
           - win
         fatcore:
           - false
-          - true
+          # - true
     with:
       arch: ${{ matrix.arch }}
-      edge: true
+      edge: ${{ github.event.release.prerelease }}
       fatcore: ${{ matrix.fatcore }}
-      filename: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.fatcore == false && '-slim' || '' }}
+      filename: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}${{ matrix.fatcore == false && '-slim' || '' }}
       node-version: "20"
       os: ${{ matrix.os }}
-      version: dev
+      version: ${{ github.event.release.tag_name }}
 
   sign:
     uses: ./.github/workflows/sign-binary.yml
@@ -39,21 +38,21 @@ jobs:
       fail-fast: false
       matrix:
         file:
-          - lando-linux-arm64-${{ github.sha }}
-          - lando-macos-arm64-${{ github.sha }}
-          - lando-win-arm64-${{ github.sha }}
+          # - lando-linux-arm64-${{ github.ref_name }}
+          # - lando-macos-arm64-${{ github.ref_name }}
+          # - lando-win-arm64-${{ github.ref_name }}
 
-          - lando-linux-x64-${{ github.sha }}
-          - lando-macos-x64-${{ github.sha }}
-          - lando-win-x64-${{ github.sha }}
+          # - lando-linux-x64-${{ github.ref_name }}
+          # - lando-macos-x64-${{ github.ref_name }}
+          # - lando-win-x64-${{ github.ref_name }}
 
-          - lando-linux-arm64-${{ github.sha }}-slim
-          - lando-macos-arm64-${{ github.sha }}-slim
-          - lando-win-arm64-${{ github.sha }}-slim
+          # - lando-linux-arm64-${{ github.ref_name }}-slim
+          # - lando-macos-arm64-${{ github.ref_name }}-slim
+          # - lando-win-arm64-${{ github.ref_name }}-slim
 
-          - lando-linux-x64-${{ github.sha }}-slim
-          - lando-macos-x64-${{ github.sha }}-slim
-          - lando-win-x64-${{ github.sha }}-slim
+          - lando-linux-x64-${{ github.ref_name }}-slim
+          - lando-macos-x64-${{ github.ref_name }}-slim
+          - lando-win-x64-${{ github.ref_name }}-slim
     with:
       download-pattern: packaged-lando-*
       file: ${{ matrix.file }}
@@ -75,22 +74,22 @@ jobs:
       matrix:
         arch:
           - x64
-          - arm64
+          #- arm64
         os:
           - linux
           - macos
           - win
         type:
           - -slim
-          -
-        alias:
-          - dev
-          - latest
+          # -
+        alias: ${{ github.event.release.prerelease == false && fromJson('["edge"]') || fromJson('["stable", "edge"]') }}
+
     with:
-      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.type }}
+      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}${{ matrix.type }}
       destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.alias }}${{ matrix.type }}
       download-pattern: signed-lando-*
-  build-release-binary-branch:
+
+  build-release-binary-tag:
     uses: ./.github/workflows/release-binary.yml
     needs:
       - sign
@@ -99,43 +98,34 @@ jobs:
       matrix:
         arch:
           - x64
-          - arm64
+          #- arm64
         os:
           - linux
           - macos
           - win
         type:
           - -slim
-          -
+          #-
     with:
-      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.type }}
-      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.head_ref || github.ref_name }}${{ matrix.type }}
+      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}${{ matrix.type }}
+      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}${{ matrix.type }}
       download-pattern: signed-lando-*
 
   checksum:
     uses: ./.github/workflows/generate-checksums.yml
     needs:
       - build-release-binary-alias
-      - build-release-binary-branch
+      - build-release-binary-tag
     with:
       download-pattern: release-*
       flatten: true
       show: true
       upload-name: release-checksums-${{ github.sha }}
 
-  deploy-releases-s3:
-    uses: ./.github/workflows/deploy-s3.yml
-    needs:
-      - checksum
-    with:
-      download-pattern: release-*
-    secrets:
-      aws-secret-access-key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
-      aws-access-key-id: ${{ secrets.S3_ACCESS_KEY_ID }}
-      aws-region: us-east-1
-  deploy-releases-artifacts:
-    uses: ./.github/workflows/deploy-artifacts.yml
-    needs:
-      - checksum
-    with:
-      download-pattern: release-*
+      # - name: Upload checksums to GitHub Releases
+      #   uses: softprops/action-gh-release@v2
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     files: sha256sum.txt
+      #     fail_on_unmatched_files: true

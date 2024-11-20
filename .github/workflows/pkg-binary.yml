@@ -33,6 +33,11 @@ on:
         description: The os to build for eg linux | macos | win
         required: true
         type: string
+      version:
+        default: dev
+        description: The version to bump the package.json to
+        required: true
+        type: string
 
 jobs:
   pkg-binary:
@@ -62,7 +67,7 @@ jobs:
       - name: Prepare Release
         uses: lando/prepare-release-action@v3
         with:
-          version: dev
+          version: ${{ inputs.version }}
           sync: false
       - name: Package into binary
         uses: lando/pkg-action@v6

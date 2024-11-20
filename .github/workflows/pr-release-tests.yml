@@ -21,6 +21,7 @@ jobs:
       filename: lando-${{ matrix.os }}-${{ matrix.arch }}-slim-${{ github.sha }}
       node-version: "20"
       os: ${{ matrix.os }}
+      version: dev
 
   verify:
     uses: ./.github/workflows/generate-checksums.yml
