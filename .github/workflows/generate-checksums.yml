@@ -3,12 +3,12 @@ name: Generate Checksums
 on:
   workflow_call:
     inputs:
-      artifact-name:
+      download-name:
         default:
         description: The artifact name to download for checksumming
         required: false
         type: string
-      artifact-pattern:
+      download-pattern:
         default:
         description: The artifact pattern to download for checksumming
         required: false
@@ -48,22 +48,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Ensure path
-        run: mkdir -p /tmp/${{ github.sha }}
+        run: mkdir -p /tmp/checksums/${{ github.sha }}
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs.artifact-name }}
-          path: /tmp/${{ github.sha }}
-          pattern: ${{ inputs.artifact-pattern }}
+          name: ${{ inputs.download-name }}
+          path: /tmp/checksums/${{ github.sha }}
+          pattern: ${{ inputs.download-pattern }}
           merge-multiple: ${{ inputs.flatten }}
       - name: Verify files
         run: |
           echo "::group::Organized checksummed files"
-          ls -lsa /tmp/${{ github.sha }}
+          ls -lsa /tmp/checksums/${{ github.sha }}
           echo "::endgroup::"
       - name: Checksum files
         run: |
-          cd /tmp/${{ github.sha }}
+          cd /tmp/checksums/${{ github.sha }}
           bash ${{ github.workspace }}/scripts/generate-checksums.sh \
             --depth=${{ inputs.depth }} \
             --output=/tmp/${{ inputs.output }} \

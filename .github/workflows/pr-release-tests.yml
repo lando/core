@@ -27,6 +27,7 @@ jobs:
     needs:
       - package
     with:
+      download-pattern: packaged-lando-*
       flatten: true
       show: true
 

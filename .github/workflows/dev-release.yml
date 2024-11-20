@@ -26,201 +26,115 @@ jobs:
       arch: ${{ matrix.arch }}
       edge: true
       fatcore: ${{ matrix.fatcore }}
-      filename: lando-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.fatcore == false && '-slim' || '' }}-${{ github.sha }}
+      filename: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.fatcore == false && '-slim' || '' }}
       node-version: "20"
       os: ${{ matrix.os }}
 
-  sign-n-deploy:
-    runs-on: ${{ matrix.os }}
+  sign:
+    uses: ./.github/workflows/sign-binary.yml
     needs:
       - package
-    env:
-      TERM: xterm
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: windows-2022
-            key: lando-win-x64-${{ github.sha }}
-            file: lando/core.exe
-            certificate-data: KEYLOCKER_CLIENT_CERT
-            certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
-            result: lando-win-x64-${{ github.ref_name }}.exe
-          - os: windows-2022
-            key: lando-win-arm64-${{ github.sha }}
-            file: lando/core.exe
-            certificate-data: KEYLOCKER_CLIENT_CERT
-            certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
-            result: lando-win-arm64-${{ github.ref_name }}.exe
-          - os: windows-2022
-            key: lando-win-x64-slim-${{ github.sha }}
-            file: lando/core.exe
-            certificate-data: KEYLOCKER_CLIENT_CERT
-            certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
-            result: lando-win-x64-${{ github.ref_name }}-slim.exe
-          - os: windows-2022
-            key: lando-win-arm64-slim-${{ github.sha }}
-            file: lando/core.exe
-            certificate-data: KEYLOCKER_CLIENT_CERT
-            certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
-            result: lando-win-arm64-${{ github.ref_name }}-slim.exe
+        file:
+          - lando-linux-arm64-${{ github.sha }}
+          - lando-macos-arm64-${{ github.sha }}
+          - lando-win-arm64-${{ github.sha }}
 
-          - os: macos-14
-            key: lando-macos-x64-${{ github.sha }}
-            file: lando/core
-            certificate-data: APPLE_CERT_DATA
-            certificate-password: APPLE_CERT_PASSWORD
-            apple-product-id: dev.lando.cli
-            apple-team-id: FY8GAUX282
-            apple-notary-user: APPLE_NOTARY_USER
-            apple-notary-password: APPLE_NOTARY_PASSWORD
-            options: --options runtime --entitlements entitlements.xml
-            result: lando-macos-x64-${{ github.ref_name }}
-          - os: macos-14
-            key: lando-macos-arm64-${{ github.sha }}
-            file: lando/core
-            certificate-data: APPLE_CERT_DATA
-            certificate-password: APPLE_CERT_PASSWORD
-            apple-product-id: dev.lando.cli
-            apple-team-id: FY8GAUX282
-            apple-notary-user: APPLE_NOTARY_USER
-            apple-notary-password: APPLE_NOTARY_PASSWORD
-            options: --options runtime --entitlements entitlements.xml
-            result: lando-macos-arm64-${{ github.ref_name }}
-          - os: macos-14
-            key: lando-macos-x64-slim-${{ github.sha }}
-            file: lando/core
-            certificate-data: APPLE_CERT_DATA
-            certificate-password: APPLE_CERT_PASSWORD
-            apple-product-id: dev.lando.cli
-            apple-team-id: FY8GAUX282
-            apple-notary-user: APPLE_NOTARY_USER
-            apple-notary-password: APPLE_NOTARY_PASSWORD
-            options: --options runtime --entitlements entitlements.xml
-            result: lando-macos-x64-${{ github.ref_name }}-slim
-          - os: macos-14
-            key: lando-macos-arm64-slim-${{ github.sha }}
-            file: lando/core
-            certificate-data: APPLE_CERT_DATA
-            certificate-password: APPLE_CERT_PASSWORD
-            apple-product-id: dev.lando.cli
-            apple-team-id: FY8GAUX282
-            apple-notary-user: APPLE_NOTARY_USER
-            apple-notary-password: APPLE_NOTARY_PASSWORD
-            options: --options runtime --entitlements entitlements.xml
-            result: lando-macos-arm64-${{ github.ref_name }}-slim
+          - lando-linux-x64-${{ github.sha }}
+          - lando-macos-x64-${{ github.sha }}
+          - lando-win-x64-${{ github.sha }}
 
-          - os: ubuntu-24.04
-            key: lando-linux-x64-${{ github.sha }}
-            file: lando/core
-            certificate-data: KEYLOCKER_CLIENT_CERT
-            certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
-            result: lando-linux-x64-${{ github.ref_name }}
-          - os: ubuntu-24.04
-            key: lando-linux-arm64-${{ github.sha }}
-            file: lando/core
-            certificate-data: KEYLOCKER_CLIENT_CERT
-            certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
-            result: lando-linux-arm64-${{ github.ref_name }}
-          - os: ubuntu-24.04
-            key: lando-linux-x64-slim-${{ github.sha }}
-            file: lando/core
-            certificate-data: KEYLOCKER_CLIENT_CERT
-            certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
-            result: lando-linux-x64-${{ github.ref_name }}-slim
-          - os: ubuntu-24.04
-            key: lando-linux-arm64-slim-${{ github.sha }}
-            file: lando/core
-            certificate-data: KEYLOCKER_CLIENT_CERT
-            certificate-password: KEYLOCKER_CLIENT_CERT_PASSWORD
-            result: lando-linux-arm64-${{ github.ref_name }}-slim
+          - lando-linux-arm64-${{ github.sha }}-slim
+          - lando-macos-arm64-${{ github.sha }}-slim
+          - lando-win-arm64-${{ github.sha }}-slim
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Download ${{ matrix.key }}
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ matrix.key }}
-          path: lando
-      - name: Sign and Notarize
-        uses: lando/code-sign-action@v2
-        id: code-sign-action
-        with:
-          file: ${{ matrix.file }}
-          certificate-data: ${{ secrets[matrix.certificate-data] }}
-          certificate-password: ${{ secrets[matrix.certificate-password] }}
-          apple-notary-user: ${{ secrets[matrix.apple-notary-user] }}
-          apple-notary-password: ${{ secrets[matrix.apple-notary-password] }}
-          apple-product-id: ${{ matrix.apple-product-id }}
-          apple-team-id: ${{ matrix.apple-team-id }}
-          keylocker-host: https://clientauth.one.digicert.com
-          keylocker-api-key: ${{ secrets.KEYLOCKER_API_KEY }}
-          keylocker-cert-sha1-hash: ${{ secrets.KEYLOCKER_CERT_SHA1_HASH }}
-          keylocker-keypair-alias: ${{ secrets.KEYLOCKER_KEYPAIR_ALIAS }}
-          options: ${{ matrix.options }}
-      - name: Rename as needed
-        shell: bash
-        run: |
-          # naming things
-          mkdir -p releases
-          cp ${{ steps.code-sign-action.outputs.file }} releases/${{ matrix.result }}
-          cp releases/${{ matrix.result }} "releases/$(echo ${{ matrix.result }} | sed 's/${{ github.ref_name }}/latest/;')"
-          cp releases/${{ matrix.result }} "releases/$(echo ${{ matrix.result }} | sed 's/${{ github.ref_name }}/dev/;')"
+          - lando-linux-x64-${{ github.sha }}-slim
+          - lando-macos-x64-${{ github.sha }}-slim
+          - lando-win-x64-${{ github.sha }}-slim
+    with:
+      download-pattern: packaged-lando-*
+      file: ${{ matrix.file }}
+    secrets:
+      apple-notary-user: ${{ secrets.APPLE_NOTARY_USER }}
+      apple-notary-password: ${{ secrets.APPLE_NOTARY_PASSWORD }}
+      certificate-data: ${{ contains(matrix.file, 'macos') && secrets.APPLE_CERT_DATA || secrets.KEYLOCKER_CLIENT_CERT }}
+      certificate-password: ${{ contains(matrix.file, 'macos') && secrets.APPLE_CERT_PASSWORD || secrets.KEYLOCKER_CLIENT_CERT_PASSWORD }}
+      keylocker-api-key: ${{ secrets.KEYLOCKER_API_KEY }}
+      keylocker-cert-sha1-hash: ${{ secrets.KEYLOCKER_CERT_SHA1_HASH }}
+      keylocker-keypair-alias: ${{ secrets.KEYLOCKER_KEYPAIR_ALIAS }}
 
-          # exec and confirm
-          chmod +x releases/*
-          ls -lsa releases
-
-      - name: Configure S3 Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.S3_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-      - name: Upload dev releases to S3
-        shell: bash
-        run: |
-          aws s3 sync releases s3://files.lando.dev
-          aws s3 sync releases s3://files.lando.dev/cli
-          aws s3 sync releases s3://files.lando.dev/core
-      - name: Upload to artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          retention-days: 1
-          name: ${{ matrix.key }}
-          overwrite: true
-          path: releases/*
-
-  verify:
-    runs-on: ubuntu-24.04
+  build-release-binary-alias:
+    uses: ./.github/workflows/release-binary.yml
     needs:
-      - sign-n-deploy
-    env:
-      TERM: xterm
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Download for checksumming
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-      - name: Combine artifacts
-        run: |
-          mkdir -p dist
-          find "artifacts" -mindepth 2 -maxdepth 2 -type f -exec mv {} "dist" \;
-          ls -lsa dist
-      - name: Checksum artifacts
-        run: ./scripts/generate-checksums.sh --directory dist --output sha256sum.txt --show
-      - name: Configure S3 Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.S3_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-      - name: Upload Checksums to S3
-        shell: bash
-        run: |
-          aws s3 cp sha256sum.txt s3://files.lando.dev/sha256sum-${{ github.ref_name }}.txt
-          aws s3 cp sha256sum.txt s3://files.lando.dev/cli/sha256sum-${{ github.ref_name }}.txt
-          aws s3 cp sha256sum.txt s3://files.lando.dev/core/sha256sum-${{ github.ref_name }}.txt
+      - sign
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - x64
+          - arm64
+        os:
+          - linux
+          - macos
+          - win
+        type:
+          - -slim
+          -
+        alias:
+          - dev
+          - latest
+    with:
+      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.alias }}${{ matrix.type }}
+      download-pattern: signed-lando-*
+      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.type }}
+  build-release-binary-branch:
+    uses: ./.github/workflows/release-binary.yml
+    needs:
+      - sign
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - x64
+          - arm64
+        os:
+          - linux
+          - macos
+          - win
+        type:
+          - -slim
+          -
+    with:
+      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.head_ref || github.ref_name }}${{ matrix.type }}
+      download-pattern: signed-lando-*
+      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}${{ matrix.type }}
+
+  checksum:
+    uses: ./.github/workflows/generate-checksums.yml
+    needs:
+      - build-release-binary-alias
+      - build-release-binary-branch
+    with:
+      download-pattern: release-*
+      flatten: true
+      show: true
+      upload-name: release-checksums-${{ github.sha }}
+
+  deploy-releases-s3:
+    uses: ./.github/workflows/deploy-s3.yml
+    needs:
+      - checksum
+    with:
+      download-pattern: release-*
+    secrets:
+      aws-secret-access-key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+      aws-access-key-id: ${{ secrets.S3_ACCESS_KEY_ID }}
+      aws-region: us-east-1
+  deploy-releases-artifacts:
+    uses: ./.github/workflows/deploy-artifacts.yml
+    needs:
+      - checksum
+    with:
+      download-pattern: release-*

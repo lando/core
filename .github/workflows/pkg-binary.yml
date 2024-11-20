@@ -73,7 +73,7 @@ jobs:
           os: ${{ inputs.os }}
           options: --options dns-result-order=ipv4first
           pkg: "@yao-pkg/pkg@5.16.1"
-          upload-key: "lando-${{ inputs.os }}-${{ inputs.arch }}${{ inputs.fatcore == false && '-slim' || '' }}-${{ github.sha }}"
+          upload-key: "packaged-${{ inputs.filename }}-${{ inputs.os }}-${{ inputs.arch }}${{ inputs.fatcore == false && '-slim' || '' }}-${{ github.sha }}"
       - name: Ensure version
         if: (inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')
         run: ./dist/${{ inputs.filename }} version --all

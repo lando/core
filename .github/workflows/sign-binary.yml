@@ -1,0 +1,93 @@
+name: Sign Binary
+
+on:
+  workflow_call:
+    inputs:
+      download-name:
+        default:
+        description: The artifact name to download for checksumming
+        required: false
+        type: string
+      download-pattern:
+        default:
+        description: The artifact pattern to download for checksumming
+        required: false
+        type: string
+      file:
+        description: The file to sign
+        required: true
+        type: string
+      os:
+        description: The OS to sign for
+        required: false
+        type: string
+        default:
+    secrets:
+      certificate-data:
+        description: "A `base64` encoded string of your `p12` or `pfx` cert contents."
+        required: true
+      certificate-password:
+        description: "The password to unlock the certificate-data"
+        required: true
+      apple-notary-password:
+        description: "The Apple Developer account password to use in notarization"
+        required: false
+      apple-notary-user:
+        description: "The Apple Developer account email to use in notarization"
+        required: false
+      keylocker-api-key:
+        description: "The API key to use for KeyLocker"
+        required: false
+      keylocker-cert-sha1-hash:
+        description: "The SHA1 hash of the certificate to use for KeyLocker"
+        required: false
+      keylocker-keypair-alias:
+        description: "The alias of the keypair to use for KeyLocker"
+        required: false
+
+jobs:
+  codesign-binary:
+    runs-on: ${{
+      (contains(inputs.os, 'linux') || contains(inputs.file, 'linux')) && 'ubuntu-24.04' ||
+      (contains(inputs.os, 'macos') || contains(inputs.file, 'macos')) && 'macos-14' ||
+      (contains(inputs.os, 'win') || contains(inputs.file, 'win')) && 'windows-2022'}}
+    env:
+      TERM: xterm
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Create paths
+        run: mkdir -p /tmp/sign/${{ github.sha }}
+      - name: Download binaries
+        id: download-artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.download-name }}
+          merge-multiple: true
+          path: /tmp/sign/${{ github.sha }}
+          pattern: ${{ inputs.download-pattern }}
+      - name: Sign and Notarize
+        id: code-sign-action
+        if: runner.os == 'macOS' || runner.os == 'Windows'
+        uses: lando/code-sign-action@v3
+        with:
+          apple-notary-user: ${{ secrets.apple-notary-user }}
+          apple-notary-password: ${{ secrets.apple-notary-password }}
+          apple-product-id: dev.lando.cli
+          apple-team-id: FY8GAUX282
+          certificate-data: ${{ secrets.certificate-data }}
+          certificate-id: FY8GAUX282
+          certificate-password: ${{ secrets.certificate-password }}
+          file: ${{ steps.download-artifacts.outputs.download-path }}/${{ inputs.file }}${{ runner.os == 'Windows' && !endsWith(inputs.file, '.exe') && '.exe' || '' }}
+          keylocker-api-key: ${{ secrets.keylocker-api-key }}
+          keylocker-cert-sha1-hash: ${{ secrets.keylocker-cert-sha1-hash }}
+          keylocker-host: https://clientauth.one.digicert.com
+          keylocker-keypair-alias: ${{ secrets.keylocker-keypair-alias }}
+          options: ${{ runner.os == 'macOS' && '--options runtime --entitlements "$GITHUB_WORKSPACE/entitlements.xml"' || '' }}
+      - name: Upload signed binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-${{ inputs.file }}
+          path: /tmp/sign/${{ github.sha }}/${{ inputs.file }}${{ runner.os == 'Windows' && !endsWith(inputs.file, '.exe') && '.exe' || '' }}
+          if-no-files-found: error
+          retention-days: 1
