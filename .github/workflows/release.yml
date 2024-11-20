@@ -182,10 +182,11 @@ jobs:
 
             * We will continue to push releases here for backwards compatibility, posterity, etc
             * [Extended release notes](https://lando.dev/blog/2024/01/16/v321-extended.html)
+
       - name: Push release to lando/cli
         uses: softprops/action-gh-release@v2
         with:
-          repository: lando/cli
+          repository: lando/legacy-cli
           name: ${{ github.event.release.tag_name }}
           draft: ${{ github.event.release.draft }}
           prerelease: ${{ github.event.release.prerelease }}
