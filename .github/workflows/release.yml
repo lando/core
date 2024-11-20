@@ -116,7 +116,7 @@ jobs:
       - build-release-binary-alias
       - build-release-binary-tag
     with:
-      download-pattern: release-*
+      download-pattern: release-*-${{ github.ref_name }}*
       flatten: true
       show: true
       upload-name: release-checksums-${{ github.ref_name }}
