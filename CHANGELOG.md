@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.10 - [November 20, 2024](https://github.com/lando/core/releases/tag/v3.23.10)
+
 * This release has no new content and is just to test the new modular release flow
 
 ## v3.23.9 - [November 20, 2024](https://github.com/lando/core/releases/tag/v3.23.9)
