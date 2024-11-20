@@ -82,7 +82,9 @@ jobs:
         type:
           - -slim
           # -
-        alias: ${{ github.event.release.prerelease == false && fromJson('["edge"]') || fromJson('["stable", "edge"]') }}
+        # alias: ${{ github.event.release.prerelease == false && fromJson('["edge"]') || fromJson('["stable", "edge"]') }}
+        alias:
+          - edge
 
     with:
       source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}${{ matrix.type }}
