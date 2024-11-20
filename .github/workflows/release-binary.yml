@@ -32,7 +32,7 @@ jobs:
         run: |
           mkdir -p /tmp/release-binary-source/${{ github.sha }}
           mkdir -p /tmp/release-binary-destination/${{ github.sha }}
-      - name: Download binaries
+      - name: Download artifacts
         id: download-artifacts
         uses: actions/download-artifact@v4
         with:
@@ -47,7 +47,7 @@ jobs:
             "/tmp/release-binary-destination/${{ github.sha }}/${{ inputs.destination }}${{ contains(inputs.source, '-win-') && !endsWith(inputs.destination, '.exe') && '.exe' || '' }}"
           chmod +x /tmp/release-binary-destination/${{ github.sha }}/*
           ls -lsa /tmp/release-binary-destination/${{ github.sha }}
-      - name: Upload signed binaries
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: release-binary-${{ inputs.destination }}${{ contains(inputs.source, '-win-') && !endsWith(inputs.destination, '.exe') && '.exe' || '' }}
