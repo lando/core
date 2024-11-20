@@ -67,7 +67,7 @@ jobs:
       keylocker-keypair-alias: ${{ secrets.KEYLOCKER_KEYPAIR_ALIAS }}
 
   build-release-binary-alias:
-    uses: ./.github/workflows/release-binary.yml
+    uses: ./.github/workflows/release-rename-binary.yml
     needs:
       - sign
     strategy:
@@ -91,7 +91,7 @@ jobs:
       destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.alias }}${{ matrix.type }}
       download-pattern: signed-lando-*
   build-release-binary-branch:
-    uses: ./.github/workflows/release-binary.yml
+    uses: ./.github/workflows/release-rename-binary.yml
     needs:
       - sign
     strategy:
