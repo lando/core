@@ -114,13 +114,20 @@ jobs:
 
   checksum:
     uses: ./.github/workflows/generate-checksums.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        alias:
+          - dev
+          - ${{ github.sha }}
+
     needs:
       - build-release-binary-alias
       - build-release-binary-branch
     with:
       download-pattern: release-*
       flatten: true
-      output: sha256sum-${{ github.sha }}.txt
+      output: sha256sum-${{ matrix.alias }}.txt
       show: true
       upload-name: release-checksums-${{ github.sha }}
 
