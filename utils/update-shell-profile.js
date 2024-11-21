@@ -18,8 +18,11 @@ module.exports = (file, updates = []) => {
     const content = read(file);
     // split into lines
     const lines = content.split('\n');
+    // get penulimatimate
+    const penny = Math.max(lines.length - 2, 0);
+
     // if we end up with second to last line that is empty then pop
-    if (lines[lines.length - 2].trim() === '') lines.pop();
+    if (penny > 0 && lines[lines.length - 2].trim() === '') lines.pop();
 
     // loops through the updates and add/update as needed
     for (const [update, search] of updates) {
