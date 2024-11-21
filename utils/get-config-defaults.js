@@ -18,7 +18,7 @@ const getBuildEngineVersion = () => {
 
 // Default config
 const defaultConfig = options => ({
-  orchestratorSeparator: '_',
+  orchestratorSeparator: '-',
   orchestratorVersion: '2.29.2',
   configSources: [],
   coreBase: path.resolve(__dirname, '..'),

@@ -23,7 +23,7 @@ Run the following commands to verify things work as expected
 ```bash
 # Should stop the apps containers
 lando stop
-docker ps --filter label=com.docker.compose.project=landorestart -q | wc -l | grep 0
+docker ps --filter label=com.docker.compose.project=lando-restart -q | wc -l | grep 0
 
 # Should stop ALL running lando containers
 lando start
@@ -33,10 +33,10 @@ docker ps --filter label=io.lando.container=TRUE -q | wc -l | grep 0
 
 # Should restart the services without errors
 lando restart
-docker ps --filter label=com.docker.compose.project=landorestart | grep landorestart_web_1
-docker ps --filter label=com.docker.compose.project=landorestart | grep landorestart_web2_1
-docker ps --filter label=com.docker.compose.project=landorestart | grep landorestart_web3_1
-docker ps --filter label=com.docker.compose.project=landorestart | grep landorestart_web4_1
+docker ps --filter label=com.docker.compose.project=lando-restart | grep lando-restart-web-1
+docker ps --filter label=com.docker.compose.project=lando-restart | grep lando-restart-web2-1
+docker ps --filter label=com.docker.compose.project=lando-restart | grep lando-restart-web3-1
+docker ps --filter label=com.docker.compose.project=lando-restart | grep lando-restart-web4-1
 ```
 
 ## Destroy tests

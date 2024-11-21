@@ -2,6 +2,10 @@
 
 set -e
 
+if [ -f /tmp/lando-entrypoint-ran ]; then
+  rm /tmp/lando-entrypoint-ran
+fi
+
 # Get the lando logger
 . /helpers/log.sh
 
@@ -72,6 +76,8 @@ fi
 # Run the COMMAND
 # @TODO: We should def figure out whether we can get away with running everything through exec at some point
 lando_info "Lando handing off to: $@"
+
+touch /tmp/lando-entrypoint-ran
 
 # Try to DROP DOWN to another user if we can
 if [ ! -z ${LANDO_DROP_USER+x} ]; then

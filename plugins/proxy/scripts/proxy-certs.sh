@@ -28,11 +28,6 @@ fi
 : ${LANDO_PROXY_KEY:="/lando/certs/${LANDO_SERVICE_NAME}.${LANDO_APP_PROJECT}.key"}
 : ${LANDO_PROXY_CONFIG_FILE:="/proxy_config/${LANDO_SERVICE_NAME}.${LANDO_APP_PROJECT}.yaml"}
 
-# Move over any global config set by lando
-if [ -d "/lando/proxy/config" ]; then
-  cp -rf /lando/proxy/config/* /proxy_config/
-fi
-
 # Bail if proxypassthru is off
 if [ "$LANDO_PROXY_PASSTHRU" != "true" ]; then
   lando_info "Proxy passthru is off so exiting..."

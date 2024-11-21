@@ -6,11 +6,18 @@ const _ = require('lodash');
 /*
  * Helper to get core proxy service
  */
-const getProxy = ({proxyCommand, proxyPassThru, proxyDomain, userConfRoot, version = 'unknown'} = {}) => {
+const getProxy = ({
+  proxyCommand,
+  proxyPassThru,
+  proxyDomain,
+  userConfRoot,
+  proxyConfigDir,
+  version = 'unknown',
+} = {}) => {
   return {
     services: {
       proxy: {
-        image: 'traefik:2.2.0',
+        image: 'traefik:2.10.7',
         command: proxyCommand.join(' '),
         environment: {
           LANDO_APP_PROJECT: '_lando_',
@@ -18,12 +25,13 @@ const getProxy = ({proxyCommand, proxyPassThru, proxyDomain, userConfRoot, versi
           LANDO_PROXY_CONFIG_FILE: '/proxy_config/proxy.yaml',
           LANDO_PROXY_PASSTHRU: _.toString(proxyPassThru),
           LANDO_VERSION: version,
+          LANDO_DOMAIN: proxyDomain,
         },
         networks: ['edge'],
         volumes: [
           '/var/run/docker.sock:/var/run/docker.sock',
           `${userConfRoot}/scripts/proxy-certs.sh:/scripts/100-proxy-certs`,
-          'proxy_config:/proxy_config',
+          `${proxyConfigDir}:/proxy_config`,
         ],
       },
     },
@@ -31,9 +39,6 @@ const getProxy = ({proxyCommand, proxyPassThru, proxyDomain, userConfRoot, versi
       edge: {
         driver: 'bridge',
       },
-    },
-    volumes: {
-      proxy_config: {},
     },
   };
 };
