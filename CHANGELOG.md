@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed `lando shellenv` failing when shell profile is empty
+
 ## v3.23.11 - [November 20, 2024](https://github.com/lando/core/releases/tag/v3.23.11)
 
 * This release has no new content and is just to test the new modular release flow
