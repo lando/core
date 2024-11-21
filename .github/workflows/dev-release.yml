@@ -128,7 +128,7 @@ jobs:
       flatten: true
       output: sha256sum-${{ matrix.alias }}.txt
       show: true
-      upload-name: release-checksums-${{ github.sha }}
+      upload-name: release-checksums-${{ github.alias }}
 
   deploy-releases-s3:
     uses: ./.github/workflows/deploy-s3.yml
