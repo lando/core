@@ -1,6 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
 * Fixed `lando shellenv` failing when shell profile is empty
+* Fixed `lando shellenv` to always include `~/.lando/bin` and include it first
 * Improved messaging on `lando shellenv --add`
 
 ## v3.23.11 - [November 20, 2024](https://github.com/lando/core/releases/tag/v3.23.11)
