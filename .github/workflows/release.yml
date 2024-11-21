@@ -129,7 +129,6 @@ jobs:
           - edge
           - ${{ github.event.release.prerelease == false && 'stable' || 'prerelease' }}
           - ${{ github.ref_name }}
-
     needs:
       - build-release-binary-alias
       - build-release-binary-tag

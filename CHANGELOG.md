@@ -1,5 +1,11 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed `lando shellenv` so it doesn't fail when `shell` profile is empty
+* Fixed `lando update` so it removes lingering `lando.exe`s in the update bin directory
+* Improved `lando shellenv` so that it always includes `~/.lando/bin` and includes it first
+* Improved messaging on `lando shellenv --add`
+* Improved messaging on `lando update` for `@lando/cli`
+
 ## v3.23.11 - [November 20, 2024](https://github.com/lando/core/releases/tag/v3.23.11)
 
 * This release has no new content and is just to test the new modular release flow

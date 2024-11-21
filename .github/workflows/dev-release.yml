@@ -120,7 +120,6 @@ jobs:
         alias:
           - dev
           - ${{ github.sha }}
-
     needs:
       - build-release-binary-alias
       - build-release-binary-branch

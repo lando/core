@@ -62,7 +62,7 @@ module.exports = lando => {
           console.log();
           console.log(color.bold(binPaths.join(os.EOL)));
           console.log();
-          console.log(`Open a new shell to load the changes!`);
+          console.log(`Start a new terminal session to use ${color.bold(`lando`)}`);
           return;
 
         // otherwise update the shell profile
@@ -72,7 +72,7 @@ module.exports = lando => {
           console.log();
           console.log(color.bold(shellEnv.map(line => line[0]).join(os.EOL)));
           console.log();
-          console.log(`Open a new shell or run ${color.bold(`source ${options.add}`)} to load the changes`);
+          console.log(`Start a new terminal session or run ${color.bold(`eval "$(lando shellenv)"`)} to use ${color.bold(`lando`)}`);
         } else {
           console.log(`Looks like ${color.green(options.add)} is already ready to go!`);
         }
