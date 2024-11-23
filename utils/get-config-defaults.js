@@ -8,18 +8,18 @@ const os = require('os');
 const getBuildEngineVersion = () => {
   switch (process.platform) {
     case 'darwin':
-      return '4.34.3';
+      return '4.36.0';
     case 'linux':
       return '27.3.1';
     case 'win32':
-      return '4.34.3';
+      return '4.36.0';
   }
 };
 
 // Default config
 const defaultConfig = options => ({
   orchestratorSeparator: '_',
-  orchestratorVersion: '2.29.2',
+  orchestratorVersion: '2.30.3',
   configSources: [],
   coreBase: path.resolve(__dirname, '..'),
   disablePlugins: [],
