@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed bug causing metrics opt-out to not work in some situations [#277](https://github.com/lando/core/issues/277)
+
 ## v3.23.12 - [November 21, 2024](https://github.com/lando/core/releases/tag/v3.23.12)
 
 * Fixed `lando shellenv` so it doesn't fail when `shell` profile is empty

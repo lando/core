@@ -18,10 +18,19 @@ const getMetricsContext = () => {
 module.exports = (log, config) => {
   const Metrics = require('./../lib/metrics');
   const command = _.get(config, 'command._', 'unknown');
+
+  // group by endpoints and resolve multiples
+  const endpoints = _(_.groupBy(config.stats, 'url'))
+    .map((data, url) => ({
+      url,
+      report: data.map(data => data.report).every(report => report === true),
+    }))
+    .value();
+
   return new Metrics({
     log,
     id: config.id,
-    endpoints: config.stats,
+    endpoints,
     data: {
       command: `lando ${command}`,
       context: getMetricsContext(),
