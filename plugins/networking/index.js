@@ -68,7 +68,7 @@ module.exports = lando => {
         // otherwise attempt to sus things out
         try {
           const landonet = lando.engine.getNetwork(lando.config.networkBridge);
-          await lando.engine.daemon.up();
+          await lando.engine.daemon.up({max: 1, backoff: 1000});
           await landonet.inspect();
           return lando.versions.networking > 1;
         } catch (error) {
@@ -82,7 +82,7 @@ module.exports = lando => {
         const daemon = new LandoDaemon(lando.cache, lando.events, undefined, lando.log);
 
         // we need docker up for this
-        await daemon.up();
+        await daemon.up({max: 2, backoff: 1000});
 
         // if we are v1 then disconnect and remove for upgrade
         if (lando.versions.networking === 1) {

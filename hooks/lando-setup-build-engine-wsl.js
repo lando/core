@@ -1,9 +1,11 @@
 'use strict';
 
 const axios = require('../utils/get-axios')();
-const os = require('os');
+const getWinEnvar = require('../utils/get-win32-envvar-from-wsl');
 const path = require('path');
 const semver = require('semver');
+const wslpath = require('../utils/winpath-2-wslpath');
+const winpath = require('../utils/wslpath-2-winpath');
 const {color} = require('listr2');
 const {nanoid} = require('nanoid');
 
@@ -61,10 +63,10 @@ const getEngineDownloadUrl = (id = '175267') => {
 /*
  * wrapper for docker-desktop install
  */
-const downloadDockerDesktop = (url, {debug, task, ctx}) => new Promise((resolve, reject) => {
+const downloadDockerDesktop = (url, {debug, dest, task, ctx}) => new Promise((resolve, reject) => {
   const download = require('../utils/download-x')(url, {
     debug,
-    dest: path.join(os.tmpdir(), `${nanoid()}.exe`),
+    dest: path.posix.join(dest, `${nanoid()}.exe`),
   });
 
   // success
@@ -105,7 +107,7 @@ module.exports = async (lando, options) => {
   options.tasks.push({
     title: 'Downloading build engine',
     id: 'setup-build-engine',
-    description: '@lando/build-engine (docker-desktop)',
+    description: '@lando/build-engine (docker-desktop))',
     version: `docker-desktop ${install}`,
     hasRun: async () => {
       // start by looking at the engine install status
@@ -132,21 +134,21 @@ module.exports = async (lando, options) => {
       // @TODO: check for wsl2?
       return true;
     },
-    requiresRestart: async () => {
-      // if wsl is not installed then this requires a restart
-      const {installed, features} = await require('../utils/get-wsl-status')({debug});
-      const restart = !installed || !features;
-      debug('wsl installed=%o, features=%o, restart %o', installed, features, restart ? 'required' : 'not required');
-      return restart;
-    },
     task: async (ctx, task) => {
       try {
+        // get tmp dir from windows side
+        const winTmpDir = await getWinEnvar('TEMP', {debug});
+        const dest = await wslpath(winTmpDir, {debug});
+        debug('resolved win dir %o to wsl path %o', winTmpDir, dest);
+
         // download the installer
-        ctx.download = await downloadDockerDesktop(url, {ctx, debug, task});
+        ctx.download = await downloadDockerDesktop(url, {ctx, debug, dest, task});
+        ctx.download.windest = path.win32.join(winTmpDir, path.basename(ctx.download.dest));
+
         // script
-        const script = [path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1')];
+        const script = [await winpath(path.posix.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1'))];
         // args
-        const args = ['-Installer', ctx.download.dest];
+        const args = ['-Installer', ctx.download.windest];
         if (options.buildEngineAcceptLicense) args.push('-AcceptLicense');
         if ((options.debug || options.verbose > 0 || lando.debuggy) && lando.config.isInteractive) args.push('-Debug');
 
@@ -167,22 +169,37 @@ module.exports = async (lando, options) => {
 
   // add docker group add task
   options.tasks.push({
-    title: `Adding ${lando.config.username} to docker-users group`,
+    title: `Adding ${lando.config.username} to docker group`,
     id: 'setup-build-engine-group',
     dependsOn: ['setup-build-engine'],
-    description: `@lando/build-engine-group (${lando.config.username}@docker-users)`,
+    description: `@lando/build-engine-group (${lando.config.username}@docker)`,
     comments: {
-      'NOT INSTALLED': `Will add ${lando.config.username} to docker-users group`,
+      'NOT INSTALLED': `Will add ${lando.config.username} to docker group`,
     },
-    hasRun: async () => require('../utils/is-group-member')('docker-users'),
+    hasRun: async () => require('../utils/is-group-member')('docker'),
     task: async (ctx, task) => {
       // check one last time incase this was added by a dependee or otherwise
-      if (require('../utils/is-group-member')('docker-users')) return {code: 0};
+      if (require('../utils/is-group-member')('docker')) return {code: 0};
+
+      // prompt for password if interactive and we dont have it
+      if (ctx.password === undefined && lando.config.isInteractive) {
+        ctx.password = await task.prompt({
+          type: 'password',
+          name: 'password',
+          message: `Enter computer password for ${lando.config.username} to add them to docker group`,
+          validate: async (input, state) => {
+            const options = {debug, ignoreReturnCode: true, password: input};
+            const response = await require('../utils/run-elevated')(['echo', 'hello there'], options);
+            if (response.code !== 0) return response.stderr;
+            return true;
+          },
+        });
+      }
 
       try {
-        const command = ['net', 'localgroup', 'docker-users', lando.config.username, '/ADD'];
-        const response = await require('../utils/run-elevated')(command, {debug});
-        task.title = `Added ${lando.config.username} to docker-users`;
+        const command = ['usermod', '-aG', 'docker', lando.config.username];
+        const response = await require('../utils/run-elevated')(command, {debug, password: ctx.password});
+        task.title = `Added ${lando.config.username} to docker group`;
         return response;
       } catch (error) {
         throw error;

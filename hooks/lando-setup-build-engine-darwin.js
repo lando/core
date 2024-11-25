@@ -52,7 +52,7 @@ const getVersion = version => {
 /*
  * Helper to get docker compose v2 download url
  */
-const getEngineDownloadUrl = (id = '170107') => {
+const getEngineDownloadUrl = (id = '175267') => {
   const arch = process.arch === 'arm64' ? 'arm64' : 'amd64';
   return `https://desktop.docker.com/mac/main/${arch}/${id}/Docker.dmg`;
 };
@@ -95,9 +95,9 @@ module.exports = async (lando, options) => {
 
   // darwin install task
   options.tasks.push({
-    title: `Downloading build engine`,
+    title: 'Downloading build engine',
     id: 'setup-build-engine',
-    description: `@lando/build-engine (docker-desktop)`,
+    description: '@lando/build-engine (docker-desktop)',
     version: `docker-desktop ${install}`,
     hasRun: async () => {
       // start by looking at the engine install status
@@ -106,7 +106,7 @@ module.exports = async (lando, options) => {
 
       // if we get here let's make sure the engine is on
       try {
-        await lando.engine.daemon.up();
+        await lando.engine.daemon.up({max: 1, backoff: 1000});
         const BuildEngine = require('../components/docker-engine');
         const bengine = new BuildEngine(lando.config.buildEngine, {debug});
         await bengine.info();

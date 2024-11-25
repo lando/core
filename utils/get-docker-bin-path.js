@@ -3,8 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 
-module.exports = () => {
-  switch (process.platform) {
+module.exports = (platform = process.landoPlatform) => {
+  switch (platform) {
     case 'darwin':
       return '/Applications/Docker.app/Contents/Resources/bin';
     case 'linux':
@@ -19,5 +19,9 @@ module.exports = () => {
       } else {
          return path.win32.join(programFiles + '\\Docker\\Docker\\resources\\bin');
       }
+    case 'wsl':
+      return '/mnt/wsl/docker-desktop/cli-tools/usr/bin';
+    default:
+      return '/usr/bin';
   }
 };

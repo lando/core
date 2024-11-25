@@ -25,6 +25,7 @@ dockerSupportedVersions:
     link:
       darwin: https://docs.docker.com/desktop/install/mac-install/
       win32: https://docs.docker.com/desktop/install/windows-install/
+      wsl: https://docs.docker.com/desktop/install/windows-install/
   engine:
     satisfies: ">=18 <28"
     tested: "<=27.3.1"

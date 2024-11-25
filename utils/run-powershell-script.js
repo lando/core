@@ -19,7 +19,7 @@ module.exports = (script, args = [], options = {}, stdout = '', stderr = '') => 
 
   // birth
   debug('running powershell script %o %o', script, args);
-  const child = spawn('powershell', ['-ExecutionPolicy', 'Bypass', '-File', script].concat(args), options);
+  const child = spawn('powershell.exe', ['-ExecutionPolicy', 'Bypass', '-File', script].concat(args), options);
 
   return require('./merge-promise')(child, async () => {
     return new Promise((resolve, reject) => {

@@ -36,6 +36,7 @@ module.exports = ({
 
       return require('./run-command')('shutdown', args, {debug});
     case 'win32':
+    case 'wsl':
       // handle the restart type
       if (type === 'logout') args.push('/l');
       else if (type === 'restart') args.push('/r');
@@ -48,6 +49,6 @@ module.exports = ({
       args.push('/c');
       args.push(message);
 
-      return require('./run-command')('shutdown', args, {debug});
+      return require('./run-command')('shutdown.exe', args, {debug});
   }
 };
