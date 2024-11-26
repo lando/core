@@ -53,13 +53,17 @@ module.exports = lando => {
     // skip the installation of the network if set
     if (options.skipNetworking) return;
 
+    // we need access to dat socket for this to work
+    const dependsOn = ['linux', 'wsl']
+      .includes(lando.config.os.landoPlatform) ? ['setup-build-engine-group', 'setup-build-engine'] : ['setup-build-engine'];
+
     options.tasks.push({
       title: `Creating Landonet`,
       id: 'create-landonet',
-      dependsOn: ['linux', 'wsl'].includes(lando.config.os.landoPlatform) ? ['setup-build-engine-group'] : ['setup-build-engine'],
+      dependsOn,
       description: '@lando/landonet',
       comments: {
-        'NOT INSTALLED': 'Will create Landonet',
+        'NOT INSTALLED': 'Will create LandoNet',
       },
       skip: () => {
         if (!['linux', 'wsl'].includes(lando.config.os.landoPlatform)) return false;
@@ -71,8 +75,8 @@ module.exports = lando => {
 
         // otherwise attempt to sus things out
         try {
-          const landonet = lando.engine.getNetwork(lando.config.networkBridge);
           await lando.engine.daemon.up({max: 1, backoff: 1000});
+          const landonet = lando.engine.getNetwork(lando.config.networkBridge);
           await landonet.inspect();
           return lando.versions.networking > 1;
         } catch (error) {

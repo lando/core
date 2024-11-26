@@ -1,7 +1,6 @@
 'use strict';
 
 const axios = require('../utils/get-axios')();
-const fs = require('fs');
 const getWinEnvar = require('../utils/get-win32-envvar-from-wsl');
 const path = require('path');
 const semver = require('semver');
@@ -109,32 +108,15 @@ module.exports = async (lando, options) => {
     title: 'Downloading build engine',
     id: 'setup-build-engine',
     description: '@lando/build-engine (docker-desktop)',
-    version: `docker-desktop ${install}`,
+    version: `Docker Desktop ${install}`,
     hasRun: async () => {
       // start by looking at the engine install status
       // @NOTE: is this always defined?
       if (lando.engine.dockerInstalled === false) return false;
 
-      // first try to up the engine
+      // if we get here let's make sure the engine is on
       try {
         await lando.engine.daemon.up({max: 1, backoff: 1000});
-      } catch (error) {
-        lando.log.debug('docker install task has not run %j', error);
-        return false;
-      }
-
-      // if we get here lets try to run a docker command that needs the daemon
-      // we use the host version of docker because we have access to the socket that way
-      // without having to rely on the wsl user being in the docker group
-      try {
-        // wait for mount to exist
-        await lando.Promise.retry(() => {
-          return fs.existsSync('/Docker/host/bin/docker.exe') ? Promise.resolve() : Promise.reject();
-        }, {max: 3, backoff: 1000});
-
-        // get info
-        await require('../utils/run-command')('/Docker/host/bin/docker.exe', ['info'], {debug});
-
         return true;
       } catch (error) {
         lando.log.debug('docker install task has not run %j', error);

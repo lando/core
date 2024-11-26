@@ -98,7 +98,7 @@ module.exports = async (lando, options) => {
     title: 'Downloading build engine',
     id: 'setup-build-engine',
     description: '@lando/build-engine (docker-desktop)',
-    version: `docker-desktop ${install}`,
+    version: `Docker Desktop ${install}`,
     hasRun: async () => {
       // start by looking at the engine install status
       // @NOTE: is this always defined?
@@ -107,9 +107,6 @@ module.exports = async (lando, options) => {
       // if we get here let's make sure the engine is on
       try {
         await lando.engine.daemon.up({max: 1, backoff: 1000});
-        const BuildEngine = require('../components/docker-engine');
-        const bengine = new BuildEngine(lando.config.buildEngine, {debug});
-        await bengine.info();
         return true;
       } catch (error) {
         lando.log.debug('docker install task has not run %j', error);

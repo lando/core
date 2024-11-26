@@ -39,7 +39,7 @@ module.exports = async (lando, options) => {
     title: `Installing build engine`,
     id: 'setup-build-engine',
     description: `@lando/build-engine (docker-engine)`,
-    version: `docker-engine ${version}`,
+    version: `Docker Engine ${version}`,
     hasRun: async () => {
       // start by looking at the engine install status
       // @NOTE: is this always defined?
