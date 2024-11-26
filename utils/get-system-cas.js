@@ -19,7 +19,7 @@ const os = require('os');
  */
 module.exports = async ({
   format = 'fingerprint',
-  platform = process.landoPlatform,
+  platform = process.landoPlatform ?? process.platform,
 }= {}) => {
   const fingerprints = [];
 
@@ -69,6 +69,6 @@ module.exports = async ({
 
       return fingerprints;
     default:
-      throw new Error(`Unsupported platform: ${process.landoPlatform}`);
+      throw new Error(`Unsupported platform: ${platform}`);
   }
 };

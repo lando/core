@@ -6,11 +6,12 @@ module.exports = ({
   message = 'Lando wants to restart your computer',
   password = undefined,
   type = 'restart',
-  wait = process.landoPlatform === 'win32' ? 5 : 'now',
+  wait = process.landoPlatform ?? process.platform === 'win32' ? 5 : 'now',
+  platform = process.landoPlatform ?? process.platform,
 } = {}) => {
   debug('shutdown with %o %o', type, {message, wait});
 
-  switch (process.landoPlatform) {
+  switch (platform) {
     case 'darwin':
       args.push('shutdown');
       // handle the restart type

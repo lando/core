@@ -56,13 +56,13 @@ module.exports = lando => {
     options.tasks.push({
       title: `Creating Landonet`,
       id: 'create-landonet',
-      dependsOn: ['linux', 'wsl'].includes(process.landoPlatform) ? ['setup-build-engine-group'] : ['setup-build-engine'],
+      dependsOn: ['linux', 'wsl'].includes(lando.config.os.landoPlatform) ? ['setup-build-engine-group'] : ['setup-build-engine'],
       description: '@lando/landonet',
       comments: {
         'NOT INSTALLED': 'Will create Landonet',
       },
       skip: () => {
-        if (!['linux', 'wsl'].includes(process.landoPlatform)) return false;
+        if (!['linux', 'wsl'].includes(lando.config.os.landoPlatform)) return false;
         return !require('../../utils/is-group-member')('docker');
       },
       hasRun: async () => {

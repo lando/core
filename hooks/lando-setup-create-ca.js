@@ -69,7 +69,7 @@ module.exports = async (lando, options) => {
   });
 
   // on wsl we also want to copy the ca to the windows side
-  if (process.landoPlatform === 'wsl') {
+  if (lando.config.os.landoPlatform === 'wsl') {
     options.tasks.push({
       title: `Copy Lando Development CA`,
       id: 'install-ca',

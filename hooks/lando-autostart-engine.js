@@ -14,7 +14,7 @@ module.exports = async lando => {
       },
       task: async (ctx, task) => {
         // Prompt for sudo password on linux
-        if (process.landoPlatform === 'linux' && lando.config.isInteractive) {
+        if (lando.config.os.landoPlatform === 'linux' && lando.config.isInteractive) {
           ctx.password = await task.prompt({
             type: 'password',
             name: 'password',

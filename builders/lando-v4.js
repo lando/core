@@ -427,7 +427,7 @@ module.exports = {
         LANDO_DEBUG: lando.debuggy ? '1' : '',
         LANDO_HOST_IP: 'host.lando.internal',
         LANDO_HOST_GID: require('../utils/get-gid')(),
-        LANDO_HOST_OS: process.landoPlatform,
+        LANDO_HOST_OS: process.platform,
         LANDO_HOST_UID: require('../utils/get-uid')(),
         LANDO_HOST_USER: require('../utils/get-username')(),
         LANDO_LEIA: lando.config.leia === false ? '0' : '1',

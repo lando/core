@@ -20,7 +20,6 @@ describe('daemon', () => {
   describe('#LandoDaemon', () => {
     it('should return an instance with the correct defaults', () => {
       const daemon = new Daemon();
-
       daemon.docker.should.equal(getDockerExecutable());
       daemon.log.should.be.instanceOf(Log);
       return daemon.context.should.equal('node');

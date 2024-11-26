@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-module.exports = (platform = process.landoPlatform) => {
+module.exports = (platform = process.landoPlatform ?? process.platform) => {
   switch (platform) {
     case 'darwin':
       return '/Applications/Docker.app/Contents/Resources/bin';
