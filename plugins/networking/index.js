@@ -56,10 +56,14 @@ module.exports = lando => {
     options.tasks.push({
       title: `Creating Landonet`,
       id: 'create-landonet',
-      dependsOn: ['setup-build-engine'],
+      dependsOn: ['linux', 'wsl'].includes(process.landoPlatform) ? ['setup-build-engine-group'] : ['setup-build-engine'],
       description: '@lando/landonet',
       comments: {
         'NOT INSTALLED': 'Will create Landonet',
+      },
+      skip: () => {
+        if (!['linux', 'wsl'].includes(process.landoPlatform)) return false;
+        return !require('../../utils/is-group-member')('docker');
       },
       hasRun: async () => {
         // if docker isnt even installed then this is easy

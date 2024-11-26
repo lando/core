@@ -6,11 +6,11 @@ module.exports = ({
   message = 'Lando wants to restart your computer',
   password = undefined,
   type = 'restart',
-  wait = process.platform === 'win32' ? 5 : 'now',
+  wait = process.landoPlatform === 'win32' ? 5 : 'now',
 } = {}) => {
   debug('shutdown with %o %o', type, {message, wait});
 
-  switch (process.platform) {
+  switch (process.landoPlatform) {
     case 'darwin':
       args.push('shutdown');
       // handle the restart type
@@ -36,7 +36,6 @@ module.exports = ({
 
       return require('./run-command')('shutdown', args, {debug});
     case 'win32':
-    case 'wsl':
       // handle the restart type
       if (type === 'logout') args.push('/l');
       else if (type === 'restart') args.push('/r');
@@ -50,5 +49,9 @@ module.exports = ({
       args.push(message);
 
       return require('./run-command')('shutdown.exe', args, {debug});
+    case 'wsl':
+      args.push('-Command');
+      args.push(`wsl --terminate ${process.env.WSL_DISTRO_NAME}`);
+      return require('./run-command')('powershell.exe', args, {debug});
   }
 };

@@ -86,7 +86,7 @@ module.exports = async (lando, options) => {
         const wcaKey = path.join(certs, path.basename(caKey));
 
         // here is the easy cehck
-        if ([wcaCert, wcaKey].some(file => !fs.existsSync(file))) return false;
+        if ([caCert, caKey, wcaCert, wcaKey].some(file => !fs.existsSync(file))) return false;
 
         // if we get here we need to check if the file are the same
         const certCompare = Buffer.compare(fs.readFileSync(caCert), fs.readFileSync(wcaCert));

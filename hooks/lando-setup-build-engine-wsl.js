@@ -1,6 +1,7 @@
 'use strict';
 
 const axios = require('../utils/get-axios')();
+const fs = require('fs');
 const getWinEnvar = require('../utils/get-win32-envvar-from-wsl');
 const path = require('path');
 const semver = require('semver');
@@ -107,7 +108,7 @@ module.exports = async (lando, options) => {
   options.tasks.push({
     title: 'Downloading build engine',
     id: 'setup-build-engine',
-    description: '@lando/build-engine (docker-desktop))',
+    description: '@lando/build-engine (docker-desktop)',
     version: `docker-desktop ${install}`,
     hasRun: async () => {
       // start by looking at the engine install status
@@ -117,9 +118,15 @@ module.exports = async (lando, options) => {
       // if we get here let's make sure the engine is on
       try {
         await lando.engine.daemon.up({max: 1, backoff: 1000});
-        const BuildEngine = require('../components/docker-engine');
-        const bengine = new BuildEngine(lando.config.buildEngine, {debug});
-        await bengine.info();
+
+        // wait for mount to exist
+        await lando.Promise.retry(() => {
+          return fs.existsSync('/Docker/host/bin/docker.exe') ? Promise.resolve() : Promise.reject();
+        }, {max: 5, backoff: 1000});
+
+        // get info
+        await require('../utils/run-command')('/Docker/host/bin/docker.exe', ['info'], {debug});
+
         return true;
       } catch (error) {
         lando.log.debug('docker install task has not run %j', error);
@@ -173,6 +180,7 @@ module.exports = async (lando, options) => {
     id: 'setup-build-engine-group',
     dependsOn: ['setup-build-engine'],
     description: `@lando/build-engine-group (${lando.config.username}@docker)`,
+    requiresRestart: true,
     comments: {
       'NOT INSTALLED': `Will add ${lando.config.username} to docker group`,
     },
