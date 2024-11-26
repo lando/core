@@ -1,6 +1,8 @@
 'use strict';
 
-/**
+const os = require('os');
+
+/*
  * Retrieves system Certificate Authority (CA) certificates based on the current platform.
  *
  * This function handles different platforms (macOS, Linux, Windows) and returns
@@ -15,17 +17,21 @@
  * @throws {Error} May throw errors during certificate processing, which are logged
  *                 to the console but do not interrupt the function's execution.
  */
-module.exports = (format = 'fingerprint') => {
+module.exports = async ({
+  format = 'fingerprint',
+  platform = process.landoPlatform,
+}= {}) => {
   const fingerprints = [];
 
-  switch (process.platform) {
+  switch (platform) {
     case 'darwin':
       // For macOS, we use the 'mac-ca' library which handles the formatting
       return require('mac-ca').get({format});
+
     case 'linux':
       // For Linux, we use the 'system-ca' library to get system certificates
-      const {systemCertsSync} = require('system-ca');
-      for (const cert of systemCertsSync()) {
+      const {systemCertsAsync} = require('system-ca');
+      for (const cert of await systemCertsAsync()) {
         try {
           fingerprints.push(require('./get-fingerprint')(cert));
         } catch {
@@ -49,7 +55,20 @@ module.exports = (format = 'fingerprint') => {
       }
 
       return fingerprints;
+    case 'wsl':
+      const {stdout} = await require('./run-command')(
+        'powershell.exe',
+        ['-Command', 'Get-ChildItem -Path Cert:\\CurrentUser\\Root | Select-Object -ExpandProperty Thumbprint'],
+      );
+
+      fingerprints.push(...stdout
+        .split(os.EOL)
+        .map(fingerprint => fingerprint.trim())
+        .map(fingerprint => fingerprint.toLowerCase())
+        .filter(fingerprint => fingerprint && fingerprint !== ''));
+
+      return fingerprints;
     default:
-      throw new Error(`Unsupported platform: ${process.platform}`);
+      throw new Error(`Unsupported platform: ${process.landoPlatform}`);
   }
 };

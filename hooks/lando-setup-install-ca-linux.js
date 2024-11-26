@@ -33,7 +33,10 @@ module.exports = async (lando, options) => {
         const fingerprint = require('../utils/get-fingerprint')(caCert);
         debug('computed sha1 fingerprint %o for ca %o', fingerprint, caCert);
 
-        return require('../utils/get-system-cas')().includes(fingerprint);
+        // get fingerprints
+        const linuxfps = await require('../utils/get-system-cas')();
+
+        return linuxfps.includes(fingerprint);
       } catch (error) {
         debug('error determining fingerprint of %o: %o %o', caCert, error.message, error.stack);
         return false;
