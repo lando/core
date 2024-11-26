@@ -115,14 +115,22 @@ module.exports = async (lando, options) => {
       // @NOTE: is this always defined?
       if (lando.engine.dockerInstalled === false) return false;
 
-      // if we get here let's make sure the engine is on
+      // first try to up the engine
       try {
         await lando.engine.daemon.up({max: 1, backoff: 1000});
+      } catch (error) {
+        lando.log.debug('docker install task has not run %j', error);
+        return false;
+      }
 
+      // if we get here lets try to run a docker command that needs the daemon
+      // we use the host version of docker because we have access to the socket that way
+      // without having to rely on the wsl user being in the docker group
+      try {
         // wait for mount to exist
         await lando.Promise.retry(() => {
           return fs.existsSync('/Docker/host/bin/docker.exe') ? Promise.resolve() : Promise.reject();
-        }, {max: 5, backoff: 1000});
+        }, {max: 3, backoff: 1000});
 
         // get info
         await require('../utils/run-command')('/Docker/host/bin/docker.exe', ['info'], {debug});
