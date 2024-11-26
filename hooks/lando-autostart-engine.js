@@ -13,26 +13,8 @@ module.exports = async lando => {
         delay: 1000,
       },
       task: async (ctx, task) => {
-        // Prompt for sudo password on linux
-        if (lando.config.os.landoPlatform === 'linux' && lando.config.isInteractive) {
-          ctx.password = await task.prompt({
-            type: 'password',
-            name: 'password',
-            message: `Enter computer password for ${lando.config.username} to start docker`,
-            validate: async (input, state) => {
-              const options = {debug, ignoreReturnCode: true, password: input};
-              const response = await require('../utils/run-elevated')(['echo', 'hello there'], options);
-              if (response.code !== 0) return response.stderr;
-              return true;
-            },
-            onCancel() {
-              process.emit('SIGINT');
-            },
-          });
-        }
-
         try {
-          await lando.engine.daemon.up(false, ctx.password);
+          await lando.engine.daemon.up(false);
           await lando.shell.sh([`"${lando.engine.daemon.docker}"`, 'network', 'ls']);
         } catch (error) {
           ctx.errors.push(error);
