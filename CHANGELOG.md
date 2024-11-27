@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.14 - [November 27, 2024](https://github.com/lando/core/releases/tag/v3.23.14)
+
 ### New Features & Improvements
 
 * Added first class support to `lando setup` when run from `wsl` environments, see extended notes below
