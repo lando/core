@@ -154,7 +154,7 @@ module.exports = async (lando, options) => {
 
         // finish up
         const location = process.env.ProgramW6432 ?? process.env.ProgramFiles;
-        task.title = `Installed build engine to ${location}/Docker/Docker!`;
+        task.title = `Installed build engine (Docker Desktop) to ${location}/Docker/Docker!`;
         return result;
       } catch (error) {
         throw error;

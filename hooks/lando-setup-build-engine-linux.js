@@ -102,7 +102,7 @@ module.exports = async (lando, options) => {
         result.download = ctx.download;
 
         // finish up
-        task.title = 'Installed build engine to /usr/bin/docker';
+        task.title = 'Installed build engine (Docker Engine) to /usr/bin/docker';
         return result;
       } catch (error) {
         throw error;

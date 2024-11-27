@@ -116,7 +116,7 @@ module.exports = async (lando, options) => {
 
       // if we get here let's make sure the engine is on
       try {
-        await lando.engine.daemon.up({max: 5, backoff: 1000});
+        await lando.engine.daemon.up({max: 3, backoff: 1000});
         return true;
       } catch (error) {
         lando.log.debug('docker install task has not run %j', error);
@@ -155,8 +155,8 @@ module.exports = async (lando, options) => {
         result.download = ctx.download;
 
         // finish up
-        const location = process.env.ProgramW6432 ?? process.env.ProgramFiles;
-        task.title = `Installed build engine to ${location}/Docker/Docker!`;
+        const location = await getWinEnvar('ProgramW6432', {debug}) ?? await getWinEnvar('ProgramFiles', {debug});
+        task.title = `Installed build engine (Docker Desktop) to ${location}/Docker/Docker!`;
         return result;
       } catch (error) {
         throw error;

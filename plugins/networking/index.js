@@ -75,7 +75,7 @@ module.exports = lando => {
 
         // otherwise attempt to sus things out
         try {
-          await lando.engine.daemon.up({max: 5, backoff: 1000});
+          await lando.engine.daemon.up({max: 3, backoff: 1000});
           const landonet = lando.engine.getNetwork(lando.config.networkBridge);
           await landonet.inspect();
           return lando.versions.networking > 1;
