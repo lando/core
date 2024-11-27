@@ -1,0 +1,75 @@
+name: Setup WSL Tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  leia-tests:
+    runs-on: ${{ matrix.os }}
+    env:
+      TERM: xterm
+    strategy:
+      fail-fast: false
+      matrix:
+        leia-test:
+          - setup-linux
+        node-version:
+          - "20"
+        os:
+          - windows-2022
+    defaults:
+      run:
+        shell: wsl bash --noprofile --norc -euo pipefail "$(script="$(wslpath '{0}')" && sed -i 's/\r$//' "$script" && echo "$script")"
+    steps:
+      - name: Install Ubuntu in WSL2
+        shell: pwsh
+        run: |
+          # Manually download and install Ubuntu to avoid the reboot that kills the Actions runner
+          Set-Service -Name StorSvc -StartupType Automatic
+          wsl.exe --set-default-version 2
+          wsl.exe --update
+          $distributionInfo = Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/microsoft/WSL/refs/heads/master/distributions/DistributionInfo.json'
+          $downloadUrl = $distributionInfo.Distributions.Where({ $_.Name -eq 'Ubuntu' }).Amd64PackageUrl
+          $filename = [System.IO.Path]::GetFileName($downloadUrl)
+          Write-Output 'Installing Ubuntu...'
+          Set-Location $env:TEMP
+          Invoke-WebRequest -Uri $downloadUrl -OutFile $filename
+          Expand-Archive -Path $filename -DestinationPath .\
+          .\ubuntu.exe install --root
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org
+          cache: npm
+      - name: Bundle Deps
+        uses: lando/prepare-release-action@v3
+        with:
+          lando-plugin: true
+          version: dev
+          sync: false
+      - name: Install pkg dependencies
+        run: npm clean-install --prefer-offline --frozen-lockfile --production
+      - name: Package into node binary
+        uses: lando/pkg-action@v5
+        id: pkg-action
+        with:
+          entrypoint: bin/lando
+          node-version: ${{ matrix.node-version }}
+          options: --options dns-result-order=ipv4first
+          upload: false
+          pkg: "@yao-pkg/pkg@5.16.1"
+      - name: Install full deps
+        run: npm clean-install --prefer-offline --frozen-lockfile
+      - name: Setup lando ${{ steps.pkg-action.outputs.file }}
+        uses: lando/setup-lando@v3
+        with:
+          auto-setup: false
+          lando-version: ${{ steps.pkg-action.outputs.file }}
+          telemetry: false
+      - name: Run Leia Tests
+        run: |
+          npx leia "examples/${{ matrix.leia-test }}/README.md" -c 'Destroy tests' --stdin --debug
