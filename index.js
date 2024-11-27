@@ -49,21 +49,25 @@ module.exports = async lando => {
   const caCert = path.join(caDir, `${caName}.crt`);
   const caKey = path.join(caDir, `${caName}.key`);
 
+  const platform = lando.config.os.landoPlatform;
+
   // Ensure some dirs exist before we start
   _.forEach([binDir, caDir, sshDir], dir => fs.mkdirSync(dir, {recursive: true}));
 
   // Ensure we munge plugin stuff together appropriately
-  lando.events.once('pre-install-plugins', async options => await require('./hooks/lando-setup-common-plugins')(lando, options)); // eslint-disable-line max-len
+  lando.events.once('pre-install-plugins', async options => await require('./hooks/lando-setup-common-plugins')(lando, options));
 
   // move v3 scripts directories as needed
   lando.events.on('pre-setup', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
 
   // Ensure we setup docker if needed
-  lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-build-engine-${lando.config.os.landoPlatform}`)(lando, options)); // eslint-disable-line max-len
+  lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-build-engine-${platform}`)(lando, options));
 
-  // Ensure we create and install ca if needed
-  lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-create-ca')(lando, options));
-  lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-install-ca-${lando.config.os.landoPlatform}`)(lando, options)); // eslint-disable-line max-len
+  // Ensure we create ca
+  lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-create-ca${platform === 'wsl' ? '-wsl' : ''}`)(lando, options)); // eslint-disable-line max-len
+
+  // And install ca
+  lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-install-ca-${platform}`)(lando, options));
 
   // also move scripts for init considerations
   lando.events.on('pre-init', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
