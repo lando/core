@@ -12,6 +12,7 @@
 
 // set this first for all other downstream concerns
 const dns = require('dns');
+
 // Set DNS result order to IPv4 first
 dns.setDefaultResultOrder('ipv4first');
 
@@ -126,6 +127,7 @@ cli.checkPerms();
 
 // Lando cache stuffs
 process.lando = 'node';
+process.landoPlatform = require(`${COREBASE}/utils/is-wsl-interop`)() ? 'wsl' : process.platform;
 process.landoTaskCacheName = '_.tasks.cache';
 process.landoTaskCacheFile = path.join(cli.defaultConfig().userConfRoot, 'cache', process.landoTaskCacheName);
 process.landoAppCacheFile = !_.isEmpty(appConfig) ? appConfig.composeCache : undefined;

@@ -1,6 +1,10 @@
 'use strict';
 
 const fs = require('fs');
+const getWinEnvar = require('../utils/get-win32-envvar-from-wsl');
+const path = require('path');
+const wslpath = require('../utils/winpath-2-wslpath');
+const remove = require('../utils/remove');
 
 module.exports = async (lando, options) => {
   const debug = require('../utils/debug-shim')(lando.log);
@@ -16,34 +20,17 @@ module.exports = async (lando, options) => {
       'NOT INSTALLED': 'Will create Lando Development Certificate Authority (CA)',
     },
     hasRun: async () => {
-      const forge = require('node-forge');
-      const read = require('../utils/read-file');
-
       if ([caCert, caKey].some(file => !fs.existsSync(file))) return false;
 
       // check if the ca is valid and has a matching key
-      try {
-        const ca = forge.pki.certificateFromPem(read(caCert));
-        const key = forge.pki.privateKeyFromPem(read(caKey));
-
-        // verify the signature using the public key in the CA certificate
-        const md = forge.md.sha256.create();
-        md.update('taanab', 'utf8');
-        const signature = key.sign(md);
-
-        // if they dont match then throw
-        if (!ca.publicKey.verify(md.digest().bytes(), signature)) {
-          throw new Error('CA and its private key do not match');
-        }
-
-        // @TODO: throw error if CA has expired?
-
-        return true;
-      } catch (error) {
-        debug('Something is wrong with the CA %o %o', error.message, error.stack);
-        [caCert, caKey].some(file => !fs.unlinkSync(file));
+      if (!require('../utils/validate-ca')(caCert, caKey, {debug})) {
+        remove(caCert);
+        remove(caKey);
         return false;
       }
+
+      // otherwise we are good
+      return true;
     },
     task: async (ctx, task) => {
       const write = require('../utils/write-file');
@@ -61,6 +48,18 @@ module.exports = async (lando, options) => {
       // write the cert and key
       write(caCert, cert);
       write(caKey, key);
+
+      // on wsl we also want to move these over
+      if (lando.config.os.landoPlatform === 'wsl') {
+        const write = require('../utils/write-file');
+        const winHome = await getWinEnvar('USERPROFILE');
+        const winCertsDir = await wslpath(path.join(winHome, '.lando', 'certs'));
+        const wcaCert = path.join(winCertsDir, path.basename(caCert));
+        const wcaKey = path.join(winCertsDir, path.basename(caKey));
+        write(wcaCert, cert);
+        write(wcaKey, key);
+      }
+
       task.title = 'Created Lando Development CA';
     },
   });

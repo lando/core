@@ -310,8 +310,8 @@ class L337ServiceV4 extends EventEmitter {
           file.instructions = file.url ? ['ADD'] : ['COPY'];
           if (file.owner) file.instructions.push(`--chown=${file.owner}`);
           if (file.permissions) file.instructions.push(`--chmod=${file.permissions}`);
-          file.instructions.push(file.url ?? path.join('.', file.target));
-          file.instructions.push(process.platform === 'win32' ? file.target : path.resolve('/', file.target));
+          file.instructions.push(file.url ?? path.posix.resolve('/', file.target));
+          file.instructions.push(path.posix.resolve('/', file.target));
           file.instructions = file.instructions.join(' ');
         }
 

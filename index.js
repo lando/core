@@ -37,7 +37,7 @@ const uc = () => ({
 });
 
 module.exports = async lando => {
-  // Set some stuff and set seom stuff up
+  // set some stuff and set seom stuff up
   const caDir = path.join(lando.config.userConfRoot, 'certs');
   const sshDir = path.join(lando.config.home, '.ssh');
   const binDir = path.join(lando.config.userConfRoot, 'bin');
@@ -49,26 +49,32 @@ module.exports = async lando => {
   const caCert = path.join(caDir, `${caName}.crt`);
   const caKey = path.join(caDir, `${caName}.key`);
 
-  // Ensure some dirs exist before we start
+  const platform = lando.config.os.landoPlatform;
+
+  // ensure some dirs exist before we start
   _.forEach([binDir, caDir, sshDir], dir => fs.mkdirSync(dir, {recursive: true}));
 
-  // Ensure we munge plugin stuff together appropriately
-  lando.events.once('pre-install-plugins', async options => await require('./hooks/lando-setup-common-plugins')(lando, options)); // eslint-disable-line max-len
+  // ensure we munge plugin stuff together appropriately
+  lando.events.once('pre-install-plugins', async options => await require('./hooks/lando-setup-common-plugins')(lando, options));
 
   // move v3 scripts directories as needed
   lando.events.on('pre-setup', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
 
-  // Ensure we setup docker if needed
-  lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-build-engine-${process.platform}`)(lando, options)); // eslint-disable-line max-len
+  // ensure we setup docker if needed
+  lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-build-engine-${platform}`)(lando, options));
 
-  // Ensure we create and install ca if needed
+  // do some sepecial handling on wsl
+  lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-create-ca-wsl')(lando, options));
+  // ensure we create ca
   lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-create-ca')(lando, options));
-  lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-install-ca-${process.platform}`)(lando, options)); // eslint-disable-line max-len
+
+  // and install ca
+  lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-install-ca-${platform}`)(lando, options));
 
   // also move scripts for init considerations
   lando.events.on('pre-init', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
 
-  // Ensure we setup docker-compose if needed
+  // ensure we setup docker-compose if needed
   lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-orchestrator')(lando, options));
 
   // move v3 scripts directories as needed
@@ -96,7 +102,7 @@ module.exports = async lando => {
   // move v3 scripts directories as needed
   lando.events.on('pre-engine-start', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
 
-  // Return some default things
+  // return some default things
   return _.merge({}, defaults, uc(), {config: {
     appEnv: {
       LANDO_CA_CERT: '/lando/certs/' + path.basename(caCert),

@@ -1,5 +1,27 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+### New Features & Improvements
+
+* Added first class support to `lando setup` when run from `wsl` environments, see extended notes below
+* Improved `docker` auto start on `linux` to use `GUI` authentication if available
+* Improved messages and consistency between messages for `lando setup` tasks
+* Improved pending setup task sort order
+
+### Fixes
+
+* Fixed bug in `l337` component preventing some context files from being `COPY`ed correclty on `win32`
+* Fixed bug in `docker` launching causing it to not wait until `daemon` can accept connections
+* Fixed bug causing `deferred` tasks to show as `Running` instead of `Deferred`
+* Fixed bug causing case insenstive group membership matching to fail on `win32`
+
+### Internal
+
+* Introduced `process.landoPlatform` which is the same as `process.platform` but includes _our_ definition of `wsl` as a platform, see extended notes below
+
+### Extended Notes
+
+* Lando considers an environment a `wsl` environment only if `WSL_INTEROP` is on, otherwise it considers it a normal `linux` environment
+
 ## v3.23.13 - [November 23, 2024](https://github.com/lando/core/releases/tag/v3.23.13)
 
 * Fixed bug causing metrics opt-out to not work in some situations [#277](https://github.com/lando/core/issues/277)

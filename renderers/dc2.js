@@ -36,8 +36,9 @@ class DC2Renderer extends LandoRenderer {
     options.states = {
       COMPLETED: {message: 'Done', color: 'green'},
       FAILED: {message: 'ERROR', color: 'red'},
+      SKIPPED: {message: 'Deferred', color: 'gray'},
       STARTED: {message: 'Waiting', color: 'green'},
-      WAITING: {message: 'Waiting', color: 'yellow'},
+      WAITING: {message: 'Waiting', color: 'gray'},
       ...options.states,
     };
 
