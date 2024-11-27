@@ -47,7 +47,7 @@ Please also verify you meet the requirements needed to run our Docker engine bac
 * Docker Desktop for Mac [requirements](https://docs.docker.com/desktop/setup/install/mac-install/#system-requirements)
 * Docker Desktop for Windows [requirements](https://docs.docker.com/desktop/setup/install/windows-install/#system-requirements)
 
-#### Using Alternative Docker Providers (Orbstack, Colima, Rancher, etc.)
+#### Using Alternative Docker Providers for Mac (Orbstack, Colima, Rancher, etc.)
 
 Support for swapping Docker providers will be officially available in Lando 4. In the meantime, you can use [Orbstack](https://orbstack.dev/) as a drop-in replacement. After installing Lando, follow these steps:
 
