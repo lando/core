@@ -1,6 +1,10 @@
 'use strict';
 
 const fs = require('fs');
+const getWinEnvar = require('../utils/get-win32-envvar-from-wsl');
+const path = require('path');
+const wslpath = require('../utils/winpath-2-wslpath');
+const remove = require('../utils/remove');
 
 module.exports = async (lando, options) => {
   const debug = require('../utils/debug-shim')(lando.log);
@@ -20,8 +24,8 @@ module.exports = async (lando, options) => {
 
       // check if the ca is valid and has a matching key
       if (!require('../utils/validate-ca')(caCert, caKey, {debug})) {
-        fs.unlinkSync(caCert);
-        fs.unlinkSync(caKey);
+        remove(caCert);
+        remove(caKey);
         return false;
       }
 
@@ -44,6 +48,17 @@ module.exports = async (lando, options) => {
       // write the cert and key
       write(caCert, cert);
       write(caKey, key);
+
+      // on wsl we also want to move these over
+      if (lando.config.os.landoPlatform === 'wsl') {
+        const write = require('../utils/write-file');
+        const winHome = await getWinEnvar('USERPROFILE');
+        const winCertsDir = await wslpath(path.join(winHome, '.lando', 'certs'));
+        const wcaCert = path.join(winCertsDir, path.basename(caCert));
+        const wcaKey = path.join(winCertsDir, path.basename(caKey));
+        write(wcaCert, cert);
+        write(wcaKey, key);
+      }
 
       task.title = 'Created Lando Development CA';
     },
