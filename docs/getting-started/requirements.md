@@ -47,6 +47,16 @@ Please also verify you meet the requirements needed to run our Docker engine bac
 * Docker Desktop for Mac [requirements](https://docs.docker.com/desktop/setup/install/mac-install/#system-requirements)
 * Docker Desktop for Windows [requirements](https://docs.docker.com/desktop/setup/install/windows-install/#system-requirements)
 
+#### Using Alternative Docker Providers (Orbstack, Colima, Rancher, etc.)
+
+Support for swapping Docker providers will be officially available in Lando 4. In the meantime, you can use [Orbstack](https://orbstack.dev/) as a drop-in replacement. After installing Lando, follow these steps:
+
+* Install Orbstack. (You can migrate your existing containers easily)
+* Close Docker Desktop and ensure that auto-start is disabled in Docker Desktop settings.
+* Lando only checks for the presence of the Docker.app client—it does not require Docker Desktop to be running.
+
+By opening Orbstack, it will bind the necessary docker CLI commands that Lando expects and uses. This allows you to run Lando seamlessly without relying on Docker Desktop.
+
 ## Preflight Checks
 
 1. Verify that your system meets the [minimum system and hardware requirements](#system-requirements) to run Lando.
