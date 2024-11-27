@@ -28,6 +28,6 @@ const getDockerBin = (bin, base, pathFallback = true) => {
 };
 
 module.exports = () => {
-  const base = (process.landoPlatform ?? process.platform === 'linux') ? '/usr/bin' : require('./get-docker-bin-path')();
+  const base = (process.landoPlatform === 'linux' || process.platform === 'linux') ? '/usr/bin' : require('./get-docker-bin-path')();
   return getDockerBin('docker', base);
 };

@@ -218,7 +218,7 @@ module.exports = lando => {
 
         // print table
         console.log('');
-        ux.table(sortBy(rows, ['row', 'weight']), columns);
+        ux.table(sortBy(rows, ['description', 'weight']), columns);
         console.log('');
 
         // things are good!

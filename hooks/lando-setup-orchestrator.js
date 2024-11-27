@@ -74,7 +74,7 @@ module.exports = async (lando, options) => {
       const download = require('../utils/download-x')(url, {debug, dest, test: ['--version']});
       // success
       download.on('done', data => {
-        task.title = `Installed orchestrator to ${dest}`;
+        task.title = `Installed orchestrator (Docker Compose) to ${dest}`;
         resolve(data);
       });
       // handle errors

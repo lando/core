@@ -43,7 +43,16 @@ module.exports = async (lando, options) => {
     hasRun: async () => {
       // start by looking at the engine install status
       // @NOTE: is this always defined?
-      return lando.engine.dockerInstalled;
+      if (lando.engine.dockerInstalled === false) return false;
+
+      // if we get here let's make sure the engine is on
+      try {
+        await lando.engine.daemon.up({max: 1, backoff: 1000});
+        return true;
+      } catch (error) {
+        lando.log.debug('docker install task has not run %j', error);
+        return false;
+      }
     },
     canRun: async () => {
       // throw if we cannot resolve a semantic version to a buildid
@@ -93,7 +102,7 @@ module.exports = async (lando, options) => {
         result.download = ctx.download;
 
         // finish up
-        task.title = 'Installed build engine to /usr/bin/docker';
+        task.title = 'Installed build engine (Docker Engine) to /usr/bin/docker';
         return result;
       } catch (error) {
         throw error;

@@ -163,7 +163,7 @@ module.exports = async (lando, options) => {
         result.download = ctx.download;
 
         // finish up
-        task.title = 'Installed build engine to /Applications/Docker.app';
+        task.title = 'Installed build engine (Docker Desktop) to /Applications/Docker.app';
         return result;
       } catch (error) {
         throw error;
