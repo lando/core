@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.14 - [November 27, 2024](https://github.com/lando/core/releases/tag/v3.23.14)
+
 ### New Features & Improvements
 
 * Added first class support to `lando setup` when run from `wsl` environments, see extended notes below
@@ -13,6 +15,7 @@
 * Fixed bug in `docker` launching causing it to not wait until `daemon` can accept connections
 * Fixed bug causing `deferred` tasks to show as `Running` instead of `Deferred`
 * Fixed bug causing case insenstive group membership matching to fail on `win32`
+* Fixed some failures when running in `circleci` by forcing `verbose` renderer
 
 ### Internal
 
