@@ -161,6 +161,12 @@ lando everything --help | grep "lando this is just for testing"
 
 # Should be able to run even if options are empty
 lando emptyopter
+
+# Should inherit users terminal cols and rows
+lando cols
+lando lines
+cat cols | grep "$(tput cols)"
+cat lines | grep "$(tput lines)"
 ```
 
 ## Destroy tests
