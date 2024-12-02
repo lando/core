@@ -187,11 +187,11 @@ tooling:
     service: lando4
     cmd: env
   cols:
-    service: web
-    cmd: tput cols > cols
+    service: lando4
+    cmd: sh -c "tput cols > cols"
   lines:
-    service: web
-    cmd: tput lines > lines
+    service: lando4
+    cmd: sh -c "tput lines > lines"
   listfiles:
     service: web
     cmd: ls -lsa /app/*
