@@ -186,6 +186,12 @@ tooling:
   l4env:
     service: lando4
     cmd: env
+  cols:
+    service: lando4
+    cmd: sh -c "tput cols > cols"
+  lines:
+    service: lando4
+    cmd: sh -c "tput lines > lines"
   listfiles:
     service: web
     cmd: ls -lsa /app/*
@@ -235,7 +241,7 @@ tooling:
           - s
         describe: Runs in this service
   bad-tool: disabled
-  naughty-tool: false
+  naughty-tool: fals
   everything:
     cmd: /app/args.sh
     service: node

@@ -36,7 +36,8 @@ module.exports = async (tasks, {
   }
 
   // some sitautions just need the bare minimum
-  if (process?.env?.TERM === 'dumb' || process?.env?.CIRCLECI) renderer = 'verbose';
+  if (process?.env?.TERM === 'dumb') renderer = 'simple';
+  if (process?.env?.CI && !require('is-interactive')()) renderer = 'simple';
 
   const defaults = {
     ctx: {data: {}, errors: [], results: [], skipped: 0, ran: 0, total: 0},
