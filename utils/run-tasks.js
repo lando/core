@@ -35,8 +35,9 @@ module.exports = async (tasks, {
     fallbackRendererOptions = rendererOptions;
   }
 
-  // if terminal is DUMB then force the verbose renderer
-  if (process?.env?.TERM === 'dumb') renderer = 'verbose';
+  // some sitautions just need the bare minimum
+  if (process?.env?.TERM === 'dumb') renderer = 'simple';
+  if (process?.env?.CI && !require('is-interactive')()) renderer = 'simple';
 
   const defaults = {
     ctx: {data: {}, errors: [], results: [], skipped: 0, ran: 0, total: 0},

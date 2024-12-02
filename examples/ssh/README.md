@@ -58,6 +58,10 @@ lando ssh -s alpine -u root -c "ps a" | grep "sleep infinity"
 lando ssh -s web2 -u root -c "ps -e -o cmd" | grep "sleep infinity"
 lando ssh -s web3 -u root -c "ps -e -o cmd" | grep "sleep infinity"
 lando ssh -s web4 -u root -c "ps -e -o cmd" | grep "sleep infinity"
+
+# Should inherit users terminal cols and rows
+lando ssh -s web -c "tput cols | grep $(tput cols)"
+lando ssh -s web -c "tput lines | grep $(tput lines)"
 ```
 
 ## Destroy tests

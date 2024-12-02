@@ -137,7 +137,7 @@ module.exports = (lando, config = lando.appConfig) => ({
     // try to run it
     try {
       lando.log.debug('running exec command %o on %o', runner.cmd, runner.id);
-      await require('../utils/build-docker-exec')(lando, ['inherit', 'pipe', 'pipe'], runner);
+      await require('../utils/build-docker-exec')(lando, 'inherit', runner);
 
     // error
     } catch (error) {
