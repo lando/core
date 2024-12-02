@@ -67,6 +67,8 @@ module.exports = options => {
   config.engineConfig = getEngineConfig(config);
   // Strip all COMPOSE_ envvars
   config.env = stripEnv('COMPOSE_');
+  // Disable docker CLI_HINTS
+  config.env.DOCKER_CLI_HINTS = false;
 
   // if composeBin is set and orchestratorBin is not set then set one to the other
   if (config.composeBin && !config.orchestratorBin) config.orchestratorBin = config.composeBin;
