@@ -12,7 +12,7 @@ module.exports = ({
   env = {},
   options = {},
   service = '',
-  stdio = ['inherit', 'pipe', 'pipe'],
+  stdio = 'inherit',
   user = null,
   } = {}) =>
   ({

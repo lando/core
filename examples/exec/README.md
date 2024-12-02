@@ -91,6 +91,10 @@ lando exec web4 -- "mkdir -p /usr/share/nginx/html/test && echo hellothere > /us
 lando exec web4 -- "mkdir -p /usr/share/nginx/html/test && echo -n hello >> /usr/share/nginx/html/test/msg2 && echo there >> /usr/share/nginx/html/test/msg2 && cat /usr/share/nginx/html/test/msg2" | grep hellothere
 lando exec web4 -- "cat < /usr/share/nginx/html/test/msg2" | grep hellothere
 lando exec web4 -- "echo hellothere &> /dev/null" | grep hellothere || echo $? || echo 1
+
+# Should inherit users terminal cols and rows
+lando exec web -- "tput cols | grep $(tput cols)"
+lando exec web -- "tput lines | grep $(tput lines)"
 ```
 
 ## Destroy tests
