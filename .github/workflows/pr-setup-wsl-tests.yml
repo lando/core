@@ -20,9 +20,11 @@ jobs:
           - windows-2022
     defaults:
       run:
-        shell: wsl bash --noprofile --norc -euo pipefail "$(script="$(wslpath '{0}')" && sed -i 's/\r$//' "$script" && echo "$script")"
+        # Actions passes commands as a script with windows line endings, so we need to convert them to unix line endings
+        shell: wsl.exe bash --noprofile --norc -euo pipefail -c "touch ~/.env && source ~/.env; GITHUB_TOKEN=${{ github.token }} RUNNER_DEBUG=${{ env.RUNNER_DEBUG }} exec $(script="$(wslpath '{0}')" && sed -i 's/\r$//' "$script" && echo "$script")"
+
     steps:
-      - name: Install Ubuntu in WSL2
+      - name: Install Ubuntu for WSL2
         shell: pwsh
         run: |
           # Manually download and install Ubuntu to avoid the reboot that kills the Actions runner
@@ -32,44 +34,71 @@ jobs:
           $distributionInfo = Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/microsoft/WSL/refs/heads/master/distributions/DistributionInfo.json'
           $downloadUrl = $distributionInfo.Distributions.Where({ $_.Name -eq 'Ubuntu' }).Amd64PackageUrl
           $filename = [System.IO.Path]::GetFileName($downloadUrl)
-          Write-Output 'Installing Ubuntu...'
+          Write-Output 'Installing Ubuntu for WSL2...'
           Set-Location $env:TEMP
           Invoke-WebRequest -Uri $downloadUrl -OutFile $filename
           Expand-Archive -Path $filename -DestinationPath .\
           .\ubuntu.exe install --root
+      - name: Setup Ubuntu Shell Environment
+        shell: pwsh
+        run: |
+          $envVars = @"
+          export CI=true
+          export GITHUB_ACTIONS=true
+          export GITHUB_WORKSPACE=$(wsl.exe wslpath -a "$env:GITHUB_WORKSPACE")
+          export RUNNER_OS=Linux
+          export RUNNER_TEMP=$(wsl.exe wslpath -a "$env:RUNNER_TEMP")
+          export RUNNER_TOOL_CACHE=$(wsl.exe wslpath -a "$env:RUNNER_TOOL_CACHE")
+          "@
+          wsl.exe bash -c "echo '$envVars' > ~/.env"
       - name: Checkout code
-        uses: actions/checkout@v4
+        run: |
+          git clone --depth 1 --single-branch https://github.com/${{ github.repository }}.git .
+          git fetch --depth 1 origin ${{ github.sha }}
+          git checkout ${{ github.sha }}
       - name: Install node ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          registry-url: https://registry.npmjs.org
-          cache: npm
+        run: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+          echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.env
+          echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.env
+          source ~/.env
+          nvm install ${{ matrix.node-version }}
       - name: Bundle Deps
-        uses: lando/prepare-release-action@v3
-        with:
-          lando-plugin: true
-          version: dev
-          sync: false
+        run: |
+          mkdir -p ~/prepare-release-action
+          git clone --depth 1 https://github.com/lando/prepare-release-action.git ~/prepare-release-action
+          cd ~/prepare-release-action
+          export INPUT_PLUGIN=true
+          export INPUT_VERSION=dev
+          export INPUT_SYNC=false
+          export INPUT_BUNDLE-DEPENDENCIES=true
+          node dist/index.js
       - name: Install pkg dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile --production
       - name: Package into node binary
-        uses: lando/pkg-action@v5
         id: pkg-action
-        with:
-          entrypoint: bin/lando
-          node-version: ${{ matrix.node-version }}
-          options: --options dns-result-order=ipv4first
-          upload: false
-          pkg: "@yao-pkg/pkg@5.16.1"
+        run: |
+          npm install -g @yao-pkg/pkg@5.16.1
+          pkg bin/lando --target node${{ matrix.node-version }}-linux-x64 --options dns-result-order=ipv4first --output lando
+          echo "PKG_OUTPUT=lando" >> ${{ github.env }}
       - name: Install full deps
         run: npm clean-install --prefer-offline --frozen-lockfile
       - name: Setup lando ${{ steps.pkg-action.outputs.file }}
-        uses: lando/setup-lando@v3
-        with:
-          auto-setup: false
-          lando-version: ${{ steps.pkg-action.outputs.file }}
-          telemetry: false
+        run: |
+          mkdir -p ~/setup-lando
+          git clone --depth 1 https://github.com/lando/setup-lando.git ~/setup-lando
+          cd ~/setup-lando
+          export INPUT_AUTO_SETUP=false
+          export INPUT_LANDO_VERSION="${{ steps.pkg-action.outputs.file }}"
+          export INPUT_TELEMETRY=false
+          node dist/index.js
       - name: Run Leia Tests
         run: |
-          npx leia "examples/${{ matrix.leia-test }}/README.md" -c 'Destroy tests' --stdin --debug
+          mkdir -p ~/run-leia-action
+          git clone --depth 1 https://github.com/lando/run-leia-action.git ~/run-leia-action
+          cd ~/run-leia-action
+          export INPUT_LEIA_TEST="./examples/${{ matrix.leia-test }}/README.md"
+          export INPUT_CLEANUP_HEADER="Destroy tests"
+          export INPUT_SHELL="bash"
+          export INPUT_STDIN=true
+          node dist/index.js
