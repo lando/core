@@ -2,7 +2,7 @@
 
 ## v3.24.0-alpha.2 - [December 3, 2024](https://github.com/lando/core/releases/tag/v3.24.0-alpha.2)
 
-* This release has no new content it is just a test of dual branch developmebt and `edge` branch release deployment
+* This release has no new content it is just a test of dual branch development and `edge` branch release deployment
 
 ## v3.24.0-alpha.1 - [December 3, 2024](https://github.com/lando/core/releases/tag/v3.24.0-alpha.1)
 
