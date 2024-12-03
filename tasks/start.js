@@ -16,17 +16,11 @@ module.exports = lando => {
       if (app) {
         console.log(lando.cli.makeArt('appStart', {name: app.name, phase: 'pre'}));
 
-        // run any setup if we need to but without common plugins or build engine
-        const sopts = lando?.config?.setup;
-        sopts.buildEngine = false;
-        sopts.skipCommonPlugins = true;
-        sopts.yes = true;
-        const setupTasks = await lando.getSetupStatus(sopts);
+        // run setup if we need to
+        await require('../hooks/lando-run-setup')(lando);
 
         // Normal bootup
         try {
-          // run a limited setup if needed
-          if (setupTasks.length > 0) await lando.setup(sopts);
           // then start up
           await app.start();
           // determine legacy settings
