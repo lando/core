@@ -33,16 +33,10 @@ module.exports = lando => {
       if (app) {
         console.log(lando.cli.makeArt('appRebuild', {name: app.name, phase: 'pre'}));
 
-        // run any setup if we need to but without common plugins or build engine
-        const sopts = lando?.config?.setup;
-        sopts.buildEngine = false;
-        sopts.skipCommonPlugins = true;
-        sopts.yes = true;
-        const setupTasks = await lando.getSetupStatus(sopts);
+        // run setup if we need to
+        await require('../hooks/lando-run-setup')(lando);
 
         try {
-          // run a limited setup if needed
-          if (setupTasks.length > 0) await lando.setup(sopts);
           // If user has given us options then set those
           if (!_.isEmpty(options.service)) app.opts = _.merge({}, app.opts, {services: options.service});
           // rebuild hero
