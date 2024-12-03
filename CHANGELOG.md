@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.24.0-alpha.1 - [December 3, 2024](https://github.com/lando/core/releases/tag/v3.24.0-alpha.1)
+
 * This release has no new content it is just a test of dual branch developmebt and `edge` branch release deployment
 
 ## v3.23.15 - [December 3, 2024](https://github.com/lando/core/releases/tag/v3.23.15)
