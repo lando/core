@@ -2,6 +2,8 @@
 
 * Disabled `DOCKER_CLI_HINTS` on `lando`
 * Fixed bug causing some `lando exec` and tooling commands from not inheriting terminal columns and lines correctly[#277](https://github.com/lando/core/issues/277)
+* Fixed bug causing `lando setup` loop on `U Need Setup!`
+* Improved `ux` for `autosetup`
 * Standardized non-TTY renderer selection to the `simple` renderer
 
 ## v3.23.14 - [November 27, 2024](https://github.com/lando/core/releases/tag/v3.23.14)

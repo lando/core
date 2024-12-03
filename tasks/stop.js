@@ -10,6 +10,9 @@ module.exports = lando => ({
     // Stop it if we can!
     if (app) {
       console.log(lando.cli.makeArt('appStop', {name: app.name, phase: 'pre'}));
+      // run setup if we need to
+      await require('../hooks/lando-run-setup')(lando);
+      // stop
       await app.stop();
       console.log(' ');
       console.log(lando.cli.makeArt('appStop', {name: app.name, phase: 'post'}));
