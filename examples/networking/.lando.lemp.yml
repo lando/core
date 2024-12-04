@@ -41,4 +41,3 @@ services:
 
 plugins:
   "@lando/core": "../../.."
-  "@lando/proxy": "../../../plugins/proxy"

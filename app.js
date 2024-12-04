@@ -92,6 +92,9 @@ module.exports = async (app, lando) => {
   // load in and parse v4 services
   app.events.on('pre-init', async () => await require('./hooks/app-add-v4-services')(app, lando));
 
+  // initialize proxy stuff
+  app.events.on('pre-init', async () => await require('./hooks/app-init-proxy')(app, lando));
+
   // add in hostname
   app.events.on('post-init', 1, async () => await require('./hooks/app-add-hostnames')(app, lando));
 
@@ -115,6 +118,9 @@ module.exports = async (app, lando) => {
 
   // Add tooling if applicable
   app.events.on('post-init', async () => await require('./hooks/app-add-tooling')(app, lando));
+
+  // add proxy info as needed
+  app.events.on('post-init', async () => await require('./hooks/app-add-proxy-info')(app, lando));
 
   // Collect info so we can inject LANDO_INFO
   // @NOTE: this is not currently the full lando info because a lot of it requires the app to be on
@@ -160,6 +166,9 @@ module.exports = async (app, lando) => {
   // i really wish thre was a better way to do this but alas i do not think there is
   app.events.on('pre-rebuild', 10, async () => await require('./hooks/app-shuffle-locals')(app, lando));
 
+  // start up proxy
+  app.events.on('pre-start', 1, async () => await require('./hooks/app-start-proxy')(app, lando));
+
   // Check for updates if the update cache is empty
   app.events.on('pre-start', 1, async () => await require('./hooks/app-check-for-updates')(app, lando));
 
@@ -183,6 +192,9 @@ module.exports = async (app, lando) => {
 
   // Add path info/shellenv tip if needed
   app.events.on('post-start', async () => await require('./hooks/app-add-updates-info')(app, lando));
+
+  // add proxy info as needed
+  app.events.on('post-start', async () => await require('./hooks/app-add-proxy-info')(app, lando));
 
   // Add update tip if needed
   app.events.on('post-start', async () => await require('./hooks/app-add-path-info')(app, lando));

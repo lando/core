@@ -17,6 +17,29 @@ const defaults = {
     appLabels: {
       'io.lando.container': 'TRUE',
     },
+    proxy: 'ON',
+    proxyName: 'landoproxyhyperion5000gandalfedition',
+    proxyCache: 'proxyCache',
+    proxyCommand: [
+      '/entrypoint.sh',
+      '--log.level=DEBUG',
+      '--api.insecure=true',
+      '--api.dashboard=false',
+      '--providers.docker=true',
+      '--entrypoints.https.address=:443',
+      '--entrypoints.http.address=:80',
+      '--providers.docker.exposedbydefault=false',
+      '--providers.file.directory=/proxy_config',
+      '--providers.file.watch=true',
+    ],
+    proxyCustom: {},
+    proxyDefaultCert: '/certs/cert.crt',
+    proxyDefaultKey: '/certs/cert.key',
+    proxyHttpPort: '80',
+    proxyHttpsPort: '443',
+    proxyHttpFallbacks: ['8000', '8080', '8888', '8008'],
+    proxyHttpsFallbacks: ['444', '4433', '4444', '4443'],
+    proxyPassThru: true,
   },
 };
 
@@ -83,6 +106,9 @@ module.exports = async lando => {
   // move v3 scripts directories as needed
   lando.events.on('pre-init', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
 
+  // set proxy config
+  lando.events.on('post-bootstrap-config', async () => await require('./hooks/lando-set-proxy-config')(lando));
+
   // make sure Lando Specification 337 is available to all
   lando.events.on('post-bootstrap-app', async () => await require('./hooks/lando-add-l337-spec')(lando));
 
@@ -130,5 +156,8 @@ module.exports = async lando => {
     caKey,
     maxKeyWarning: 10,
     networkBridge: 'lando_bridge_network',
+    proxyBindAddress: _.get(lando, 'config.bindAddress', '127.0.0.1'),
+    proxyDomain: lando.config.domain,
+    proxyIp: _.get(lando.config, 'engineConfig.host', '127.0.0.1'),
   }});
 };
