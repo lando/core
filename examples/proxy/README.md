@@ -115,6 +115,12 @@ cp -rf .lando.stripped.yml .lando.yml
 lando rebuild -y | grep sub.lando-proxy.lndo.site || echo $? | grep 1
 docker inspect --format='{{ index .Config.Labels "traefik.http.routers.b6735d503ac33b70087610e0c8b0074439bbb51e.rule" }}' landoproxy_web_1  | grep sub.lando-proxy.lndo.site || echo $? | grep 1
 cp -rf .lando.old.yml .lando.yml
+
+# Should alias proxy addresses to the proxy container
+docker inspect --format '{{range .NetworkSettings.Networks}}{{if .Aliases}}{{.Aliases}}{{else}}[No aliases]{{end}}{{"\n"}}{{end}}' landoproxyhyperion5000gandalfedition_proxy_1 | grep lando-proxy.lndo.site
+docker inspect --format '{{range .NetworkSettings.Networks}}{{if .Aliases}}{{.Aliases}}{{else}}[No aliases]{{end}}{{"\n"}}{{end}}' landoproxyhyperion5000gandalfedition_proxy_1 | grep bob.frank.kbox.site
+docker inspect --format '{{range .NetworkSettings.Networks}}{{if .Aliases}}{{.Aliases}}{{else}}[No aliases]{{end}}{{"\n"}}{{end}}' landoproxyhyperion5000gandalfedition_proxy_1 | grep object-format.lndo.site
+docker inspect --format '{{range .NetworkSettings.Networks}}{{if .Aliases}}{{.Aliases}}{{else}}[No aliases]{{end}}{{"\n"}}{{end}}' landoproxyhyperion5000gandalfedition_proxy_1 | grep web5.lndo.site
 ```
 
 ## Destroy tests
