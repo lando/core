@@ -1,5 +1,0 @@
-name: "@lando/scanner"
-
-api: 3
-core: true
-is-updateable: true

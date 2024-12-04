@@ -199,6 +199,9 @@ module.exports = async (app, lando) => {
   // throw service not start errors
   app.events.on('post-start', 1, async () => await require('./hooks/app-check-v4-service-running')(app, lando));
 
+  // add app url scanning
+  app.events.on('post-start', 10, async () => await require('./hooks/app-add-url-scans')(app, lando));
+
   // Reset app info on a stop, this helps prevent wrong/duplicate information being reported on a restart
   app.events.on('post-stop', async () => require('./utils/get-app-info-defaults')(app));
 
