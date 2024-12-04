@@ -25,7 +25,7 @@ const errorCode = cmd => {
 };
 
 // Fake Spawner
-const fakeSpawn = (cmd, args, opts) => {
+const fakeSpawn = (cmd, args) => {
   const command = cmd + ' ' + args.join(' ');
   return {
     connected: !_.includes(command, 'van the man'),

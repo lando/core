@@ -39,7 +39,7 @@ module.exports = {
       mountService.services.mounter.labels['io.lando.service-container'] = 'TRUE';
       mountService.services.mounter.labels['io.lando.mount-container'] = 'TRUE';
       super('mounter', _.merge({}, config, {userConfRoot}), mountService);
-    };
+    }
   },
 };
 

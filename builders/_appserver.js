@@ -25,6 +25,6 @@ module.exports = {
         },
       })});
       super(id, options, ...sources);
-    };
+    }
   },
 };

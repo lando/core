@@ -21,5 +21,5 @@ module.exports = async (app, lando) => {
       ],
       command: 'lando shellenv --add',
     });
-  };
+  }
 };

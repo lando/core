@@ -23,6 +23,6 @@ module.exports = {
         webroot: options.webroot,
       });
       super(id, options, ...sources);
-    };
+    }
   },
 };

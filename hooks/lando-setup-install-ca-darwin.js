@@ -45,27 +45,23 @@ module.exports = async (lando, options) => {
       return true;
     },
     task: async (ctx, task) => {
-      try {
-        task.title = 'Installing Lando Development Certificate Authority (CA)';
+      task.title = 'Installing Lando Development Certificate Authority (CA)';
 
-        // Assemble the installation command
-        const fingerprint = require('../utils/get-fingerprint')(caCert);
-        const script = path.join(lando.config.userConfRoot, 'scripts', 'install-system-ca-macos.sh');
-        const args = ['--ca', caCert, '--fingerprint', fingerprint];
+      // Assemble the installation command
+      const fingerprint = require('../utils/get-fingerprint')(caCert);
+      const script = path.join(lando.config.userConfRoot, 'scripts', 'install-system-ca-macos.sh');
+      const args = ['--ca', caCert, '--fingerprint', fingerprint];
 
-        // Add optional arguments
-        if (options.debug || options.verbose > 0 || lando.debuggy) args.push('--debug');
-        if (!lando.config.isInteractive) args.push('--non-interactive');
+      // Add optional arguments
+      if (options.debug || options.verbose > 0 || lando.debuggy) args.push('--debug');
+      if (!lando.config.isInteractive) args.push('--non-interactive');
 
-        // Run the installation command
-        const result = await require('../utils/run-command')(script, args, {debug});
+      // Run the installation command
+      const result = await require('../utils/run-command')(script, args, {debug});
 
-        // Update task title on successful installation
-        task.title = 'Installed Lando Development Certificate Authority (CA)';
-        return result;
-      } catch (error) {
-        throw error;
-      }
+      // Update task title on successful installation
+      task.title = 'Installed Lando Development Certificate Authority (CA)';
+      return result;
     },
   });
 };

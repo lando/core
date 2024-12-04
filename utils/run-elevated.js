@@ -25,13 +25,14 @@ const getChild = (command, options) => {
   switch (options.method) {
     case 'sudo':
       return spawn('sudo', command, options);
-    case 'run-elevated':
+    case 'run-elevated': {
       // copy elevation script to tmpfile
       // @NOTE: we do this because if this code is run from a packaged up binary we dont have access to the file
       // from the outside
       const script = path.join(os.tmpdir(), `${nanoid()}.ps1`);
       fs.copyFileSync(path.resolve(__dirname, '..', 'scripts', 'run-elevated.ps1'), script);
       return require('./run-powershell-script')(script, command, options);
+    }
     default:
       return spawn('sudo', command, options);
   }

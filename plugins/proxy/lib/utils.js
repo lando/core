@@ -79,7 +79,7 @@ exports.normalizeRoutes = (services = {}) => Object.fromEntries(_.map(services, 
   });
 
   // merge together all routes with the same id
-  routes = _(_.groupBy(routes, 'id')).map((routes, id) => merge({}, routes, ['merge:key', 'replace'])).value();
+  routes = _(_.groupBy(routes, 'id')).map(routes => merge({}, routes, ['merge:key', 'replace'])).value();
 
   // return
   return [key, routes];
@@ -169,7 +169,7 @@ exports.parseRoutes = (service, urls = [], sslReady, labels = {}) => {
     // Add in any path stripping middleware we need it
     if (rule.pathname.length > 1) {
       rule.middlewares.push({name: 'stripprefix', key: 'stripprefix.prefixes', value: rule.pathname});
-    };
+    }
 
     // Ensure we prefix all middleware with the ruleid
     rule.middlewares = _(rule.middlewares)

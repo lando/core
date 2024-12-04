@@ -103,7 +103,7 @@ class L337ServiceV4 extends EventEmitter {
 
   constructor(id, {
     appRoot = path.join(os.tmpdir(), project, 'app', id),
-    buildArgs = {},
+    // buildArgs = {},
     context = path.join(os.tmpdir(), project, 'build-contexts', id),
     config = {},
     debug = L337ServiceV4.debug,
@@ -210,8 +210,8 @@ class L337ServiceV4 extends EventEmitter {
     args = args
       .map(arg => typeof arg === 'string' ? arg.split('=') : arg)
       .filter(arg => arg !== null && arg !== undefined)
-      .filter(([key, value]) => key !== null && key !== undefined)
-      .filter(([key, value]) => value !== null && value !== undefined)
+      .filter(([key]) => key !== null && key !== undefined)
+      .filter(([, value]) => value !== null && value !== undefined)
       .map(([key, value]) => ([key, String(value)]))
       .map(([key, value]) => ([key.trim(), value.trim()]));
 
@@ -793,6 +793,6 @@ class L337ServiceV4 extends EventEmitter {
     // log
     this.debug('%o set base image to %o with instructions %o', this.id, this.#data.image, this.#data.imageInstructions);
   }
-};
+}
 
 module.exports = L337ServiceV4;

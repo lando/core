@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = injected => ({'plugin-test': true});
+module.exports = () => ({'plugin-test': true});

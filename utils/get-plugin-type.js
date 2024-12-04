@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = plugin => require('is-root')() ? 'system' : 'user';
+module.exports = () => require('is-root')() ? 'system' : 'user';

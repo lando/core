@@ -178,7 +178,7 @@ module.exports = {
         fs.accessSync(this.command, fs.constants.X_OK);
       } catch {
         throw new LandoError(`Command file ${this.command} for ${this.id} is not executable!`, {context: this});
-      };
+      }
 
       // now complete the final mapping for container injection
       this.addLSF(this.command, `${this.id}-start.sh`, 'user');
@@ -392,7 +392,7 @@ module.exports = {
       // @TODO: allow for file path and single line contents
       if (config?.build?.app && typeof config.build.app === 'string') {
         this.addHookFile(config?.build?.app, {stage: 'app', hook: 'user'});
-      };
+      }
 
       // user image build stuff
       // @TODO: image:user image:root?
@@ -407,7 +407,7 @@ module.exports = {
           WORKDIR ${this.workdir}
           RUN ${runner}
         `});
-      };
+      }
 
       // info things
       this.info = {hostnames: this.hostnames};
@@ -558,12 +558,8 @@ module.exports = {
 
         await Promise.all(cstorage.map(async volume => {
           const bengine = this.getBengine();
-          try {
-            await bengine.createVolume({Name: volume.source, Labels: volume.labels});
-            this.debug('created service storage volume %o with metadata %o', volume.id, volume.labels);
-          } catch (error) {
-            throw error;
-          }
+          await bengine.createVolume({Name: volume.source, Labels: volume.labels});
+          this.debug('created service storage volume %o with metadata %o', volume.id, volume.labels);
         }));
       }
 
@@ -639,12 +635,8 @@ module.exports = {
 
         // and then trash them
         await Promise.all(volumes.map(async volume => {
-          try {
-            await volume.remove({force: true});
-            this.debug('removed %o volume %o', this.project, volume.id);
-          } catch (error) {
-            throw error;
-          }
+          await volume.remove({force: true});
+          this.debug('removed %o volume %o', this.project, volume.id);
         }));
       }
 

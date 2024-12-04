@@ -44,7 +44,7 @@ const runBuild = (lando, options = {}, steps = []) => lando.Promise.each(steps, 
         step,
       )),
     );
-  };
+  }
 });
 
 module.exports = lando => {

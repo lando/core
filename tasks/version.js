@@ -73,8 +73,8 @@ module.exports = lando => ({
           plugin.version = lando.config.version;
         }
 
-        // then set the version
-        versions[plugin.name] = `v${plugin.version}`;
+        // if not a hidden plugin then set the version
+        if (!plugin.hidden) versions[plugin.name] = `v${plugin.version}`;
       }
     }
 
