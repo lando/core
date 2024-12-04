@@ -3,8 +3,7 @@
 // Modules
 const _ = require('lodash');
 const path = require('path');
-const toObject = require('../../lib/utils').toObject;
-const utils = require('./lib/utils');
+const toObject = require('../utils/to-object');
 
 // Helper to get excludes
 const getExcludes = (data = [], inverse = false) => _(data)
@@ -14,8 +13,36 @@ const getExcludes = (data = [], inverse = false) => _(data)
   .compact()
   .value();
 
+// Get directories to include
+const getIncludeVolumes = (excludes = [], base = '/app', mount = 'cached') => _(excludes)
+  .map(exclude => `${base}/${exclude}:/app/${exclude}:${mount}`)
+  .value();
+
 // Helper to get includes
 const getIncludes = data => getExcludes(data, true);
+
+// Helper to get named volume
+const getNamedVolumeName = exclude => 'exclude_' + path
+  .normalize(exclude).replace(/\W/g, '').split(path.sep).join('_');
+
+// Helper to map exclude directories to named volume name
+const getNamedVolumeNames = (excludes = []) => _(excludes)
+  .map(exclude => getNamedVolumeName(exclude))
+  .value();
+
+// Helper to get named volumes
+const getNamedVolumes = (excludes = []) => _(excludes)
+  .thru(excludes => toObject(getNamedVolumeNames(excludes)))
+  .value();
+
+// Helper to get popuylation command
+const getPopCommand = (excludes = []) => _.compact(_.flatten([['/helpers/mounter.sh'], excludes]));
+
+// Get service volumes
+const getServiceVolumes = (excludes = [], base = '/tmp') => _(excludes)
+  .map(exclude => ({mount: getNamedVolumeName(exclude), path: path.posix.join(base, exclude)}))
+  .map(exclude => `${exclude.mount}:${exclude.path}`)
+  .value();
 
 // Helper to determine whether we should exclude
 const shouldExclude = (excludes = []) => {
@@ -24,9 +51,6 @@ const shouldExclude = (excludes = []) => {
   // Otherwise return if we have non-empty config
   return !_.isEmpty(getExcludes(excludes));
 };
-
-// Helper to get popuylation command
-const getPopCommand = (excludes = []) => _.compact(_.flatten([['/helpers/mounter.sh'], excludes]));
 
 module.exports = (app, lando) => {
   if (shouldExclude(_.get(app, 'config.excludes', []))) {
@@ -63,10 +87,10 @@ module.exports = (app, lando) => {
 
     // Sharing is caring
     app.events.on('post-init', () => {
-      const serviceExcludes = utils.getServiceVolumes(excludes, '/app');
-      const serviceIncludes = utils.getIncludeVolumes(includes, app.root);
+      const serviceExcludes = getServiceVolumes(excludes, '/app');
+      const serviceIncludes = getIncludeVolumes(includes, app.root);
       app.add(new app.ComposeService('excludes', {}, {
-        volumes: utils.getNamedVolumes(excludes),
+        volumes: getNamedVolumes(excludes),
         services: toObject(app.services, {
           volumes: _.compact(serviceExcludes.concat(serviceIncludes)),
         }),

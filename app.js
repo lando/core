@@ -241,6 +241,9 @@ module.exports = async (app, lando) => {
     app.events.on('post-start', 10, async () => await require('./hooks/app-run-legacy-scanner')(app, lando));
   }
 
+  // legacy sharing stuff
+  await require('./hooks/app-load-legacy-sharing')(app, lando);
+
   // REturn defualts
   return {
     env: {
