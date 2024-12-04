@@ -37,6 +37,9 @@ coverage/
 
 # lando
 .lando/id
+plugins/*
+!plugins/test
+!plugins/.gitkeep
 
 # docs
 .temp

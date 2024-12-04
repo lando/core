@@ -1,7 +1,0 @@
-name: "@lando/sharing"
-
-api: 3
-core: true
-hidden: true
-deprecated: true
-is-updateable: true

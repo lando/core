@@ -11,4 +11,3 @@ proxy:
 
 plugins:
   "@lando/core": "../.."
-  "@lando/proxy": "../../plugins/proxy"
