@@ -70,7 +70,7 @@ module.exports = async app => {
   const healthchecks = _([...newV3Healthchecks, ...newV4Healthchecks, ...legacyHealthchecks])
     .groupBy('container')
     .map(checks => checks[0])
-    .filter(check => !require('../../../utils/is-disabled')(check.command))
+    .filter(check => !require('../utils/is-disabled')(check.command))
     .filter(check => {
       const info = app.info.find(data => data.service === check.service);
       return info.error === undefined;

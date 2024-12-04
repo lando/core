@@ -198,9 +198,10 @@ class Plugin {
     this.version = this.pjson.version;
 
     // extract the plugin config from teh manifest and merge in any user injected config
-    this.api = this.manifest.api || 4;
-    this.cspace = this.manifest.cspace || this.name;
+    this.api = this.manifest.api ?? 4;
+    this.cspace = this.manifest.cspace ?? this.name;
     this.core = this.manifest.core === true || false;
+    this.hidden = this.manifest.hidden === true || false;
     // @NOTE: do we still want to do this?
     this.config = merge({}, [this.manifest.config, config[this.cspace]]);
 

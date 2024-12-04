@@ -166,6 +166,12 @@ module.exports = async (app, lando) => {
   // If the app already is installed but we can't determine the builtAgainst, then set it to something bogus
   app.events.on('pre-start', async () => await require('./hooks/app-update-built-against-pre')(app, lando));
 
+  // add healthchecks
+  app.events.on('post-start', 1, async () => await require('./hooks/app-add-healthchecks')(app, lando));
+
+  // run healthchecks
+  app.events.on('post-start', 2, async () => await require('./hooks/app-run-healthchecks')(app, lando));
+
   // Add path info/shellenv tip if needed
   app.events.on('post-start', async () => await require('./hooks/app-add-updates-info')(app, lando));
 
@@ -216,11 +222,6 @@ module.exports = async (app, lando) => {
     _.forEach(app.config.events, (cmds, event) => {
       app.events.on(event, 9999, async data => await require('./hooks/app-run-events')(app, lando, cmds, data, event));
     });
-  }
-
-  // LEGACY healthchecks
-  if (_.get(lando, 'config.healthcheck', true) === 'legacy') {
-    app.events.on('post-start', 2, async () => await require('./hooks/app-run-legacy-healthchecks')(app, lando));
   }
 
   // LEGACY URL Scanner urls
