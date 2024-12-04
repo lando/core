@@ -34,7 +34,6 @@ lando version --all
 lando version --all | grep @lando/core | grep "$(lando version --component @lando/core)"
 lando version --all | grep @lando/proxy | grep "$(lando version --component core)"
 lando version --all | grep @lando/scanner | grep "$(lando version --component core)"
-lando version --all | grep @lando/sharing | grep "$(lando version --component core)"
 lando version --all | grep @lando/base-test-plugin-2 | grep v1.0.2
 lando version -a | grep @lando/core | grep v3
 

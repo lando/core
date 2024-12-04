@@ -118,7 +118,7 @@ cp -rf .lando.old.yml .lando.yml
 
 # Should alias proxy addresses to the proxy container
 docker inspect --format '{{range .NetworkSettings.Networks}}{{if .Aliases}}{{.Aliases}}{{else}}[No aliases]{{end}}{{"\n"}}{{end}}' landoproxyhyperion5000gandalfedition_proxy_1 | grep lando-proxy.lndo.site
-docker inspect --format '{{range .NetworkSettings.Networks}}{{if .Aliases}}{{.Aliases}}{{else}}[No aliases]{{end}}{{"\n"}}{{end}}' landoproxyhyperion5000gandalfedition_proxy_1 | grep bob.frank.kbox.site
+docker inspect --format '{{range .NetworkSettings.Networks}}{{if .Aliases}}{{.Aliases}}{{else}}[No aliases]{{end}}{{"\n"}}{{end}}' landoproxyhyperion5000gandalfedition_proxy_1 | grep frank.bob.joe
 docker inspect --format '{{range .NetworkSettings.Networks}}{{if .Aliases}}{{.Aliases}}{{else}}[No aliases]{{end}}{{"\n"}}{{end}}' landoproxyhyperion5000gandalfedition_proxy_1 | grep object-format.lndo.site
 docker inspect --format '{{range .NetworkSettings.Networks}}{{if .Aliases}}{{.Aliases}}{{else}}[No aliases]{{end}}{{"\n"}}{{end}}' landoproxyhyperion5000gandalfedition_proxy_1 | grep web5.lndo.site
 ```
