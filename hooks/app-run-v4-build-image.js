@@ -22,7 +22,7 @@ module.exports = async (app, lando) => {
     const container = [app.project, service.id, '1'].join(lando.config.orchestratorSeparator);
     return {
       title: `Image for ${container}`,
-      task: async (ctx, task) => {
+      task: async ctx => {
         try {
           await service.buildImage();
         } catch (error) {

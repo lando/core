@@ -53,7 +53,7 @@ module.exports = otask => {
 
         // wait until all tasks close, for good or ill
         try {
-          await Promise.all(dependees.map(async dependee => new Promise(async (resolve, reject) => {
+          await Promise.all(dependees.map(async dependee => new Promise(async (resolve, reject) => { // eslint-disable-line no-async-promise-executor
             // if they are already installed then just move on
             if (await dependee.task.hasRun()) resolve(dependee);
             else if (await dependee.task.isInstalled()) resolve(dependee);

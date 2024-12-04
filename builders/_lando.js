@@ -21,7 +21,7 @@ module.exports = {
         type,
         userConfRoot,
         version,
-        app = '',
+        // app = '',
         confDest = '',
         confSrc = '',
         config = {},
@@ -47,7 +47,7 @@ module.exports = {
         supported = ['custom'],
         supportedIgnore = false,
         root = '',
-        webroot = '/app',
+        // webroot = '/app',
       } = {},
       ...sources
     ) {
@@ -177,6 +177,6 @@ module.exports = {
 
       // Pass it down
       super(id, info, ...sources);
-    };
+    }
   },
 };

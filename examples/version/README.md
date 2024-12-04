@@ -32,18 +32,14 @@ lando version | grep "$(lando version --component core)"
 # Should print all version information with --all
 lando version --all
 lando version --all | grep @lando/core | grep "$(lando version --component @lando/core)"
-lando version --all | grep @lando/healthcheck | grep "$(lando version --component core)"
-lando version --all | grep @lando/networking | grep "$(lando version --component core)"
 lando version --all | grep @lando/proxy | grep "$(lando version --component core)"
 lando version --all | grep @lando/scanner | grep "$(lando version --component core)"
-lando version --all | grep @lando/sharing | grep "$(lando version --component core)"
-lando version --all | grep @lando/test | grep "$(lando version --component core)"
 lando version --all | grep @lando/base-test-plugin-2 | grep v1.0.2
 lando version -a | grep @lando/core | grep v3
 
 # Should print specific component information
-lando version --component healthcheck | grep "$(lando version --component @lando/core)"
-lando version -c healthcheck | grep "$(lando version --component core)"
+lando version --component @lando/base-test-plugin-2 | grep v1.0.2
+lando version -c base-test-plugin-2 | grep v1.0.2
 
 # Should print full version information
 lando version --full

@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 
-module.exports = async (app, lando) => {
+module.exports = async app => {
   // get local services
   const locals = _.get(app, 'opts.local', []);
   // get v4 services

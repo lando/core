@@ -71,11 +71,14 @@ module.exports = async lando => {
   // and install ca
   lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-install-ca-${platform}`)(lando, options));
 
-  // also move scripts for init considerations
-  lando.events.on('pre-init', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
-
   // ensure we setup docker-compose if needed
   lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-orchestrator')(lando, options));
+
+  // ensure we setup landonet
+  lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-landonet')(lando, options));
+
+  // also move scripts for init considerations
+  lando.events.on('pre-init', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
 
   // move v3 scripts directories as needed
   lando.events.on('pre-init', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
@@ -102,6 +105,9 @@ module.exports = async lando => {
   // move v3 scripts directories as needed
   lando.events.on('pre-engine-start', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
 
+  // clean networks
+  lando.events.on('pre-engine-start', 1, async () => await require('./hooks/lando-clean-networks')(lando));
+
   // return some default things
   return _.merge({}, defaults, uc(), {config: {
     appEnv: {
@@ -123,5 +129,6 @@ module.exports = async lando => {
     caDomain,
     caKey,
     maxKeyWarning: 10,
+    networkBridge: 'lando_bridge_network',
   }});
 };

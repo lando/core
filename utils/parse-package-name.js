@@ -3,7 +3,7 @@
 /*
  * TBD
  */
-module.exports = (plugin, {defaultTag = 'stable'} = {}) => {
+module.exports = plugin => {
   // parse the plugin
   const result = require('npm-package-arg')(plugin);
 

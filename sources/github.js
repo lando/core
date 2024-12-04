@@ -93,7 +93,7 @@ const getAutoCompleteRepos = (answers, Promise, input = null) => {
       gitHubRepos = sites;
       return gitHubRepos;
     });
-  };
+  }
 };
 
 module.exports = {

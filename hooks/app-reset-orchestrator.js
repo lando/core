@@ -2,7 +2,7 @@
 
 module.exports = async (app, lando) => {
   // if we dont have an orchestrator bin yet then discover it
-  if (!!!lando.config.orchestratorBin) lando.config.orchestratorBin = require('../utils/get-compose-x')(lando.config);
+  if (!lando.config.orchestratorBin) lando.config.orchestratorBin = require('../utils/get-compose-x')(lando.config);
 
   // because the entire lando 3 runtime was made in a bygone era when we never dreamed of doing stuff like this
   // we need this workaround

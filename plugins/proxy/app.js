@@ -16,7 +16,7 @@ const findProxyPorts = (lando, status) => lando.Promise.try(() => {
     return lando.engine.list()
     .filter(container => container.name === lando.config.proxyContainer)
     .then(containers => _.isEmpty(containers) ? scanPorts(lando) : lando.config.proxyLastPorts);
-  };
+  }
 });
 
 /*

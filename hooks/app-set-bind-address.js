@@ -15,7 +15,7 @@ const normalizeBind = (bind, address = '127.0.0.1') => {
   else if (_.size(pieces) === 2) {
     pieces.unshift(address);
     return pieces.join(':');
-  };
+  }
   // Otherwise we can just return the address prefixed to the bind
   return `${address}::${bind}`;
 };

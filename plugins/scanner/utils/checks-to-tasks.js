@@ -7,7 +7,7 @@ module.exports = ({
   args,
   type,
   title,
-  service,
+  // service,
   test = () => {},
   skip = false,
   delay = 1000,

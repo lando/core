@@ -47,11 +47,11 @@ const fileloader = {
       case 'string':
         return new ImportString(fs.readFileSync(data.file, {encoding: 'utf8'}), data);
       case 'yaml':
-      case 'yaml':
+      case 'yml':
         return new ImportObject(yaml.load(data.file), data);
       default:
         return new ImportString(fs.readFileSync(data.file, {encoding: 'utf8'}), data);
-    };
+    }
   },
   predicate: data => data instanceof ImportString || data instanceof ImportObject,
   represent: data => data.getDumper(),

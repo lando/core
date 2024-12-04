@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const fs = require('fs');
+const path = require('path');
 const url = require('url');
 
 const setDockerHost = (hostname, port = 2376) => url.format({

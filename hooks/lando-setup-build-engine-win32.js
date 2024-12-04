@@ -137,28 +137,24 @@ module.exports = async (lando, options) => {
       return restart;
     },
     task: async (ctx, task) => {
-      try {
-        // download the installer
-        ctx.download = await downloadDockerDesktop(url, {ctx, debug, task});
-        // script
-        const script = [path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1')];
-        // args
-        const args = ['-Installer', ctx.download.dest];
-        if (options.buildEngineAcceptLicense) args.push('-AcceptLicense');
-        if ((options.debug || options.verbose > 0 || lando.debuggy) && lando.config.isInteractive) args.push('-Debug');
+      // download the installer
+      ctx.download = await downloadDockerDesktop(url, {ctx, debug, task});
+      // script
+      const script = [path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1')];
+      // args
+      const args = ['-Installer', ctx.download.dest];
+      if (options.buildEngineAcceptLicense) args.push('-AcceptLicense');
+      if ((options.debug || options.verbose > 0 || lando.debuggy) && lando.config.isInteractive) args.push('-Debug');
 
-        // run install command
-        task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;
-        const result = await require('../utils/run-powershell-script')(script, args, {debug});
-        result.download = ctx.download;
+      // run install command
+      task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;
+      const result = await require('../utils/run-powershell-script')(script, args, {debug});
+      result.download = ctx.download;
 
-        // finish up
-        const location = process.env.ProgramW6432 ?? process.env.ProgramFiles;
-        task.title = `Installed build engine (Docker Desktop) to ${location}/Docker/Docker!`;
-        return result;
-      } catch (error) {
-        throw error;
-      }
+      // finish up
+      const location = process.env.ProgramW6432 ?? process.env.ProgramFiles;
+      task.title = `Installed build engine (Docker Desktop) to ${location}/Docker/Docker!`;
+      return result;
     },
   });
 
@@ -176,14 +172,10 @@ module.exports = async (lando, options) => {
       // check one last time incase this was added by a dependee or otherwise
       if (require('../utils/is-group-member')('docker-users')) return {code: 0};
 
-      try {
-        const command = ['net', 'localgroup', 'docker-users', lando.config.username, '/ADD'];
-        const response = await require('../utils/run-elevated')(command, {debug});
-        task.title = `Added ${lando.config.username} to docker-users`;
-        return response;
-      } catch (error) {
-        throw error;
-      }
+      const command = ['net', 'localgroup', 'docker-users', lando.config.username, '/ADD'];
+      const response = await require('../utils/run-elevated')(command, {debug});
+      task.title = `Added ${lando.config.username} to docker-users`;
+      return response;
     },
   });
 };

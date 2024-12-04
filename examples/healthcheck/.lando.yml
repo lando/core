@@ -107,4 +107,3 @@ services:
 
 plugins:
   "@lando/core": "../.."
-  "@lando/healthcheck": "../../plugins/healthcheck"

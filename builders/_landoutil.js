@@ -18,6 +18,6 @@ module.exports = {
       sources.push({services: _.set({}, options.name, {environment: options.env, labels: options.labels})});
       // Send downstream
       super(id, options, ...sources);
-    };
+    }
   },
 };

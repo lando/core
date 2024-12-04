@@ -148,7 +148,7 @@ class Plugin {
     config = {},
     commit,
     debug = Plugin.debug,
-    id = Plugin.id || 'lando',
+    id = Plugin.id ?? 'lando',
     installer = Plugin.installer,
     loadOpts = [],
     type = 'app',
@@ -161,6 +161,7 @@ class Plugin {
     this.installer = installer;
     this.type = type;
     this.legacyPlugin = false;
+    this.id = id;
 
     // if there isnt a package.json we have a more complicated situation
     if (!fs.existsSync(path.join(this.root, 'package.json'))) {
@@ -195,12 +196,13 @@ class Plugin {
     this.nm = path.join(this.root, 'node_modules');
     this.debug = debug.extend(this.name);
     this.package = this.pjson.name;
-    this.version = this.pjson.version;
+    this.version = version ?? this.pjson.version;
 
     // extract the plugin config from teh manifest and merge in any user injected config
-    this.api = this.manifest.api || 4;
-    this.cspace = this.manifest.cspace || this.name;
+    this.api = this.manifest.api ?? 4;
+    this.cspace = this.manifest.cspace ?? this.name;
     this.core = this.manifest.core === true || false;
+    this.hidden = this.manifest.hidden === true || false;
     // @NOTE: do we still want to do this?
     this.config = merge({}, [this.manifest.config, config[this.cspace]]);
 
@@ -238,7 +240,7 @@ class Plugin {
     // determine some packaging stuff
     this.packaged = has(this.parent, 'pjson.dist') || has(this, 'pjson.dist');
     this.source = fs.existsSync(path.join(this.sourceRoot, '.git', 'HEAD'));
-    this.commit = this.source ? require('../utils/get-commit-hash')(this.sourceRoot, {short: true}) : false;
+    this.commit = commit ?? this.source ? require('../utils/get-commit-hash')(this.sourceRoot, {short: true}) : false;
     // append commit to version if from source
     if (this.source && this.commit) this.version = `${this.version}-0-${this.commit}`;
 

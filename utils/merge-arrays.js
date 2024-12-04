@@ -24,7 +24,7 @@ module.exports = (a, b, ams = 'replace') => {
           return merge(acc, Object.fromEntries(datum.map(a => {
             // if an object do fancy stuff
             if (require('lodash/isPlainObject')(a)) {
-              if (a.hasOwnProperty(by)) return [a[by], a];
+              if (Object.prototype.hasOwnProperty.call(a, by)) return [a[by], a];
               if (Object.keys(a).length === 1) return [Object.keys(a)[0], a];
             }
             // otherwise just return pairself

@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 
-module.exports = async (app, lando) => {
+module.exports = async app => {
   _.forEach(app.v4.services.map(service => service.id), id => {
     // remove v3 app mount
     const mounts = _.find(app.composeData, compose => compose.id === 'mounts');

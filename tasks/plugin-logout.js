@@ -5,7 +5,7 @@ module.exports = lando => {
     command: 'plugin-logout',
     usage: '$0 plugin-logout',
     level: 'tasks',
-    run: async options => {
+    run: async () => {
       const write = require('../utils/write-file');
       const {color} = require('listr2');
 

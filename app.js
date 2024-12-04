@@ -92,6 +92,9 @@ module.exports = async (app, lando) => {
   // load in and parse v4 services
   app.events.on('pre-init', async () => await require('./hooks/app-add-v4-services')(app, lando));
 
+  // add in hostname
+  app.events.on('post-init', 1, async () => await require('./hooks/app-add-hostnames')(app, lando));
+
   // run v3 build steps
   app.events.on('post-init', async () => await require('./hooks/app-run-v3-build-steps')(app, lando));
 
@@ -166,6 +169,18 @@ module.exports = async (app, lando) => {
   // If the app already is installed but we can't determine the builtAgainst, then set it to something bogus
   app.events.on('pre-start', async () => await require('./hooks/app-update-built-against-pre')(app, lando));
 
+  // add healthchecks
+  app.events.on('post-start', 1, async () => await require('./hooks/app-add-healthchecks')(app, lando));
+
+  // add proxy 2 landonet
+  app.events.on('post-start', 1, async () => await require('./hooks/app-add-proxy-2-landonet')(app, lando));
+
+  // add 2 landonet
+  app.events.on('post-start', 1, async () => await require('./hooks/app-add-2-landonet')(app, lando));
+
+  // run healthchecks
+  app.events.on('post-start', 2, async () => await require('./hooks/app-run-healthchecks')(app, lando));
+
   // Add path info/shellenv tip if needed
   app.events.on('post-start', async () => await require('./hooks/app-add-updates-info')(app, lando));
 
@@ -218,15 +233,10 @@ module.exports = async (app, lando) => {
     });
   }
 
-  // LEGACY healthchecks
-  if (_.get(lando, 'config.healthcheck', true) === 'legacy') {
-    app.events.on('post-start', 2, async () => await require('./hooks/app-run-legacy-healthchecks')(app, lando));
-  }
-
   // LEGACY URL Scanner urls
   if (_.get(lando, 'config.scanner', true) === 'legacy') {
     app.events.on('post-start', 10, async () => await require('./hooks/app-run-legacy-scanner')(app, lando));
-  };
+  }
 
   // REturn defualts
   return {

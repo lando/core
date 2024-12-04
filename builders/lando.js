@@ -33,6 +33,6 @@ module.exports = {
         networks: options.networks,
         volumes: options.volumes,
       });
-    };
+    }
   },
 };
