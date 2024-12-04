@@ -88,6 +88,5 @@ tooling:
 
 plugins:
   "@lando/core": "../.."
-  "@lando/networking": "../../plugins/networking"
   "@lando/proxy": "../../plugins/proxy"
   "@lando/scanner": "../../plugins/scanner"
