@@ -30,7 +30,7 @@ module.exports = async (lando, options) => {
     },
     skip: () => {
       if (!['linux', 'wsl'].includes(lando.config.os.landoPlatform)) return false;
-      return !require('../../utils/is-group-member')('docker');
+      return !require('../utils/is-group-member')('docker');
     },
     hasRun: async () => {
       // if docker isnt even installed then this is easy
@@ -49,7 +49,7 @@ module.exports = async (lando, options) => {
     },
     task: async (ctx, task) => {
       // we reinstantiate instead of using lando.engine.daemon so we can ensure an up-to-date docker bin
-      const LandoDaemon = require('../../lib/daemon');
+      const LandoDaemon = require('../lib/daemon');
       const daemon = new LandoDaemon(lando.cache, lando.events, undefined, lando.log);
 
       // we need docker up for this
