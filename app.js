@@ -92,6 +92,9 @@ module.exports = async (app, lando) => {
   // load in and parse v4 services
   app.events.on('pre-init', async () => await require('./hooks/app-add-v4-services')(app, lando));
 
+  // add in hostname
+  app.events.on('post-init', 1, async () => await require('./hooks/app-add-hostnames')(app, lando));
+
   // run v3 build steps
   app.events.on('post-init', async () => await require('./hooks/app-run-v3-build-steps')(app, lando));
 
@@ -168,6 +171,12 @@ module.exports = async (app, lando) => {
 
   // add healthchecks
   app.events.on('post-start', 1, async () => await require('./hooks/app-add-healthchecks')(app, lando));
+
+  // add proxy 2 landonet
+  app.events.on('post-start', 1, async () => await require('./hooks/app-add-proxy-2-landonet')(app, lando));
+
+  // add 2 landonet
+  app.events.on('post-start', 1, async () => await require('./hooks/app-add-2-landonet')(app, lando));
 
   // run healthchecks
   app.events.on('post-start', 2, async () => await require('./hooks/app-run-healthchecks')(app, lando));
