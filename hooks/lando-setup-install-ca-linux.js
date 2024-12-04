@@ -54,40 +54,36 @@ module.exports = async (lando, options) => {
       return true;
     },
     task: async (ctx, task) => {
-      try {
-        task.title = 'Installing Lando Development Certificate Authority (CA)';
+      task.title = 'Installing Lando Development Certificate Authority (CA)';
 
-        // Prompt for password if in interactive mode and password not provided
-        if (ctx.password === undefined && lando.config.isInteractive) {
-          ctx.password = await task.prompt({
-            type: 'password',
-            name: 'password',
-            message: `Enter computer password for ${lando.config.username} to install the CA`,
-            validate: async (input, state) => {
-              const options = {debug, ignoreReturnCode: true, password: input};
-              const response = await require('../utils/run-elevated')(['echo', 'Validating elevated access'], options);
-              if (response.code !== 0) return response.stderr;
-              return true;
-            },
-          });
-        }
-
-        // Prepare the installation command
-        const script = path.join(lando.config.userConfRoot, 'scripts', 'install-system-ca-linux.sh');
-        const command = [script, '--ca', caCert];
-
-        // Add debug flag if necessary
-        if (options.debug || options.verbose > 0 || lando.debuggy) command.push('--debug');
-
-        // Execute the installation command with elevated privileges
-        const result = await require('../utils/run-elevated')(command, {debug, password: ctx.password});
-
-        // Update task title on successful installation
-        task.title = 'Installed Lando Development Certificate Authority (CA)';
-        return result;
-      } catch (error) {
-        throw error;
+      // Prompt for password if in interactive mode and password not provided
+      if (ctx.password === undefined && lando.config.isInteractive) {
+        ctx.password = await task.prompt({
+          type: 'password',
+          name: 'password',
+          message: `Enter computer password for ${lando.config.username} to install the CA`,
+          validate: async input => {
+            const options = {debug, ignoreReturnCode: true, password: input};
+            const response = await require('../utils/run-elevated')(['echo', 'Validating elevated access'], options);
+            if (response.code !== 0) return response.stderr;
+            return true;
+          },
+        });
       }
+
+      // Prepare the installation command
+      const script = path.join(lando.config.userConfRoot, 'scripts', 'install-system-ca-linux.sh');
+      const command = [script, '--ca', caCert];
+
+      // Add debug flag if necessary
+      if (options.debug || options.verbose > 0 || lando.debuggy) command.push('--debug');
+
+      // Execute the installation command with elevated privileges
+      const result = await require('../utils/run-elevated')(command, {debug, password: ctx.password});
+
+      // Update task title on successful installation
+      task.title = 'Installed Lando Development Certificate Authority (CA)';
+      return result;
     },
   });
 };

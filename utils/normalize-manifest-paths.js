@@ -12,7 +12,7 @@ module.exports = (data = {}, base, pathyKeys = defaultPathyKeys) => {
 
   for (const key of getKeys(data)) {
     // skip if not a pathy key
-    if (!defaultPathyKeys.includes(key.split('.')[0])) continue;
+    if (!pathyKeys.includes(key.split('.')[0])) continue;
     // reset data to be an absolute path
     // @TODO: should we test if abolute path exists?
     if (key && typeof get(data, key) === 'string' && !path.isAbsolute(get(data, key))) {

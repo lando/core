@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 
-module.exports = async (app, lando) => {
+module.exports = async app => {
   app.log.debug('adding hostnames to the app...');
   _.forEach(app.info, data => {
     data.hostnames = _.get(data, 'hostnames', []);

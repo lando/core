@@ -28,7 +28,7 @@ module.exports = async ({
       // For macOS, we use the 'mac-ca' library which handles the formatting
       return require('mac-ca').get({format});
 
-    case 'linux':
+    case 'linux': {
       // For Linux, we use the 'system-ca' library to get system certificates
       const {systemCertsAsync} = require('system-ca');
       for (const cert of await systemCertsAsync()) {
@@ -41,7 +41,8 @@ module.exports = async ({
       }
 
       return fingerprints;
-    case 'win32':
+    }
+    case 'win32': {
       // For Windows, we use the 'win-ca' library to fetch root certificates
       const winCA = require('win-ca');
 
@@ -55,7 +56,8 @@ module.exports = async ({
       }
 
       return fingerprints;
-    case 'wsl':
+    }
+    case 'wsl': {
       const {stdout} = await require('./run-command')(
         'powershell.exe',
         ['-Command', 'Get-ChildItem -Path Cert:\\CurrentUser\\Root | Select-Object -ExpandProperty Thumbprint'],
@@ -68,6 +70,7 @@ module.exports = async ({
         .filter(fingerprint => fingerprint && fingerprint !== ''));
 
       return fingerprints;
+    }
     default:
       throw new Error(`Unsupported platform: ${platform}`);
   }

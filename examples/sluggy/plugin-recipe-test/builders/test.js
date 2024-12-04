@@ -40,6 +40,6 @@ module.exports = {
       });
 
       super(id, _.merge({}, config, options));
-    };
+    }
   },
 };

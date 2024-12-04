@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 
-module.exports = async (app, lando) => {
+module.exports = async app => {
   // Determine local vs pullable services
   const whereats = _(_.get(app, 'config.services', {}))
     .map((data, service) => ({

@@ -236,7 +236,7 @@ module.exports = async (app, lando) => {
   // LEGACY URL Scanner urls
   if (_.get(lando, 'config.scanner', true) === 'legacy') {
     app.events.on('post-start', 10, async () => await require('./hooks/app-run-legacy-scanner')(app, lando));
-  };
+  }
 
   // REturn defualts
   return {

@@ -92,7 +92,7 @@ module.exports = lando => {
       // finally just print the thing
       } else {
         console.log(shellEnv.map(line => line[0]).join(os.EOL));
-      };
+      }
     },
   };
 };

@@ -43,12 +43,8 @@ module.exports = async app => {
   await Promise.all(cstorage.map(async volume => {
     // if this iterates is it gauranteed that the below will always work?
     const bengine = services[0].getBengine();
-    try {
-      await bengine.createVolume({Name: volume.source, Labels: volume.labels});
-      app.log.debug('created %o storage volume %o with metadata %o', volume.scope, volume.source, volume.labels);
-    } catch (error) {
-      throw error;
-    }
+    await bengine.createVolume({Name: volume.source, Labels: volume.labels});
+    app.log.debug('created %o storage volume %o with metadata %o', volume.scope, volume.source, volume.labels);
   }));
 
   // run all build services methods

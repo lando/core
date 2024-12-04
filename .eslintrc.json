@@ -22,7 +22,15 @@
       "code": 140,
       "ignoreComments": true
     }],
-    "no-unused-vars": ["error", { "vars": "all", "args": "after-used", "ignoreRestSiblings": false }],
+    "no-empty": ["error", {
+      "allowEmptyCatch": true
+    }],
+    "no-unused-vars": ["error", {
+      "vars": "all",
+      "args": "after-used",
+      "ignoreRestSiblings": false
+    }],
+
     "require-jsdoc": ["error", {
       "require": {
         "FunctionDeclaration": true,

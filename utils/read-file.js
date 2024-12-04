@@ -16,11 +16,7 @@ module.exports = (file, options = {}) => {
     case '.yml':
     case 'yaml':
     case 'yml':
-      try {
-        return require('../components/yaml').load(fs.readFileSync(file, 'utf8'), options);
-      } catch (e) {
-        throw e;
-      }
+      return require('../components/yaml').load(fs.readFileSync(file, 'utf8'), options);
     case '.js':
     case 'js':
       return require(file);

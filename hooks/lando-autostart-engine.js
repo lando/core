@@ -12,7 +12,7 @@ module.exports = async lando => {
         tries: 5,
         delay: 1000,
       },
-      task: async (ctx, task) => {
+      task: async ctx => {
         try {
           await lando.engine.daemon.up(false);
           await lando.shell.sh([`"${lando.engine.daemon.docker}"`, 'network', 'ls']);

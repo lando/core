@@ -19,7 +19,7 @@ const getDynamicKeys = (answer, answers = {}) => _(answers)
  * Set SERVICE from answers and strip out that noise from the rest of
  * stuff, check answers/argv for --service or -s, validate and then remove
  */
-const handleDynamic = (config, options = {}, answers = {}, execs = {}) => {
+const handleDynamic = (config, options, answers = {}, execs = {}) => {
   if (_.startsWith(config.service, ':')) {
     const answer = answers[config.service.split(':')[1]];
     // Remove dynamic service option from argv

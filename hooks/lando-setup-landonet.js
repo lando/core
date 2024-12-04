@@ -1,5 +1,7 @@
 'use strict';
 
+const _ = require('lodash');
+
 /**
  * Installs the Lando Development Certificate Authority (CA) on Windows systems.
  * This module is called by `lando setup` to ensure the Lando CA is trusted by the system.

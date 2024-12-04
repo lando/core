@@ -35,7 +35,7 @@ module.exports = {
       initService.services.init.labels['io.lando.service-container'] = 'TRUE';
       initService.services.init.labels['io.lando.init-container'] = 'TRUE';
       super('init', _.merge({}, config, {env, home, labels, userConfRoot}), initService);
-    };
+    }
   },
 };
 

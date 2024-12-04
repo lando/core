@@ -4,7 +4,7 @@ module.exports = lando => {
   return {
     command: 'share',
     usage: '$0 share',
-    run: options => {
+    run: () => {
       console.log(lando.cli.makeArt('shareWait'));
       /*
       if (u.parse(options.url).hostname !== 'localhost' || u.parse(options.url).protocol !== 'http:') {

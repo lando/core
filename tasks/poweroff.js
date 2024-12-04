@@ -15,7 +15,7 @@ module.exports = lando => {
       if (containers.length > 0) {
         const tasks = containers.map(container => ({
           title: `Container ${container.name}`,
-          task: async (ctx, task) => await lando.engine.stop({id: container.id}),
+          task: async () => await lando.engine.stop({id: container.id}),
         }));
 
         await lando.runTasks(tasks, {
