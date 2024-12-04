@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const debug = require('debug')('@lando/core:scanner');
-const getAxios = require('../../../utils/get-axios');
+const getAxios = require('./get-axios');
 
 const request = (maxRedirects = 0) => getAxios({maxRedirects}, {}, {rejectUnauthorized: false});
 

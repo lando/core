@@ -120,4 +120,3 @@ services:
 
 plugins:
   "@lando/core": "../.."
-  "@lando/scanner": "../../plugins/scanner"
