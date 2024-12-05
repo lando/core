@@ -52,9 +52,11 @@ jobs:
           lando-version: ${{ steps.pkg-action.outputs.file }}
           telemetry: false
       - name: Install pkg dependencies
-        shell: pwsh
+        shell: powershell
         run: |
           lando setup --skip-common-plugins --debug
+          Get-ChildItem -Path "$env:ProgramFiles\Docker\Docker" -Recurse | ForEach-Object { $_.FullName }
+
 
 
       # - name: Run Leia Tests
