@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Improved current user group detection on `win32`
+
 ## v3.23.15 - [December 3, 2024](https://github.com/lando/core/releases/tag/v3.23.15)
 
 * Disabled `DOCKER_CLI_HINTS` on `lando`
