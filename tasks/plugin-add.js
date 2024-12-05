@@ -1,5 +1,7 @@
 'use strict';
 
+const path = require('path');
+
 module.exports = lando => {
   return {
     command: 'plugin-add',
@@ -30,11 +32,17 @@ module.exports = lando => {
         array: true,
         default: [],
       },
+      source: {
+        boolean: true,
+        default: false,
+        hidden: true,
+      },
     },
     run: async options => {
       const getPluginConfig = require('../utils/get-plugin-config');
       const lopts2Popts = require('../utils/lopts-2-popts');
       const merge = require('../utils/merge');
+      const internal = {dir: path.resolve(__dirname, '..', 'plugins')};
 
       const Plugin = require('../components/plugin');
 
@@ -54,9 +62,10 @@ module.exports = lando => {
 
       // attempt to compute the destination to install the plugin
       // @NOTE: is it possible for this to ever be undefined?
-      const {dir} = lando.config.pluginDirs.find(dir => dir.type === require('../utils/get-plugin-type')());
+      const {dir} = options.source ? internal : lando.config.pluginDirs.find(dir => dir.type === require('../utils/get-plugin-type')());
+
       // prep listr things
-      const tasks = plugins.map(plugin => require('../utils/get-plugin-add-task')(plugin, {dir, Plugin}));
+      const tasks = plugins.map(plugin => require('../utils/get-plugin-add-task')(plugin, {dir, source: options.source, Plugin}));
 
       // try to fetch the plugins
       const {errors, results, total} = await lando.runTasks(tasks, {

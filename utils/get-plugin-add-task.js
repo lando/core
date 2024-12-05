@@ -7,6 +7,7 @@ const path = require('path');
 module.exports = (plugin, {
   dir = os.tmpdir(),
   Plugin = require('../components/plugin'),
+  source = false,
 } = {}) => {
   return {
     title: `Adding ${plugin}`,
@@ -16,7 +17,7 @@ module.exports = (plugin, {
       // parse into a full package
       const pkg = require('./parse-package-name')(plugin);
       // get location
-      const location = pkg.scope === '@lando' ? path.join(dir, '@lando', pkg.package) : path.join(dir, pkg.package);
+      const location = pkg.scope === '@lando' && !source ? path.join(dir, '@lando', pkg.package) : path.join(dir, pkg.package);
 
       try {
         const plugin = new Plugin(location);
@@ -32,7 +33,7 @@ module.exports = (plugin, {
     task: async (ctx, task) => {
       try {
         // add the plugin
-        task.plugin = await require('./fetch-plugin')(plugin, {config: Plugin.config, dest: dir}, Plugin);
+        task.plugin = await require('./fetch-plugin')(plugin, {config: Plugin.config, dest: dir, source}, Plugin);
         // update and and return
         task.title = `Installed ${task.plugin.name}@${task.plugin.version} to ${task.plugin.location}`;
         ctx.results.push(task.plugin);

@@ -4,7 +4,6 @@ const fs = require('fs-extra');
 const path = require('path');
 const remove = require('./remove');
 
-
 /*
  * brief wrapper to accomodate lando 3 conventions when using lando 4 plugin fetching
  */
@@ -14,7 +13,7 @@ module.exports = async (spec, opts, Plugin = require('../components/plugin')) =>
 
   // lando 3 plugin loading is at odds with lando 4 plugin installing so we need to move up a directory
   // if the plugin has non-lando org scope also clean up dangling org dir
-  if (plugin.scope && plugin.scope !== '@lando') {
+  if (plugin.scope && plugin.scope !== '@lando' || opts.source === true) {
     const src = plugin.location;
     const dest = path.resolve(plugin.location, '..', '..', plugin.name.split('/')[1]);
     const orgDir = path.resolve(plugin.location, '..', '..', plugin.name.split('/')[0]);
