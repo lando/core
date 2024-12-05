@@ -51,19 +51,11 @@ jobs:
           auto-setup: false
           lando-version: ${{ steps.pkg-action.outputs.file }}
           telemetry: false
-      - name: Install pkg dependencies
-        shell: powershell
-        run: |
-          lando setup --skip-common-plugins --debug
-          Get-ChildItem -Path "$env:ProgramFiles\Docker\Docker" -Recurse | ForEach-Object { $_.FullName }
-
-
-
-      # - name: Run Leia Tests
-      #   uses: lando/run-leia-action@v2
-      #   with:
-      #     leia-test: "./examples/${{ matrix.leia-test }}/README.md"
-      #     cleanup-header: "Destroy tests"
-      #     shell: powershell
-      #     stdin: true
-      #     debug: true
+      - name: Run Leia Tests
+        uses: lando/run-leia-action@v2
+        with:
+          leia-test: "./examples/${{ matrix.leia-test }}/README.md"
+          cleanup-header: "Destroy tests"
+          shell: powershell
+          stdin: true
+          debug: true
