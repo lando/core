@@ -1,7 +1,6 @@
 'use strict';
 
 const os = require('os');
-const getWinEnvar = require('../utils/get-win32-envvar-from-wsl');
 const path = require('path');
 
 /**
