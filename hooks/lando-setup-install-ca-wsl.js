@@ -1,7 +1,6 @@
 'use strict';
 
 const os = require('os');
-const getWinEnvar = require('../utils/get-win32-envvar-from-wsl');
 const path = require('path');
 
 /**
@@ -118,17 +117,6 @@ module.exports = async (lando, options) => {
       }
     },
     canRun: async () => {
-      // get windows user
-      const user = await getWinEnvar('USERNAME');
-
-      // Check for admin privileges
-      if (!await require('../utils/is-admin-user')(user, {platform: 'win32'})) {
-        throw new Error([
-          `User "${user}" does not have permission to trust the CA!`,
-          'Contact your system admin for permission and then rerun setup.',
-        ].join(os.EOL));
-      }
-
       return true;
     },
     task: async (ctx, task) => {

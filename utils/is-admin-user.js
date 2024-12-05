@@ -16,7 +16,8 @@ module.exports = (user, {platform = process.platform} = {}) => {
         || require('./is-group-member')('wheel', user, platform)
         || require('./is-group-member')('adm', user, platform);
     case 'win32':
-      return require('./is-group-member')('administrators', user, platform);
+      return require('./is-group-member')('S-1-5-32-544', user, platform)
+        || require('./is-group-member')('administrators', user, platform);
     default:
       return false;
   }

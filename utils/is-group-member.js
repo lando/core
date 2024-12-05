@@ -31,12 +31,15 @@ module.exports = (group, user, platform = process.platform) => {
 
   // if windows we have a long command to check
   if (platform === 'win32') {
-    const groups = stdout
+    const ids = stdout
       .split(os.EOL)
       .map(group => group.trim())
       .filter(group => group !== 'Name' && group !== '----')
       .map(group => group.toUpperCase());
-    return groups.includes(group.toUpperCase());
+
+    const matches = ids.filter(id => id === group.toUpperCase() || id.endsWith(group.toUpperCase()));
+
+    return matches.length > 0;
   }
 
   // otherwise false?
