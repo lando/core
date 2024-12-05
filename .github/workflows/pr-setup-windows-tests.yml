@@ -58,14 +58,11 @@ jobs:
           Get-ChildItem -Path "$env:ProgramFiles\Docker\Docker" -Recurse | ForEach-Object { $_.FullName }
           Test-Path "$env:ProgramFiles\Docker\Docker\Docker Desktop.exe"
           & "$env:ProgramFiles\Docker\Docker\resources\bin\docker.exe" --version
-
-
-
-      # - name: Run Leia Tests
-      #   uses: lando/run-leia-action@v2
-      #   with:
-      #     leia-test: "./examples/${{ matrix.leia-test }}/README.md"
-      #     cleanup-header: "Destroy tests"
-      #     shell: powershell
-      #     stdin: true
-      #     debug: true
+      - name: Run Leia Tests
+        uses: lando/run-leia-action@v2
+        with:
+          leia-test: "./examples/${{ matrix.leia-test }}/README.md"
+          cleanup-header: "Destroy tests"
+          shell: powershell
+          stdin: true
+          debug: true

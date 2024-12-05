@@ -6,7 +6,6 @@ const posixCmd = user => (['groups', [user]]);
 const win32Cmd = () => (['powershell.exe', ['-Command', 'whoami /GROUPS /FO CSV']]);
 
 module.exports = (group, user, platform = process.platform) => {
-  console.log(group, user, platform)
   // @TODO: throw error if no group specified?
   // set user to person running this process if its not set
   if (!user) user = os.userInfo().username;
@@ -34,8 +33,6 @@ module.exports = (group, user, platform = process.platform) => {
       .filter((item, index) => index === 0 || item.startsWith('S-')))
       .flat()
       .map(id => id.toUpperCase());
-
-    console.log('ids', ids);
 
     const matches = ids.filter(id => id === group.toUpperCase() || id.endsWith(group.toUpperCase()));
 
