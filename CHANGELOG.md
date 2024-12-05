@@ -1,6 +1,5 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
-* Improved current user group detection on `win32`
 * Fixed bug causing some `run-elevated` commands to fail on older Powershell versions
 * Removed `admin` requirement to install Lando Development CA on `win32` from `wsl`
 
