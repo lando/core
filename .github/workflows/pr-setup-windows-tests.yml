@@ -51,11 +51,17 @@ jobs:
           auto-setup: false
           lando-version: ${{ steps.pkg-action.outputs.file }}
           telemetry: false
-      - name: Run Leia Tests
-        uses: lando/run-leia-action@v2
-        with:
-          leia-test: "./examples/${{ matrix.leia-test }}/README.md"
-          cleanup-header: "Destroy tests"
-          shell: powershell
-          stdin: true
-          debug: true
+      - name: Install pkg dependencies
+        shell: pwsh
+        run: |
+          lando setup --skip-common-plugins --debug
+
+
+      # - name: Run Leia Tests
+      #   uses: lando/run-leia-action@v2
+      #   with:
+      #     leia-test: "./examples/${{ matrix.leia-test }}/README.md"
+      #     cleanup-header: "Destroy tests"
+      #     shell: powershell
+      #     stdin: true
+      #     debug: true

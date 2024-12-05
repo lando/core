@@ -16,8 +16,8 @@ lando plugin-add "@lando/core@file:../.."
 lando setup -y --skip-networking --skip-common-plugins
 
 # Should have installed Docker Desktop
-Test-Path "$Env:ProgramFiles\Docker\Docker\Docker Desktop.exe"
-& "$Env:ProgramFiles\Docker\Docker\resources\bin\docker.exe" --version
+Test-Path "$env:ProgramFiles\Docker\Docker\Docker Desktop.exe"
+& "$env:ProgramFiles\Docker\Docker\resources\bin\docker.exe" --version
 
 # Should have installed Docker Compose
 Get-ChildItem -Path "$HOME/.lando/bin" -Filter "docker-compose-v2*" -Recurse | ForEach-Object { & $_.FullName version }
