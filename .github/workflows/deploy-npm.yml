@@ -38,7 +38,6 @@ jobs:
         run: npm run test:unit
       - name: Update edge release alias
         shell: bash
-        if: github.event.release.prerelease == true
         run: |
           if ./scripts/semcompare.sh "${{ github.event.release.tag_name }}" "$(cat ./release-aliases/3-EDGE)"; then
             echo "${{ github.event.release.tag_name }}" > ./release-aliases/3-EDGE
