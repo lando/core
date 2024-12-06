@@ -8,6 +8,7 @@ const merge = require('../utils/merge');
 const os = require('os');
 const path = require('path');
 const parsePkgName = require('../utils/parse-package-name');
+const purgeDep = require('../utils/purge-node-dep');
 const read = require('../utils/read-file');
 const remove = require('../utils/remove');
 const semver = require('semver');
@@ -28,13 +29,19 @@ class Plugin {
   static id = 'plugin';
   static debug = require('debug')('@lando/core:plugin');
 
+  static fetchConfig = {
+    namespace: 'auto',
+    excludeDeps: [],
+  };
+
   /*
    * fetches a plugin from a registry/git repo
    */
   static async fetch(plugin, {
     dest = os.tmpdir(),
-    installer = Plugin.installer,
     config = Plugin.config,
+    excludes = Plugin.fetchConfig.excludeDeps,
+    installer = Plugin.installer,
     type = 'app',
   } = {}) {
     // parse the package name
@@ -45,7 +52,7 @@ class Plugin {
       const info = await Plugin.info(pkg.raw, {config});
 
       // update dest with name and compute the package.json location
-      dest = path.join(dest, info.name);
+      dest = path.join(dest, Plugin.getLocation(info.name) ?? info[Plugin.fetchConfig.namespace]);
       const pjson = path.join(dest, 'package.json');
 
       // make sure we have a place to extract the plugin
@@ -54,7 +61,13 @@ class Plugin {
 
       // try to extract the plugin
       const {resolved} = await extract(pkg.raw, tmp, merge({Arborist: require('@npmcli/arborist')}, [config]));
-      Plugin.debug('extracted plugin %o to %o from %o using %o', info._id, tmp, resolved, config);
+      Plugin.debug('extracted plugin %o to %o from %o using %o %o', info._id, tmp, resolved, config);
+
+      // remove excludes
+      for (const exclude of excludes) {
+        purgeDep(tmp, exclude);
+        Plugin.debug('purged dependency %o from %o', exclude, tmp);
+      }
 
       // if we get this far then we can safely move the plugin to dest
       remove(dest);
@@ -64,7 +77,7 @@ class Plugin {
 
       // rewrite package.json so it includes relevant dist stuff from info, this is relevant for updating purposes
       if (fs.existsSync(pjson)) {
-        write(pjson, merge(info, read(pjson)));
+        write(pjson, merge(info, [{ignoreDependencies: excludes}, read(pjson)]));
         Plugin.debug('modified %o to include distribution info', pjson);
       }
 
@@ -78,6 +91,21 @@ class Plugin {
       // other errors
       throw error;
     }
+  }
+
+  /*
+   * Helper to return where a plugin should live relative to the install dir
+   */
+  static getLocation(plugin) {
+    const parsed = parsePkgName(plugin);
+
+    // basically @lando get "name" and everything else gets "package"
+    if (Plugin.fetchConfig.namespace === 'auto') {
+      if (parsed.scope === '@lando') return parsed['name'];
+      else return parsed['package'];
+    }
+
+    return parsed[Plugin.fetchConfig.namespace];
   }
 
   /*
@@ -202,7 +230,7 @@ class Plugin {
     this.api = this.manifest.api ?? 4;
     this.cspace = this.manifest.cspace ?? this.name;
     this.core = this.manifest.core === true || false;
-    this.hidden = this.manifest.hidden === true || false;
+
     // @NOTE: do we still want to do this?
     this.config = merge({}, [this.manifest.config, config[this.cspace]]);
 
@@ -243,6 +271,13 @@ class Plugin {
     this.commit = commit ?? this.source ? require('../utils/get-commit-hash')(this.sourceRoot, {short: true}) : false;
     // append commit to version if from source
     if (this.source && this.commit) this.version = `${this.version}-0-${this.commit}`;
+
+    // if we have ignoreDependencies then lets mutate this.pjson.dependencies for downstream considerations
+    if (this.pjson.ignoreDependencies) {
+      for (const ignored of this.pjson?.ignoreDependencies) {
+        delete this.pjson.dependencies[ignored];
+      }
+    }
 
     // if the plugin does not have any dependencies then consider it installed
     if (!this.pjson.dependencies || Object.keys(this.pjson.dependencies).length === 0) {

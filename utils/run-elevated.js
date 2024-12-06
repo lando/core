@@ -96,8 +96,16 @@ module.exports = (command, options, stdout = '', stderr = '') => {
         debug('elevated command %o done with code %o', command, code);
         // with run-elevate we want to clean up stderr a bit if we can eg remove the powershell shit
         if (options.method === 'run-elevated') {
+          const raw = stderr;
+
           stderr = stderr.split('. At line')[0];
           stderr = stderr.split(`${os.EOL}At `)[0];
+
+          // add nse if we have one
+          if (raw.split('NativeCommandError')[1]) {
+            const nse = raw.split('NativeCommandError')[1];
+            stderr = `${stderr}. ${nse.trim()}`;
+          }
 
           // simplify the UAC cancel error
           if (stderr.includes('The operation was canceled by the user.')) {

@@ -18,11 +18,6 @@ on:
         description: The name of the resulting binary
         required: false
         type: string
-      fatcore:
-        default: false
-        description: Whether to build a fat binary or not
-        required: false
-        type: boolean
       node-version:
         default: "20"
         description: The node version to build for eg 16 | 18 | 20
@@ -56,9 +51,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile --production
-      - name: Install fatcore
-        if: inputs.fatcore == true
-        run: scripts/fatcore-install.sh ${{ inputs.edge == true && '--edge' || '' }}
+      - name: Install plugins
+        run: scripts/install-plugins.sh --lando bin/lando ${{ inputs.edge == true && '--edge' || '' }}
       - name: Switch to edge channel
         if: inputs.edge == true
         run: |
@@ -78,7 +72,7 @@ jobs:
           os: ${{ inputs.os }}
           options: --options dns-result-order=ipv4first
           pkg: "@yao-pkg/pkg@5.16.1"
-          upload-key: "packaged-${{ inputs.filename }}-${{ inputs.os }}-${{ inputs.arch }}${{ inputs.fatcore == false && '-slim' || '' }}-${{ github.sha }}"
+          upload-key: "packaged-${{ inputs.filename }}-${{ inputs.os }}-${{ inputs.arch }}-${{ github.sha }}"
       - name: Ensure version
         if: (inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')
         run: ./dist/${{ inputs.filename }} version --all
@@ -88,11 +82,8 @@ jobs:
       - name: Ensure channel
         if: (inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')
         run: ./dist/${{ inputs.filename }} config --path channel | grep ${{ inputs.edge == true && 'edge' || 'stable' }}
-      - name: Ensure slimcore
-        if: ((inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')) && inputs.fatcore == false
-        run: ./dist/${{ inputs.filename }} config --path fatcore | grep false
-      - name: Ensure fatcore
-        if: ((inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')) && inputs.fatcore == true
+      - name: Ensure plugin install
+        if: ((inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS'))
         run: |
           ./dist/${{ inputs.filename }} config --path fatcore | grep true
-          ./dist/${{ inputs.filename }} config | grep -q "node_modules/@lando/wordpress"
+          ./dist/${{ inputs.filename }} config | grep -q "/snapshot/core/plugins/wordpress"

@@ -1,6 +1,9 @@
 'use strict';
 
 module.exports = lando => {
+  // the default install directory
+  const {dir} = lando.config.pluginDirs.find(dir => dir.type === require('../utils/get-plugin-type')());
+
   return {
     command: 'plugin-add',
     usage: '$0 plugin-add <plugin> [plugin...] [--auth <auth>...] [--registry <registry>...] [--scope <scope>...]',
@@ -18,17 +21,33 @@ module.exports = lando => {
       },
     },
     options: {
-      auth: {
+      'auth': {
         describe: 'Sets global or scoped auth',
         alias: ['a'],
         array: true,
         default: [],
       },
-      registry: {
+      'dir': {
+        string: true,
+        default: dir,
+        hidden: true,
+      },
+      'fetch-namespace': {
+        string: true,
+        default: 'auto',
+        hidden: true,
+      },
+      'registry': {
         describe: 'Sets global or scoped registry',
         alias: ['r', 's', 'scope'],
         array: true,
         default: [],
+      },
+      'remove-dependency': {
+        alias: 'd',
+        array: true,
+        default: [],
+        hidden: true,
       },
     },
     run: async options => {
@@ -47,16 +66,15 @@ module.exports = lando => {
       // reset Plugin static defaults for v3 purposes
       Plugin.config = options.config;
       Plugin.debug = require('../utils/debug-shim')(lando.log);
+      Plugin.fetchConfig.namespace = options.fetchNamespace;
+      Plugin.fetchConfig.excludeDeps = options.removeDependency;
 
       // merge plugins together
       const plugins = options._.slice(1);
       lando.log.debug('attempting to install plugins %j', plugins);
 
-      // attempt to compute the destination to install the plugin
-      // @NOTE: is it possible for this to ever be undefined?
-      const {dir} = lando.config.pluginDirs.find(dir => dir.type === require('../utils/get-plugin-type')());
       // prep listr things
-      const tasks = plugins.map(plugin => require('../utils/get-plugin-add-task')(plugin, {dir, Plugin}));
+      const tasks = plugins.map(plugin => require('../utils/get-plugin-add-task')(plugin, {dir: options.dir, Plugin}));
 
       // try to fetch the plugins
       const {errors, results, total} = await lando.runTasks(tasks, {

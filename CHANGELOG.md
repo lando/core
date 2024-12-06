@@ -8,6 +8,11 @@
 
 * This release has no new content it is just a test of dual branch development and `edge` branch release deployment
 
+## v3.23.16 - [December 5, 2024](https://github.com/lando/core/releases/tag/v3.23.16)
+
+* Fixed bug causing some `run-elevated` commands to fail on older Powershell versions
+* Removed `admin` requirement to install Lando Development CA on `win32` from `wsl`
+
 ## v3.23.15 - [December 3, 2024](https://github.com/lando/core/releases/tag/v3.23.15)
 
 * Disabled `DOCKER_CLI_HINTS` on `lando`

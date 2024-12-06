@@ -18,14 +18,11 @@ jobs:
           - linux
           - macos
           - win
-        fatcore:
-          - false
-          - true
+
     with:
       arch: ${{ matrix.arch }}
       edge: ${{ github.event.release.prerelease }}
-      fatcore: ${{ matrix.fatcore }}
-      filename: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}${{ matrix.fatcore == false && '-slim' || '' }}
+      filename: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}
       node-version: "20"
       os: ${{ matrix.os }}
       version: ${{ github.event.release.tag_name }}
@@ -46,13 +43,6 @@ jobs:
           - lando-macos-x64-${{ github.ref_name }}
           - lando-win-x64-${{ github.ref_name }}
 
-          - lando-linux-arm64-${{ github.ref_name }}-slim
-          - lando-macos-arm64-${{ github.ref_name }}-slim
-          - lando-win-arm64-${{ github.ref_name }}-slim
-
-          - lando-linux-x64-${{ github.ref_name }}-slim
-          - lando-macos-x64-${{ github.ref_name }}-slim
-          - lando-win-x64-${{ github.ref_name }}-slim
     with:
       download-pattern: packaged-lando-*
       file: ${{ matrix.file }}
@@ -79,14 +69,11 @@ jobs:
           - linux
           - macos
           - win
-        type:
-          - -slim
-          -
         alias: ${{ github.event.release.prerelease == true && fromJson('["edge"]') || fromJson('["stable", "edge"]') }}
 
     with:
-      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}${{ matrix.type }}
-      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.alias }}${{ matrix.type }}
+      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}
+      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.alias }}
       download-pattern: signed-lando-*
   build-release-binary-tag:
     uses: ./.github/workflows/release-rename-binary.yml
@@ -102,12 +89,9 @@ jobs:
           - linux
           - macos
           - win
-        type:
-          - -slim
-          -
     with:
-      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}${{ matrix.type }}
-      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}${{ matrix.type }}
+      source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}
+      destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}
       download-pattern: signed-lando-*
 
   checksum:

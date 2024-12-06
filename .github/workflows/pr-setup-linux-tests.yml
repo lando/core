@@ -36,10 +36,11 @@ jobs:
       - name: Install pkg dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile --production
       - name: Package into node binary
-        uses: lando/pkg-action@v5
+        uses: lando/pkg-action@v6
         id: pkg-action
         with:
           entrypoint: bin/lando
+          filename: lando
           node-version: ${{ matrix.node-version }}
           options: --options dns-result-order=ipv4first
           upload: false
