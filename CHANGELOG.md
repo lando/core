@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.18 - [December 6, 2024](https://github.com/lando/core/releases/tag/v3.23.18)
+
 * Improved release flow to better accommodate double barrelled development
 
 ## v3.23.17 - [December 6, 2024](https://github.com/lando/core/releases/tag/v3.23.17)
