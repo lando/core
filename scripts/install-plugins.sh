@@ -45,6 +45,7 @@ done
 # debug
 debug "running script with:"
 debug "DEBUG: $DEBUG"
+debug "LANDO: $LANDO"
 debug "TAG: $TAG"
 
 if [[ "$DEBUG" == 1 ]]; then

@@ -52,7 +52,7 @@ jobs:
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile --production
       - name: Install plugins
-        run: scripts/install-plugins.sh ${{ inputs.edge == true && '--edge' || '' }}
+        run: scripts/install-plugins.sh --lando bin/lando ${{ inputs.edge == true && '--edge' || '' }}
       - name: Switch to edge channel
         if: inputs.edge == true
         run: |
