@@ -9,7 +9,6 @@
 const _ = require('lodash');
 const chai = require('chai');
 const sinon = require('sinon');
-const expect = chai.expect;
 const filesystem = require('mock-fs');
 chai.use(require('chai-as-promised'));
 chai.should();
