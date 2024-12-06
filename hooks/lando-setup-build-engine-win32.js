@@ -173,9 +173,19 @@ module.exports = async (lando, options) => {
       if (require('../utils/is-group-member')('docker-users')) return {code: 0};
 
       const command = ['net', 'localgroup', 'docker-users', lando.config.username, '/ADD'];
-      const response = await require('../utils/run-elevated')(command, {debug});
+      const {code, stdout, stderr} = await require('../utils/run-elevated')(command, {ignoreReturnCode: true, debug});
+
+      // fail on anything except 1378 which is user already exists
+      if (code !== 0 && (!stderr.includes('1378') || !stderr.includes('already a member'))) {
+        const error = new Error(`Error adding ${lando.config.username} to the docker-users group!`);
+        error.code = code;
+        error.stdout = stdout;
+        error.stderr = stderr;
+        throw error;
+      }
+
       task.title = `Added ${lando.config.username} to docker-users`;
-      return response;
+      return {code, stdout, stderr};
     },
   });
 };

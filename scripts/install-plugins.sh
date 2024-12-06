@@ -2,7 +2,9 @@
 set -eo pipefail
 
 DEBUG="${RUNNER_DEBUG:-0}"
-TAG=$TAG
+LANDO="lando"
+LANOD_DEBUG=""
+TAG=latest
 
 debug() {
   if [ "${DEBUG}" == 1 ]; then printf '%s\n' "$1" >&2; fi
@@ -17,6 +19,14 @@ while (( "$#" )); do
     ;;
     --edge)
       TAG=edge
+      shift
+    ;;
+    --lando)
+      LANDO="$2"
+      shift 2
+    ;;
+    --lando=*)
+      LANDO="${1#*=}"
       shift
     ;;
     --)
@@ -35,10 +45,15 @@ done
 # debug
 debug "running script with:"
 debug "DEBUG: $DEBUG"
+debug "LANDO: $LANDO"
 debug "TAG: $TAG"
 
+if [[ "$DEBUG" == 1 ]]; then
+  LANDO_DEBUG="--debug"
+fi
+
 # install common plugins
-npm install --no-save \
+"$LANDO" plugin-add \
   @lando/acquia@$TAG \
   @lando/apache@$TAG \
   @lando/backdrop@$TAG \
@@ -64,7 +79,6 @@ npm install --no-save \
   @lando/pantheon@$TAG \
   @lando/php@$TAG \
   @lando/phpmyadmin@$TAG \
-  @lando/platformsh@latest \
   @lando/postgres@$TAG \
   @lando/python@$TAG \
   @lando/redis@$TAG \
@@ -73,7 +87,14 @@ npm install --no-save \
   @lando/symfony@$TAG \
   @lando/tomcat@$TAG \
   @lando/varnish@$TAG \
-  @lando/wordpress@$TAG
+  @lando/wordpress@$TAG \
+  --dir plugins \
+  --fetch-namespace package \
+  --remove-dependency axios \
+  --remove-dependency js-yaml \
+  --remove-dependency lodash \
+  --remove-dependency semver \
+  $LANDO_DEBUG
 
 # if this is fatcore edge then also update the release channel to edge
 if [[ "$TAG" == "edge" ]]; then

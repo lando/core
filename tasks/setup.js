@@ -165,6 +165,13 @@ module.exports = lando => {
       ux.action.stop(options.installPlugins ? `${color.green('done')} ${color.dim('[see table below]')}`
         : `${color.green('done')} ${color.dim('[nothing to install]')}`);
 
+      // filter out any plugins that are alrady installed
+      for (const plugin of pstatus) {
+        if (plugin.state === 'INSTALLED') {
+          delete options.plugins[plugin.id];
+        }
+      }
+
       // show plugin install status/summary and prompt if needed
       if (options.installPlugins && options.yes === false) {
         const {rows, columns} = getStatusTable(pstatus);
@@ -189,7 +196,7 @@ module.exports = lando => {
         }
       }
 
-      // actually install plugins
+      // actually install plugins that are not already installed
       const presults = await lando.installPlugins(options);
 
       // handle plugin install errors
