@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.24.0-beta.2 - [December 6, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.2)
+
 * Improved release flow to better accommodate double barrelled development
 
 ## v3.24.0-beta.1 - [December 6, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.1)
