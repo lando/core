@@ -4,7 +4,7 @@ set -eo pipefail
 DEBUG="${RUNNER_DEBUG:-0}"
 LANDO="lando"
 LANOD_DEBUG=""
-TAG=$TAG
+TAG=latest
 
 debug() {
   if [ "${DEBUG}" == 1 ]; then printf '%s\n' "$1" >&2; fi
@@ -52,7 +52,7 @@ if [[ "$DEBUG" == 1 ]]; then
 fi
 
 # install common plugins
-lando plugin-add $LANDO_DEBUG --source \
+"$LANDO" plugin-add \
   @lando/acquia@$TAG \
   @lando/apache@$TAG \
   @lando/backdrop@$TAG \
@@ -86,7 +86,14 @@ lando plugin-add $LANDO_DEBUG --source \
   @lando/symfony@$TAG \
   @lando/tomcat@$TAG \
   @lando/varnish@$TAG \
-  @lando/wordpress@$TAG
+  @lando/wordpress@$TAG \
+  --dir plugins \
+  --fetch-namespace package \
+  --remove-dependency axios \
+  --remove-dependency js-yaml \
+  --remove-dependency lodash \
+  --remove-dependency semver \
+  $LANDO_DEBUG
 
 # if this is fatcore edge then also update the release channel to edge
 if [[ "$TAG" == "edge" ]]; then

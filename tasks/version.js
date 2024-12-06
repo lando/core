@@ -74,7 +74,7 @@ module.exports = lando => ({
         }
 
         // if not a hidden plugin then set the version
-        if (!plugin.hidden) versions[plugin.name] = `v${plugin.version}`;
+        versions[plugin.name] = `v${plugin.version}`;
       }
     }
 

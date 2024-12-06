@@ -104,7 +104,7 @@ module.exports = lando => {
       lando.updates.dir = dir ? dir.dir : undefined;
 
       // get updatable items
-      ux.action.start('Generating plugin/cli update matrix');
+      ux.action.start('Generating update matrix');
       const checks = await lando.updates.check();
       const updatesAvailable = checks.some(result => result.updateAvailable !== false);
       ux.action.stop(updatesAvailable ? `${color.green('done')} ${color.dim('[see table below]')}`

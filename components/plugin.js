@@ -77,7 +77,7 @@ class Plugin {
 
       // rewrite package.json so it includes relevant dist stuff from info, this is relevant for updating purposes
       if (fs.existsSync(pjson)) {
-        write(pjson, merge(info, read(pjson)));
+        write(pjson, merge(info, [{ignoreDependencies: excludes}, read(pjson)]));
         Plugin.debug('modified %o to include distribution info', pjson);
       }
 
@@ -230,7 +230,7 @@ class Plugin {
     this.api = this.manifest.api ?? 4;
     this.cspace = this.manifest.cspace ?? this.name;
     this.core = this.manifest.core === true || false;
-    this.hidden = this.manifest.hidden === true || false;
+
     // @NOTE: do we still want to do this?
     this.config = merge({}, [this.manifest.config, config[this.cspace]]);
 
@@ -271,6 +271,13 @@ class Plugin {
     this.commit = commit ?? this.source ? require('../utils/get-commit-hash')(this.sourceRoot, {short: true}) : false;
     // append commit to version if from source
     if (this.source && this.commit) this.version = `${this.version}-0-${this.commit}`;
+
+    // if we have ignoreDependencies then lets mutate this.pjson.dependencies for downstream considerations
+    if (this.pjson.ignoreDependencies) {
+      for (const ignored of this.pjson?.ignoreDependencies) {
+        delete this.pjson.dependencies[ignored];
+      }
+    }
 
     // if the plugin does not have any dependencies then consider it installed
     if (!this.pjson.dependencies || Object.keys(this.pjson.dependencies).length === 0) {
