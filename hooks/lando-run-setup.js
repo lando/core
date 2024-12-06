@@ -5,6 +5,8 @@ module.exports = async lando => {
   const sopts = lando?.config?.setup;
   // we dont need to show the summary here
   sopts.yes = true;
+  // skip common plugins for now?
+  sopts.skipCommonPlugins = true;
 
   // get our setup tasks
   const tasks = await lando.getSetupStatus(sopts);
