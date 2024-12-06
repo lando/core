@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.24.0-beta.1 - [December 6, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.1)
+
 * Consolidated core plugins
 * Introduced `midcore` consolidated build which includes all "common" plugins
 
