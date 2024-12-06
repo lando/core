@@ -9,7 +9,6 @@
 const _ = require('lodash');
 const chai = require('chai');
 const sinon = require('sinon');
-const fs = require('fs');
 const expect = chai.expect;
 const filesystem = require('mock-fs');
 chai.use(require('chai-as-promised'));
@@ -18,16 +17,17 @@ const os = require('os');
 const path = require('path');
 const Plugins = require('./../lib/plugins');
 
-const testPlugin = fs.readFileSync(path.resolve(__dirname, '..', 'plugins', 'test', 'index.js'), 'utf8');
+const testPlugin = path.resolve(__dirname, '..', 'examples', 'plugins', 'test-plugin-2', 'index.js');
 const searchDirs = [
   path.join(os.tmpdir(), 'dir1'),
   path.join(os.tmpdir(), 'dir2'),
-  path.resolve(__dirname, '..'),
+  path.join(os.tmpdir(), 'dir3'),
 ];
+
 const fsConfig = {};
 _.forEach(searchDirs, dir => {
-  fsConfig[path.join(dir, 'plugins', 'test', 'index.js')] = testPlugin;
-  fsConfig[path.join(dir, 'plugins', 'test', 'plugin.yml')] = 'DONT MATTER';
+  fsConfig[path.resolve(dir, 'plugins', 'test', 'index.js')] = filesystem.load(testPlugin);
+  fsConfig[path.resolve(dir, 'plugins', 'test', 'plugin.yml')] = 'DONT MATTER';
 });
 
 // This is the file we are testing
@@ -40,13 +40,14 @@ describe('plugins', () => {
     });
 
     it('should use __non_webpack_require__ if __webpack_require__ is a func', () => {
+      filesystem.restore();
       const plugins = new Plugins();
-      const find = plugins.find(searchDirs);
+      const find = plugins.find([path.resolve(__dirname, '..', 'examples', 'plugins')]);
       global.__webpack_require__ = sinon.spy();
       global.__non_webpack_require__ = require;
       const data = plugins.load(find[0]);
       data.should.be.an('Object');
-      data.data['plugin-test'].should.be.true;
+      data.data['app-plugin-test'].should.be.true;
       data.name.should.equal(find[0].name);
       data.path.should.equal(find[0].path);
       data.dir.should.equal(find[0].dir);
@@ -55,7 +56,7 @@ describe('plugins', () => {
     it('should use the plugin from the last location it finds it', () => {
       const plugins = new Plugins();
       const find = plugins.find(searchDirs);
-      expect(_.includes(find[0].path, 'core/plugins')).to.be.true;
+      find[0].dir.should.match(/dir3\/plugins\/test$/);
     });
 
     it('should push a plugin to the plugin registry after it is loaded', () => {
