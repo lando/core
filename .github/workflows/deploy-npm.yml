@@ -78,7 +78,7 @@ jobs:
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm-token }}
-      - name: Trigger docs builds
+      - name: Update edge release alias on main
         if: github.event.release.target_commitish == 'edge'
         run: |
           git clone https://github.com/lando/core.git core
