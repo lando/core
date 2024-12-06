@@ -38,7 +38,6 @@ jobs:
         run: npm run test:unit
       - name: Update edge release alias
         shell: bash
-        if: github.event.release.prerelease == true
         run: |
           if ./scripts/semcompare.sh "${{ github.event.release.tag_name }}" "$(cat ./release-aliases/3-EDGE)"; then
             echo "${{ github.event.release.tag_name }}" > ./release-aliases/3-EDGE
@@ -86,5 +85,7 @@ jobs:
           cd core
           git config user.name "rtfm-47"
           git config user.email "rtfm47@lando.dev"
-          git commit -m "auto docs release ${{ github.event.release.tag_name }} triggered by @rtfm-47" --allow-empty
+          echo "${{ github.event.release.tag_name }}" > ./release-aliases/3-EDGE
+          git add .
+          git commit -m "Update edge release alias to ${{ github.event.release.tag_name }} triggered by @rtfm-47"
           git push https://x-access-token:${{ secrets.github-token }}@github.com/lando/core.git main
