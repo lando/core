@@ -52,7 +52,7 @@ class Plugin {
       const info = await Plugin.info(pkg.raw, {config});
 
       // update dest with name and compute the package.json location
-      dest = path.join(dest, Plugin.getLocation(plugin));
+      dest = path.join(dest, Plugin.getLocation(info.name) ?? info[Plugin.fetchConfig.namespace]);
       const pjson = path.join(dest, 'package.json');
 
       // make sure we have a place to extract the plugin
