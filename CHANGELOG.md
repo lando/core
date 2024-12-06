@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Improved release flow to better accommodate double barrelled development
+
 ## v3.23.16 - [December 5, 2024](https://github.com/lando/core/releases/tag/v3.23.16)
 
 * Fixed bug causing some `run-elevated` commands to fail on older Powershell versions

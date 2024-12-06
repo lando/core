@@ -37,6 +37,14 @@ coverage/
 
 # lando
 .lando/id
+FATCORE
+plugins/*
+!plugins/healthcheck
+!plugins/networking
+!plugins/proxy
+!plugins/scanner
+!plugins/sharing
+!plugins/test
 
 # docs
 .temp
