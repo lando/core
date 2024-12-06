@@ -86,4 +86,4 @@ jobs:
         if: ((inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS'))
         run: |
           ./dist/${{ inputs.filename }} config --path fatcore | grep true
-          ./dist/${{ inputs.filename }} config | grep -q "node_modules/@lando/wordpress"
+          ./dist/${{ inputs.filename }} config | grep -q "/snapshot/core/plugins/wordpress"
