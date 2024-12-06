@@ -1,8 +1,9 @@
 'use strict';
 
-const path = require('path');
-
 module.exports = lando => {
+  // the default install directory
+  const {dir} = lando.config.pluginDirs.find(dir => dir.type === require('../utils/get-plugin-type')());
+
   return {
     command: 'plugin-add',
     usage: '$0 plugin-add <plugin> [plugin...] [--auth <auth>...] [--registry <registry>...] [--scope <scope>...]',
@@ -20,21 +21,32 @@ module.exports = lando => {
       },
     },
     options: {
-      auth: {
+      'auth': {
         describe: 'Sets global or scoped auth',
         alias: ['a'],
         array: true,
         default: [],
       },
-      registry: {
+      'dir': {
+        string: true,
+        default: dir,
+        hidden: true,
+      },
+      'fetch-namespace': {
+        string: true,
+        default: 'auto',
+        hidden: true,
+      },
+      'registry': {
         describe: 'Sets global or scoped registry',
         alias: ['r', 's', 'scope'],
         array: true,
         default: [],
       },
-      source: {
-        boolean: true,
-        default: false,
+      'remove-dependency': {
+        alias: 'd',
+        array: true,
+        default: [],
         hidden: true,
       },
     },
@@ -42,7 +54,6 @@ module.exports = lando => {
       const getPluginConfig = require('../utils/get-plugin-config');
       const lopts2Popts = require('../utils/lopts-2-popts');
       const merge = require('../utils/merge');
-      const internal = {dir: path.resolve(__dirname, '..', 'plugins')};
 
       const Plugin = require('../components/plugin');
 
@@ -55,17 +66,15 @@ module.exports = lando => {
       // reset Plugin static defaults for v3 purposes
       Plugin.config = options.config;
       Plugin.debug = require('../utils/debug-shim')(lando.log);
+      Plugin.fetchConfig.namespace = options.fetchNamespace;
+      Plugin.fetchConfig.excludeDeps = options.removeDependency;
 
       // merge plugins together
       const plugins = options._.slice(1);
       lando.log.debug('attempting to install plugins %j', plugins);
 
-      // attempt to compute the destination to install the plugin
-      // @NOTE: is it possible for this to ever be undefined?
-      const {dir} = options.source ? internal : lando.config.pluginDirs.find(dir => dir.type === require('../utils/get-plugin-type')());
-
       // prep listr things
-      const tasks = plugins.map(plugin => require('../utils/get-plugin-add-task')(plugin, {dir, source: options.source, Plugin}));
+      const tasks = plugins.map(plugin => require('../utils/get-plugin-add-task')(plugin, {dir: options.dir, Plugin}));
 
       // try to fetch the plugins
       const {errors, results, total} = await lando.runTasks(tasks, {

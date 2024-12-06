@@ -8,6 +8,7 @@ const merge = require('../utils/merge');
 const os = require('os');
 const path = require('path');
 const parsePkgName = require('../utils/parse-package-name');
+const purgeDep = require('../utils/purge-node-dep');
 const read = require('../utils/read-file');
 const remove = require('../utils/remove');
 const semver = require('semver');
@@ -28,13 +29,19 @@ class Plugin {
   static id = 'plugin';
   static debug = require('debug')('@lando/core:plugin');
 
+  static fetchConfig = {
+    namespace: 'auto',
+    excludeDeps: [],
+  };
+
   /*
    * fetches a plugin from a registry/git repo
    */
   static async fetch(plugin, {
     dest = os.tmpdir(),
-    installer = Plugin.installer,
     config = Plugin.config,
+    excludes = Plugin.fetchConfig.excludeDeps,
+    installer = Plugin.installer,
     type = 'app',
   } = {}) {
     // parse the package name
@@ -45,7 +52,7 @@ class Plugin {
       const info = await Plugin.info(pkg.raw, {config});
 
       // update dest with name and compute the package.json location
-      dest = path.join(dest, info.name);
+      dest = path.join(dest, Plugin.getLocation(plugin));
       const pjson = path.join(dest, 'package.json');
 
       // make sure we have a place to extract the plugin
@@ -54,7 +61,13 @@ class Plugin {
 
       // try to extract the plugin
       const {resolved} = await extract(pkg.raw, tmp, merge({Arborist: require('@npmcli/arborist')}, [config]));
-      Plugin.debug('extracted plugin %o to %o from %o using %o', info._id, tmp, resolved, config);
+      Plugin.debug('extracted plugin %o to %o from %o using %o %o', info._id, tmp, resolved, config);
+
+      // remove excludes
+      for (const exclude of excludes) {
+        purgeDep(tmp, exclude);
+        Plugin.debug('purged dependency %o from %o', exclude, tmp);
+      }
 
       // if we get this far then we can safely move the plugin to dest
       remove(dest);
@@ -78,6 +91,21 @@ class Plugin {
       // other errors
       throw error;
     }
+  }
+
+  /*
+   * Helper to return where a plugin should live relative to the install dir
+   */
+  static getLocation(plugin) {
+    const parsed = parsePkgName(plugin);
+
+    // basically @lando get "name" and everything else gets "package"
+    if (Plugin.fetchConfig.namespace === 'auto') {
+      if (parsed.scope === '@lando') return parsed['name'];
+      else return parsed['package'];
+    }
+
+    return parsed[Plugin.fetchConfig.namespace];
   }
 
   /*

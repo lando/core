@@ -2,6 +2,8 @@
 set -eo pipefail
 
 DEBUG="${RUNNER_DEBUG:-0}"
+LANDO="lando"
+LANOD_DEBUG=""
 TAG=$TAG
 
 debug() {
@@ -17,6 +19,14 @@ while (( "$#" )); do
     ;;
     --edge)
       TAG=edge
+      shift
+    ;;
+    --lando)
+      LANDO="$2"
+      shift 2
+    ;;
+    --lando=*)
+      LANDO="${1#*=}"
       shift
     ;;
     --)
@@ -37,8 +47,12 @@ debug "running script with:"
 debug "DEBUG: $DEBUG"
 debug "TAG: $TAG"
 
+if [[ "$DEBUG" == 1 ]]; then
+  LANDO_DEBUG="--debug"
+fi
+
 # install common plugins
-npm install --no-save \
+lando plugin-add $LANDO_DEBUG --source \
   @lando/acquia@$TAG \
   @lando/apache@$TAG \
   @lando/backdrop@$TAG \
@@ -64,7 +78,6 @@ npm install --no-save \
   @lando/pantheon@$TAG \
   @lando/php@$TAG \
   @lando/phpmyadmin@$TAG \
-  @lando/platformsh@latest \
   @lando/postgres@$TAG \
   @lando/python@$TAG \
   @lando/redis@$TAG \
