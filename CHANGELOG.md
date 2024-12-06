@@ -13,6 +13,14 @@
 
 * This release has no new content it is just a test of dual branch development and `edge` branch release deployment
 
+## v3.23.18 - [December 6, 2024](https://github.com/lando/core/releases/tag/v3.23.18)
+
+* Improved release flow to better accommodate double barrelled development
+
+## v3.23.17 - [December 6, 2024](https://github.com/lando/core/releases/tag/v3.23.17)
+
+* Improved release flow to better accommodate double barrelled development
+
 ## v3.23.16 - [December 5, 2024](https://github.com/lando/core/releases/tag/v3.23.16)
 
 * Fixed bug causing some `run-elevated` commands to fail on older Powershell versions
