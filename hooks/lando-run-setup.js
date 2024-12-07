@@ -33,8 +33,9 @@ module.exports = async lando => {
       await lando.reloadPlugins();
       // reload needed config
       const {orchestratorBin, orchestratorVersion, dockerBin, engineConfig} = require('../utils/build-config')();
-      console.log({orchestratorBin, orchestratorVersion, dockerBin, engineConfig});
       lando.config = {...lando.config, orchestratorBin, orchestratorVersion, dockerBin, engineConfig};
+      // we need to explicitly reset this for some reason
+      lando.config.orchestratorBin = require('../utils/get-compose-x')(lando.config);
       console.log(lando.config);
 
       // reload engine
