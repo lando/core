@@ -28,7 +28,6 @@ jobs:
           # - hostnames
           - info
           - init-github
-          - init-lamp
           - init-remote
           - keys
           - l337
