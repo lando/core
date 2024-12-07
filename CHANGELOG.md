@@ -1,5 +1,8 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed bug causing auto setup to not correctly reset the orchestrator binary path
+* Improved `lando init` so that it can auto setup if needed
+
 ## v3.23.18 - [December 6, 2024](https://github.com/lando/core/releases/tag/v3.23.18)
 
 * Improved release flow to better accommodate double barrelled development
