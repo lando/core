@@ -37,6 +37,7 @@ lando info -s appserver | grep hostnames: | grep appserver.landolemp.internal
 lando info -s appserver_nginx | grep hostnames: | grep appserver_nginx.landolemp.internal
 
 # Should be able to self connect from lamp
+cd lamp
 lando exec appserver -- curl http://localhost
 lando exec appserver -- curl https://localhost
 
