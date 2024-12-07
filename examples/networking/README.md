@@ -1,5 +1,4 @@
-Networking Example
-==================
+# Networking Example
 
 This example exists primarily to test the following documentation:
 
@@ -7,8 +6,7 @@ This example exists primarily to test the following documentation:
 
 See the [Landofiles](https://docs.devwithlando.io/config/lando.html) in this directory for the exact magicks.
 
-Start up tests
---------------
+## Start up tests
 
 ```bash
 # Should init and start a lamp app
@@ -26,8 +24,7 @@ cp -rf .lando.lemp.yml lemp/.lando.yml
 cd lemp && lando start
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to verify things work as expected
 
@@ -40,6 +37,9 @@ lando info -s appserver | grep hostnames: | grep appserver.landolemp.internal
 lando info -s appserver_nginx | grep hostnames: | grep appserver_nginx.landolemp.internal
 
 # Should be able to self connect from lamp
+echo "hello"
+env
+pwd
 cd lamp
 lando exec appserver -- curl http://localhost
 lando exec appserver -- curl https://localhost
@@ -68,8 +68,7 @@ cd lamp
 lando exec database -- mysql -uroot -h database.landolemp.internal -e "quit"
 ```
 
-Destroy tests
--------------
+## Destroy tests
 
 ```bash
 # Should destroy lamp successfully
