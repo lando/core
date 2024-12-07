@@ -33,7 +33,10 @@ module.exports = async lando => {
       await lando.reloadPlugins();
       // reload needed config
       const {orchestratorBin, orchestratorVersion, dockerBin, engineConfig} = require('../utils/build-config')();
+      console.log({orchestratorBin, orchestratorVersion, dockerBin, engineConfig});
       lando.config = {...lando.config, orchestratorBin, orchestratorVersion, dockerBin, engineConfig};
+      console.log(lando.config);
+
       // reload engine
       lando.engine = require('../utils/setup-engine')(
         lando.config,
