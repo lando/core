@@ -44,7 +44,7 @@ const runBuild = (lando, options = {}, steps = []) => lando.Promise.each(steps, 
         step,
       )),
     );
-  };
+  }
 });
 
 module.exports = lando => {
@@ -80,7 +80,7 @@ module.exports = lando => {
     [--yes]
     [--other-plugin-provided-options...]`,
     options: _.merge(getInitBaseOpts(recipes, sources), configOpts, getInitOveridesOpts(inits, recipes, sources)),
-    run: options => {
+    run: async options => {
       // Parse options abd and configs
       options = parseInitOptions(options);
       // Get our recipe and source configs
@@ -90,44 +90,49 @@ module.exports = lando => {
       const buildSteps = (_.has(sourceConfig, 'build')) ? sourceConfig.build(options, lando) : [];
       const configStep = (_.has(recipeConfig, 'build')) ? recipeConfig.build : () => {};
 
+      // run setup if we need to
+      await require('../hooks/lando-run-setup')(lando);
+
       // Pre init event and run build steps
       // @NOTE: source build steps are designed to grab code from somewhere
-      return lando.events.emit('pre-init', options, buildSteps).then(() => runBuild(lando, options, buildSteps))
+      await lando.events.emit('pre-init', options, buildSteps);
+
+      // run build
+      await runBuild(lando, options, buildSteps);
+
       // Run any config steps
       // @NOTE: config steps are designed to augmnet the landofile with additional metadata
-      .then(() => configStep(options, lando))
+      const config = await configStep(options, lando);
 
       // Compile and dump the yaml
-      .then((config = {}) => {
-        // if config is false then it means we want to skip landofile mutation
-        if (config !== false) {
-          // Where are we going?
-          const dest = path.join(options.destination, '.lando.yml');
-          const landoFile = getYaml(dest, options, lando);
+      // if config is false then it means we want to skip landofile mutation
+      if (config !== false) {
+        // Where are we going?
+        const dest = path.join(options.destination, '.lando.yml');
+        const landoFile = getYaml(dest, options, lando);
 
-          // Get a lower level config if needed, merge in current recipe config
-          if (options.full) {
-            const Recipe = lando.factory.get(options.recipe);
-            const recipeConfig = _.merge({}, landoFile, {app: landoFile.name, _app: {_config: lando.config}});
-            _.merge(landoFile, new Recipe(landoFile.name, recipeConfig).config);
-          }
-
-          // Merge in any additional configuration options specified
-          _.forEach(options.option, option => {
-            const key = _.first(option.split('='));
-            _.set(landoFile, `config.${key}`, _.last(option.split('=')));
-          });
-
-          // Merge and dump the config file
-          lando.yaml.dump(dest, _.merge(landoFile, config));
+        // Get a lower level config if needed, merge in current recipe config
+        if (options.full) {
+          const Recipe = lando.factory.get(options.recipe);
+          const recipeConfig = _.merge({}, landoFile, {app: landoFile.name, _app: {_config: lando.config}});
+          _.merge(landoFile, new Recipe(landoFile.name, recipeConfig).config);
         }
 
-        // Show it
-        showInit(lando, options);
-      })
+        // Merge in any additional configuration options specified
+        _.forEach(options.option, option => {
+          const key = _.first(option.split('='));
+          _.set(landoFile, `config.${key}`, _.last(option.split('=')));
+        });
+
+        // Merge and dump the config file
+        lando.yaml.dump(dest, _.merge(landoFile, config));
+      }
+
+      // Show it
+      showInit(lando, options);
 
       // Post init event
-      .then(() => lando.events.emit('post-init', options));
+      await lando.events.emit('post-init', options);
     },
   };
 };

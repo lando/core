@@ -1,5 +1,4 @@
-Networking Example
-==================
+# Networking Example
 
 This example exists primarily to test the following documentation:
 
@@ -7,8 +6,7 @@ This example exists primarily to test the following documentation:
 
 See the [Landofiles](https://docs.devwithlando.io/config/lando.html) in this directory for the exact magicks.
 
-Start up tests
---------------
+## Start up tests
 
 ```bash
 # Should init and start a lamp app
@@ -26,8 +24,7 @@ cp -rf .lando.lemp.yml lemp/.lando.yml
 cd lemp && lando start
 ```
 
-Verification commands
----------------------
+## Verification commands
 
 Run the following commands to verify things work as expected
 
@@ -68,8 +65,7 @@ cd lamp
 lando exec database -- mysql -uroot -h database.landolemp.internal -e "quit"
 ```
 
-Destroy tests
--------------
+## Destroy tests
 
 ```bash
 # Should destroy lamp successfully

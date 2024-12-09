@@ -36,14 +36,18 @@ jobs:
         run: npm run lint
       - name: Run unit tests
         run: npm run test:unit
-      - name: Update release helpers
+      - name: Update edge release alias
         shell: bash
         run: |
-          if [[ ${{ github.event.release.tag_name }} == v3* ]]; then
-            echo "${{ github.event.release.tag_name }}" > release-aliases/3-EDGE
-            if [ "${{ github.event.release.prerelease }}" == "false" ]; then
-              echo "${{ github.event.release.tag_name }}" > release-aliases/3-STABLE
-            fi
+          if ./scripts/semcompare.sh "${{ github.event.release.tag_name }}" "$(cat ./release-aliases/3-EDGE)"; then
+            echo "${{ github.event.release.tag_name }}" > ./release-aliases/3-EDGE
+          fi
+      - name: Update stable release alias
+        shell: bash
+        if: github.event.release.prerelease == false
+        run: |
+          if ./scripts/semcompare.sh "${{ github.event.release.tag_name }}" "$(cat ./release-aliases/3-STABLE)"; then
+            echo "${{ github.event.release.tag_name }}" > ./release-aliases/3-STABLE
           fi
       - name: Prepare Release
         uses: lando/prepare-release-action@v3

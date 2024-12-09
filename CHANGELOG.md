@@ -1,5 +1,23 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.19 - [December 7, 2024](https://github.com/lando/core/releases/tag/v3.23.19)
+
+* Fixed bug causing auto setup to not correctly reset the orchestrator binary path
+* Improved `lando init` so that it can auto setup if needed
+
+## v3.23.18 - [December 6, 2024](https://github.com/lando/core/releases/tag/v3.23.18)
+
+* Improved release flow to better accommodate double barrelled development
+
+## v3.23.17 - [December 6, 2024](https://github.com/lando/core/releases/tag/v3.23.17)
+
+* Improved release flow to better accommodate double barrelled development
+
+## v3.23.16 - [December 5, 2024](https://github.com/lando/core/releases/tag/v3.23.16)
+
+* Fixed bug causing some `run-elevated` commands to fail on older Powershell versions
+* Removed `admin` requirement to install Lando Development CA on `win32` from `wsl`
+
 ## v3.23.15 - [December 3, 2024](https://github.com/lando/core/releases/tag/v3.23.15)
 
 * Disabled `DOCKER_CLI_HINTS` on `lando`
