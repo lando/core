@@ -1,5 +1,16 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.15 - [December 3, 2024](https://github.com/lando/core/releases/tag/v3.23.15)
+
+* Disabled `DOCKER_CLI_HINTS` on `lando`
+* Fixed bug causing some `lando exec` and tooling commands from not inheriting terminal columns and lines correctly[#277](https://github.com/lando/core/issues/277)
+* Fixed bug causing `lando setup` loop on `U Need Setup!`
+* Fixed bug causing failed update message when user needs to relaunch terminal
+* Improved `ux` for `autosetup`
+* Standardized non-TTY renderer selection to the `simple` renderer
+
+## v3.23.14 - [November 27, 2024](https://github.com/lando/core/releases/tag/v3.23.14)
+
 ### New Features & Improvements
 
 * Added first class support to `lando setup` when run from `wsl` environments, see extended notes below
@@ -13,6 +24,7 @@
 * Fixed bug in `docker` launching causing it to not wait until `daemon` can accept connections
 * Fixed bug causing `deferred` tasks to show as `Running` instead of `Deferred`
 * Fixed bug causing case insenstive group membership matching to fail on `win32`
+* Fixed some failures when running in `circleci` by forcing `verbose` renderer
 
 ### Internal
 
