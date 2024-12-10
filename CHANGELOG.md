@@ -26,6 +26,7 @@
 * Fixed bug causing failed update message when user needs to relaunch terminal
 * Improved `ux` for `autosetup`
 * Standardized non-TTY renderer selection to the `simple` renderer
+* Added a WSL2 workflow for the `setup` tests
 
 ## v3.23.14 - [November 27, 2024](https://github.com/lando/core/releases/tag/v3.23.14)
 
