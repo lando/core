@@ -115,6 +115,9 @@ module.exports = async lando => {
   // flush update cache if it needs to be
   lando.events.on('ready', async () => await require('./hooks/lando-flush-updates-cache')(lando));
 
+  // merge in needed legacy init stuff
+  lando.events.on('cli-init-answers', async () => await require('./hooks/lando-load-legacy-inits')(lando));
+
   // this is a gross hack we need to do to reset the engine because the lando 3 runtime has no idea
   lando.events.on('almost-ready', 1, async () => await require('./hooks/lando-reset-orchestrator')(lando));
   lando.events.on('post-setup', 1, async () => await require('./hooks/lando-reset-orchestrator')(lando));
@@ -133,6 +136,9 @@ module.exports = async lando => {
 
   // clean networks
   lando.events.on('pre-engine-start', 1, async () => await require('./hooks/lando-clean-networks')(lando));
+
+  // regen task cache
+  lando.events.on('before-end', 9999, async () => await require('./hooks/lando-generate-tasks-cache')(lando));
 
   // return some default things
   return _.merge({}, defaults, uc(), {config: {
