@@ -10,7 +10,7 @@ Displays lando version information.
 ## Usage
 
 ```sh
-lando version [--all] [--component <component>] [--full]
+lando version [--all] [--full] [--plugin <plugin>]
 ```
 
 ## Options
@@ -22,8 +22,8 @@ lando version [--all] [--component <component>] [--full]
 --help           Shows lando or delegated command help if applicable                                                                  [boolean]
 --verbose, -v    Runs with extra verbosity                                                                                              [count]
 --all, -a        Shows all version information                                                                                        [boolean]
---component, -c  Shows version info for specific component                                                    [string] [default: "@lando/core"]
 --full, -f       Shows full version string                                                                                            [boolean]
+--plugin, -p     Shows version info for specific plugin                                                                                [string]
 ```
 
 ## Examples
@@ -36,8 +36,8 @@ lando version --all
 lando version --full
 
 # Show version information for the cli
-lando version --component @lando/cli
+lando version --plugin @lando/php
 
 # Do the same as above but in component shorthand
-lando version --component cli
+lando version --plugin php
 ```
