@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.24.0-beta.7 - [December 11, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.7)
+
 * Consolidated `@lando/core` and `@lando/cli` updates into a singular `lando` update
 * Added support for `init.defaults` for explicit recipe `config` setting on `lando init`
 
