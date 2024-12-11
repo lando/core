@@ -70,7 +70,7 @@ services:
       - 8080/http
   curl:
     api: 4
-    image: curlimages/curl
+    image: curlimages/curl:8.10.1
     command: sleep infinity
 
 tooling:
