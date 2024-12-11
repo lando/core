@@ -111,8 +111,10 @@ module.exports = lando => {
         const dest = path.join(options.destination, '.lando.yml');
         const landoFile = getYaml(dest, options, lando);
 
-        // Get a lower level config if needed, merge in current recipe config
+        // fetch recipe
         const Recipe = lando.factory.get(options.recipe);
+
+        // Get a lower level config if needed, merge in current recipe config
         if (options.full) {
           const recipeConfig = _.merge({}, landoFile, {app: landoFile.name, _app: {_config: lando.config}});
           _.merge(landoFile, new Recipe(landoFile.name, recipeConfig).config);

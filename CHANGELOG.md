@@ -1,6 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
 * Consolidated `@lando/core` and `@lando/cli` updates into a singular `lando` update
+* Added support for `Recipe.legacyInitDefaults` for explicit recipe `config` setting on `lando init`
 
 ## v3.24.0-beta.6 - [December 11, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.6)
 
