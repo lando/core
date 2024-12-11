@@ -7,6 +7,9 @@ const {nanoid} = require('nanoid');
  */
 module.exports = {
   name: 'none',
+  defaults: {
+    something: 'happening-here',
+  },
   overrides: {
     name: {
       when: answers => {
@@ -16,7 +19,4 @@ module.exports = {
     },
     webroot: {when: () => false},
   },
-  build: () => ([
-    {name: 'script-load-test', cmd: '/helpers/init-tester.sh'},
-  ]),
 };

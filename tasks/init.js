@@ -114,9 +114,12 @@ module.exports = lando => {
         // Get a lower level config if needed, merge in current recipe config
         if (options.full) {
           const Recipe = lando.factory.get(options.recipe);
-          const recipeConfig = _.merge({}, landoFile, {app: landoFile.name, _app: {_config: lando.config}});
-          _.merge(landoFile, new Recipe(landoFile.name, recipeConfig).config);
+          const config = _.merge({}, landoFile, {app: landoFile.name, _app: {_config: lando.config}});
+          _.merge(landoFile, new Recipe(landoFile.name, config).config);
         }
+
+        // Merge in recipe defaults
+        landoFile.config = _.merge(recipeConfig.defaults ?? {}, landoFile.config);
 
         // Merge in any additional configuration options specified
         _.forEach(options.option, option => {

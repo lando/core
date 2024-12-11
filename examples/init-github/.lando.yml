@@ -1,4 +1,0 @@
-name: placeholder
-
-plugins:
-  "@lando/core": "../.."
