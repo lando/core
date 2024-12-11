@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.20 - [December 11, 2024](https://github.com/lando/core/releases/tag/v3.23.20)
+
 * Simplified `lando shellenv --add` `PATH` modification string to be more universal [#298](https://github.com/lando/core/issues/298)
 
 ## v3.23.19 - [December 7, 2024](https://github.com/lando/core/releases/tag/v3.23.19)
