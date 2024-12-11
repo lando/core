@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.24.0-beta.6 - [December 11, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.6)
+
 * Optimized deps part 2
 
 ## v3.24.0-beta.5 - [December 10, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.5)
