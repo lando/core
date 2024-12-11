@@ -23,6 +23,10 @@
 * Fixed bug causing auto setup to not correctly reset the orchestrator binary path
 * Improved `lando init` so that it can auto setup if needed
 
+## v3.23.20 - [December 11, 2024](https://github.com/lando/core/releases/tag/v3.23.20)
+
+* Simplified `lando shellenv --add` `PATH` modification string to be more universal [#298](https://github.com/lando/core/issues/298)
+
 ## v3.23.19 - [December 7, 2024](https://github.com/lando/core/releases/tag/v3.23.19)
 
 * Fixed bug causing auto setup to not correctly reset the orchestrator binary path
