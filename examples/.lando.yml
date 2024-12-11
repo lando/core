@@ -1,0 +1,4 @@
+name: stealth-plugin-loader
+
+plugins:
+  "@lando/core": ..

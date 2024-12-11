@@ -22,6 +22,9 @@ Run the following commands to verify things work as expected
 ```bash
 # Should have the README.md in the approot
 cd github && cat README.md
+
+# Should merge default init values into config
+cd github && cat .lando.yml | grep something | grep happening-here
 ```
 
 ## Destroy tests
