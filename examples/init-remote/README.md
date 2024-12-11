@@ -32,6 +32,7 @@ cd tar && cat .lando.yml
 
 # Should merge default init values into config
 cd tar && cat .lando.yml | grep something | grep happening-here
+cd ..
 cd git && cat .lando.yml | grep something | grep happening-here
 ```
 
