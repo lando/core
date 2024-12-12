@@ -591,7 +591,7 @@ module.exports = {
       if (!this.command) this.command = Config?.Cmd ?? ContainerConfig?.Cmd;
 
       // ditto for entrypoint
-      if (!this.entrypoint) this.entrypoint = Config?.Entrypoint ?? ContainerConfig?.Entrypoint ?? ['sh'];
+      if (!this.entrypoint) this.entrypoint = Config?.Entrypoint ?? ContainerConfig?.Entrypoint;
 
       // final check that the command is set
       if (!this.command || this.command === undefined || this.command === null || this.command === '') {
@@ -599,7 +599,10 @@ module.exports = {
       }
 
       // parse command
-      const parseCommand = command => typeof command === 'string' ? require('string-argv')(command) : command;
+      const parseCommand = command => {
+        if (!command) return [];
+        return typeof command === 'string' ? require('string-argv')(command) : command;
+      };
 
       // add command wrapper to image
       this.addLandoServiceData({
