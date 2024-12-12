@@ -138,16 +138,12 @@ module.exports = {
       ]);
     }
 
-    #mountScript(contents, {dest = `tmp/${nanoid()}.sh`} = {}) {
-      // compute hostside file
-      const file = path.join(this.tmpdir, `${nanoid()}.sh`);
-
-      // dump contents to service tmpdir and make executable
-      write(file, contents, {forcePosixLineEndings: true});
-      fs.chmodSync(file, '755');
-
-      // now complete the final mapping for container injection
-      return this.addLSF(file, dest, 'user');
+    #handleScriptyInput(contents, {id = undefined} = {}) {
+      // @TODO: handle non-stringy inputs?
+      // if its a single line string then lets not overly complicate things
+      if (contents.split('\n').length === 1) return contents;
+      // otherwise dump-n-mount
+      return this.mountScript(contents, {dest: id});
     }
 
     #setupBoot() {
@@ -341,12 +337,12 @@ module.exports = {
 
       // if we have a command then also set that up
       if (!require('../utils/is-disabled')(config.command)) {
-        this.command = this.#mountScript(config.command, {dest: `${this.id}-start.sh`});
+        this.command = this.#handleScriptyInput(config.command, {id: `${this.id}-command.sh`});
       }
 
       // ditto for entrypoint
       if (!require('../utils/is-disabled')(config.entrypoint)) {
-        this.entrypoint = this.#mountScript(config.entrypoint, {dest: `${this.id}-entrypoint.sh`});
+        this.entrypoint = this.#handleScriptyInput(config.entrypoint, {id: `${this.id}-entrypoint.sh`});
       }
 
       // @TODO: add in tmp-storage and home-storage?
@@ -671,6 +667,20 @@ module.exports = {
           await this.addPackage(id, data);
         }
       }));
+    }
+
+    mountScript(contents, {dest = `tmp/${nanoid()}.sh`} = {}) {
+      // @TODO: check if contents is a string?
+
+      // compute hostside file
+      const file = path.join(this.tmpdir, `${nanoid()}.sh`);
+
+      // dump contents to service tmpdir and make executable
+      write(file, contents, {forcePosixLineEndings: true});
+      fs.chmodSync(file, '755');
+
+      // now complete the final mapping for container injection
+      return this.addLSF(file, dest, 'user');
     }
 
     async runHook(hook, {attach = true, user = this.user.name} = {}) {

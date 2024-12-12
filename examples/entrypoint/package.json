@@ -1,5 +1,5 @@
 {
-  "name": "@lando/command-example",
+  "name": "@lando/entrypoint-example",
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {

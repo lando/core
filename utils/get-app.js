@@ -13,6 +13,7 @@ const loadLandoFile = file => {
   try {
     return yaml.load(fs.readFileSync(file));
   } catch (e) {
+    console.error(file, e);
     throw new Error(`There was a problem with parsing ${file}. Ensure it is valid YAML! ${e}`);
   }
 };

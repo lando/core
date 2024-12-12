@@ -24,8 +24,6 @@ module.exports = async app => {
   app.initialized = false;
   app.compose = require('../utils/dump-compose-data')(app.composeData, app._dir);
   app.log.verbose('v4 app is ready!');
-  app.log.silly('v4 app has compose files', app.compose);
-  app.log.silly('v4 app has config  ', app.config);
   app.initialized = true;
   return app.events.emit('ready-v4');
 };
