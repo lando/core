@@ -1,22 +1,22 @@
 name: lando-command
 services:
-  # web1:
-  #   api: 4
-  #   app-mount: false
-  #   image: node:18
-  #   command: !import ./scripts/start.sh
-  #   user: node
-  #   mounts:
-  #     - source: ./
-  #       destination: /app
-  #       type: copy
-  #   ports:
-  #     - 3000/http
-  #   overrides:
-  #     working_dir: /app
-  #   build:
-  #     image: |
-  #       npm install
+  web1:
+    api: 4
+    app-mount: false
+    image: node:18
+    command: !import ./scripts/start.sh
+    user: node
+    mounts:
+      - source: ./
+        destination: /app
+        type: copy
+    ports:
+      - 3000/http
+    overrides:
+      working_dir: /app
+    build:
+      image: |
+        npm install
 
   web2:
     api: 4

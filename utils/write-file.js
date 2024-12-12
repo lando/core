@@ -5,11 +5,14 @@ const get = require('lodash/get');
 const path = require('path');
 
 // @TODO: maybe extension should be in {options}?
+// @TODO: error handling, defaults etc?
 module.exports = (file, data, options = {}) => {
-  // @TODO: error handling, defaults etc?
+  // if data is an ImportString coming from !import in a yaml file then toString it
+  if (data?.constructor?.name === 'ImportString') data = data.toString();
 
   // set extension if not set
   const extension = options.extension || path.extname(file);
+
   // linux line endings
   const forcePosixLineEndings = options.forcePosixLineEndings ?? false;
 

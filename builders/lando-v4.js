@@ -4,12 +4,13 @@ const fs = require('fs');
 const isObject = require('lodash/isPlainObject');
 const merge = require('lodash/merge');
 const path = require('path');
-const read = require('../utils/read-file');
 const uniq = require('lodash/uniq');
 const write = require('../utils/write-file');
 const toPosixPath = require('../utils/to-posix-path');
 
 const LandoError = require('../components/error');
+
+const {nanoid} = require('nanoid');
 
 const states = {APP: 'UNBUILT'};
 const stages = {
@@ -137,12 +138,24 @@ module.exports = {
       ]);
     }
 
+    #mountScript(contents, {dest = `tmp/${nanoid()}.sh`} = {}) {
+      // compute hostside file
+      const file = path.join(this.tmpdir, `${nanoid()}.sh`);
+
+      // dump contents to service tmpdir and make executable
+      write(file, contents, {forcePosixLineEndings: true});
+      fs.chmodSync(file, '755');
+
+      // now complete the final mapping for container injection
+      return this.addLSF(file, dest, 'user');
+    }
+
     #setupBoot() {
       this.addContext(`${path.join(__dirname, '..', 'scripts', 'lash.sh')}:/bin/lash`);
       this.addLSF(path.join(__dirname, '..', 'scripts', 'boot.sh'));
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'entrypoint.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'exec.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'run-hooks.sh'));
-      this.addLSF(path.join(__dirname, '..', 'scripts', 'start.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'landorc.sh'), 'landorc');
       this.addLSF(path.join(__dirname, '..', 'scripts', 'utils.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'environment.sh'), 'environment');
@@ -158,31 +171,6 @@ module.exports = {
         RUN /etc/lando/boot.sh
         SHELL ["/bin/bash", "-c"]
       `});
-    }
-
-    #setupCommand() {
-      // go through the preliminaries
-      if (!fs.existsSync(this.command)) {
-        throw new LandoError(`Cannot find command file for ${this.id} at ${this.command}!`, {context: this});
-      }
-
-      // reset commandfile over
-      this.command = require('../utils/scripty-to-file')(read(this.command), {
-        base: this.appRoot,
-        id: `${this.id}-start.sh`,
-        tmpdir: this.tmpdir,
-      });
-
-      // if commandfile is not executable throw an error
-      try {
-        fs.accessSync(this.command, fs.constants.X_OK);
-      } catch {
-        throw new LandoError(`Command file ${this.command} for ${this.id} is not executable!`, {context: this});
-      }
-
-      // now complete the final mapping for container injection
-      this.addLSF(this.command, `${this.id}-start.sh`, 'user');
-      this.command = `/etc/lando/${this.id}-start.sh`;
     }
 
     #setupHooks() {
@@ -332,13 +320,6 @@ module.exports = {
       // top level stuff
       this.tlnetworks = {[this.network]: {external: true}};
 
-      // command
-      this.command = require('../utils/scripty-to-file')(config.command, {
-        base: this.appRoot,
-        id: `${id}-command.sh`,
-        tmpdir: this.tmpdir,
-      });
-
       // config
       this.appMount = config.appMount ?? config.appmount ?? config['app-mount'];
       this.certs = config.certs;
@@ -359,7 +340,14 @@ module.exports = {
       else this.workdir = config?.overrides?.working_dir ?? config?.working_dir ?? '/';
 
       // if we have a command then also set that up
-      if (!require('../utils/is-disabled')(this.command)) this.#setupCommand();
+      if (!require('../utils/is-disabled')(config.command)) {
+        this.command = this.#mountScript(config.command, {dest: `${this.id}-start.sh`});
+      }
+
+      // ditto for entrypoint
+      if (!require('../utils/is-disabled')(config.entrypoint)) {
+        this.entrypoint = this.#mountScript(config.entrypoint, {dest: `${this.id}-entrypoint.sh`});
+      }
 
       // @TODO: add in tmp-storage and home-storage?
 
@@ -523,6 +511,7 @@ module.exports = {
     addLSF(source, dest, {context = 'context'} = {}) {
       if (dest === undefined) dest = path.basename(source);
       this.addContext(`${source}:/etc/lando/${dest}`, context);
+      return `/etc/lando/${dest}`;
     }
 
     // wrapper around addServiceData so we can also add in #run stuff
@@ -597,11 +586,16 @@ module.exports = {
       // build the image
       const image = await super.buildImage();
 
-      // if command and/or entrypoint is/are still undefined try to set it from the image info
-      if (!this.command) this.command = image?.info?.Config?.Cmd ?? image?.info?.ContainerConfig?.Cmd;
-      if (!this.entrypoint) {
-        this.entrypoint = image?.info?.Config?.Entrypoint ?? image?.info?.ContainerConfig?.Entrypoint ?? ['sh'];
-      }
+      // get info props
+      const {info} = image;
+      const {Config, ContainerConfig} = info;
+
+      // if command is falsy then attempt to set from image
+      // @NOTE: should we have a failback "stay up" command here eg sleep infinity?
+      if (!this.command) this.command = Config?.Cmd ?? ContainerConfig?.Cmd;
+
+      // ditto for entrypoint
+      if (!this.entrypoint) this.entrypoint = Config?.Entrypoint ?? ContainerConfig?.Entrypoint ?? ['sh'];
 
       // final check that the command is set
       if (!this.command || this.command === undefined || this.command === null || this.command === '') {
@@ -613,7 +607,7 @@ module.exports = {
 
       // add command wrapper to image
       this.addLandoServiceData({
-        entrypoint: ['/etc/lando/start.sh'],
+        entrypoint: ['/etc/lando/entrypoint.sh'],
         command: [...parseCommand(this.entrypoint), ...parseCommand(this.command)],
       });
 
