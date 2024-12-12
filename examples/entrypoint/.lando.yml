@@ -1,4 +1,4 @@
-name: lando-command
+name: lando-entrypoint
 
 x-service:
   &default-service
@@ -21,35 +21,42 @@ services:
   web1:
     << : *default-service
     image: node:18
-    command: !load ./scripts/start.sh
+    entrypoint: !load scripts/entrypoint.sh
+    command: run dev
   web2:
     << : *default-service
     image: node:18
-    command: npm run dev
+    entrypoint: npm
+    command: run dev
   web3:
     << : *default-service
     image: node:18
-    command: |
-      #!/bin/sh
-      set -e
-      npm run dev
+    entrypoint: |
+      #!/bin/bash
+      set -eo pipefail
+      npm "$@"
+    command: run dev
   web4:
     << : *default-service
     image: |
       FROM node:18
-      RUN echo "npm run dev" > /run.sh
-      RUN chmod +x /run.sh
-    command: /run.sh
+      RUN echo 'npm "$@"' > /entrypoint.sh
+      RUN chmod +x /entrypoint.sh
+    entrypoint: /entrypoint.sh
+    command: run dev
   web5:
     << : *default-service
     image: |
       FROM node:18
-      CMD ["npm", "run", "dev"]
+      ENTRYPOINT ["npm"]
+      CMD ["run", "dev"]
+
   web6:
     << : *default-service
     image: |
       FROM node:18
-      CMD npm run dev
+      ENTRYPOINT npm run dev
+      CMD doesnt matter
 
 plugins:
   "@lando/core": ../..

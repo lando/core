@@ -1,0 +1,9 @@
+api: 4
+image: nginxinc/nginx-unprivileged:1.26.1
+command: !import start.sh
+user: nginx
+ports:
+  - 8080/http
+environment: !load environment.yml
+overrides:
+  environment: !load env.json

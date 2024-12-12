@@ -253,7 +253,7 @@ class L337ServiceV4 extends EventEmitter {
 
     // update and log
     this.#app.v4.updateComposeCache();
-    this.debug('%o added top level compose data %o', this.id, data);
+    this.debug('%o added top level compose data %o', this.id, JSON.parse(JSON.stringify(data)));
   }
 
   // adds files/dirs to the build context

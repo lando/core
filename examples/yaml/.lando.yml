@@ -1,0 +1,20 @@
+name: lando-yaml
+services:
+  auto: !load auto.yaml
+
+  manual:
+    api: 4
+    image: nginxinc/nginx-unprivileged:1.26.1
+    command: !import start.sh @string
+    user: nginx
+    ports:
+      - 8080/http
+    environment: !load environment.what @yaml
+    overrides:
+      environment: !load env.huh @json
+      labels:
+        binary-data: !load env.huh @binary
+        something-data: !load something @string
+
+plugins:
+  "@lando/core": ../..
