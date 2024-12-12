@@ -15,4 +15,4 @@ services:
       - echo "America/New_York" > /etc/timezone
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..

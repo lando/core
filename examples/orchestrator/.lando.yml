@@ -8,4 +8,4 @@ services:
       command: docker-php-entrypoint sleep infinity
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..

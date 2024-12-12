@@ -123,4 +123,4 @@ services:
       NGINX_SERVER_NAME: "l337"
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..

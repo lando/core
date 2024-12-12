@@ -30,4 +30,4 @@ services:
       destination: /usr/share/nginx/html
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..

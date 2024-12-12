@@ -106,4 +106,4 @@ services:
         MARIADB_AUTO_UPGRADE: da
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..

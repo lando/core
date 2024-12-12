@@ -263,4 +263,4 @@ tooling:
         type: string
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..

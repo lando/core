@@ -88,4 +88,4 @@ services:
         permissions: 777
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..

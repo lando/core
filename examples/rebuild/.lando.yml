@@ -35,4 +35,4 @@ tooling:
     cmd: echo icachethereforeiam
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..

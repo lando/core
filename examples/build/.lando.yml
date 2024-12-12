@@ -68,4 +68,4 @@ services:
         - "./test.txt:/var/www/test.txt"
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..
