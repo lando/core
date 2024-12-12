@@ -30,5 +30,5 @@ services:
       destination: /usr/share/nginx/html
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..
   "@lando/base-test-plugin-2": ./test-plugin-2

@@ -63,4 +63,4 @@ services:
         - ./easykey:/user/.ssh/mykey3
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..

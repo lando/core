@@ -33,4 +33,4 @@ pluginDirs:
   - plugins
 plugins:
   "@lando/base-test-plugin-2": ./test-plugin-2
-  "@lando/core": "../.."
+  "@lando/core": ../..

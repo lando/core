@@ -99,4 +99,4 @@ services:
         npm install
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..

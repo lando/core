@@ -119,4 +119,4 @@ tooling:
         describe: Run a different service
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..

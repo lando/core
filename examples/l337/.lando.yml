@@ -404,4 +404,4 @@ volumes:
   my-data:
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..

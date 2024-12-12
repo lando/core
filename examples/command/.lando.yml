@@ -87,4 +87,4 @@ services:
       - 8080/http
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..

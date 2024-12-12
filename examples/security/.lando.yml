@@ -47,4 +47,4 @@ tooling:
         describe: Runs on a different service
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..
