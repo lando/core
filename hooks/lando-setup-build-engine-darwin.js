@@ -1,6 +1,8 @@
 'use strict';
 
 const axios = require('../utils/get-axios')();
+const fs = require('fs');
+const getDockerDesktopBin = require('../utils/get-docker-desktop-x');
 const os = require('os');
 const path = require('path');
 const semver = require('semver');
@@ -100,9 +102,8 @@ module.exports = async (lando, options) => {
     description: '@lando/build-engine (docker-desktop)',
     version: `Docker Desktop ${install}`,
     hasRun: async () => {
-      // start by looking at the engine install status
-      // @NOTE: is this always defined?
-      if (lando.engine.dockerInstalled === false) return false;
+      // if we are missing any files we can check then terminate here
+      if (lando.engine.dockerInstalled === false || !fs.existsSync(getDockerDesktopBin())) return false;
 
       // if we get here let's make sure the engine is on
       try {

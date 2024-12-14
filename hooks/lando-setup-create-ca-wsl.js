@@ -13,8 +13,8 @@ module.exports = async lando => {
   // @NOTE: we preempt like this so our setup tasks will asses install successfully
   if (lando.config.os.landoPlatform === 'wsl' && !fs.existsSync(caCert) && !fs.existsSync(caKey)) {
     const debug = require('../utils/debug-shim')(lando.log);
-    const winHome = await getWinEnvar('USERPROFILE');
-    const winCertsDir = await wslpath(path.join(winHome, '.lando', 'certs'));
+    const winHome = getWinEnvar('USERPROFILE');
+    const winCertsDir = wslpath(path.join(winHome, '.lando', 'certs'));
     const wcaCert = path.join(winCertsDir, path.basename(caCert));
     const wcaKey = path.join(winCertsDir, path.basename(caKey));
 
