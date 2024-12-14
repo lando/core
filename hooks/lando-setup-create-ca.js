@@ -52,8 +52,8 @@ module.exports = async (lando, options) => {
       // on wsl we also want to move these over
       if (lando.config.os.landoPlatform === 'wsl') {
         const write = require('../utils/write-file');
-        const winHome = await getWinEnvar('USERPROFILE');
-        const winCertsDir = await wslpath(path.join(winHome, '.lando', 'certs'));
+        const winHome = getWinEnvar('USERPROFILE');
+        const winCertsDir = wslpath(path.join(winHome, '.lando', 'certs'));
         const wcaCert = path.join(winCertsDir, path.basename(caCert));
         const wcaKey = path.join(winCertsDir, path.basename(caKey));
         write(wcaCert, cert);

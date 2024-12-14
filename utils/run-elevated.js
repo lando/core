@@ -11,6 +11,7 @@ const {spawn} = require('child_process');
 
 // get the bosmang
 const defaults = {
+  encode: undefined,
   env: process.env,
   debug: require('debug')('@lando/run-elevated'),
   ignoreReturnCode: false,
