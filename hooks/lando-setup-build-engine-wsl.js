@@ -152,7 +152,7 @@ module.exports = async (lando, options) => {
 
         // run install command
         task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;
-        const result = await require('../utils/run-powershell-script')(script, args, {debug, toWSLPath: true});
+        const result = await require('../utils/run-powershell-script')(script, args, {debug});
         result.download = ctx.download;
 
         // finish up
