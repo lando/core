@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.24.0-beta.8 - [December 14, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.8)
+
 * Merged in improvements from `@lando/core@v3.23.21`
 
 ## v3.24.0-beta.7 - [December 11, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.7)
