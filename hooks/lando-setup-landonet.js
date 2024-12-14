@@ -2,8 +2,7 @@
 
 const _ = require('lodash');
 const fs = require('fs');
-const getDockerDesktopBin = require('../../utils/get-docker-desktop-x');
-
+const getDockerDesktopBin = require('../utils/get-docker-desktop-x');
 
 /**
  * Installs the Lando Development Certificate Authority (CA) on Windows systems.
