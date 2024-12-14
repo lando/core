@@ -1,11 +1,13 @@
 'use strict';
 
 const axios = require('../utils/get-axios')();
+const fs = require('fs');
+const getDockerDesktopBin = require('../utils/get-docker-desktop-x');
 const getWinEnvar = require('../utils/get-win32-envvar-from-wsl');
 const path = require('path');
 const semver = require('semver');
 const wslpath = require('../utils/winpath-2-wslpath');
-const winpath = require('../utils/wslpath-2-winpath');
+
 const {color} = require('listr2');
 const {nanoid} = require('nanoid');
 
@@ -110,9 +112,8 @@ module.exports = async (lando, options) => {
     description: '@lando/build-engine (docker-desktop)',
     version: `Docker Desktop ${install}`,
     hasRun: async () => {
-      // start by looking at the engine install status
-      // @NOTE: is this always defined?
-      if (lando.engine.dockerInstalled === false) return false;
+      // if we are missing the docker desktop executable then false
+      if (!fs.existsSync(getDockerDesktopBin())) return false;
 
       // if we get here let's make sure the engine is on
       try {
@@ -133,8 +134,8 @@ module.exports = async (lando, options) => {
     },
     task: async (ctx, task) => {
       // get tmp dir from windows side
-      const winTmpDir = await getWinEnvar('TEMP', {debug});
-      const dest = await wslpath(winTmpDir, {debug});
+      const winTmpDir = getWinEnvar('TEMP', {debug});
+      const dest = wslpath(winTmpDir);
       debug('resolved win dir %o to wsl path %o', winTmpDir, dest);
 
       // download the installer
@@ -142,7 +143,7 @@ module.exports = async (lando, options) => {
       ctx.download.windest = path.win32.join(winTmpDir, path.basename(ctx.download.dest));
 
       // script
-      const script = [await winpath(path.posix.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1'))];
+      const script = path.posix.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1');
       // args
       const args = ['-Installer', ctx.download.windest];
       if (options.buildEngineAcceptLicense) args.push('-AcceptLicense');
@@ -154,7 +155,7 @@ module.exports = async (lando, options) => {
       result.download = ctx.download;
 
       // finish up
-      const location = await getWinEnvar('ProgramW6432', {debug}) ?? await getWinEnvar('ProgramFiles', {debug});
+      const location = getWinEnvar('ProgramW6432') ?? getWinEnvar('ProgramFiles');
       task.title = `Installed build engine (Docker Desktop) to ${location}/Docker/Docker!`;
       return result;
     },
@@ -190,7 +191,8 @@ module.exports = async (lando, options) => {
         });
       }
 
-      const command = ['usermod', '-aG', 'docker', lando.config.username];
+      const script = path.join(lando.config.userConfRoot, 'scripts', 'add-to-group.sh');
+      const command = [script, '--user', lando.config.username, '--group', 'docker'];
       const response = await require('../utils/run-elevated')(command, {debug, password: ctx.password});
       task.title = `Added ${lando.config.username} to docker group`;
       return response;

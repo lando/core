@@ -1,6 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
+const fs = require('fs');
+const getDockerDesktopBin = require('../../utils/get-docker-desktop-x');
+
 
 /**
  * Installs the Lando Development Certificate Authority (CA) on Windows systems.
@@ -35,6 +38,9 @@ module.exports = async (lando, options) => {
     hasRun: async () => {
       // if docker isnt even installed then this is easy
       if (lando.engine.dockerInstalled === false) return false;
+
+      // we also want to do an additional check on docker-destkop
+      if (lando.config.os.landoPlatform !== 'linux' && !fs.existsSync(getDockerDesktopBin())) return false;
 
       // otherwise attempt to sus things out
       try {

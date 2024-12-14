@@ -26,6 +26,13 @@
 * Fixed bug causing auto setup to not correctly reset the orchestrator binary path
 * Improved `lando init` so that it can auto setup if needed
 
+## v3.23.21 - [December 14, 2024](https://github.com/lando/core/releases/tag/v3.23.21)
+
+* Fixed `powershell` scripts from failing when user cannot set `-ExecutionPolicy` to `Bypass` for `Process` scope [#297](https://github.com/lando/core/issues/297)
+* Fixed bug causing error when trying to add a user to a group that does not exist
+* Improved Docker Desktop installation detection to prevent unneeded launch attempts
+* Rebased some `wsl` helper utils on `spawn-sync-stringer` so they do not require `await`
+
 ## v3.23.20 - [December 11, 2024](https://github.com/lando/core/releases/tag/v3.23.20)
 
 * Simplified `lando shellenv --add` `PATH` modification string to be more universal [#298](https://github.com/lando/core/issues/298)
