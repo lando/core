@@ -1,5 +1,10 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed `powershell` scripts from failing when user cannot set `-ExecutionPolicy` to `Bypass` for `Process` scope [#297](https://github.com/lando/core/issues/297)
+* Fixed bug causing error when trying to add a user to a group that does not exist
+* Improved Docker Desktop installation detection to prevent unneeded launch attempts
+* Rebased some `wsl` helper utils on `spawn-sync-stringer` so they do not require `await`
+
 ## v3.23.20 - [December 11, 2024](https://github.com/lando/core/releases/tag/v3.23.20)
 
 * Simplified `lando shellenv --add` `PATH` modification string to be more universal [#298](https://github.com/lando/core/issues/298)
