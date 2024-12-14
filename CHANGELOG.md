@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.21 - [December 14, 2024](https://github.com/lando/core/releases/tag/v3.23.21)
+
 * Fixed `powershell` scripts from failing when user cannot set `-ExecutionPolicy` to `Bypass` for `Process` scope [#297](https://github.com/lando/core/issues/297)
 * Fixed bug causing error when trying to add a user to a group that does not exist
 * Improved Docker Desktop installation detection to prevent unneeded launch attempts
