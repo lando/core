@@ -43,12 +43,12 @@ module.exports = async (lando, options) => {
 
       // otherwise attempt to sus things out
       try {
-        await lando.engine.daemon.up({max: 3, backoff: 1000});
+        await lando.engine.daemon.up({max: 10, backoff: 1000});
         const landonet = lando.engine.getNetwork(lando.config.networkBridge);
         await landonet.inspect();
         return lando.versions.networking > 1;
       } catch (error) {
-        debug('looks like there isnt a landonet yet %o %o', error.message, error.stack);
+        debug('looks like there isnt a landonet yet %o %o', error?.message, error?.stack);
         return false;
       }
     },
