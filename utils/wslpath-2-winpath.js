@@ -1,8 +1,6 @@
 'use strict';
 
-module.exports = async (path, {
-  debug = require('debug')('@lando/wslpath-2-winpath'),
-} = {}) => {
-  const {stdout} = await require('./run-command')('wslpath', ['-w', path], {debug});
+module.exports = path => {
+  const {stdout} = require('./spawn-sync-stringer')('wslpath', ['-w', path], {encoding: 'utf-8'});
   return stdout.trim();
 };

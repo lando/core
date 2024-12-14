@@ -141,7 +141,8 @@ module.exports = async (lando, options) => {
       }
 
       try {
-        const command = ['usermod', '-aG', 'docker', lando.config.username];
+        const script = path.join(lando.config.userConfRoot, 'scripts', 'add-to-group.sh');
+        const command = [script, '--user', lando.config.username, '--group', 'docker'];
         const response = await require('../utils/run-elevated')(command, {debug, password: ctx.password});
         task.title = `Added ${lando.config.username} to docker group`;
         return response;
