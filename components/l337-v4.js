@@ -572,8 +572,8 @@ class L337ServiceV4 extends EventEmitter {
     // remove build contexts and tmp
     remove(this.context);
     remove(this.tmpdir);
-    this.debug('removed %o build-context %o', `${this.project}-${this.id}`, this.context);
-    this.debug('removed %o tmpdir %o', `${this.project}-${this.id}`, this.id, this.tmpdir);
+    this.debug('removed build-context %o', this.context);
+    this.debug('removed tmpdir %o', this.tmpdir);
   }
 
   generateBuildContext() {
