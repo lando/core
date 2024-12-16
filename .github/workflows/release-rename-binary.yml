@@ -1,0 +1,57 @@
+name: Release Binary
+
+on:
+  workflow_call:
+    inputs:
+      destination:
+        description: The name of the resulting binary to upload
+        required: true
+        type: string
+      download-name:
+        default:
+        description: The artifact name to download for checksumming
+        required: false
+        type: string
+      download-pattern:
+        default:
+        description: The artifact pattern to download for checksumming
+        required: false
+        type: string
+      source:
+        description: The name of the source binary to use
+        required: true
+        type: string
+
+jobs:
+  release-binary:
+    runs-on: ubuntu-24.04
+    env:
+      TERM: xterm
+    steps:
+      - name: Create paths
+        run: |
+          mkdir -p /tmp/release-binary-source/${{ github.sha }}
+          mkdir -p /tmp/release-binary-destination/${{ github.sha }}
+      - name: Download artifacts
+        id: download-artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.download-name }}
+          merge-multiple: true
+          path: /tmp/release-binary-source/${{ github.sha }}
+          pattern: ${{ inputs.download-pattern }}
+      - name: Mod as needed
+        run: |
+          cp -rf \
+            "/tmp/release-binary-source/${{ github.sha }}/${{ inputs.source }}${{ contains(inputs.source, '-win-') && !endsWith(inputs.source, '.exe') && '.exe' || '' }}" \
+            "/tmp/release-binary-destination/${{ github.sha }}/${{ inputs.destination }}${{ contains(inputs.source, '-win-') && !endsWith(inputs.destination, '.exe') && '.exe' || '' }}"
+          chmod +x /tmp/release-binary-destination/${{ github.sha }}/*
+          ls -lsa /tmp/release-binary-destination/${{ github.sha }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-binary-${{ inputs.destination }}${{ contains(inputs.source, '-win-') && !endsWith(inputs.destination, '.exe') && '.exe' || '' }}
+          overwrite: true
+          path: "/tmp/release-binary-destination/${{ github.sha }}/${{ inputs.destination }}${{ contains(inputs.source, '-win-') && !endsWith(inputs.destination, '.exe') && '.exe' || '' }}"
+          if-no-files-found: error
+          retention-days: 1

@@ -1,0 +1,53 @@
+name: Deploy S3
+
+on:
+  workflow_call:
+    inputs:
+      download-name:
+        default:
+        description: The artifact name to download for checksumming
+        required: false
+        type: string
+      download-pattern:
+        default:
+        description: The artifact pattern to download for checksumming
+        required: false
+        type: string
+    secrets:
+      aws-access-key-id:
+        description: "The aws access key id"
+        required: true
+      aws-secret-access-key:
+        description: "The aws secret access key"
+        required: true
+      aws-region:
+        description: "The aws region"
+        required: false
+
+jobs:
+  deploy-s3:
+    runs-on: ubuntu-24.04
+    env:
+      TERM: xterm
+    steps:
+      - name: Create paths
+        run: mkdir -p /tmp/deploy-s3/${{ github.sha }}
+      - name: Download releases
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.download-name }}
+          merge-multiple: true
+          path: /tmp/deploy-s3/${{ github.sha }}
+          pattern: ${{ inputs.download-pattern }}
+      - name: Configure S3 Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: us-east-1
+      - name: Upload releases to S3
+        shell: bash
+        run: |
+          aws s3 sync /tmp/deploy-s3/${{ github.sha }} s3://files.lando.dev
+          aws s3 sync /tmp/deploy-s3/${{ github.sha }} s3://files.lando.dev/cli
+          aws s3 sync /tmp/deploy-s3/${{ github.sha }} s3://files.lando.dev/core

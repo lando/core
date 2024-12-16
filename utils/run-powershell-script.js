@@ -2,24 +2,50 @@
 
 // Modules
 const merge = require('lodash/merge');
+const read = require('./read-file');
+const winpath = require('./wslpath-2-winpath');
 
-const {spawn} = require('child_process');
+const {spawn, spawnSync} = require('child_process');
+
+const parseArgs = args => args.map(arg => arg.startsWith('-') ? arg : `"${arg}"`).join(' ');
 
 // get the bosmang
 const defaults = {
+  encode: undefined,
+  env: process.env,
   debug: require('debug')('@lando/run-powershell-script'),
   ignoreReturnCode: false,
+  toWSLPath: false,
 };
 
-module.exports = (script, args = [], options = {}, stdout = '', stderr = '') => {
-  // @TODO: error handling?
+module.exports = (script, args = [], options = {}, stdout = '', stderr = '', cargs = []) => {
   // merge our options over the defaults
   options = merge({}, defaults, options);
+
+  // if encode is not explicitly set then we need to pick a good value
+  if (options.encode === undefined) {
+    const bargs = ['Set-ExecutionPolicy', '-Scope', 'UserPolicy', '-ExecutionPolicy', 'Bypass'];
+    const {status} = spawnSync('powershell.exe', bargs, options);
+    options.encode === status !== 0;
+  }
+
+  // if encode is true we need to do a bunch of other stuff
+  if (options.encode === true) {
+    const command = `& {${read(script)}} ${parseArgs(args)}`;
+    cargs.push('-EncodedCommand', Buffer.from(command, 'utf16le').toString('base64'));
+
+  // otherwise its pretty easy but note that we may path translate to a winpath if toWSLPath is on
+  } else {
+    if (options.toWSLPath) script = winpath(script);
+    cargs.push('-ExecutionPolicy', 'Bypass', '-File', script, ...args);
+  }
+
+  // pull out debug
   const {debug} = options;
 
   // birth
-  debug('running powershell script %o %o', script, args);
-  const child = spawn('powershell', ['-ExecutionPolicy', 'Bypass', '-File', script].concat(args), options);
+  debug('running powershell script %o %o %o', script, args);
+  const child = spawn('powershell.exe', ['-NoProfile'].concat(cargs), options);
 
   return require('./merge-promise')(child, async () => {
     return new Promise((resolve, reject) => {

@@ -5,21 +5,23 @@ const browsers = ['electron', 'chrome', 'atom-shell'];
 const path = require('path');
 const os = require('os');
 
-const getBuildEngineVersion = () => {
-  switch (process.platform) {
+const getBuildEngineVersion = (platform = process.landoPlatform ?? process.platform) => {
+  switch (platform) {
     case 'darwin':
-      return '4.34.3';
+      return '4.36.0';
     case 'linux':
       return '27.3.1';
     case 'win32':
-      return '4.34.3';
+      return '4.36.0';
+    case 'wsl':
+      return '4.36.0';
   }
 };
 
 // Default config
 const defaultConfig = options => ({
   orchestratorSeparator: '_',
-  orchestratorVersion: '2.29.2',
+  orchestratorVersion: '2.30.3',
   configSources: [],
   coreBase: path.resolve(__dirname, '..'),
   disablePlugins: [],
@@ -34,9 +36,11 @@ const defaultConfig = options => ({
   os: {
     type: os.type(),
     platform: os.platform(),
+    landoPlatform: process.landoPlatform ?? process.platform,
     release: os.release(),
     arch: os.arch(),
     isWsl: os.release().toLowerCase().includes('microsoft'),
+    isWslInterop: require('../utils/is-wsl-interop')(),
   },
   pluginDirs: [{path: path.join(__dirname, '..'), subdir: 'plugins', namespace: '@lando'}],
   plugins: [],
@@ -45,7 +49,7 @@ const defaultConfig = options => ({
   // this governs both autosetup and the defaults of lando setup
   // @TODO: orchestrator works a bit differently because it predates lando.setup() we set it elsewhere
   setup: {
-    buildEngine: getBuildEngineVersion(),
+    buildEngine: getBuildEngineVersion(process.landoPlatform ?? process.platform),
     buildEngineAcceptLicense: !require('is-interactive')(),
     commonPlugins: {
       '@lando/acquia': 'latest',

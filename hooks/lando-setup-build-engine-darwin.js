@@ -1,6 +1,8 @@
 'use strict';
 
 const axios = require('../utils/get-axios')();
+const fs = require('fs');
+const getDockerDesktopBin = require('../utils/get-docker-desktop-x');
 const os = require('os');
 const path = require('path');
 const semver = require('semver');
@@ -8,6 +10,9 @@ const semver = require('semver');
 const {color} = require('listr2');
 
 const buildIds = {
+  '4.36.0': '175267',
+  '4.35.1': '173168',
+  '4.35.0': '172550',
   '4.34.3': '170107',
   '4.34.2': '167172',
   '4.34.0': '165256',
@@ -49,7 +54,7 @@ const getVersion = version => {
 /*
  * Helper to get docker compose v2 download url
  */
-const getEngineDownloadUrl = (id = '170107') => {
+const getEngineDownloadUrl = (id = '175267') => {
   const arch = process.arch === 'arm64' ? 'arm64' : 'amd64';
   return `https://desktop.docker.com/mac/main/${arch}/${id}/Docker.dmg`;
 };
@@ -92,21 +97,17 @@ module.exports = async (lando, options) => {
 
   // darwin install task
   options.tasks.push({
-    title: `Downloading build engine`,
+    title: 'Downloading build engine',
     id: 'setup-build-engine',
-    description: `@lando/build-engine (docker-desktop)`,
-    version: `docker-desktop ${install}`,
+    description: '@lando/build-engine (docker-desktop)',
+    version: `Docker Desktop ${install}`,
     hasRun: async () => {
-      // start by looking at the engine install status
-      // @NOTE: is this always defined?
-      if (lando.engine.dockerInstalled === false) return false;
+      // if we are missing any files we can check then terminate here
+      if (lando.engine.dockerInstalled === false || !fs.existsSync(getDockerDesktopBin())) return false;
 
       // if we get here let's make sure the engine is on
       try {
-        await lando.engine.daemon.up();
-        const BuildEngine = require('../components/docker-engine');
-        const bengine = new BuildEngine(lando.config.buildEngine, {debug});
-        await bengine.info();
+        await lando.engine.daemon.up({max: 1, backoff: 1000});
         return true;
       } catch (error) {
         lando.log.debug('docker install task has not run %j', error);
@@ -163,7 +164,7 @@ module.exports = async (lando, options) => {
         result.download = ctx.download;
 
         // finish up
-        task.title = 'Installed build engine to /Applications/Docker.app';
+        task.title = 'Installed build engine (Docker Desktop) to /Applications/Docker.app';
         return result;
       } catch (error) {
         throw error;

@@ -1,9 +1,239 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.21 - [December 14, 2024](https://github.com/lando/core/releases/tag/v3.23.21)
+
+* Fixed `powershell` scripts from failing when user cannot set `-ExecutionPolicy` to `Bypass` for `Process` scope [#297](https://github.com/lando/core/issues/297)
+* Fixed bug causing error when trying to add a user to a group that does not exist
+* Improved Docker Desktop installation detection to prevent unneeded launch attempts
+* Rebased some `wsl` helper utils on `spawn-sync-stringer` so they do not require `await`
+
+## v3.23.20 - [December 11, 2024](https://github.com/lando/core/releases/tag/v3.23.20)
+
+* Simplified `lando shellenv --add` `PATH` modification string to be more universal [#298](https://github.com/lando/core/issues/298)
+
+## v3.23.19 - [December 7, 2024](https://github.com/lando/core/releases/tag/v3.23.19)
+
+* Fixed bug causing auto setup to not correctly reset the orchestrator binary path
+* Improved `lando init` so that it can auto setup if needed
+
+## v3.23.18 - [December 6, 2024](https://github.com/lando/core/releases/tag/v3.23.18)
+
+* Improved release flow to better accommodate double barrelled development
+
+## v3.23.17 - [December 6, 2024](https://github.com/lando/core/releases/tag/v3.23.17)
+
+* Improved release flow to better accommodate double barrelled development
+
+## v3.23.16 - [December 5, 2024](https://github.com/lando/core/releases/tag/v3.23.16)
+
+* Fixed bug causing some `run-elevated` commands to fail on older Powershell versions
+* Removed `admin` requirement to install Lando Development CA on `win32` from `wsl`
+
+## v3.23.15 - [December 3, 2024](https://github.com/lando/core/releases/tag/v3.23.15)
+
+* Disabled `DOCKER_CLI_HINTS` on `lando`
+* Fixed bug causing some `lando exec` and tooling commands from not inheriting terminal columns and lines correctly [#277](https://github.com/lando/core/issues/277)
+* Fixed bug causing `lando setup` loop on `U Need Setup!`
+* Fixed bug causing failed update message when user needs to relaunch terminal
+* Improved `ux` for `autosetup`
+* Standardized non-TTY renderer selection to the `simple` renderer
+
+## v3.23.14 - [November 27, 2024](https://github.com/lando/core/releases/tag/v3.23.14)
+
+### New Features & Improvements
+
+* Added first class support to `lando setup` when run from `wsl` environments, see extended notes below
+* Improved `docker` auto start on `linux` to use `GUI` authentication if available
+* Improved messages and consistency between messages for `lando setup` tasks
+* Improved pending setup task sort order
+
+### Fixes
+
+* Fixed bug in `l337` component preventing some context files from being `COPY`ed correclty on `win32`
+* Fixed bug in `docker` launching causing it to not wait until `daemon` can accept connections
+* Fixed bug causing `deferred` tasks to show as `Running` instead of `Deferred`
+* Fixed bug causing case insenstive group membership matching to fail on `win32`
+* Fixed some failures when running in `circleci` by forcing `verbose` renderer
+
+### Internal
+
+* Introduced `process.landoPlatform` which is the same as `process.platform` but includes _our_ definition of `wsl` as a platform, see extended notes below
+
+### Extended Notes
+
+* Lando considers an environment a `wsl` environment only if `WSL_INTEROP` is on, otherwise it considers it a normal `linux` environment
+
+## v3.23.13 - [November 23, 2024](https://github.com/lando/core/releases/tag/v3.23.13)
+
+* Fixed bug causing metrics opt-out to not work in some situations [#277](https://github.com/lando/core/issues/277)
+* Updated default Docker Desktop version to `4.36.0`
+* Updated default Docker Compose version to `2.30.3`
+* Updated tested Docker Desktop range to `<=4.37`
+* Updated tested Docker Compose range to `<=2.31`
+
+## v3.23.12 - [November 21, 2024](https://github.com/lando/core/releases/tag/v3.23.12)
+
+* Fixed `lando shellenv` so it doesn't fail when `shell` profile is empty
+* Fixed `lando update` so it removes lingering `lando.exe`s in the update bin directory
+* Improved `lando shellenv` so that it always includes `~/.lando/bin` and includes it first
+* Improved messaging on `lando shellenv --add`
+* Improved messaging on `lando update` for `@lando/cli`
+
+## v3.23.11 - [November 20, 2024](https://github.com/lando/core/releases/tag/v3.23.11)
+
+* This release has no new content and is just to test the new modular release flow
+
+## v3.23.10 - [November 20, 2024](https://github.com/lando/core/releases/tag/v3.23.10)
+
+* This release has no new content and is just to test the new modular release flow
+
+## v3.23.9 - [November 20, 2024](https://github.com/lando/core/releases/tag/v3.23.9)
+
+* This release has no new content and is just to test the new modular release flow
+
+## v3.23.8 - [November 20, 2024](https://github.com/lando/core/releases/tag/v3.23.8)
+
+* This release has no new content and is just to test the new modular release flow
+
+## v3.23.7 - [November 13, 2024](https://github.com/lando/core/releases/tag/v3.23.7)
+
+* Updated to [@lando/vitepress-theme-default-plus@v1.1.0-beta.23](https://github.com/lando/vitepress-theme-default-plus/releases/tag/v1.1.0-beta.23)
+
+## v3.23.6 - [November 13, 2024](https://github.com/lando/core/releases/tag/v3.23.6)
+
+* Improved homepage documentation selector part 2
+
+## v3.23.5 - [November 13, 2024](https://github.com/lando/core/releases/tag/v3.23.5)
+
+* Improved homepage documentation selector
+
+## v3.23.4 - [November 12, 2024](https://github.com/lando/core/releases/tag/v3.23.4)
+
+* Updated to [@lando/vitepress-theme-default-plus@v1.1.0-beta.21](https://github.com/lando/vitepress-theme-default-plus/releases/tag/v1.1.0-beta.21)
+
+## v3.23.3 - [November 4, 2024](https://github.com/lando/core/releases/tag/v3.23.3)
+
+* Updated to [@lando/vitepress-theme-default-plus@v1.1.0-beta.18](https://github.com/lando/vitepress-theme-default-plus/releases/tag/v1.1.0-beta.18)
+
+## v3.23.2 - [October 30, 2024](https://github.com/lando/core/releases/tag/v3.23.2)
+
+* Fixed bug causing `@lando/core` and its plugins to incorrectly report `⚠️ Cannot update. Please update manually.`
+
+## v3.23.1 - [October 29, 2024](https://github.com/lando/core/releases/tag/v3.23.1)
+
+### New Features & Improvements
+
+* Added useful `warning` if Lando cannot detect the CLI update location in `PATH` [#259](https://github.com/lando/core/issues/259)
+
+### Fixed
+
+* Fixed regression causing some recipe `tooling` commands to _disappear_ in apps with characters in their `name` that get altered by `slugification`
+
+## v3.23.0 - [October 26, 2024](https://github.com/lando/core/releases/tag/v3.23.0)
+
 ### New Features & Improvements
 
 * Changed `lando setup` to pull common plugins based on release `channel` to better mimic fatcore
 * Improved internet detection tests [#243](https://github.com/lando/core/issues/243)
+* Improved `lando shellenv` to produce more consistent newliney output
+* Rebased `axios` and `octokit`  on `@npmcli/agent` to improve request consistency across environments
+* Updated default Docker Desktop version to `4.34.3`
+* Updated default Docker Engine version to `27.3.1`
+* Updated recommended Docker Desktop range to `>=4.34.0`
+* Updated tested Docker Desktop range to `<=4.35`
+* Updated tested Docker Compose range to `<=2.29.2`
+* Updated packaged `cli` to use `node20`
+
+### Fixed
+
+* Fixed some packaging problems with new combining `core/cli` and changed so tests run 💯 packaged
+* Fixed run-from-source `#shebang` to be more universal
+* Fixed `flags: 0x5000: no such file or directory: unknown` on WSL when bind mounting certain files the second time [#242](https://github.com/lando/core/issues/242)
+* Fixed bug causing https proxy routes to be assigned when they shouldnt be
+* Fixed bug causing cache from repopulating old proxy addresses that have been removed [#209](https://github.com/lando/core/issues/209)
+* Fixed bug in `v4` auto `entrypoint` and `command` population
+* Fixed regression causing empty tooling `options` to throw an error [#240](https://github.com/lando/core/issues/240)
+* Fixed _critical_ bug where `core` was not being loaded when it only exists internally
+* Fixed bug causing development release versions from incorrectly reporting as updatable
+* Fixed bug causing updates to fail when `SHELL` environment variable is not set
+* Fixed bug causing error handler error when error code is not an integer
+* Fixed failed `healthchecks` from reporting `unknown shorthand flag: 'T' in -T` instead of underlying error (thanks to @AaronFeledy)
+* Improved merging of same-service, same-hostname-pathname `proxy` routes, fixes [#246](https://github.com/lando/core/issues/246)
+* Improved `dns` preference of `ipv4first`
+
+### Internal
+
+* Added `debugShim` to `lando.utils`
+* Added `downloadX` to `lando.utils`
+* Added `getAxios` to `lando.utils`
+* Added `getOctokit` to `lando.utils`
+* Added `getUserShell` to `lando.utils`
+* Added `getUserShellProfile` to `lando.utils`
+* Added `isVersionLte` to `lando.utils`
+* Added `legacyMerge` to `lando.utils`
+* Added `mergeArrays` to `lando.utils`
+* Added `mergePromise` to `lando.utils`
+* Added `merge` to `lando.utils`
+* Added `readFile` to `lando.utils`
+* Added `remove` to `lando.utils`
+* Added `runCommand` to `lando.utils`
+* Added `runElevated` to `lando.utils`
+* Added `runPowerShell` to `lando.utils`
+* Added `slugify` to `lando.utils`
+* Added `writeFile` to `lando.utils`
+* Recombined `@lando/cli` into `@lando/core` eg `lando` binaries are now released here
+* Removed version 4 runtime selector
+* Switched `URL.parse` to `url.parse` until people are reliably on a `node20` CLI
+
+## v3.23.0-beta.10 - [October 26, 2024](https://github.com/lando/core/releases/tag/v3.23.0-beta.10)
+
+### New Features & Improvements
+
+* Added helpful `tip` about using `lando shellenv` when it cannot detect `~/.lando/bin` in `PATH`
+* Changed `lando setup` to pull common plugins based on release `channel` to better mimic fatcore
+* Improved internet detection tests [#243](https://github.com/lando/core/issues/243)
+* Improved `lando shellenv` to produce more consistent newliney output
+* Rebased `axios` and `octokit`  on `@npmcli/agent` to improve request consistency across environments
+* Updated default Docker Desktop version to `4.34.3`
+* Updated default Docker Engine version to `27.3.1`
+* Udpated recommended Docker Destkop range to `>=4.34.0`
+* Updated tested Docker Desktop range to `<=4.35`
+* Updated tested Docker Compose range to `<=2.29.2`
+
+### Fixed
+
+* Fixed failed `healthchecks` from reporting `unknown shorthand flag: 'T' in -T` instead of underlying error (thanks to @AaronFeledy)
+
+### Internal
+
+* Added `debugShim` to `lando.utils`
+* Added `downloadX` to `lando.utils`
+* Added `getAxios` to `lando.utils`
+* Added `getOctokit` to `lando.utils`
+* Added `getUserShell` to `lando.utils`
+* Added `getUserShellProfile` to `lando.utils`
+* Added `isVersionLte` to `lando.utils`
+* Added `legacyMerge` to `lando.utils`
+* Added `mergeArrays` to `lando.utils`
+* Added `mergePromise` to `lando.utils`
+* Added `merge` to `lando.utils`
+* Added `readFile` to `lando.utils`
+* Added `remove` to `lando.utils`
+* Added `runCommand` to `lando.utils`
+* Added `runElevated` to `lando.utils`
+* Added `runPowerShell` to `lando.utils`
+* Added `slugify` to `lando.utils`
+* Added `writeFile` to `lando.utils`
+* Switched `URL.parse` to `url.parse` until people are reliably on a `node20` CLI
+
+## v3.23.0-beta.9 - [October 26, 2024](https://github.com/lando/core/releases/tag/v3.23.0-beta.9)
+
+### New Features & Improvements
+
+* Added helpful `tip` about using `lando shellenv` when it cannot detect `~/.lando/bin` in `PATH`
+* Changed `lando setup` to pull common plugins based on release `channel` to better mimic fatcore
+* Improved internet detection tests [#243](https://github.com/lando/core/issues/243)
+* Improved `lando shellenv` to produce more consistent newliney output
 * Rebased `axios` and `octokit`  on `@npmcli/agent` to improve request consistency across environments
 * Updated default Docker Desktop version to `4.34.3`
 * Updated default Docker Engine version to `27.3.1`

@@ -22,6 +22,9 @@ module.exports = lando => {
       // Destroy the app
       if (app) {
         console.log(lando.cli.makeArt('appDestroy', {name: app.name, phase: 'pre'}));
+        // run setup if we need to
+        await require('../hooks/lando-run-setup')(lando);
+        // destroy
         await app.destroy();
         console.log(lando.cli.makeArt('appDestroy', {name: app.name, phase: 'post'}));
       }

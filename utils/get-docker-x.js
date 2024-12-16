@@ -19,14 +19,15 @@ const getDockerBin = (bin, base, pathFallback = true) => {
   if (!fs.existsSync(binPath)) return false;
 
   // Otherwise return a normalized binpath
-  switch (process.platform) {
+  switch (process.landoPlatform ?? process.platform) {
     case 'darwin': return path.posix.normalize(binPath);
     case 'linux': return path.posix.normalize(binPath);
     case 'win32': return path.win32.normalize(binPath);
+    case 'wsl': return path.posix.normalize(binPath);
   }
 };
 
 module.exports = () => {
-  const base = (process.platform === 'linux') ? '/usr/bin' : require('./get-docker-bin-path')();
+  const base = (process.landoPlatform === 'linux' || process.platform === 'linux') ? '/usr/bin' : require('./get-docker-bin-path')();
   return getDockerBin('docker', base);
 };

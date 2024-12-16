@@ -1,0 +1,42 @@
+name: Deploy GitHub Artifacts
+
+on:
+  workflow_call:
+    inputs:
+      download-name:
+        default:
+        description: The artifact name to download for checksumming
+        required: false
+        type: string
+      download-pattern:
+        default:
+        description: The artifact pattern to download for checksumming
+        required: false
+        type: string
+      upload-name:
+        default: deploy-artifacts-${{ github.sha }}
+        description: The artifact name to upload
+        required: false
+        type: string
+
+jobs:
+  deploy-artifacts:
+    runs-on: ubuntu-24.04
+    env:
+      TERM: xterm
+    steps:
+      - name: Create paths
+        run: mkdir -p /tmp/deploy-artifacts/${{ github.sha }}
+      - name: Download releases
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.download-name }}
+          merge-multiple: true
+          path: /tmp/deploy-artifacts/${{ github.sha }}
+          pattern: ${{ inputs.download-pattern }}
+      - name: Upload releases
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.upload-name }}
+          path: /tmp/deploy-artifacts/${{ github.sha }}/*
+          if-no-files-found: error

@@ -18,7 +18,7 @@ sudo apt-get autoremove -y
 dpkg -l | grep docker-desktop || echo $? | grep 1
 
 # Should be able to run lando setup
-lando setup -y
+lando setup -y --skip-common-plugins
 
 # Should have installed Docker Engine
 docker version

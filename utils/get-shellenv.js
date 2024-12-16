@@ -29,8 +29,7 @@ module.exports = (paths = [], shell = require('./get-user-shell')()) => {
 
     default:
       return [
-        ['# Lando'],
-        [`export PATH="${paths}\${PATH+:$PATH}"; #landopath`, '#landopath'],
+        [`export PATH="${paths}:$PATH"; #landopath`, '#landopath'],
       ];
   }
 };

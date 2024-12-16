@@ -6,6 +6,12 @@ const os = require('os');
 const read = require('./read-file');
 const write = require('./write-file');
 
+const trim = (data = []) => {
+  while (data.length > 0 && data[data.length - 1] === '') data.pop();
+  data.push('');
+  return data;
+};
+
 module.exports = (file, updates = []) => {
   // create empty file if it doesnt exist first
   if (!fs.existsSync(file)) {
@@ -17,7 +23,7 @@ module.exports = (file, updates = []) => {
     // get the content
     const content = read(file);
     // split into lines
-    const lines = content.split('\n');
+    const lines = trim(content.split('\n'));
 
     // loops through the updates and add/update as needed
     for (const [update, search] of updates) {
@@ -29,11 +35,8 @@ module.exports = (file, updates = []) => {
       }
     }
 
-    // if the last element doesnt contain a newline
-    if (lines[lines.length - 1].includes(os.EOL)) lines.push();
-
     // Write the modified content back to the file
-    write(file, lines.join(os.EOL));
+    write(file, `${trim(lines).join(os.EOL)}${os.EOL}`);
 
   // handle errors
   } catch (error) {

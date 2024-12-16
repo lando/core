@@ -16,8 +16,8 @@ $debug = If ($DebugPreference -eq "Continue") {$true} Else {$false}
 
 # figure out the command and setup fake fds
 $command = $cmd.split(',')
-$stdoutfile = Join-Path $Env:Temp $(New-Guid)
-$stderrfile = Join-Path $Env:Temp $(New-Guid)
+$stdoutfile = Join-Path $Env:Temp $([guid]::NewGuid().ToString())
+$stderrfile = Join-Path $Env:Temp $([guid]::NewGuid().ToString())
 
 # DEBUG
 Write-Debug "running elevated command:"

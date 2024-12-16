@@ -1,0 +1,77 @@
+name: Generate Checksums
+
+on:
+  workflow_call:
+    inputs:
+      download-name:
+        default:
+        description: The artifact name to download for checksumming
+        required: false
+        type: string
+      download-pattern:
+        default:
+        description: The artifact pattern to download for checksumming
+        required: false
+        type: string
+      depth:
+        default: "1"
+        description: The depth to search for files to checksum
+        required: false
+        type: string
+      flatten:
+        default: false
+        description: Whether to flatten all downloaded artifacts
+        required: false
+        type: boolean
+      output:
+        default: sha256sum.txt
+        description: The name of the checksum file
+        required: false
+        type: string
+      show:
+        default: true
+        description: Whether to print the checksums in the action
+        required: false
+        type: boolean
+      upload-name:
+        default: checksums-${{ github.sha }}
+        description: The artifact name to upload
+        required: false
+        type: string
+
+jobs:
+  generate-checksums:
+    runs-on: ubuntu-24.04
+    env:
+      TERM: xterm
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Ensure path
+        run: mkdir -p /tmp/checksums/${{ github.sha }}
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.download-name }}
+          path: /tmp/checksums/${{ github.sha }}
+          pattern: ${{ inputs.download-pattern }}
+          merge-multiple: ${{ inputs.flatten }}
+      - name: Verify files
+        run: |
+          echo "::group::Organized checksummed files"
+          ls -lsa /tmp/checksums/${{ github.sha }}
+          echo "::endgroup::"
+      - name: Checksum files
+        run: |
+          cd /tmp/checksums/${{ github.sha }}
+          bash ${{ github.workspace }}/scripts/generate-checksums.sh \
+            --depth=${{ inputs.depth }} \
+            --output=/tmp/${{ inputs.output }} \
+            ${{ inputs.show == true && '--show' || ''}}
+      - name: Upload checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.upload-name }}
+          path: /tmp/${{ inputs.output }}
+          if-no-files-found: error
+          retention-days: 1

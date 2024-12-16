@@ -1,0 +1,87 @@
+name: PR Release Tests
+
+on:
+  pull_request:
+
+jobs:
+  package:
+    uses: ./.github/workflows/pkg-binary.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - x64
+          - arm64
+        os:
+          - linux
+          - macos
+          - win
+    with:
+      arch: ${{ matrix.arch }}
+      filename: lando-${{ matrix.os }}-${{ matrix.arch }}-slim-${{ github.sha }}
+      node-version: "20"
+      os: ${{ matrix.os }}
+      version: dev
+
+  verify:
+    uses: ./.github/workflows/generate-checksums.yml
+    needs:
+      - package
+    with:
+      download-pattern: packaged-lando-*
+      flatten: true
+      show: true
+
+  release:
+    runs-on: ubuntu-24.04
+    needs:
+      - verify
+    steps:
+      - name: Create releases
+        run: mkdir -p /tmp/releases
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/releases
+          merge-multiple: true
+      - name: Upload release files
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-release-test-${{ github.sha }}
+          path: /tmp/releases/*
+          if-no-files-found: error
+          retention-days: 1
+
+  npm:
+    runs-on: ubuntu-24.04
+    needs:
+      - release
+    env:
+      TERM: xterm
+    strategy:
+      matrix:
+        node-version:
+          - '20'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org
+          cache: npm
+      - name: Install dependencies
+        run: npm clean-install --prefer-offline --frozen-lockfile
+      - name: Lint code
+        run: npm run lint
+      - name: Run unit tests
+        run: npm run test:unit
+      - name: Prepare Release
+        uses: lando/prepare-release-action@v3
+        with:
+          version: dev
+          sync: false
+          lando-plugin: true
+      - name: Publish to npm dryrun
+        run: npm publish --access public --dry-run

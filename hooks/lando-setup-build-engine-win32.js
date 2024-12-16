@@ -1,6 +1,8 @@
 'use strict';
 
 const axios = require('../utils/get-axios')();
+const fs = require('fs');
+const getDockerDesktopBin = require('../utils/get-docker-desktop-x');
 const os = require('os');
 const path = require('path');
 const semver = require('semver');
@@ -8,6 +10,9 @@ const {color} = require('listr2');
 const {nanoid} = require('nanoid');
 
 const buildIds = {
+  '4.36.0': '175267',
+  '4.35.1': '173168',
+  '4.35.0': '172550',
   '4.34.3': '170107',
   '4.34.2': '167172',
   '4.34.1': '166053',
@@ -50,7 +55,7 @@ const getVersion = version => {
 /*
  * Helper to get docker compose v2 download url
  */
-const getEngineDownloadUrl = (id = '170107') => {
+const getEngineDownloadUrl = (id = '175267') => {
   const arch = process.arch === 'arm64' ? 'arm64' : 'amd64';
   return `https://desktop.docker.com/win/main/${arch}/${id}/Docker%20Desktop%20Installer.exe`;
 };
@@ -93,28 +98,24 @@ module.exports = async (lando, options) => {
   const version = getVersion(options.buildEngine);
 
   // cosmetics
-  const buildEngine = process.platform === 'linux' ? 'docker-engine' : 'docker-desktop';
   const install = version ? `v${version}` : `build ${build}`;
 
+  // download url
   const url = getEngineDownloadUrl(build);
 
   // win32 install docker desktop task
   options.tasks.push({
-    title: `Downloading build engine`,
+    title: 'Downloading build engine',
     id: 'setup-build-engine',
-    description: `@lando/build-engine (${buildEngine})`,
-    version: `${buildEngine} ${install}`,
+    description: '@lando/build-engine (docker-desktop)',
+    version: `Docker Desktop ${install}`,
     hasRun: async () => {
-      // start by looking at the engine install status
-      // @NOTE: is this always defined?
-      if (lando.engine.dockerInstalled === false) return false;
+      // if we are missing any files we can check then terminate here
+      if (lando.engine.dockerInstalled === false || !fs.existsSync(getDockerDesktopBin())) return false;
 
       // if we get here let's make sure the engine is on
       try {
-        await lando.engine.daemon.up();
-        const BuildEngine = require('../components/docker-engine');
-        const bengine = new BuildEngine(lando.config.buildEngine, {debug});
-        await bengine.info();
+        await lando.engine.daemon.up({max: 5, backoff: 1000});
         return true;
       } catch (error) {
         lando.log.debug('docker install task has not run %j', error);
@@ -141,7 +142,7 @@ module.exports = async (lando, options) => {
         // download the installer
         ctx.download = await downloadDockerDesktop(url, {ctx, debug, task});
         // script
-        const script = [path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1')];
+        const script = path.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1');
         // args
         const args = ['-Installer', ctx.download.dest];
         if (options.buildEngineAcceptLicense) args.push('-AcceptLicense');
@@ -154,7 +155,7 @@ module.exports = async (lando, options) => {
 
         // finish up
         const location = process.env.ProgramW6432 ?? process.env.ProgramFiles;
-        task.title = `Installed build engine to ${location}/Docker/Docker!`;
+        task.title = `Installed build engine (Docker Desktop) to ${location}/Docker/Docker!`;
         return result;
       } catch (error) {
         throw error;
@@ -176,14 +177,20 @@ module.exports = async (lando, options) => {
       // check one last time incase this was added by a dependee or otherwise
       if (require('../utils/is-group-member')('docker-users')) return {code: 0};
 
-      try {
-        const command = ['net', 'localgroup', 'docker-users', lando.config.username, '/ADD'];
-        const response = await require('../utils/run-elevated')(command, {debug});
-        task.title = `Added ${lando.config.username} to docker-users`;
-        return response;
-      } catch (error) {
+      const command = ['net', 'localgroup', 'docker-users', lando.config.username, '/ADD'];
+      const {code, stdout, stderr} = await require('../utils/run-elevated')(command, {ignoreReturnCode: true, debug});
+
+      // fail on anything except 1378 which is user already exists
+      if (code !== 0 && (!stderr.includes('1378') || !stderr.includes('already a member'))) {
+        const error = new Error(`Error adding ${lando.config.username} to the docker-users group!`);
+        error.code = code;
+        error.stdout = stdout;
+        error.stderr = stderr;
         throw error;
       }
+
+      task.title = `Added ${lando.config.username} to docker-users`;
+      return {code, stdout, stderr};
     },
   });
 };

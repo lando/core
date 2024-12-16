@@ -2,21 +2,22 @@
 
 const os = require('os');
 
-module.exports = user => {
+module.exports = (user, {platform = process.platform} = {}) => {
   // set user to person running this process if its not set
   if (!user) user = os.userInfo().username;
 
   // differetn strokes, different folks
-  switch (process.platform) {
+  switch (platform) {
     case 'darwin':
-      return require('./is-group-member')('admin', user);
+      return require('./is-group-member')('admin', user, platform);
     case 'linux':
-      return require('./is-group-member')('sudo', user)
-        || require('./is-group-member')('admin', user)
-        || require('./is-group-member')('wheel', user)
-        || require('./is-group-member')('adm', user);
+      return require('./is-group-member')('sudo', user, platform)
+        || require('./is-group-member')('admin', user, platform)
+        || require('./is-group-member')('wheel', user, platform)
+        || require('./is-group-member')('adm', user, platform);
     case 'win32':
-      return require('./is-group-member')('administrators', user);
+      return require('./is-group-member')('S-1-5-32-544', user, platform)
+        || require('./is-group-member')('administrators', user, platform);
     default:
       return false;
   }

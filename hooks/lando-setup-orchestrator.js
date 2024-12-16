@@ -7,7 +7,7 @@ const path = require('path');
 /*
  * Helper to get docker compose v2 download url
  */
-const getComposeDownloadUrl = (version = '2.29.2') => {
+const getComposeDownloadUrl = (version = '2.30.3') => {
   const mv = version.split('.')[0] > 1 ? '2' : '1';
   const arch = process.arch === 'arm64' ? 'aarch64' : 'x86_64';
   const toggle = `${process.platform}-${mv}`;
@@ -31,7 +31,7 @@ const getComposeDownloadUrl = (version = '2.29.2') => {
 /*
  * Helper to get docker compose v2 download destination
  */
-const getComposeDownloadDest = (base, version = '2.29.2') => {
+const getComposeDownloadDest = (base, version = '2.30.3') => {
   switch (process.platform) {
     case 'linux':
     case 'darwin':
@@ -60,7 +60,7 @@ module.exports = async (lando, options) => {
     title: `Downloading orchestrator`,
     id: 'setup-orchestrator',
     description: '@lando/orchestrator (docker-compose)',
-    version: `docker-compose v${orchestrator}`,
+    version: `Docker Compose v${orchestrator}`,
     hasRun: async () => {
       return !!orchestratorBin && typeof orchestrator === 'string' && fs.existsSync(dest);
     },
@@ -74,7 +74,7 @@ module.exports = async (lando, options) => {
       const download = require('../utils/download-x')(url, {debug, dest, test: ['--version']});
       // success
       download.on('done', data => {
-        task.title = `Installed orchestrator to ${dest}`;
+        task.title = `Installed orchestrator (Docker Compose) to ${dest}`;
         resolve(data);
       });
       // handle errors
