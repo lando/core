@@ -7,8 +7,8 @@ const path = require('path');
 // @TODO: maybe extension should be in {options}?
 // @TODO: error handling, defaults etc?
 module.exports = (file, data, options = {}) => {
-  // if data is an ImportString coming from !import in a yaml file then toString it
-  if (data?.constructor?.name === 'ImportString') data = data.toString();
+  // if data is not a string but can be made into a string
+  if (typeof data !== 'string' && typeof data?.toString === 'function') data = data.toString();
 
   // set extension if not set
   const extension = options.extension || path.extname(file);

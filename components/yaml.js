@@ -100,6 +100,13 @@ class ImportString extends String {
   getDumper() {
     return this.#metadata.raw;
   }
+
+  [Symbol.toPrimitive](hint) {
+    if (hint === 'string') {
+      return this.toString();
+    }
+    return this.toString();
+  }
 }
 
 class ImportObject extends Object {
