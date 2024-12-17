@@ -22,6 +22,10 @@ cp -rf index.php lemp/index.php
 cp -rf nginx.conf lemp/nginx.conf
 cp -rf .lando.lemp.yml lemp/.lando.yml
 cd lemp && lando start
+
+# Should copy .config.yml to ~/.lando/config.yml
+cp config.yml ~/.lando/config.yml
+lando --clear
 ```
 
 ## Verification commands
@@ -63,6 +67,9 @@ lando exec appserver_nginx -- curl https://appserver.landolamp.internal
 # Should even be able to connect to a database in a different app
 cd lamp
 lando exec database -- mysql -uroot -h database.landolemp.internal -e "quit"
+
+# Should see the correct network limit
+lando config | grep "networkLimit: 64"
 ```
 
 ## Destroy tests
