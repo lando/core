@@ -45,8 +45,7 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
   // attempt to ascertain the SAPI
   const sapi = _.get(app, 'v4.services', []).find(s => s.id === service)?.api
     ?? _.get(app, `sapi.${service}`, undefined)
-    ?? _.get(data, `sapi.${service}`, undefined)
-    ?? 3;
+    ?? _.get(data, `sapi.${service}`, undefined);
 
   // normalize cmd
   cmd = getCommand(cmd);
@@ -54,20 +53,20 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
   // if array then just join it together
   if (_.isArray(cmd)) cmd = cmd.join(' ');
 
-  // this handles l337 services
-  if (sapi === 'l337') {
+  // lando 4 services
+  // @NOTE: lando 4 service events will change once we have a complete hook system
+  if (sapi === 4) {
+    cmd = ['/etc/lando/exec-multiliner.sh', Buffer.from(cmd, 'utf8').toString('base64')];
+
+  // lando 3
+  } else if (sapi === 3) {
+    cmd = ['/helpers/exec-multiliner.sh', Buffer.from(cmd, 'utf8').toString('base64')];
+
+  // this should be all "compose-y" services
+  } else {
     const file = `/tmp/${nanoid()}.sh`;
     const script = Buffer.from(cmd, 'utf8').toString('base64');
     cmd = `echo ${script} | base64 -d > ${file} && chmod +x ${file} && ${file}`;
-
-  // lando 4 services
-  // @NOTE: lando 4 service events will change once we have a complete hook system
-  } else if (sapi === 4) {
-    cmd = ['/etc/lando/exec-multiliner.sh', Buffer.from(cmd, 'utf8').toString('base64')];
-
-  // lando 3 services
-  } else {
-    cmd = ['/helpers/exec-multiliner.sh', Buffer.from(cmd, 'utf8').toString('base64')];
   }
 
   // try to get a list of v4 services a few ways, we have to look at different places because the event could

@@ -22,6 +22,11 @@ const parseFileTypeInput = input => {
   };
 };
 
+// helper to find file
+const findFile = (file, base = undefined) => {
+  return require('../utils/traverse-up')([file], path.resolve(base)).find(file => fs.existsSync(file));
+};
+
 // file loader options
 const fileloader = {
   kind: 'scalar',
@@ -33,7 +38,7 @@ const fileloader = {
     const input = parseFileTypeInput(data);
 
     // if data is not an absolute path then resolve with base
-    if (!path.isAbsolute(input.file)) input.file = path.resolve(this.base, input.file);
+    if (!path.isAbsolute(input.file)) input.file = findFile(input.file, this.base);
 
     // Otherwise check the path exists
     return fs.existsSync(input.file);
@@ -42,7 +47,7 @@ const fileloader = {
     // transform data
     data = {raw: data, ...parseFileTypeInput(data)};
     // normalize if needed
-    data.file = !path.isAbsolute(data.file) ? path.resolve(this.base, data.file) : data.file;
+    data.file = !path.isAbsolute(data.file) ? findFile(data.file, this.base) : data.file;
 
     // switch based on type
     switch (data.type) {
