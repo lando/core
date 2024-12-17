@@ -243,7 +243,6 @@ class Plugin {
       // paternity test
       const pjsons = ppsjons.filter(pjson => fs.existsSync(pjson));
 
-
       // if we have parents then use the closest and also reset some package considerations for updating
       if (pjsons.length > 0) {
         this.parent = require(pjsons[0]);

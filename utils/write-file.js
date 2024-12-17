@@ -13,7 +13,7 @@ module.exports = (file, data, options = {}) => {
   const forcePosixLineEndings = options.forcePosixLineEndings ?? false;
 
   // special handling for ImportString
-  if (typeof data !== 'string' && data?.name?.constructor === 'ImportString') data = data.toString();
+  if (typeof data !== 'string' && data?.constructor?.name === 'ImportString') data = data.toString();
 
   // data is a string and posixOnly then replace
   if (typeof data === 'string' && forcePosixLineEndings) data = data.replace(/\r\n/g, '\n');

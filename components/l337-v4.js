@@ -714,7 +714,7 @@ class L337ServiceV4 extends EventEmitter {
     if (data.split('\n').length === 1) return path.resolve(this.appRoot, data);
 
     // if dest is undefined and we have ImportString then lets use that filename
-    if (dest === undefined && data?.name?.constructor === 'ImportString') {
+    if (dest === undefined && data?.constructor?.name === 'ImportString') {
       const {file} = data.getMetadata();
       dest = path.basename(file);
     }
