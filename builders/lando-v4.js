@@ -304,7 +304,7 @@ module.exports = {
       super(id, merge({}, {stages}, {groups}, {states}, upstream), app, lando);
 
       // props
-      this.canExec = true;
+      this.api = 4;
       this.canHealthcheck = true;
       this.isInteractive = lando.config.isInteractive;
       this.generateCert = lando.generateCert.bind(lando);

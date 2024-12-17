@@ -42,18 +42,11 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
   // compute stdio based on compose major version
   const cstdio = _.get(app, '_config.orchestratorMV', 2) ? 'inherit' : ['inherit', 'pipe', 'pipe'];
 
-  // try to get a list of v4 services a few ways, we have to look at different places because the event could
-  // run at various points in the bootstrap
-  const v4s = _([
-    _(app.info).filter(service => service.api === 4).map('service').value(),
-    _.get(app, 'v4.servicesList', []),
-  ]).flatten().compact().uniq().value();
-
-  // attempt to ascertain whether this is a v4 "exec" service
-  const canExec = _.get(app, 'v4.services', []).find(s => s.id === service)?.canExec
-    ?? _.get(app, `executors.${service}`, undefined)
-    ?? _.get(data, `executors.${service}`, undefined)
-    ?? false;
+  // attempt to ascertain the SAPI
+  const sapi = _.get(app, 'v4.services', []).find(s => s.id === service)?.api
+    ?? _.get(app, `sapi.${service}`, undefined)
+    ?? _.get(data, `sapi.${service}`, undefined)
+    ?? 3;
 
   // normalize cmd
   cmd = getCommand(cmd);
@@ -62,20 +55,27 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
   if (_.isArray(cmd)) cmd = cmd.join(' ');
 
   // this handles l337 services
-  if (!canExec && v4s.includes(service)) {
+  if (sapi === 'l337') {
     const file = `/tmp/${nanoid()}.sh`;
     const script = Buffer.from(cmd, 'utf8').toString('base64');
     cmd = `echo ${script} | base64 -d > ${file} && chmod +x ${file} && ${file}`;
 
   // lando 4 services
   // @NOTE: lando 4 service events will change once we have a complete hook system
-  } else if (canExec && v4s.includes(service)) {
+  } else if (sapi === 4) {
     cmd = ['/etc/lando/exec-multiliner.sh', Buffer.from(cmd, 'utf8').toString('base64')];
 
   // lando 3 services
   } else {
     cmd = ['/helpers/exec-multiliner.sh', Buffer.from(cmd, 'utf8').toString('base64')];
   }
+
+  // try to get a list of v4 services a few ways, we have to look at different places because the event could
+  // run at various points in the bootstrap
+  const v4s = _([
+    _(app.info).filter(service => service.api === 4).map('service').value(),
+    _.get(app, 'v4.servicesList', []),
+  ]).flatten().compact().uniq().value();
 
   // Validate the service if we can
   // @NOTE fast engine runs might not have this data yet

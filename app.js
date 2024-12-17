@@ -34,6 +34,7 @@ module.exports = async (app, lando) => {
       primary: app._defaultService,
       project: app.project,
       root: app.root,
+      sapis: require('./utils/get-service-apis')(_.get(app, 'parsedServices', [])),
     }, {persist: true});
   };
 
@@ -54,15 +55,16 @@ module.exports = async (app, lando) => {
       compose: app.compose,
       containers: app.containers,
       info: _.cloneDeep(app.info).map(service => ({...service, hostname: [], urls: []})),
-      executors: require('./utils/get-executors')(_.get(app, 'v4.services', {})),
       name: app.name,
       mounts: require('./utils/get-mounts')(_.get(app, 'v4.services', {})),
+      primary: app._defaultService,
+      project: app.project,
       root: app.root,
+      sapis: require('./utils/get-service-apis')(_.get(app, 'parsedServices', [])),
       overrides: {
         tooling: app._coreToolingOverrides,
       },
-      primary: app._defaultService,
-      project: app.project,
+
     }, {persist: true});
   };
 

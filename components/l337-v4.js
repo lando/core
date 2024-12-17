@@ -127,6 +127,7 @@ class L337ServiceV4 extends EventEmitter {
 
     // set top level required stuff
     this.id = id;
+    this.api = 'l337';
     this.appRoot = appRoot;
     this.buildkit = true;
     this.config = config;
