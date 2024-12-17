@@ -24,7 +24,9 @@ const parseFileTypeInput = input => {
 
 // helper to find file
 const findFile = (file, base = undefined) => {
-  return require('../utils/traverse-up')([file], path.resolve(base)).find(file => fs.existsSync(file));
+  return require('../utils/traverse-up')([file], path.resolve(base))
+    .map(candidate => path.join(path.dirname(candidate), file))
+    .find(candidate => fs.existsSync(candidate));
 };
 
 // file loader options
