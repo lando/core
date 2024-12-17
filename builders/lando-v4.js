@@ -151,6 +151,7 @@ module.exports = {
       this.addLSF(path.join(__dirname, '..', 'scripts', 'boot.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'entrypoint.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'exec.sh'));
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'exec-multiliner.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'run-hooks.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'landorc.sh'), 'landorc');
       this.addLSF(path.join(__dirname, '..', 'scripts', 'utils.sh'));

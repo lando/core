@@ -3,6 +3,8 @@
 // Modules
 const _ = require('lodash');
 
+const {nanoid} = require('nanoid');
+
 // Helper to find the default service
 const getDefaultService = (data = {}, defaultService = 'appserver') => {
   // if this is an event built on a service-dynamic command
@@ -36,7 +38,6 @@ const getService = (cmd, data = {}, defaultService = 'appserver') => {
 // adds required methods to ensure the lando v3 debugger can be injected into v4 things
 module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
   // Discover the service
-  const command = getCommand(cmd);
   const service = getService(cmd, data, app._defaultService);
   // compute stdio based on compose major version
   const cstdio = _.get(app, '_config.orchestratorMV', 2) ? 'inherit' : ['inherit', 'pipe', 'pipe'];
@@ -54,12 +55,26 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
     ?? _.get(data, `executors.${service}`, undefined)
     ?? false;
 
-  // reset the cmd based on exec situation
-  // @TODO: replace this with better command scripting stuff when command scripting is done?
-  if (canExec) {
-    cmd = ['/etc/lando/exec.sh', 'sh', '-c', _.isArray(command) ? command.join(' ') : command];
+  // normalize cmd
+  cmd = getCommand(cmd);
+
+  // if array then just join it together
+  if (_.isArray(cmd)) cmd = cmd.join(' ');
+
+  // this handles l337 services
+  if (!canExec && v4s.includes(service)) {
+    const file = `/tmp/${nanoid()}.sh`;
+    const script = Buffer.from(cmd, 'utf8').toString('base64');
+    cmd = `echo ${script} | base64 -d > ${file} && chmod +x ${file} && ${file}`;
+
+  // lando 4 services
+  // @NOTE: lando 4 service events will change once we have a complete hook system
+  } else if (canExec && v4s.includes(service)) {
+    cmd = ['/etc/lando/exec-multiliner.sh', Buffer.from(cmd, 'utf8').toString('base64')];
+
+  // lando 3 services
   } else {
-    cmd = ['/bin/sh', '-c', _.isArray(command) ? command.join(' ') : command];
+    cmd = ['/helpers/exec-multiliner.sh', Buffer.from(cmd, 'utf8').toString('base64')];
   }
 
   // Validate the service if we can

@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const {nanoid} = require('nanoid');
 
 module.exports = (services, app, rootSteps = [], buildSteps= [], prestart = false) => {
   const getUser = require('../utils/get-user');
@@ -21,16 +20,9 @@ module.exports = (services, app, rootSteps = [], buildSteps= [], prestart = fals
           // @NOTE: this cant possibly work correctly in many situations?
           if (_.isArray(cmd)) cmd = cmd.join(' ');
 
-          // if a multiline string then do some special stuff
-          if (cmd.split('\n').length > 1) {
-            const file = `/tmp/${nanoid()}.sh`;
-            const script = Buffer.from(cmd, 'utf8').toString('base64');
-            cmd = `echo ${script} | base64 -d > ${file} && chmod +x ${file} && ${file}`;
-          }
-
           build.push({
             id: app.containers[service],
-            cmd: ['/bin/sh', '-c', cmd],
+            cmd: ['/helpers/exec-multiliner.sh', Buffer.from(cmd, 'utf8').toString('base64')],
             compose: app.compose,
             project: app.project,
             opts: {
