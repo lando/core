@@ -716,7 +716,7 @@ class L337ServiceV4 extends EventEmitter {
     // if dest is undefined and we have ImportString then lets use that filename
     if (dest === undefined && data?.constructor?.name === 'ImportString') {
       const {file} = data.getMetadata();
-      dest = path.basename(file);
+      if (file) dest = path.basename(file);
     }
 
     // if we are here it is multiline and lets dump to a tmp file and return that

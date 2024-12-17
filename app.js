@@ -34,7 +34,7 @@ module.exports = async (app, lando) => {
       primary: app._defaultService,
       project: app.project,
       root: app.root,
-      sapis: require('./utils/get-service-apis')(_.get(app, 'parsedServices', [])),
+      sapis: require('./utils/get-service-apis')(app),
     }, {persist: true});
   };
 
@@ -60,7 +60,7 @@ module.exports = async (app, lando) => {
       primary: app._defaultService,
       project: app.project,
       root: app.root,
-      sapis: require('./utils/get-service-apis')(_.get(app, 'parsedServices', [])),
+      sapis: require('./utils/get-service-apis')(app),
       overrides: {
         tooling: app._coreToolingOverrides,
       },
