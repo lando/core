@@ -44,8 +44,8 @@ module.exports = (cmds, app, data = {}) => _.map(cmds, cmd => {
 
   // attempt to ascertain the SAPI
   const sapi = _.get(app, 'v4.services', []).find(s => s.id === service)?.api
-    ?? _.get(app, `sapi.${service}`, undefined)
-    ?? _.get(data, `sapi.${service}`, undefined);
+    ?? _.get(app, `sapis.${service}`, undefined)
+    ?? _.get(data, `sapis.${service}`, undefined);
 
   // normalize cmd
   cmd = getCommand(cmd);
