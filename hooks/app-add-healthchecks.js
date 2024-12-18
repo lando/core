@@ -2,12 +2,20 @@
 
 const _ = require('lodash');
 const debug = require('debug')('@lando/core:healthcheck');
+const isStringy = require('../utils/is-stringy');
 
 const {color} = require('listr2');
 
 module.exports = async app => {
-  const exec = (command, container, {service, log = debug, user = 'root'} = {}) => {
+  const exec = (command, container, {api = 3, service, log = debug, user = 'root'} = {}) => {
     log('running %o healthcheck %o...', service, command);
+
+    // if is stringy then multipass
+    if (isStringy(command)) {
+      command = Buffer.from(command, 'utf8').toString('base64');
+      command = api === 3 ? ['/helpers/exec-multiliner.sh', command] : ['/etc/lando/exec-multiliner.sh', command];
+    }
+
     return app.engine.run({
       id: container,
       cmd: command,
@@ -49,6 +57,7 @@ module.exports = async app => {
   const newV3Healthchecks = _(_.get(app, 'parsedV3Services', []))
     .filter(service => _.has(service, 'healthcheck'))
     .map(service => ({
+      api: 3,
       container: app.containers[service.name],
       name: service.name,
       service: service.name,
@@ -59,6 +68,7 @@ module.exports = async app => {
     .filter(service => _.has(service, 'healthcheck'))
     .filter(service => service.canHealthcheck)
     .map(service => ({
+      api: 4,
       container: app.containers[service.name],
       name: service.name,
       service: service.name,
@@ -87,6 +97,7 @@ module.exports = async app => {
     retry: healthcheck.retry,
     title: healthcheck.service,
     args: [healthcheck.command, healthcheck.container, {
+      api: healthcheck.api,
       log: app.log.debug,
       service: healthcheck.service,
       user: healthcheck.user,
