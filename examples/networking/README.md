@@ -63,6 +63,14 @@ lando exec appserver_nginx -- curl https://appserver.landolamp.internal
 # Should even be able to connect to a database in a different app
 cd lamp
 lando exec database -- mysql -uroot -h database.landolemp.internal -e "quit"
+
+# Should have 32 networks by default
+lando config | grep "networkLimit" | grep 32
+
+# Should be able to set the networkLimit in config
+cp config.yml ~/.lando/config.yml
+lando --clear
+lando config | grep "networkLimit" | grep 64
 ```
 
 ## Destroy tests

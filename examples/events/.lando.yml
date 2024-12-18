@@ -39,8 +39,14 @@ events:
     - web2: env > /app/test/web2-event-env.txt
   post-start:
     - web: id && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-post-start.txt
+    - web: !import paperback-writer.sh
+    - web: cat /tmp/paperback-writer | grep paperback-writer
     - web2: id && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web2-post-start.txt
+    - web2: !import paperback-writer.sh
+    - web2: cat /tmp/paperback-writer | grep paperback-writer
     - l337: id && mkdir -p /app/test && echo "$(hostname -s)" > /app/test/l337-post-start.txt
+    - l337: !import paperback-writer.sh
+    - l337: cat /tmp/paperback-writer | grep paperback-writer
   post-thing:
     - web: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web-post-thing.txt
     - web2: mkdir -p /app/test && echo "$(hostname -s)" > /app/test/web2-post-thing.txt

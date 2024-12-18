@@ -135,6 +135,56 @@ tooling:
           message: What is the word?
           default: bird
           weight: 600
+  word-imported:
+    service: :service
+    cmd: !import word.sh
+    level: app
+    options:
+      service:
+        default: web
+        alias:
+          - s
+        describe: Runs in this service
+      word:
+        passthrough: true
+        alias:
+          - w
+        describe: Print what the word is
+        interactive:
+          type: input
+          message: What is the word?
+          default: bird
+          weight: 600
+  all-the-words:
+    cmd:
+      - web: !import word.sh
+      - lando4: |
+          /app/word.sh
+      - l337-node: /app/word.sh
+
+  word-wrapped:
+    service: :service
+    cmd: |
+      #!/bin/bash
+       /app/word.sh "$@"
+    level: engine
+    options:
+      service:
+        default: web
+        alias:
+          - s
+        describe: Runs in this service
+      word:
+        passthrough: true
+        alias:
+          - w
+        describe: Print what the word is
+        interactive:
+          type: input
+          message: What is the word?
+          default: bird
+          weight: 600
+
   word-engine [word]:
     service: :service
     cmd: /app/word-engine.sh

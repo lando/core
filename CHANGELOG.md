@@ -30,6 +30,11 @@
 * Fixed bug causing auto setup to not correctly reset the orchestrator binary path
 * Improved `lando init` so that it can auto setup if needed
 
+## v3.23.22 - [December 17, 2024](https://github.com/lando/core/releases/tag/v3.23.22)
+
+* Added ability to customize `networkLimit` [#245](https://github.com/lando/core/pull/245)
+* Fixed incorrect `-EncodedCommand` fallback detection for `powershell.exe` script execution [#297](https://github.com/lando/core/issues/297)
+
 ## v3.23.21 - [December 14, 2024](https://github.com/lando/core/releases/tag/v3.23.21)
 
 * Fixed `powershell` scripts from failing when user cannot set `-ExecutionPolicy` to `Bypass` for `Process` scope [#297](https://github.com/lando/core/issues/297)

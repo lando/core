@@ -151,6 +151,7 @@ module.exports = {
       this.addLSF(path.join(__dirname, '..', 'scripts', 'boot.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'entrypoint.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'exec.sh'));
+      this.addLSF(path.join(__dirname, '..', 'scripts', 'exec-multiliner.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'run-hooks.sh'));
       this.addLSF(path.join(__dirname, '..', 'scripts', 'landorc.sh'), 'landorc');
       this.addLSF(path.join(__dirname, '..', 'scripts', 'utils.sh'));
@@ -303,7 +304,7 @@ module.exports = {
       super(id, merge({}, {stages}, {groups}, {states}, upstream), app, lando);
 
       // props
-      this.canExec = true;
+      this.api = 4;
       this.canHealthcheck = true;
       this.isInteractive = lando.config.isInteractive;
       this.generateCert = lando.generateCert.bind(lando);
@@ -401,7 +402,6 @@ module.exports = {
       this.setNPMRC(lando.config.pluginConfigFile);
 
       // add in top level things
-      this.debug('adding top level volumes %o and networks %o', this.tlvolumes, {networks: this.tlnetworks});
       this.addComposeData({networks: this.tlnetworks, volumes: this.tlvolumes});
 
       // environment
@@ -505,6 +505,10 @@ module.exports = {
     }
 
     addLSF(source, dest, {context = 'context'} = {}) {
+      // normalize file input
+      source = this.normalizeFileInput(source, {dest});
+
+      // then do the rest
       if (dest === undefined) dest = path.basename(source);
       this.addContext(`${source}:/etc/lando/${dest}`, context);
       return `/etc/lando/${dest}`;
@@ -673,15 +677,10 @@ module.exports = {
     }
 
     mountScript(contents, {dest = `tmp/${nanoid()}.sh`} = {}) {
-      // @TODO: check if contents is a string?
-
-      // compute hostside file
-      const file = path.join(this.tmpdir, `${nanoid()}.sh`);
-
-      // dump contents to service tmpdir and make executable
-      write(file, contents, {forcePosixLineEndings: true});
+      // normalize to a file
+      const file = this.normalizeFileInput(contents);
+      // make executable
       fs.chmodSync(file, '755');
-
       // now complete the final mapping for container injection
       return this.addLSF(file, dest, 'user');
     }
