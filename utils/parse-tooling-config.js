@@ -2,6 +2,7 @@
 
 // Modules
 const _ = require('lodash');
+const isStringy = require('./is-stringy');
 
 /*
  * Helper to get dynamic service keys for stripping
@@ -61,11 +62,16 @@ const handlePassthruOpts = (options = {}, answers = {}) => _(options)
 /*
  * Helper to convert a command into config object
  */
-const parseCommand = (cmd, service, sapis) => ({
-  sapi: sapis[service] ?? undefined,
-  command: (_.isObject(cmd)) ? cmd[_.first(_.keys(cmd))] : cmd,
-  service: (_.isObject(cmd)) ? _.first(_.keys(cmd)) : service,
-});
+const parseCommand = (cmd, service, sapis) => {
+  const command = (_.isObject(cmd) && !isStringy(cmd)) ? cmd[_.first(_.keys(cmd))] : cmd;
+  service = (_.isObject(cmd) && !isStringy(cmd)) ? _.first(_.keys(cmd)) : service;
+
+  return {
+    command,
+    sapi: sapis[service] ?? undefined,
+    service,
+  };
+};
 
 // adds required methods to ensure the lando v3 debugger can be injected into v4 things
 module.exports = (cmd, service, options = {}, answers = {}, sapis = {}) => _(cmd)
@@ -76,8 +82,8 @@ module.exports = (cmd, service, options = {}, answers = {}, sapis = {}) => _(cmd
   // Add in any argv extras if they've been passed in
   .map(config => handleOpts(config, handlePassthruOpts(options, answers)))
   // Wrap the command in /bin/sh if that makes sense
-  .map(config => _.merge({}, config, {command: require('./shell-escape')(config.command, true, config.args, config.sapi)})) // eslint-disable-line max-len
+  .map(config => ({...config, command: require('./shell-escape')(config.command, true, config.args, config.sapi)}))
   // Add any args to the command and compact to remove undefined
-  .map(config => _.merge({}, config, {command: _.compact(config.command.concat(config.args))}))
+  .map(config => ({...config, command: _.compact(config.command.concat(config.args))}))
   // Put into an object
   .value();
