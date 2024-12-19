@@ -3,8 +3,12 @@
 // Modules
 const _ = require('lodash');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
+const write = require('../utils/write-file');
+
 const {color} = require('listr2');
+const {nanoid} = require('nanoid');
 
 /*
  * The lowest level lando service, this is where a lot of the deep magic lives
@@ -128,13 +132,29 @@ module.exports = {
         volumes.push(`${local}:${remote}`);
       });
 
+      // rebase remoteFiles
+      remoteFiles = _.merge({}, {'_lando_': '/tmp/rooster'}, remoteFiles);
+
       // Handle custom config files
-      _.forEach(config, (file, type) => {
-        if (_.has(remoteFiles, type)) {
-          const local = path.resolve(root, config[type]);
-          const remote = remoteFiles[type];
-          volumes.push(`${local}:${remote}`);
+      _.forEach(config, (local, remote) => {
+        // if this is special type then get it from remoteFile
+        remote = _.has(remoteFiles, remote) ? remoteFiles[remote] : path.resolve('/', remote);
+
+        // if file is an imported string lets just get the file path instead
+        if (local?.constructor?.name === 'ImportString') {
+          const meta = local.getMetadata();
+          if (meta.file) local = meta.file;
+          else local = local.toString();
         }
+
+        // if file is still a multiline string then dump to tmp and use that
+        if (typeof local === 'string' && local.split('\n').length > 1) {
+          const contents = local;
+          local = path.join(os.tmpdir(), nanoid());
+          write(local, contents, {forcePosixLineEndings: true});
+        }
+
+        volumes.push(`${path.resolve(root, local)}:${remote}`);
       });
 
       // Add named volumes and other thingz into our primary service

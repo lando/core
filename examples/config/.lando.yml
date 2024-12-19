@@ -5,6 +5,12 @@ services:
   web2:
     api: 3
     type: lando
+    config:
+      _lando_: rooster
+      /tmp/somewhere: rooster
+      /tmp/somewhere-else: !import rooster
+      /tmp/somewhere-else-else: |
+        here they come to snuff the rooster
     services:
       image: nginx:1.22.1
       command: /docker-entrypoint.sh nginx -g "daemon off;"
