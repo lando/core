@@ -24,9 +24,9 @@ module.exports = (script, args = [], options = {}, stdout = '', stderr = '', car
 
   // if encode is not explicitly set then we need to pick a good value
   if (options.encode === undefined) {
-    const bargs = ['Set-ExecutionPolicy', '-Scope', 'UserPolicy', '-ExecutionPolicy', 'Bypass'];
+    const bargs = ['Set-ExecutionPolicy', '-Scope', 'Process', '-ExecutionPolicy', 'Bypass'];
     const {status} = spawnSync('powershell.exe', bargs, options);
-    options.encode === status !== 0;
+    options.encode = status !== 0;
   }
 
   // if encode is true we need to do a bunch of other stuff

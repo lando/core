@@ -164,6 +164,7 @@ module.exports = (config = {}, argv = {}, tasks = []) => {
       config.allServices = composeCache.allServices ?? [];
       config.info = composeCache.info ?? [];
       config.primary = composeCache.primary ?? 'appserver';
+      config.sapis = composeCache.sapis ?? {};
     } catch (e) {
       throw new Error(`There was a problem with parsing ${config.composeCache}. Ensure it is valid JSON! ${e}`);
     }

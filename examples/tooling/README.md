@@ -61,6 +61,19 @@ lando word-engine --random 1 --service l337-node gird | grep "gird is the word"
 lando word-engine --random 1 --service l337-node "this is actually a phrase" | grep "this is actually a phrase"
 lando lonely-bird
 
+# Should be able to run multiline tooling commands on all sapis
+lando word-imported --word larrybird | grep "larrybird is the word"
+lando word-imported --service l337-node --word larrybird | grep "larrybird is the word"
+lando word-imported --service lando4 --word larrybird | grep "larrybird is the word"
+
+# Should be able to use multiline wrapped scripts on all sapis
+lando word-wrapped --word larrybird | grep "larrybird is the word"
+lando word-wrapped --service l337-node --word larrybird | grep "larrybird is the word"
+lando word-wrapped --service lando4 --word larrybird | grep "larrybird is the word"
+
+# Should be able run mutliple multiline command on multiple services regardless of sapi
+lando all-the-words | wc -l | grep 3
+
 # Should be able to run multiple commands on multiple services
 lando env
 

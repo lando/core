@@ -162,6 +162,7 @@ module.exports = async lando => {
     caKey,
     maxKeyWarning: 10,
     networkBridge: 'lando_bridge_network',
+    networkLimit: 32,
     proxyBindAddress: _.get(lando, 'config.bindAddress', '127.0.0.1'),
     proxyDomain: lando.config.domain,
     proxyIp: _.get(lando.config, 'engineConfig.host', '127.0.0.1'),

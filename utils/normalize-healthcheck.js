@@ -7,6 +7,8 @@ module.exports = healthcheck => {
   if (typeof healthcheck === 'string') healthcheck = {command: healthcheck};
   // ditto if its an array
   else if (Array.isArray(healthcheck)) healthcheck = {command: healthcheck};
+  // ditto if its an import string
+  else if (healthcheck?.constructor?.name === 'ImportString') healthcheck = {command: healthcheck};
   // allow cmd shorthand
   if (!healthcheck.command && healthcheck.cmd) healthcheck.command = healthcheck.cmd;
   // merge in defaults and return
