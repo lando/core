@@ -34,7 +34,8 @@ module.exports = async (app, lando) => {
       return bridgeNet.disconnect({Container: proxyContainer, Force: true})
         // Only throw non not connected errors
         .catch(error => {
-          if (!_.includes(error.message, 'is not connected to network')) throw error;
+          if (!_.includes(error.message, 'is not connected to network') &&
+            !_.includes(error.message, 'is not connected to the network')) throw error;
         })
         // Connect
         .then(() => {
