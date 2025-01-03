@@ -32,7 +32,7 @@ module.exports = async lando => {
       // reload plugins
       await lando.reloadPlugins();
       // reload needed config
-      const {orchestratorBin, orchestratorVersion, dockerBin, engineConfig} = require('../utils/build-config')();
+      const {orchestratorBin, orchestratorVersion, dockerBin, engineConfig} = require('../utils/build-config')(lando.config);
       // reset needed config
       lando.config = {...lando.config, orchestratorBin, orchestratorVersion, dockerBin, engineConfig};
       // we need to explicitly reset this for some reason
