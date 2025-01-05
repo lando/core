@@ -39,6 +39,7 @@ const getService = (cmd, data = {}, defaultService = 'appserver') => {
 module.exports = (cmds, app, data, lando) => _.map(cmds, cmd => {
   // Discover the service
   const service = getService(cmd, data, app._defaultService);
+
   // compute stdio based on compose major version
   const cstdio = _.get(app, '_config.orchestratorMV', 2) ? 'inherit' : ['inherit', 'pipe', 'pipe'];
 
@@ -52,6 +53,25 @@ module.exports = (cmds, app, data, lando) => _.map(cmds, cmd => {
 
   // if array then just join it together
   if (_.isArray(cmd)) cmd = cmd.join(' ');
+
+  if ('lando' === service) {
+    const yargs = require('yargs');
+    const argv = yargs(cmd).parse();
+    const $0 = _.pullAt(argv._, [0])[0];
+    const toolingTask = _.find(app.tasks, task => $0 === task.command);
+    argv._eventArgs = argv._;
+    argv.$0 = undefined;
+    argv._ = undefined;
+    argv._app = app;
+
+    if (undefined === toolingTask) {
+      throw new Error('Could not find tooling command: ' + $0);
+    }
+    return {
+      toolingTask,
+      answers: argv,
+    };
+  }
 
   // lando 4 services
   // @NOTE: lando 4 service events will change once we have a complete hook system
@@ -82,7 +102,7 @@ module.exports = (cmds, app, data, lando) => _.map(cmds, cmd => {
       {},
       require('./build-init-runner')(_.merge(
         {},
-        require('./get-init-runner-defaults')(lando, {destination: app.root, name: app.project}),
+        require('./get-init-runner-defaults')(lando, {destination: app.root, name: app.project, _app: app}),
         {cmd, workdir: '/app'},
       )),
       {isInitEventCommand: true},

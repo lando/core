@@ -10,6 +10,7 @@ module.exports = (lando, options) => {
     lando.config.userConfRoot,
     lando.config.home,
     options.destination,
+    _.get(options, '_app', {}),
     _.cloneDeep(lando.config.appEnv),
     _.cloneDeep(lando.config.appLabels),
     _.get(options, 'initImage', 'devwithlando/util:4'),

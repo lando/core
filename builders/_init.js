@@ -17,7 +17,7 @@ module.exports = {
     dataHome: null,
   },
   builder: (parent, config) => class LandoInit extends parent {
-    constructor(userConfRoot, home, app, env = {}, labels = {}, image = 'devwithlando/util:4') {
+    constructor(userConfRoot, home, app, _app, env = {}, labels = {}, image = 'devwithlando/util:4') {
       // Basic Init service
       const initService = {
         services: {
@@ -36,7 +36,7 @@ module.exports = {
       initService.services.init.environment.LANDO_SERVICE_TYPE = 'init';
       initService.services.init.labels['io.lando.service-container'] = 'TRUE';
       initService.services.init.labels['io.lando.init-container'] = 'TRUE';
-      super('init', _.merge({}, config, {env, home, labels, userConfRoot}), initService);
+      super('init', _.merge({}, config, {env, home, labels, userConfRoot, _app}), initService);
     }
   },
 };
