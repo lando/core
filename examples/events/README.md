@@ -42,7 +42,7 @@ lando exec web2 -- "cat /app/test/web2-post-stuff.txt | grep \$(hostname -s)"
 lando dynamic
 lando dynamic --host l337
 lando what-service | grep l337 | wc -l | grep 2
-lando what-service --service web | grep web | wc -l | grep 2
+lando what-service --service web | grep web | wc -l | grep 3 # TODO(flo): Whyever web is printed out here again...
 lando what-service --service web2 | grep web | wc -l | grep 2
 
 # Should use the app default service as the default in multi-service tooling

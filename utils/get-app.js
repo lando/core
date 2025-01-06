@@ -24,8 +24,6 @@ module.exports = (files, userConfRoot) => {
   if (!config.name) return {};
   // cast the name to a string...just to make sure.
   config.name = require('../utils/slugify')(config.name);
-  // slugify project
-  config.project = require('../utils/docker-composify')(config.name);
 
   return _.merge({}, config, {
     configFiles: files,
