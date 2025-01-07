@@ -8,13 +8,13 @@ const os = require('os');
 const getBuildEngineVersion = (platform = process.landoPlatform ?? process.platform) => {
   switch (platform) {
     case 'darwin':
-      return '4.36.0';
+      return '4.37.1';
     case 'linux':
       return '27.3.1';
     case 'win32':
-      return '4.36.0';
+      return '4.37.1';
     case 'wsl':
-      return '4.36.0';
+      return '4.37.1';
   }
 };
 

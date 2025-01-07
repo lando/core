@@ -15,6 +15,7 @@ lando plugin-add "@lando/core@file:../.."
 # Should be able to uninstall docker desktop succesfully
 brew uninstall --force --ignore-dependencies docker-desktop
 brew list --versions docker-desktop || echo $? | grep 1
+```
 
 # Should be able to run lando setup
 lando setup -y --skip-networking --skip-common-plugins

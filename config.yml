@@ -20,8 +20,8 @@ dockerSupportedVersions:
       win32: https://docs.docker.com/desktop/install/windows-install/
   desktop:
     satisfies: ">=4.0.0 <5"
-    tested: "<=4.36.99"
-    recommendUpdate: "<=4.34.0"
+    tested: "<=4.37.99"
+    recommendUpdate: "<=4.36.0"
     link:
       darwin: https://docs.docker.com/desktop/install/mac-install/
       win32: https://docs.docker.com/desktop/install/windows-install/
