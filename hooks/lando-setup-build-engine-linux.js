@@ -24,7 +24,6 @@ const downloadDockerEngine = (url = 'https://get.docker.com', {debug, task}) => 
   });
 });
 
-
 module.exports = async (lando, options) => {
   const debug = require('../utils/debug-shim')(lando.log);
   // if build engine is set to false allow it to be skipped
