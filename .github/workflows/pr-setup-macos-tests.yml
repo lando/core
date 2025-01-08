@@ -63,11 +63,7 @@ jobs:
           stdin: true
       - name: docker desktop cli tests
         run: |
-          lando setup -y --debug --skip-networking --skip-common-plugins
-          docker desktop version || true
-          /Applications/Docker.app/Contents/Resources/bin/docker desktop version || true
-          /Applications/Docker.app/Contents/Resources/bin/docker desktop status || true
-          /Applications/Docker.app/Contents/Resources/bin/docker desktop start || true
-          /Applications/Docker.app/Contents/Resources/bin/docker desktop status || true
-          docker desktop status || true
           lando setup -y --debug --skip-common-plugins
+          # docker desktop start --timeout 60
+          # docker desktop status
+          # lando setup -y --debug --skip-common-plugins

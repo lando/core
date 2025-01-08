@@ -60,3 +60,10 @@ jobs:
           shell: powershell
           stdin: true
           debug: true
+      - name: docker desktop cli tests
+        shell: powershell
+        run: |
+          lando setup -y --debug --skip-common-plugins
+          # docker desktop start --timeout 60
+          # docker desktop status
+          # lando setup -y --debug --skip-common-plugins
