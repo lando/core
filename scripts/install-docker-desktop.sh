@@ -59,7 +59,7 @@ debug "INSTALLER: $INSTALLER"
 debug "USER: $USER"
 
 # add accept license if set
-if [ "${DEBUG}" == 1 ]; then OPTS="$OPTS --accept-license"; fi
+if [ "${ACCEPT_LICENSE}" == 1 ]; then OPTS="$OPTS --accept-license"; fi
 
 # run
 hdiutil attach "$INSTALLER"

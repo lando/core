@@ -17,6 +17,7 @@ jobs:
           - "20"
         os:
           - windows-2022
+          - windows-2025
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

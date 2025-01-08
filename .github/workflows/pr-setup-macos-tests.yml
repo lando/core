@@ -18,6 +18,8 @@ jobs:
         os:
           - macos-13
           - macos-14
+          - macos-15
+          - macos-15-xlarge
 
     steps:
       - name: Checkout code
