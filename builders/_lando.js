@@ -41,7 +41,7 @@ module.exports = {
         refreshCerts = false,
         remoteFiles = {},
         scripts = [],
-        scriptsDir = '',
+        scriptsDir = false,
         sport = '443',
         ssl = false,
         sslExpose = true,
@@ -68,7 +68,7 @@ module.exports = {
       }
 
       // normalize scripts dir if needed
-      if (!path.isAbsolute(scriptsDir)) scriptsDir = path.resolve(root, scriptsDir);
+      if (typeof scriptsDir === 'string' && !path.isAbsolute(scriptsDir)) scriptsDir = path.resolve(root, scriptsDir);
 
       // Get some basic locations
       const globalScriptsDir = path.join(userConfRoot, 'scripts');
@@ -83,7 +83,9 @@ module.exports = {
       if (fs.existsSync(confSrc)) require('../utils/move-config')(confSrc, confDest);
 
       // ditto for service helpers
-      if (fs.existsSync(scriptsDir)) require('../utils/move-config')(scriptsDir, serviceScriptsDir);
+      if (!require('../utils/is-disabled')(scriptsDir) && typeof scriptsDir === 'string' && fs.existsSync(scriptsDir)) {
+        require('../utils/move-config')(scriptsDir, serviceScriptsDir);
+      }
 
       // Handle Environment
       const environment = {
