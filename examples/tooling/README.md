@@ -159,6 +159,10 @@ lando everything --help | grep "lando everything \[arg1\] \[arg2\] MORETHINGS"
 # Should allow for example pasthru in task definition
 lando everything --help | grep "lando this is just for testing"
 
+# Should be able to access scriptsDir from the landofile
+lando exec node -- stat /etc/lando/service/helpers/args.sh
+lando sdargs hello there | grep "hello there"
+
 # Should be able to run even if options are empty
 lando emptyopter
 

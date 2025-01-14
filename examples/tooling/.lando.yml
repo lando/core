@@ -10,6 +10,7 @@ services:
     api: 3
     type: lando
     meUser: node
+    scriptsDir: scripts
     services:
       image: node:16
       command: docker-entrypoint.sh tail -f /dev/null
@@ -251,6 +252,19 @@ tooling:
       - $0 everything thing
       - $0 everything stuff morestuff
       - $0 this is just for testing
+    positionals:
+      arg1:
+        describe: Uses arg1
+        type: string
+        choices:
+          - thing
+          - stuff
+      arg2:
+        describe: Uses arg2
+        type: string
+  sdargs:
+    cmd: /etc/lando/service/helpers/args.sh
+    service: node
     positionals:
       arg1:
         describe: Uses arg1

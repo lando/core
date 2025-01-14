@@ -41,6 +41,7 @@ module.exports = {
         refreshCerts = false,
         remoteFiles = {},
         scripts = [],
+        scriptsDir = '',
         sport = '443',
         ssl = false,
         sslExpose = true,
@@ -66,16 +67,23 @@ module.exports = {
         console.error(color.yellow(`${type} version ${version} is a legacy version! We recommend upgrading.`));
       }
 
+      // normalize scripts dir if needed
+      if (!path.isAbsolute(scriptsDir)) scriptsDir = path.resolve(root, scriptsDir);
+
+      // Get some basic locations
+      const globalScriptsDir = path.join(userConfRoot, 'scripts');
+      const serviceScriptsDir = path.join(userConfRoot, 'helpers', project, type, name);
+      const entrypointScript = path.join(globalScriptsDir, 'lando-entrypoint.sh');
+      const addCertsScript = path.join(globalScriptsDir, 'add-cert.sh');
+      const refreshCertsScript = path.join(globalScriptsDir, 'refresh-certs.sh');
+
       // Move our config into the userconfroot if we have some
       // NOTE: we need to do this because on macOS and Windows not all host files
       // are shared into the docker vm
       if (fs.existsSync(confSrc)) require('../utils/move-config')(confSrc, confDest);
 
-      // Get some basic locations
-      const scriptsDir = path.join(userConfRoot, 'scripts');
-      const entrypointScript = path.join(scriptsDir, 'lando-entrypoint.sh');
-      const addCertsScript = path.join(scriptsDir, 'add-cert.sh');
-      const refreshCertsScript = path.join(scriptsDir, 'refresh-certs.sh');
+      // ditto for service helpers
+      if (fs.existsSync(scriptsDir)) require('../utils/move-config')(scriptsDir, serviceScriptsDir);
 
       // Handle Environment
       const environment = {
@@ -94,10 +102,13 @@ module.exports = {
       // Handle volumes
       const volumes = [
         `${userConfRoot}:/lando:cached`,
-        `${scriptsDir}:/helpers`,
+        `${globalScriptsDir}:/helpers`,
         `${entrypointScript}:/lando-entrypoint.sh`,
         `${dataHome}:/var/www`,
       ];
+
+      // add in service helpers if we have them
+      if (fs.existsSync(serviceScriptsDir)) volumes.push(`${serviceScriptsDir}:/etc/lando/service/helpers`);
 
       // Handle ssl
       if (ssl) {
