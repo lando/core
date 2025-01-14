@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed bug causing service script loading collisions
+
 ## v3.23.22 - [December 17, 2024](https://github.com/lando/core/releases/tag/v3.23.22)
 
 * Added ability to customize `networkLimit` [#245](https://github.com/lando/core/pull/245)
