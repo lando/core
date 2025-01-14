@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.23 - [January 14, 2025](https://github.com/lando/core/releases/tag/v3.23.23)
+
 * Fixed bug causing service script loading collisions
 
 ## v3.23.22 - [December 17, 2024](https://github.com/lando/core/releases/tag/v3.23.22)
