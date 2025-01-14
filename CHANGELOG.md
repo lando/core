@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.24 - [January 14, 2025](https://github.com/lando/core/releases/tag/v3.23.24)
+
 * Fixed bug causing service script moving to fail when receiving non-stringy inputs
 
 ## v3.23.23 - [January 14, 2025](https://github.com/lando/core/releases/tag/v3.23.23)
