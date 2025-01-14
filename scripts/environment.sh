@@ -49,6 +49,9 @@ set_package_manager() {
     ol)
       export LANDO_LINUX_PACKAGE_MANAGER="microdnf"
       ;;
+    solus)
+      export LANDO_LINUX_PACKAGE_MANAGER="eopkg"
+      ;;
     *)
       return 1
       ;;

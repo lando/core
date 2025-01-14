@@ -82,6 +82,9 @@ set_package_manager() {
     ol)
       export LANDO_LINUX_PACKAGE_MANAGER="microdnf"
       ;;
+    solus)
+      export LANDO_LINUX_PACKAGE_MANAGER="eopkg"
+      ;;
     *)
       return 1
       ;;
@@ -146,8 +149,16 @@ if [ ! -x "$(command -v update-ca-trust)" ]; then
   esac
 fi
 
+if [ ! -x "$(command -v certutil)" ]; then
+  case $LANDO_LINUX_PACKAGE_MANAGER in
+    eopkg)
+      eopkg install -y ca-certs libnss
+      ;;
+  esac
+fi
+
 # abort if we cannot install the things we need
-if [ ! -x "$(command -v update-ca-certificates)" ] && [ ! -x "$(command -v update-ca-trust)" ]; then
+if [ ! -x "$(command -v update-ca-certificates)" ] && [ ! -x "$(command -v update-ca-trust)" ] && [ ! -x "$(command -v certutil)" ]; then
   echo "$LANDO_LINUX_PACKAGE_MANAGER not supported! Could not install ca-certs!" >&2
   exit 1
 fi
@@ -163,6 +174,13 @@ case $LANDO_LINUX_PACKAGE_MANAGER in
     mkdir -p /etc/ca-certificates/trust-source/anchors
     cp -rf "$CA" /etc/ca-certificates/trust-source/anchors/
     update-ca-trust
+    ;;
+  eopkg)
+    mkdir -p /etc/ssl/certs
+    cp -rf "$CA" /etc/ssl/certs/
+    NONROOT_USER=$(logname)
+    NONROOT_HOME=$(getent passwd "$NONROOT_USER" | cut -d: -f6)
+    certutil -d "sql:$NONROOT_HOME/.pki/nssdb" -A -t "C,," -n Lando-Root-CA -i "$CA"
     ;;
   *)
     mkdir -p /usr/local/share/ca-certificates
