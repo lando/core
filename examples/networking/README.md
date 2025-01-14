@@ -22,10 +22,6 @@ cp -rf index.php lemp/index.php
 cp -rf nginx.conf lemp/nginx.conf
 cp -rf .lando.lemp.yml lemp/.lando.yml
 cd lemp && lando start
-
-# Should copy .config.yml to ~/.lando/config.yml
-cp config.yml ~/.lando/config.yml
-lando --clear
 ```
 
 ## Verification commands
