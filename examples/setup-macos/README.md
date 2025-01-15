@@ -15,9 +15,6 @@ lando plugin-add "@lando/core@file:../.."
 # Should be able to uninstall docker desktop succesfully
 brew uninstall --force --ignore-dependencies docker-desktop
 brew list --versions docker-desktop || echo $? | grep 1
-rm -rf ~/.docker
-rm -rf ~/Library/Containers/com.docker.docker
-```
 
 # Should be able to run lando setup
 lando setup -y --skip-networking --skip-common-plugins
@@ -34,3 +31,4 @@ stat ~/.lando/certs/LandoCA.crt
 
 # Should have installed the Lando Development CA
 security find-certificate -a -c "Lando Development CA" -p ~/Library/Keychains/login.keychain-db
+```

@@ -10,6 +10,7 @@ const semver = require('semver');
 const {color} = require('listr2');
 
 const buildIds = {
+  '4.37.2': '179585',
   '4.37.1': '178610',
   '4.37.0': '178034',
   '4.36.0': '175267',

@@ -17,9 +17,7 @@ jobs:
           - "20"
         os:
           - macos-13
-          - macos-14-xlarge
-          # - macos-15
-          # - macos-15-xlarge
+          - macos-14
 
     steps:
       - name: Checkout code
@@ -63,9 +61,3 @@ jobs:
           cleanup-header: "Destroy tests"
           shell: bash
           stdin: true
-      - name: docker desktop cli tests
-        run: |
-          lando setup -y --debug --skip-common-plugins
-          # docker desktop start --timeout 60
-          # docker desktop status
-          # lando setup -y --debug --skip-common-plugins
