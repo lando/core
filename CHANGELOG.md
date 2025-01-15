@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Merged in improvements from `@lando/core@v3.23.21`
+
 ## v3.24.0-beta.8 - [December 14, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.8)
 
 * Merged in improvements from `@lando/core@v3.23.21`
@@ -29,6 +31,14 @@
 
 * Fixed bug causing auto setup to not correctly reset the orchestrator binary path
 * Improved `lando init` so that it can auto setup if needed
+
+## v3.23.24 - [January 14, 2025](https://github.com/lando/core/releases/tag/v3.23.24)
+
+* Fixed bug causing service script moving to fail when receiving non-stringy inputs
+
+## v3.23.23 - [January 14, 2025](https://github.com/lando/core/releases/tag/v3.23.23)
+
+* Fixed bug causing service script loading collisions
 
 ## v3.23.22 - [December 17, 2024](https://github.com/lando/core/releases/tag/v3.23.22)
 

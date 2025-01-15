@@ -20,6 +20,7 @@
       "https://docs.google.com/document",
       "https://docs.google.com/forms",
       "https://github.com",
+      "https://www.drupal.org/community/events",
       "/v/"
     ]
     skipPatterns = [

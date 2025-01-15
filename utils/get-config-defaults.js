@@ -31,6 +31,7 @@ const defaultConfig = options => ({
   home: os.homedir(),
   isArmed: _.includes(['arm64', 'aarch64'], process.arch),
   logLevel: 'debug',
+  networkLimit: 32,
   node: process.version,
   os: {
     type: os.type(),
