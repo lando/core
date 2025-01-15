@@ -1,7 +1,16 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+### New Features
+
 * Improved Docker Destkop autostart to use new `docker desktop start` if available
 * Merged in improvements from `@lando/core@v3.23.24`
+
+### Bug Fixes
+
+* Fixed bug causing `--accept-license` flag to not work when installing Docker Desktop on macOS
+
+### Internal
+
 * Updated default Docker Desktop version to `4.37.1|2`
 * Updated default Docker Engine version to `27.5.0`
 * Updated default Docker Compose version to `2.31.0`
