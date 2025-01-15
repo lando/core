@@ -1,5 +1,23 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+### New Features
+
+* Improved Docker Destkop autostart to use new `docker desktop start` if available
+* Merged in improvements from `@lando/core@v3.23.24`
+
+### Bug Fixes
+
+* Fixed bug causing `--accept-license` flag to not work when installing Docker Desktop on macOS
+
+### Internal
+
+* Updated default Docker Desktop version to `4.37.1|2`
+* Updated default Docker Engine version to `27.5.0`
+* Updated default Docker Compose version to `2.31.0`
+* Updated recommended Docker Desktop range to `>=4.37.0`
+* Updated tested Docker Desktop range to `<=4.37`
+* Updated tested Docker Compose range to `<=2.32`
+
 ## v3.24.0-beta.9 - [January 14, 2025](https://github.com/lando/core/releases/tag/v3.24.0-beta.9)
 
 * Merged in improvements from `@lando/core@v3.23.23`
@@ -33,6 +51,10 @@
 
 * Fixed bug causing auto setup to not correctly reset the orchestrator binary path
 * Improved `lando init` so that it can auto setup if needed
+
+## v3.23.24 - [January 14, 2025](https://github.com/lando/core/releases/tag/v3.23.24)
+
+* Fixed bug causing service script moving to fail when receiving non-stringy inputs
 
 ## v3.23.23 - [January 14, 2025](https://github.com/lando/core/releases/tag/v3.23.23)
 

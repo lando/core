@@ -37,6 +37,7 @@ coverage/
 
 # lando
 .lando/id
+checksums.txt
 plugins/*
 !plugins/.gitkeep
 FATCORE

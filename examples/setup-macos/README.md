@@ -31,3 +31,4 @@ stat ~/.lando/certs/LandoCA.crt
 
 # Should have installed the Lando Development CA
 security find-certificate -a -c "Lando Development CA" -p ~/Library/Keychains/login.keychain-db
+```

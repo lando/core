@@ -13,21 +13,21 @@ dockerSupportedVersions:
   compose:
     satisfies: "1.x.x || 2.x.x"
     recommendUpdate: "<=2.24.6"
-    tested: "<=2.30.99"
+    tested: "<=2.32.99"
     link:
       linux: https://docs.docker.com/compose/install/#install-compose-on-linux-systems
       darwin: https://docs.docker.com/desktop/install/mac-install/
       win32: https://docs.docker.com/desktop/install/windows-install/
   desktop:
     satisfies: ">=4.0.0 <5"
-    tested: "<=4.36.99"
-    recommendUpdate: "<=4.34.0"
+    tested: "<=4.37.99"
+    recommendUpdate: "<=4.36"
     link:
       darwin: https://docs.docker.com/desktop/install/mac-install/
       win32: https://docs.docker.com/desktop/install/windows-install/
       wsl: https://docs.docker.com/desktop/install/windows-install/
   engine:
     satisfies: ">=18 <28"
-    tested: "<=27.3.1"
+    tested: "<=27.5.99"
     link:
       linux: https://docs.docker.com/engine/install/debian/#install-using-the-convenience-script

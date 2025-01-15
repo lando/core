@@ -8,20 +8,20 @@ const os = require('os');
 const getBuildEngineVersion = (platform = process.landoPlatform ?? process.platform) => {
   switch (platform) {
     case 'darwin':
-      return '4.36.0';
+      return '4.37.2';
     case 'linux':
-      return '27.3.1';
+      return '27.5.0';
     case 'win32':
-      return '4.36.0';
+      return '4.37.1';
     case 'wsl':
-      return '4.36.0';
+      return '4.37.1';
   }
 };
 
 // Default config
 const defaultConfig = options => ({
   orchestratorSeparator: '_',
-  orchestratorVersion: '2.30.3',
+  orchestratorVersion: '2.31.0',
   configSources: [],
   coreBase: path.resolve(__dirname, '..'),
   disablePlugins: [],
