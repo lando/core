@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.24.0-beta.10 - [January 15, 2025](https://github.com/lando/core/releases/tag/v3.24.0-beta.10)
+
 ### New Features
 
 * Improved Docker Destkop autostart to use new `docker desktop start` if available
