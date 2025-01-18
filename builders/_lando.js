@@ -151,7 +151,7 @@ module.exports = {
       // Handle custom config files
       for (let [remote, local] of Object.entries(config)) {
         // if we dont have entries we can work with then just go to the next iteration
-        if (!_.has(remoteFiles, remote) || typeof remote !== 'string') continue;
+        if (!_.has(remoteFiles, remote) && typeof remote !== 'string') continue;
 
         // if this is special type then get it from remoteFile
         remote = _.has(remoteFiles, remote) ? remoteFiles[remote] : path.resolve('/', remote);
