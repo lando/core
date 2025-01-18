@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.23.25 - [January 18, 2025](https://github.com/lando/core/releases/tag/v3.23.25)
+
 * Fixed bug causing `--accept-license` flag to not work when installing Docker Desktop on macOS
 * Updated default Docker Desktop version to `4.37.1|2`
 * Updated default Docker Engine version to `27.5.0`
