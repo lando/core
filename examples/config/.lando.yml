@@ -6,7 +6,7 @@ services:
     api: 3
     type: lando
     config:
-      _lando_: rooster
+      _lando_test_: rooster
       /tmp/somewhere: rooster
       /tmp/somewhere-else: !import rooster
       /tmp/somewhere-else-else: |

@@ -59,6 +59,9 @@ module.exports = {
       // Add custom to list of supported
       supported.push('custom');
 
+      // rebase remoteFiles on testing data
+      remoteFiles = _.merge({}, {'_lando_test_': '/tmp/rooster'}, remoteFiles);
+
       // If this version is not supported throw an error
       // @TODO: get this someplace else for unit tezting
       if (!supportedIgnore && !_.includes(supported, version)) {
@@ -139,17 +142,17 @@ module.exports = {
       if (refreshCerts) volumes.push(`${refreshCertsScript}:/scripts/999-refresh-certs`);
 
       // Add in any custom pre-runscripts
-      _.forEach(scripts, script => {
+      for (const script of scripts) {
         const local = path.resolve(root, script);
         const remote = path.join('/scripts', path.basename(script));
         volumes.push(`${local}:${remote}`);
-      });
-
-      // rebase remoteFiles
-      remoteFiles = _.merge({}, {'_lando_': '/tmp/rooster'}, remoteFiles);
+      }
 
       // Handle custom config files
-      _.forEach(config, (local, remote) => {
+      for (let [remote, local] of Object.entries(config)) {
+        // if we dont have entries we can work with then just go to the next iteration
+        if (!_.has(remoteFiles, remote) || typeof remote !== 'string') continue;
+
         // if this is special type then get it from remoteFile
         remote = _.has(remoteFiles, remote) ? remoteFiles[remote] : path.resolve('/', remote);
 
@@ -168,7 +171,7 @@ module.exports = {
         }
 
         volumes.push(`${path.resolve(root, local)}:${remote}`);
-      });
+      }
 
       // Add named volumes and other thingz into our primary service
       const namedVols = {};
