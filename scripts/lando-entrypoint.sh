@@ -62,7 +62,7 @@ if [ -d "/scripts" ] && [ -z ${LANDO_NO_SCRIPTS+x} ]; then
 
   # Keep this for backwards compat and fallback opts
   chmod +x /scripts/* || true
-  find /scripts/ -type f -name "*.sh" -exec {} \;
+  find /scripts/ -type f \( -name "*.sh" -o ! -name "*.*" \) -exec {} \;
 fi;
 
 # Run any bash scripts that we've loaded into the mix for autorun unless we've
