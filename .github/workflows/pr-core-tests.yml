@@ -14,6 +14,7 @@ jobs:
         leia-test:
           - badname
           - build
+          - c,o,m,m,a
           - cache
           - certs
           - config
