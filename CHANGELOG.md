@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed bug where an app’s services were inadvertently reaped if the app’s path included a comma [#322](https://github.com/lando/core/issues/322)
+
 ## v3.23.25 - [January 18, 2025](https://github.com/lando/core/releases/tag/v3.23.25)
 
 * Fixed bug causing `--accept-license` flag to not work when installing Docker Desktop on macOS
