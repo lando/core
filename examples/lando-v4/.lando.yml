@@ -42,6 +42,8 @@ services:
     # build
     # files
 
+    # check labels
+
     # appmount
     # support appMount but prefer app-mount
     # project-mount: /project how does this work?

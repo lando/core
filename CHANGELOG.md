@@ -1,6 +1,17 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
 * Fixed installing CA on Solus
+* Fixed bug where an app’s services were inadvertently reaped if the app’s path included a comma [#322](https://github.com/lando/core/issues/322)
+
+## v3.23.25 - [January 18, 2025](https://github.com/lando/core/releases/tag/v3.23.25)
+
+* Fixed bug causing `--accept-license` flag to not work when installing Docker Desktop on macOS
+* Updated default Docker Desktop version to `4.37.1|2`
+* Updated default Docker Engine version to `27.5.0`
+* Updated default Docker Compose version to `2.31.0`
+* Updated recommended Docker Desktop range to `>=4.37.0`
+* Updated tested Docker Desktop range to `<=4.37`
+* Updated tested Docker Compose range to `<=2.32`
 
 ## v3.23.24 - [January 14, 2025](https://github.com/lando/core/releases/tag/v3.23.24)
 

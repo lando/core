@@ -37,7 +37,7 @@ coverage/
 
 # lando
 .lando/id
-FATCORE
+checksums.txt
 plugins/*
 !plugins/healthcheck
 !plugins/networking
@@ -45,6 +45,7 @@ plugins/*
 !plugins/scanner
 !plugins/sharing
 !plugins/test
+FATCORE
 
 # docs
 .temp
