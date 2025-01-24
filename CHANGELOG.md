@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Merged in improvements from `@lando/core@v3.23.26`
+
 ## v3.24.0-beta.11 - [January 18, 2025](https://github.com/lando/core/releases/tag/v3.24.0-beta.11)
 
 * Improved config loading guards for generic Lando 3 service
@@ -16,6 +18,10 @@
 * Fixed bug causing `--accept-license` flag to not work when installing Docker Desktop on macOS
 
 ### Internal
+
+## v3.23.26 - [January 24, 2025](https://github.com/lando/core/releases/tag/v3.23.26)
+
+* Fixed bug where an app’s services were inadvertently reaped if the app’s path included a comma [#322](https://github.com/lando/core/issues/322)
 
 ## v3.23.25 - [January 18, 2025](https://github.com/lando/core/releases/tag/v3.23.25)
 
