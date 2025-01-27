@@ -202,4 +202,16 @@ describe('compose', () => {
       expect(stopResult).to.be.an('object');
     });
   });
+
+  describe('#config', () => {
+    it('should return the correct default options when not specified');
+    it('#config should return an object.', () => {
+      const configResult = compose.config(
+        ['string1', 'string2'],
+        'my_project',
+        myOpts,
+      );
+      expect(configResult).to.be.an('object');
+    });
+  });
 });

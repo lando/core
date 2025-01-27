@@ -4,7 +4,8 @@ const _ = require('lodash');
 const path = require('path');
 
 const getContainer = (app, service) => {
-  return app?.containers?.[service] ?? `${app.project}_${service}_1`;
+  const separator = _.get(app, '_config.orchestratorSeparator', '_');
+  return app?.containers?.[service] ?? `${app.project}${separator}${service}${separator}1`;
 };
 
 const getContainerPath = (appRoot, appMount = undefined) => {

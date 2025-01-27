@@ -108,6 +108,10 @@ const cores = [
   path.resolve(__dirname, '..'),
 ];
 
+if (typeof _.get(config, 'plugins.@lando/core') === 'string') {
+  cores.unshift(path.resolve(appConfig.root, config.plugins['@lando/core']));
+}
+
 // if appConfig points to a different core lets set that here
 if (typeof _.get(appConfig, 'plugins.@lando/core') === 'string') {
   cores.unshift(path.resolve(appConfig.root, appConfig.plugins['@lando/core']));
