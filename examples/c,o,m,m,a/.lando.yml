@@ -1,0 +1,23 @@
+name: commapp
+services:
+  defaults:
+    type: lando
+    services:
+      image: nginx:1.22.1
+      command: /docker-entrypoint.sh nginx -g "daemon off;"
+      ports:
+        - 80
+      volumes:
+        - ./:/usr/share/nginx/html:ro
+
+  defaults-v4:
+    api: 4
+    type: l337
+    image: nginx:1.22.1
+    ports:
+      - 80
+    volumes:
+      - ./:/usr/share/nginx/html:ro
+
+plugins:
+  "@lando/core": "../.."

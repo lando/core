@@ -270,6 +270,8 @@ module.exports = async (app, lando) => {
       BITNAMI_DEBUG: 'true',
     },
     labels: {
+      'io.lando.landofiles': app.configFiles.map(file => path.basename(file)).join(','),
+      'io.lando.root': app.root,
       'io.lando.src': app.configFiles.join(','),
       'io.lando.http-ports': '80,443',
     },

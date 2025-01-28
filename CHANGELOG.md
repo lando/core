@@ -1,5 +1,44 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.24.0-beta.12 - [January 24, 2025](https://github.com/lando/core/releases/tag/v3.24.0-beta.12)
+
+* Merged in improvements from `@lando/core@v3.23.26`
+
+## v3.24.0-beta.11 - [January 18, 2025](https://github.com/lando/core/releases/tag/v3.24.0-beta.11)
+
+* Improved config loading guards for generic Lando 3 service
+
+## v3.24.0-beta.10 - [January 15, 2025](https://github.com/lando/core/releases/tag/v3.24.0-beta.10)
+
+### New Features
+
+* Improved Docker Destkop autostart to use new `docker desktop start` if available
+* Merged in improvements from `@lando/core@v3.23.24`
+
+### Bug Fixes
+
+* Fixed bug causing `--accept-license` flag to not work when installing Docker Desktop on macOS
+
+### Internal
+
+## v3.23.26 - [January 24, 2025](https://github.com/lando/core/releases/tag/v3.23.26)
+
+* Fixed bug where an app’s services were inadvertently reaped if the app’s path included a comma [#322](https://github.com/lando/core/issues/322)
+
+## v3.23.25 - [January 18, 2025](https://github.com/lando/core/releases/tag/v3.23.25)
+
+* Fixed bug causing `--accept-license` flag to not work when installing Docker Desktop on macOS
+* Updated default Docker Desktop version to `4.37.1|2`
+* Updated default Docker Engine version to `27.5.0`
+* Updated default Docker Compose version to `2.31.0`
+* Updated recommended Docker Desktop range to `>=4.37.0`
+* Updated tested Docker Desktop range to `<=4.37`
+* Updated tested Docker Compose range to `<=2.32`
+
+## v3.24.0-beta.9 - [January 14, 2025](https://github.com/lando/core/releases/tag/v3.24.0-beta.9)
+
+* Merged in improvements from `@lando/core@v3.23.23`
+
 ## v3.24.0-beta.8 - [December 14, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.8)
 
 * Merged in improvements from `@lando/core@v3.23.21`
@@ -29,6 +68,14 @@
 
 * Fixed bug causing auto setup to not correctly reset the orchestrator binary path
 * Improved `lando init` so that it can auto setup if needed
+
+## v3.23.24 - [January 14, 2025](https://github.com/lando/core/releases/tag/v3.23.24)
+
+* Fixed bug causing service script moving to fail when receiving non-stringy inputs
+
+## v3.23.23 - [January 14, 2025](https://github.com/lando/core/releases/tag/v3.23.23)
+
+* Fixed bug causing service script loading collisions
 
 ## v3.23.22 - [December 17, 2024](https://github.com/lando/core/releases/tag/v3.23.22)
 

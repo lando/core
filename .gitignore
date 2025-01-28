@@ -37,10 +37,10 @@ coverage/
 
 # lando
 .lando/id
-plugins/*
-!plugins/.gitkeep
-FATCORE
 checksums.txt
+plugins/*
+FATCORE
+!plugins/.gitkeep
 
 # docs
 .temp

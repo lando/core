@@ -45,6 +45,7 @@ module.exports = {
         refreshCerts = false,
         remoteFiles = {},
         scripts = [],
+        scriptsDir = false,
         sport = '443',
         ssl = false,
         sslExpose = true,
@@ -58,6 +59,9 @@ module.exports = {
       // Add custom to list of supported
       supported.push('custom');
 
+      // rebase remoteFiles on testing data
+      remoteFiles = _.merge({}, {'_lando_test_': '/tmp/rooster'}, remoteFiles);
+
       // If this version is not supported throw an error
       // @TODO: get this someplace else for unit tezting
       if (!supportedIgnore && !_.includes(supported, version)) {
@@ -70,16 +74,25 @@ module.exports = {
         console.error(color.yellow(`${type} version ${version} is a legacy version! We recommend upgrading.`));
       }
 
+      // normalize scripts dir if needed
+      if (typeof scriptsDir === 'string' && !path.isAbsolute(scriptsDir)) scriptsDir = path.resolve(root, scriptsDir);
+
+      // Get some basic locations
+      const globalScriptsDir = path.join(userConfRoot, 'scripts');
+      const serviceScriptsDir = path.join(userConfRoot, 'helpers', project, type, name);
+      const entrypointScript = path.join(globalScriptsDir, 'lando-entrypoint.sh');
+      const addCertsScript = path.join(globalScriptsDir, 'add-cert.sh');
+      const refreshCertsScript = path.join(globalScriptsDir, 'refresh-certs.sh');
+
       // Move our config into the userconfroot if we have some
       // NOTE: we need to do this because on macOS and Windows not all host files
       // are shared into the docker vm
       if (fs.existsSync(confSrc)) require('../utils/move-config')(confSrc, confDest);
 
-      // Get some basic locations
-      const scriptsDir = path.join(userConfRoot, 'scripts');
-      const entrypointScript = path.join(scriptsDir, 'lando-entrypoint.sh');
-      const addCertsScript = path.join(scriptsDir, 'add-cert.sh');
-      const refreshCertsScript = path.join(scriptsDir, 'refresh-certs.sh');
+      // ditto for service helpers
+      if (!require('../utils/is-disabled')(scriptsDir) && typeof scriptsDir === 'string' && fs.existsSync(scriptsDir)) {
+        require('../utils/move-config')(scriptsDir, serviceScriptsDir);
+      }
 
       // Handle Environment
       const environment = {
@@ -98,10 +111,13 @@ module.exports = {
       // Handle volumes
       const volumes = [
         `${userConfRoot}:/lando:cached`,
-        `${scriptsDir}:/helpers`,
+        `${globalScriptsDir}:/helpers`,
         `${entrypointScript}:/lando-entrypoint.sh`,
         `${dataHome}:/var/www`,
       ];
+
+      // add in service helpers if we have them
+      if (fs.existsSync(serviceScriptsDir)) volumes.push(`${serviceScriptsDir}:/etc/lando/service/helpers`);
 
       // Handle ssl
       if (ssl) {
@@ -126,17 +142,17 @@ module.exports = {
       if (refreshCerts) volumes.push(`${refreshCertsScript}:/scripts/999-refresh-certs`);
 
       // Add in any custom pre-runscripts
-      _.forEach(scripts, script => {
+      for (const script of scripts) {
         const local = path.resolve(root, script);
         const remote = path.join('/scripts', path.basename(script));
         volumes.push(`${local}:${remote}`);
-      });
-
-      // rebase remoteFiles
-      remoteFiles = _.merge({}, {'_lando_': '/tmp/rooster'}, remoteFiles);
+      }
 
       // Handle custom config files
-      _.forEach(config, (local, remote) => {
+      for (let [remote, local] of Object.entries(config)) {
+        // if we dont have entries we can work with then just go to the next iteration
+        if (!_.has(remoteFiles, remote) && typeof remote !== 'string') continue;
+
         // if this is special type then get it from remoteFile
         remote = _.has(remoteFiles, remote) ? remoteFiles[remote] : path.resolve('/', remote);
 
@@ -155,7 +171,7 @@ module.exports = {
         }
 
         volumes.push(`${path.resolve(root, local)}:${remote}`);
-      });
+      }
 
       // Add named volumes and other thingz into our primary service
       const namedVols = {};

@@ -427,7 +427,10 @@ module.exports = {
       const labels = merge({}, app.labels, {
         'dev.lando.container': 'TRUE',
         'dev.lando.id': lando.config.id,
+        'dev.lando.landofiles': app.configFiles.map(file => path.basename(file)).join(','),
+        'dev.lando.root': app.root,
         'dev.lando.src': app.root,
+        'io.lando.http-ports': '80,443',
       }, config.labels);
 
       // add it all 2getha
