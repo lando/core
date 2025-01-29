@@ -78,7 +78,7 @@ lando info --service image-5 | grep tag: | grep "lando/l337\-" | grep "\-image-5
 lando info --service image-6 | grep tag: | grep "lando/l337\-" | grep "\-image-6:latest"
 
 # should use web as the primary service for tooling and events
-lando ssh --command "env" | grep SERVICE | grep web
+lando exec web -- env | grep SERVICE | grep web
 lando env | grep SERVICE | grep web
 
 # should use the user as the default exec user
@@ -122,21 +122,21 @@ lando ssh --service image-3 --command "stat /file1"
 
 # should run in working_dir if appMount is not set
 lando pwd --service db | grep /tmp
-lando ssh --service db --command "pwd" | grep /tmp
+lando exec db -- pwd | grep /tmp
 cd folder
 lando pwd --service db | grep -w /tmp
-lando ssh --service db --command "pwd" | grep /tmp
+lando exec db -- pwd | grep /tmp
 cd ..
 
 # should run in image working_dir as fallback
 lando pwd --service image-1 | grep -w /
-lando ssh --service image-1 --command "pwd" | grep -w /
+lando exec image-1 -- pwd | grep -w /
 lando pwd --service image-6 | grep /usr/share/nginx/html
-lando ssh --service image-6 --command "pwd" | grep /usr/share/nginx/html
+lando exec image-6 -- pwd | grep /usr/share/nginx/html
 
 # should correctly mount read-only volumes
-lando ssh --command "test -r /file-ro"
-lando ssh --command "test -w /file-ro" || echo $? | grep 1
+lando exec web -- test -r /file-ro
+lando exec web -- test -w /file-ro || echo $? | grep 1
 
 # should handle all context options correctly
 lando stat /folder
@@ -213,12 +213,12 @@ lando env --service steps-1 | grep KIRK | grep wesley
 lando env --service steps-1 | grep SPOCK | grep peck
 
 # Should run unknown groups as the default group
-lando ssh --service steps-1 --command "cat /tmp/val-jean-group" | grep default-1000-root
+lando exec steps-1 -- cat /tmp/val-jean-group | grep default-1000-root
 
 # Should order detached groups by weight
-lando ssh --service steps-1 --command "cat /stuff" | sed -n '1p' | grep first
-lando ssh --service steps-1 --command "cat /stuff" | sed -n '2p' | grep middle
-lando ssh --service steps-1 --command "cat /stuff" | sed -n '3p' | grep last
+lando exec steps-1 -- cat /stuff | sed -n '1p' | grep first
+lando exec steps-1 -- cat /stuff | sed -n '2p' | grep middle
+lando exec steps-1 -- cat /stuff | sed -n '3p' | grep last
 ```
 
 ## Destroy tests
