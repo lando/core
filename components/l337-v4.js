@@ -27,6 +27,7 @@ const toPosixPath = require('../utils/to-posix-path');
 class L337ServiceV4 extends EventEmitter {
   #app
   #data
+  #dgroups
   #lando
 
   static debug = require('debug')('@lando/l337-service-v4');
@@ -49,13 +50,15 @@ class L337ServiceV4 extends EventEmitter {
       groups: {
         context: {
           description: 'A group for adding and copying sources to the image',
-          weight: 0,
+          stage: 'image',
           user: 'root',
+          weight: 0,
         },
         default: {
           description: 'A default general purpose build group around which other groups can be added',
-          weight: 1000,
+          stage: 'image',
           user: 'root',
+          weight: 1000,
         },
       },
       image: undefined,
@@ -69,7 +72,6 @@ class L337ServiceV4 extends EventEmitter {
       },
       sources: [],
       stages: {
-        default: 'image',
         image: 'Instructions to help generate an image',
       },
       states: {
@@ -151,9 +153,11 @@ class L337ServiceV4 extends EventEmitter {
     fs.mkdirSync(this.tmpdir, {recursive: true});
 
     // initialize our private data
+    // note that you cannot override the default|context groups
     this.#app = app;
+    this.#dgroups = {groups: this.#init().groups ?? {}};
     this.#lando = lando;
-    this.#data = merge(this.#init(), {groups}, {stages}, {states}, {volumes: Object.keys(tlvolumes)});
+    this.#data = merge(this.#init(), {groups}, {stages}, {states}, {volumes: Object.keys(tlvolumes)}, this.#dgroups);
 
     // rework info based on whatever is passed in
     this.info = merge({}, {state: states}, {primary, service: id, type}, info);
@@ -190,6 +194,11 @@ class L337ServiceV4 extends EventEmitter {
       }
       // debug
       this.debug('%o autoset appmount to %o, did not select %o', this.id, this.appMount, appMounts);
+    }
+
+    // if the image is already built then lets set the tag and stuff here
+    if (this.info?.state?.IMAGE === 'BUILT' && this.tag) {
+      this.addComposeData({services: {[this.id]: {image: this.tag}}});
     }
   }
 
@@ -346,11 +355,11 @@ class L337ServiceV4 extends EventEmitter {
         }
 
         // merge in
-        this.#data.groups = merge({}, this.#data.groups, {[group.id || group.name]: {
-          description: group.description || `Build group: ${group.id || group.name}`,
-          weight: group.weight || this.#data.groups.default.weight || 1000,
-          stage: group.stage || this.#data.stages.default || 'image',
-          user: group.user || 'root',
+        this.#data.groups = merge({}, this.#data.groups, {[group.id ?? group.name]: {
+          description: group.description ?? `Build group: ${group.id ?? group.name}`,
+          weight: group.weight ?? this.#data.groups.default.weight ?? 1000,
+          stage: group.stage ?? this.#data.groups.default.stage ?? 'image',
+          user: group.user ?? this.#data.groups.default.user ?? 'root',
         }});
 
         this.debug('%o added build group %o', this.id, group);
@@ -361,12 +370,14 @@ class L337ServiceV4 extends EventEmitter {
   // this handles our changes to docker-composes "image" key
   // @TODO: helper methods to add particular parts of build data eg image, files, steps, groups, etc
   addImageData(data) {
-    // make sure data is in object format if its a string then we assume it sets the "imagefile" value
-    if (typeof data === 'string') data = {imagefile: data};
+    // make sure data is in object format if its stringy then we assume it sets the "imagefile" value
+    if (typeof data === 'string' || data?.constructor?.name === 'ImportString') data = {imagefile: data};
     // map dockerfile key to image key if it is set and imagefile isnt
     if (!data.imagefile && data.dockerfile) data.imagefile = data.dockerfile;
+
     // now pass the imagefile stuff into image parsing
     this.setBaseImage(data.imagefile);
+
     // if the imageInstructions include COPY/ADD then make sure we are adding the dockerfile context directly as a
     // source so those instructions work
     // @NOTE: we are not adding a "context" because if this passes we have the instructions already and just need to make
@@ -436,11 +447,12 @@ class L337ServiceV4 extends EventEmitter {
 
         // we should have stnadardized groups at this point so we can rebase on defaults as
         step = merge({},
-          {stage: this.#data.stages.default},
+          {stage: this.#data.groups.default.stage},
           {weight: this.#data.groups.default.weight, user: this.#data.groups.default.user},
           this.#data.groups[step.group],
           step,
         );
+
         // now lets modify the weight by the offset if we have one
         if (step.offset && Number(step.offset)) step.weight = step.weight + step.offset;
         // and finally lets rewrite the group for better instruction grouping
@@ -539,6 +551,7 @@ class L337ServiceV4 extends EventEmitter {
       // add the final compose data with the updated image tag on success
       // @NOTE: ideally its sufficient for this to happen ONLY here but in v3 its not
       this.addComposeData({services: {[context.id]: {image: context.tag}}});
+
       // set the image stuff into the info
       this.info = {image: imagefile, state: {IMAGE: 'BUILT'}, tag: context.tag};
       this.debug('image %o built successfully from %o', context.id, imagefile);
@@ -662,10 +675,14 @@ class L337ServiceV4 extends EventEmitter {
 
   // gets group overrides or returns false if there are none
   getGroupOverrides(group) {
-    // break the group into parts
-    const parts = group.replace(`${this.getOverrideGroup(group)}`, '').split('-');
-    // there will always be a leading '' element so dump it
-    parts.shift();
+    // break the group into parts and remove empty strings
+    const parts = group.replace(`${this.getOverrideGroup(group)}`, '').split('-').filter(part => part && part !== '');
+
+    // translate pre|post syntax
+    if (['pre', 'post'].includes(parts[0])) {
+      parts[0] = parts[0] === 'pre' ? 'before' : 'after';
+      if (parts.length === 1) parts.push('1');
+    }
 
     // if we have nothing then lets return false at this point
     if (parts.length === 0) return false;
@@ -697,7 +714,7 @@ class L337ServiceV4 extends EventEmitter {
     // this should ensure we end up with an ordered by closest match list
     const candidates = Object.keys(this.#data.groups)
       .sort((a, b) => b.length - a.length)
-      .filter(group => data.startsWith(group));
+      .filter(group => data.startsWith(group) || data.startsWith(`pre-${group}`) || data.startsWith(`post-${group}`));
 
     // if there is a closest match that is not the group itself then its an override otherwise fise
     return candidates.length > 0 && candidates[0] !== data ? candidates[0] : false;

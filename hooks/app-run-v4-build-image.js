@@ -13,6 +13,7 @@ module.exports = async (app, lando) => {
   const services = _(app.v4.services)
     .filter(service => _.includes(buildV4Services, service.id))
     .filter(service => typeof service.buildImage === 'function')
+    .filter(service => service?.info?.state?.IMAGE !== 'BUILT')
     .value();
 
   app.log.debug('going to build v4 images', services.map(service => service.id));
