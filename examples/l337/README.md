@@ -178,12 +178,16 @@ lando groups | sed -n '11p' | grep root-default-1000-root-root
 lando groups | sed -n '12p' | grep root-default-1000-root-root
 lando groups | sed -n '13p' | grep nginx-user-10000-nginx-nginx
 lando groups | sed -n '14p' | grep nginx-val-jean-24591-nginx-nginx
-lando groups | sed -n '15p' | grep root-val-jean-24601-root-root
-lando groups | sed -n '16p' | grep root-val-jean-24603-root-root
-lando groups | sed -n '17p' | grep root-val-jean-24604-root-root
-lando groups | sed -n '18p' | grep nginx-val-jean-24605-nginx-nginx
-lando groups | sed -n '19p' | grep nginx-val-jean-24606-nginx-nginx
-lando groups | sed -n '20p' | grep root-val-jean-24701-root-root
+lando groups | sed -n '15p' | grep root-val-jean-24597-root-root
+lando groups | sed -n '16p' | grep root-val-jean-24600-root-root
+lando groups | sed -n '17p' | grep root-val-jean-24601-root-root
+lando groups | sed -n '18p' | grep root-val-jean-24602-root-root
+lando groups | sed -n '19p' | grep root-val-jean-24603-root-root
+lando groups | sed -n '20p' | grep root-val-jean-24604-root-root
+lando groups | sed -n '21p' | grep nginx-val-jean-24605-nginx-nginx
+lando groups | sed -n '22p' | grep root-val-jean-24606-root-root
+lando groups | sed -n '23p' | grep nginx-val-jean-24606-nginx-nginx
+lando groups | sed -n '24p' | grep root-val-jean-24701-root-root
 
 # should run build steps as the correct user
 lando groups | sed -n '1p' | grep root-default--99999999-root-root
@@ -200,17 +204,24 @@ lando groups | sed -n '11p' | grep root-default-1000-root-root
 lando groups | sed -n '12p' | grep root-default-1000-root-root
 lando groups | sed -n '13p' | grep nginx-user-10000-nginx-nginx
 lando groups | sed -n '14p' | grep nginx-val-jean-24591-nginx-nginx
-lando groups | sed -n '15p' | grep root-val-jean-24601-root-root
-lando groups | sed -n '16p' | grep root-val-jean-24603-root-root
-lando groups | sed -n '17p' | grep root-val-jean-24604-root-root
-lando groups | sed -n '18p' | grep nginx-val-jean-24605-nginx-nginx
-lando groups | sed -n '19p' | grep nginx-val-jean-24606-nginx-nginx
-lando groups | sed -n '20p' | grep root-val-jean-24701-root-root
+lando groups | sed -n '15p' | grep root-val-jean-24597-root-root
+lando groups | sed -n '16p' | grep root-val-jean-24600-root-root
+lando groups | sed -n '17p' | grep root-val-jean-24601-root-root
+lando groups | sed -n '18p' | grep root-val-jean-24602-root-root
+lando groups | sed -n '19p' | grep root-val-jean-24603-root-root
+lando groups | sed -n '20p' | grep root-val-jean-24604-root-root
+lando groups | sed -n '21p' | grep nginx-val-jean-24605-nginx-nginx
+lando groups | sed -n '22p' | grep root-val-jean-24606-root-root
+lando groups | sed -n '23p' | grep nginx-val-jean-24606-nginx-nginx
+lando groups | sed -n '24p' | grep root-val-jean-24701-root-root
 
 # Should run steps in all allowed formats
 lando env --service steps-1 | grep VIBES | grep RISING
 lando env --service steps-1 | grep KIRK | grep wesley
 lando env --service steps-1 | grep SPOCK | grep peck
+lando env --service import | grep LANDO_STRINGY_IMPORT_INSTRUCTIONS_1 | grep 1
+lando env --service import | grep LANDO_STRINGY_IMPORT_INSTRUCTIONS_2 | grep 1
+lando env --service import | grep LANDO_STRINGY_IMPORT_INSTRUCTIONS_3 | grep 1
 
 # Should run unknown groups as the default group
 lando exec steps-1 -- cat /tmp/val-jean-group | grep default-1000-root

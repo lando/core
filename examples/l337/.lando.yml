@@ -322,6 +322,14 @@ services:
         - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
           group: "val-jean"
         - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "pre-val-jean"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "post-val-jean"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "pre-val-jean-4"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
+          group: "post-val-jean-5"
+        - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
           group: "user"
         - instructions: RUN echo "${LANDO_IMAGE_USER}-${LANDO_IMAGE_GROUP}-$(whoami)" >> /tmp/groups
           group: "default"
@@ -397,6 +405,7 @@ services:
           weight: 999
         - instructions: RUN echo "first" >> /stuff
           weight: 1
+
   import:
     api: 4
     type: l337

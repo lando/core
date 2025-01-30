@@ -670,10 +670,14 @@ class L337ServiceV4 extends EventEmitter {
 
   // gets group overrides or returns false if there are none
   getGroupOverrides(group) {
-    // break the group into parts
-    const parts = group.replace(`${this.getOverrideGroup(group)}`, '').split('-');
-    // there will always be a leading '' element so dump it
-    parts.shift();
+    // break the group into parts and remove empty strings
+    const parts = group.replace(`${this.getOverrideGroup(group)}`, '').split('-').filter(part => part && part !== '');
+
+    // translate pre|post syntax
+    if (['pre', 'post'].includes(parts[0])) {
+      parts[0] = parts[0] === 'pre' ? 'before' : 'after';
+      if (parts.length === 1) parts.push('1');
+    }
 
     // if we have nothing then lets return false at this point
     if (parts.length === 0) return false;
@@ -705,7 +709,7 @@ class L337ServiceV4 extends EventEmitter {
     // this should ensure we end up with an ordered by closest match list
     const candidates = Object.keys(this.#data.groups)
       .sort((a, b) => b.length - a.length)
-      .filter(group => data.startsWith(group));
+      .filter(group => data.startsWith(group) || data.startsWith(`pre-${group}`) || data.startsWith(`post-${group}`));
 
     // if there is a closest match that is not the group itself then its an override otherwise fise
     return candidates.length > 0 && candidates[0] !== data ? candidates[0] : false;
