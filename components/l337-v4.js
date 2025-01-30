@@ -49,13 +49,15 @@ class L337ServiceV4 extends EventEmitter {
       groups: {
         context: {
           description: 'A group for adding and copying sources to the image',
-          weight: 0,
+          stage: 'image',
           user: 'root',
+          weight: 0,
         },
         default: {
           description: 'A default general purpose build group around which other groups can be added',
-          weight: 1000,
+          stage: 'image',
           user: 'root',
+          weight: 1000,
         },
       },
       image: undefined,
@@ -69,7 +71,6 @@ class L337ServiceV4 extends EventEmitter {
       },
       sources: [],
       stages: {
-        default: 'image',
         image: 'Instructions to help generate an image',
       },
       states: {
@@ -351,11 +352,11 @@ class L337ServiceV4 extends EventEmitter {
         }
 
         // merge in
-        this.#data.groups = merge({}, this.#data.groups, {[group.id || group.name]: {
-          description: group.description || `Build group: ${group.id || group.name}`,
-          weight: group.weight || this.#data.groups.default.weight || 1000,
-          stage: group.stage || this.#data.stages.default || 'image',
-          user: group.user || 'root',
+        this.#data.groups = merge({}, this.#data.groups, {[group.id ?? group.name]: {
+          description: group.description ?? `Build group: ${group.id ?? group.name}`,
+          weight: group.weight ?? this.#data.groups.default.weight ?? 1000,
+          stage: group.stage ?? 'image',
+          user: group.user ?? 'root',
         }});
 
         this.debug('%o added build group %o', this.id, group);
@@ -697,7 +698,7 @@ class L337ServiceV4 extends EventEmitter {
     // lets make sure we remove both "before" and "after" cause whatever is left is the user
     if (parts.indexOf('before') > -1) parts.splice(parts.indexOf('before'), 1);
     if (parts.indexOf('after') > -1) parts.splice(parts.indexOf('after'), 1);
-    step.user = parts.join('-') || 'root';
+    step.user = parts.join('-') ?? 'root';
 
     // return
     return step;
