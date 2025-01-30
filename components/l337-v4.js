@@ -27,6 +27,7 @@ const toPosixPath = require('../utils/to-posix-path');
 class L337ServiceV4 extends EventEmitter {
   #app
   #data
+  #dgroups
   #lando
 
   static debug = require('debug')('@lando/l337-service-v4');
@@ -152,9 +153,11 @@ class L337ServiceV4 extends EventEmitter {
     fs.mkdirSync(this.tmpdir, {recursive: true});
 
     // initialize our private data
+    // note that you cannot override the default|context groups
     this.#app = app;
+    this.#dgroups = {groups: this.#init().groups ?? {}};
     this.#lando = lando;
-    this.#data = merge(this.#init(), {groups}, {stages}, {states}, {volumes: Object.keys(tlvolumes)});
+    this.#data = merge(this.#init(), {groups}, {stages}, {states}, {volumes: Object.keys(tlvolumes)}, this.#dgroups);
 
     // rework info based on whatever is passed in
     this.info = merge({}, {state: states}, {primary, service: id, type}, info);
@@ -355,8 +358,8 @@ class L337ServiceV4 extends EventEmitter {
         this.#data.groups = merge({}, this.#data.groups, {[group.id ?? group.name]: {
           description: group.description ?? `Build group: ${group.id ?? group.name}`,
           weight: group.weight ?? this.#data.groups.default.weight ?? 1000,
-          stage: group.stage ?? 'image',
-          user: group.user ?? 'root',
+          stage: group.stage ?? this.#data.groups.default.stage ?? 'image',
+          user: group.user ?? this.#data.groups.default.user ?? 'root',
         }});
 
         this.debug('%o added build group %o', this.id, group);
@@ -444,11 +447,12 @@ class L337ServiceV4 extends EventEmitter {
 
         // we should have stnadardized groups at this point so we can rebase on defaults as
         step = merge({},
-          {stage: this.#data.stages.default},
+          {stage: this.#data.groups.default.stage},
           {weight: this.#data.groups.default.weight, user: this.#data.groups.default.user},
           this.#data.groups[step.group],
           step,
         );
+
         // now lets modify the weight by the offset if we have one
         if (step.offset && Number(step.offset)) step.weight = step.weight + step.offset;
         // and finally lets rewrite the group for better instruction grouping
@@ -698,7 +702,7 @@ class L337ServiceV4 extends EventEmitter {
     // lets make sure we remove both "before" and "after" cause whatever is left is the user
     if (parts.indexOf('before') > -1) parts.splice(parts.indexOf('before'), 1);
     if (parts.indexOf('after') > -1) parts.splice(parts.indexOf('after'), 1);
-    step.user = parts.join('-') ?? 'root';
+    step.user = parts.join('-') || 'root';
 
     // return
     return step;
