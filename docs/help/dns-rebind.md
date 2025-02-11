@@ -6,7 +6,7 @@ description: Learn how to handle DNS Rebinding protection when using Lando for l
 
 If you are using [Lando proxying](https://docs.lando.dev/core/v3/proxy.html), which is enabled by default, some routers and firewalls may prevent Lando from properly routing `*.lndo.site` addresses to your application through [DNS Rebinding](https://en.wikipedia.org/wiki/DNS_rebinding) protection. For example the `DD-WRT` router firmware enables this protection by default.
 
-If you are seeing red URLs after you start your app and you are unable to look up the url DNS rebinding protection may be the cause. You can test this out using `nslookup`.
+If you are seeing red URLs after you start your app and you are unable to look up the url, DNS rebinding protection may be the cause. You can test this out using `nslookup`.
 
 ```bash
 nslookup <sitename>.lndo.site
