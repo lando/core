@@ -1,6 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
 * Added `--tail` option to `lando logs` command to allow users to specify the number of lines to show from the end of the logs for each service
+* Added `--since` and `--until` options to `lando logs` command to allow users to specify a range of logs to show
 
 ## v3.24.0-beta.12 - [January 24, 2025](https://github.com/lando/core/releases/tag/v3.24.0-beta.12)
 

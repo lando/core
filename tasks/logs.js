@@ -23,6 +23,10 @@ module.exports = lando => ({
       alias: ['s'],
       array: true,
     },
+    since: {
+      describe: 'Show logs since timestamp (e.g. 2025-01-02T13:23:37Z) or relative (e.g. 42m for 42 minutes)',
+      type: 'string',
+    },
     tail: {
       describe: 'Number of lines to show from the end of the logs for each service',
       alias: ['n'],
@@ -35,11 +39,15 @@ module.exports = lando => ({
       default: false,
       boolean: true,
     },
+    until: {
+      describe: 'Show logs before timestamp (e.g. 2025-01-02T13:23:37Z) or relative (e.g. 42m for 42 minutes)',
+      type: 'string',
+    },
   },
   run: options => {
     // Try to get our app
     const app = lando.getApp(options._app.root);
-    const opts = _.pick(options, ['follow', 'tail', 'timestamps', 'service']);
+    const opts = _.pick(options, ['follow', 'tail', 'timestamps', 'service', 'since', 'until']);
     opts.services = opts.service;
     if (app) return app.init().then(() => lando.engine.logs(_.merge(app, {opts})));
   },
