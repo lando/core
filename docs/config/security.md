@@ -37,7 +37,7 @@ If you [override](../services/lando-3.md) a particular service and specify the e
 
 ```yaml
 # This will find a random port on 0.0.0.0
-# and route it to port 80 on your appsrver service
+# and route it to port 80 on your appserver service
 services:
   appserver:
     overrides:
