@@ -1,5 +1,28 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+### New Features
+
+* Added support for `init.defaults` for explicit recipe `config` setting on `lando init`
+* Consolidated `@lando/core` and `@lando/cli` updates into a singular `lando` update
+* Consolidated core plugins eg `@lando/healthcheck` into just `lando`
+* Improved config loading guards for generic Lando 3 service
+* Improved efficiency of `task` loading
+* Improved handling around corrupted `task` caches
+* Improved `lando init` so that it can auto setup if needed
+* Improved release flow to better accommodate double barrelled development
+* Removed `slim` and `fat` variants for a consolidated build which includes all "common" plugins
+* Optimized redundant `midcore` plugin deps
+
+### Bug Fixes
+
+* Fixed bug causing auto setup to not correctly reset the orchestrator binary path
+
+### Internal
+
+* Added `getLodash()` to `lando.utils`
+* Added `getSemver()` to `lando.utils`
+* Added `getJsYaml()` to `lando.utils`
+
 ## v3.24.0-beta.12 - [January 24, 2025](https://github.com/lando/core/releases/tag/v3.24.0-beta.12)
 
 * Merged in improvements from `@lando/core@v3.23.26`
