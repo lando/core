@@ -14,7 +14,6 @@ module.exports = lando => {
         type: 'string',
       },
     },
-    level: 'tasks',
     run: async options => {
       const Plugin = require('../components/plugin');
 

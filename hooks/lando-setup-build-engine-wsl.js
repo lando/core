@@ -135,35 +135,31 @@ module.exports = async (lando, options) => {
       return true;
     },
     task: async (ctx, task) => {
-      try {
-        // get tmp dir from windows side
-        const winTmpDir = getWinEnvar('TEMP', {debug});
-        const dest = wslpath(winTmpDir);
-        debug('resolved win dir %o to wsl path %o', winTmpDir, dest);
+      // get tmp dir from windows side
+      const winTmpDir = getWinEnvar('TEMP', {debug});
+      const dest = wslpath(winTmpDir);
+      debug('resolved win dir %o to wsl path %o', winTmpDir, dest);
 
-        // download the installer
-        ctx.download = await downloadDockerDesktop(url, {ctx, debug, dest, task});
-        ctx.download.windest = path.win32.join(winTmpDir, path.basename(ctx.download.dest));
+      // download the installer
+      ctx.download = await downloadDockerDesktop(url, {ctx, debug, dest, task});
+      ctx.download.windest = path.win32.join(winTmpDir, path.basename(ctx.download.dest));
 
-        // script
-        const script = path.posix.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1');
-        // args
-        const args = ['-Installer', ctx.download.windest];
-        if (options.buildEngineAcceptLicense) args.push('-AcceptLicense');
-        if ((options.debug || options.verbose > 0 || lando.debuggy) && lando.config.isInteractive) args.push('-Debug');
+      // script
+      const script = path.posix.join(lando.config.userConfRoot, 'scripts', 'install-docker-desktop.ps1');
+      // args
+      const args = ['-Installer', ctx.download.windest];
+      if (options.buildEngineAcceptLicense) args.push('-AcceptLicense');
+      if ((options.debug || options.verbose > 0 || lando.debuggy) && lando.config.isInteractive) args.push('-Debug');
 
-        // run install command
-        task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;
-        const result = await require('../utils/run-powershell-script')(script, args, {debug});
-        result.download = ctx.download;
+      // run install command
+      task.title = `Installing build engine ${color.dim('(this may take a minute)')}`;
+      const result = await require('../utils/run-powershell-script')(script, args, {debug});
+      result.download = ctx.download;
 
-        // finish up
-        const location = getWinEnvar('ProgramW6432') ?? getWinEnvar('ProgramFiles');
-        task.title = `Installed build engine (Docker Desktop) to ${location}/Docker/Docker!`;
-        return result;
-      } catch (error) {
-        throw error;
-      }
+      // finish up
+      const location = getWinEnvar('ProgramW6432') ?? getWinEnvar('ProgramFiles');
+      task.title = `Installed build engine (Docker Desktop) to ${location}/Docker/Docker!`;
+      return result;
     },
   });
 
@@ -188,7 +184,7 @@ module.exports = async (lando, options) => {
           type: 'password',
           name: 'password',
           message: `Enter computer password for ${lando.config.username} to add them to docker group`,
-          validate: async (input, state) => {
+          validate: async input => {
             const options = {debug, ignoreReturnCode: true, password: input};
             const response = await require('../utils/run-elevated')(['echo', 'hello there'], options);
             if (response.code !== 0) return response.stderr;
@@ -197,15 +193,11 @@ module.exports = async (lando, options) => {
         });
       }
 
-      try {
-        const script = path.join(lando.config.userConfRoot, 'scripts', 'add-to-group.sh');
-        const command = [script, '--user', lando.config.username, '--group', 'docker'];
-        const response = await require('../utils/run-elevated')(command, {debug, password: ctx.password});
-        task.title = `Added ${lando.config.username} to docker group`;
-        return response;
-      } catch (error) {
-        throw error;
-      }
+      const script = path.join(lando.config.userConfRoot, 'scripts', 'add-to-group.sh');
+      const command = [script, '--user', lando.config.username, '--group', 'docker'];
+      const response = await require('../utils/run-elevated')(command, {debug, password: ctx.password});
+      task.title = `Added ${lando.config.username} to docker group`;
+      return response;
     },
   });
 };

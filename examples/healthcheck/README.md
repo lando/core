@@ -32,14 +32,17 @@ lando info -s disablebase | grep healthy: | grep unknown
 lando start
 
 # Should have passed all the healthchecks
-lando ssh -s appserver -c "stat /healthy"
-lando ssh -s database1 -c "mysql -uroot --silent --execute \"SHOW DATABASES;\""
-lando ssh -s database2 -c "mysql -uroot --silent --execute \"SHOW DATABASES;\""
+lando exec appserver -- "stat /healthy"
+lando exec appserver -- "stat /healthy"
+lando exec database1 -- "mysql -uroot --silent --execute \"SHOW DATABASES;\""
+lando exec database2 -- "mysql -uroot --silent --execute \"SHOW DATABASES;\""
 
 # Should set healthy status to true if applicable
 lando info -s appserver | grep healthy: | grep true
+lando info -s appserver2 | grep healthy: | grep true
 lando info -s nginx | grep healthy: | grep unknown
 lando info -s nginx2 | grep healthy: | grep true
+lando info -s nginx3 | grep healthy: | grep true
 lando info -s database1 | grep healthy: | grep true
 lando info -s database2 | grep healthy: | grep true
 lando info -s disablebase | grep healthy: | grep unknown

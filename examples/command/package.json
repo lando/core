@@ -4,7 +4,7 @@
   "main": "app.js",
   "scripts": {
     "start": "fastify start -l info app.js",
-    "dev": "fastify start -w -l info -P app.js"
+    "dev": "touch /tmp/test && fastify start -w -l info -P app.js"
   },
   "keywords": [],
   "author": "",

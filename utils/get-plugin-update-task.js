@@ -20,7 +20,8 @@ module.exports = (plugin, {
     task: async (ctx, task) => {
       try {
         // add the plugin
-        task.plugin = await require('./fetch-plugin')(plugin, {config: Plugin.config, dest: dir}, Plugin);
+        task.plugin = await Plugin.fetch(plugin, {config: Plugin.config, dest: dir});
+
         // update and and return
         task.title = `Updated ${task.plugin.name} to v${task.plugin.version}`;
         return task.plugin;

@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 
-module.exports = async (app, lando) => {
+module.exports = async app => {
   _.forEach(app.v4.services.map(service => service.id), id => {
     // remove v3 app mount
     const mounts = _.find(app.composeData, compose => compose.id === 'mounts');
@@ -24,8 +24,6 @@ module.exports = async (app, lando) => {
   app.initialized = false;
   app.compose = require('../utils/dump-compose-data')(app.composeData, app._dir);
   app.log.verbose('v4 app is ready!');
-  app.log.silly('v4 app has compose files', app.compose);
-  app.log.silly('v4 app has config  ', app.config);
   app.initialized = true;
   return app.events.emit('ready-v4');
 };

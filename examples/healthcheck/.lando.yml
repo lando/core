@@ -12,6 +12,18 @@ services:
       volumes:
         - "./healthcheck.sh:/usr/local/bin/healthcheck"
     healthcheck: healthcheck
+  appserver2:
+    api: 3
+    type: lando
+    services:
+      image: php:8.2-fpm
+      command: docker-php-entrypoint sleep infinity
+    healthcheck: |
+      #!/bin/bash
+      set -eo pipefail
+      touch /tmp/hi
+      exit 0
+
   nginx:
     api: 3
     type: lando
@@ -49,6 +61,13 @@ services:
       command: healthcheck
       retry: 10
       delay: 1000
+  nginx3:
+    api: 4
+    image:
+      imagefile: nginxinc/nginx-unprivileged:1.26.1
+    user: nginx
+    healthcheck: !load healthcheck.sh
+
   database1:
     api: 3
     type: lando
@@ -106,5 +125,4 @@ services:
         MARIADB_AUTO_UPGRADE: da
 
 plugins:
-  "@lando/core": "../.."
-  "@lando/healthcheck": "../../plugins/healthcheck"
+  "@lando/core": ../..

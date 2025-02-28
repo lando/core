@@ -17,9 +17,11 @@ jobs:
           - c,o,m,m,a
           - cache
           - certs
+          - command
           - config
           - debug
           - envfile
+          - entrypoint
           # - environment
           - events
           - exec
@@ -58,17 +60,15 @@ jobs:
           - tooling
           - update
           - version
+          - yaml
         node-version:
           - "20"
         os:
-          # - macos-13
           # - macos-14
           - ubuntu-24.04
           # - windows-2022
         shell:
           - bash
-
-        # TODO: includes for also running windows tests on cmd/powershell?
 
     steps:
       - name: Checkout code
@@ -98,6 +98,7 @@ jobs:
         id: pkg-action
         with:
           entrypoint: bin/lando
+          filename: lando
           node-version: ${{ matrix.node-version }}
           options: --options dns-result-order=ipv4first
           upload: false

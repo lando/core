@@ -77,7 +77,6 @@ const defaultConfig = options => ({
       '@lando/pantheon': 'latest',
       '@lando/php': 'latest',
       '@lando/phpmyadmin': 'latest',
-      '@lando/platformsh': 'latest',
       '@lando/postgres': 'latest',
       '@lando/python': 'latest',
       '@lando/redis': 'latest',

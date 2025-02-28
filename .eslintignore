@@ -5,3 +5,5 @@ _site
 coverage
 !.vitepress
 config.mjs.timestamp-*.mjs
+plugins/*
+!plugins/test

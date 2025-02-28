@@ -42,5 +42,4 @@ module.exports = async (app, lando) => {
       // and then reset
       info.urls = _.uniq([...info.urls, ...data.urls]);
     });
-    ;
 };

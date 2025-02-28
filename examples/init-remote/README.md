@@ -16,7 +16,7 @@ lando init --source remote --recipe none --remote-url="git@github.com:lando/land
 
 # Should extract code from a remote tar file
 mkdir -p tar && cd tar
-lando init --source remote --recipe none --remote-url="https://github.com/lando/lando/archive/refs/tags/v3.20.2.tar.gz" --remote-options="--strip-components=1" --yes
+lando init --source remote --recipe none --remote-url="https://github.com/lando/lando/archive/refs/tags/v3.23.20.tar.gz" --remote-options="--strip-components=1" --yes
 ```
 
 ## Verification commands
@@ -29,6 +29,11 @@ cd git && cat README.md
 
 # Should have a landofile in the approot of thee extracted tar
 cd tar && cat .lando.yml
+
+# Should merge default init values into config
+cd tar && cat .lando.yml | grep something | grep happening-here
+cd ..
+cd git && cat .lando.yml | grep something | grep happening-here
 ```
 
 ## Destroy tests

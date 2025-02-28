@@ -160,4 +160,4 @@ services:
     # overrides:
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..

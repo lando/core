@@ -39,13 +39,8 @@ coverage/
 .lando/id
 checksums.txt
 plugins/*
-!plugins/healthcheck
-!plugins/networking
-!plugins/proxy
-!plugins/scanner
-!plugins/sharing
-!plugins/test
 FATCORE
+!plugins/.gitkeep
 
 # docs
 .temp

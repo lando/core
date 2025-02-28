@@ -45,7 +45,7 @@ const webrootOpts = {
     message: () => 'Where is your webroot relative to the init destination?',
     default: () => '.',
     filter: input => input,
-    when: answers => true,
+    when: () => true,
     weight: 900,
     validate: () => true,
   },

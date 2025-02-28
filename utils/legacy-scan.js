@@ -89,7 +89,10 @@ module.exports = (log = new Log()) => {
     }, {max})
 
     // Catch any error and return an inaccessible url
-    .catch(err => setBad(url)))
+    .catch(err => {
+      log.debug('scan failed.', err);
+      return setBad(url);
+    }))
 
     // Log and then return scan results
     .then(results => {

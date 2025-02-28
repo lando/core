@@ -17,6 +17,29 @@ const defaults = {
     appLabels: {
       'io.lando.container': 'TRUE',
     },
+    proxy: 'ON',
+    proxyName: 'landoproxyhyperion5000gandalfedition',
+    proxyCache: 'proxyCache',
+    proxyCommand: [
+      '/entrypoint.sh',
+      '--log.level=DEBUG',
+      '--api.insecure=true',
+      '--api.dashboard=false',
+      '--providers.docker=true',
+      '--entrypoints.https.address=:443',
+      '--entrypoints.http.address=:80',
+      '--providers.docker.exposedbydefault=false',
+      '--providers.file.directory=/proxy_config',
+      '--providers.file.watch=true',
+    ],
+    proxyCustom: {},
+    proxyDefaultCert: '/certs/cert.crt',
+    proxyDefaultKey: '/certs/cert.key',
+    proxyHttpPort: '80',
+    proxyHttpsPort: '443',
+    proxyHttpFallbacks: ['8000', '8080', '8888', '8008'],
+    proxyHttpsFallbacks: ['444', '4433', '4444', '4443'],
+    proxyPassThru: true,
   },
 };
 
@@ -71,20 +94,29 @@ module.exports = async lando => {
   // and install ca
   lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-install-ca-${platform}`)(lando, options));
 
-  // also move scripts for init considerations
-  lando.events.on('pre-init', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
-
   // ensure we setup docker-compose if needed
   lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-orchestrator')(lando, options));
 
+  // ensure we setup landonet
+  lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-landonet')(lando, options));
+
+  // also move scripts for init considerations
+  lando.events.on('pre-init', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
+
   // move v3 scripts directories as needed
   lando.events.on('pre-init', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
+
+  // set proxy config
+  lando.events.on('post-bootstrap-config', async () => await require('./hooks/lando-set-proxy-config')(lando));
 
   // make sure Lando Specification 337 is available to all
   lando.events.on('post-bootstrap-app', async () => await require('./hooks/lando-add-l337-spec')(lando));
 
   // flush update cache if it needs to be
   lando.events.on('ready', async () => await require('./hooks/lando-flush-updates-cache')(lando));
+
+  // merge in needed legacy init stuff
+  lando.events.on('cli-init-answers', async () => await require('./hooks/lando-load-legacy-inits')(lando));
 
   // this is a gross hack we need to do to reset the engine because the lando 3 runtime has no idea
   lando.events.on('almost-ready', 1, async () => await require('./hooks/lando-reset-orchestrator')(lando));
@@ -101,6 +133,12 @@ module.exports = async lando => {
 
   // move v3 scripts directories as needed
   lando.events.on('pre-engine-start', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
+
+  // clean networks
+  lando.events.on('pre-engine-start', 1, async () => await require('./hooks/lando-clean-networks')(lando));
+
+  // regen task cache
+  lando.events.on('before-end', 9999, async () => await require('./hooks/lando-generate-tasks-cache')(lando));
 
   // return some default things
   return _.merge({}, defaults, uc(), {config: {
@@ -123,5 +161,10 @@ module.exports = async lando => {
     caDomain,
     caKey,
     maxKeyWarning: 10,
+    networkBridge: 'lando_bridge_network',
+    networkLimit: 32,
+    proxyBindAddress: _.get(lando, 'config.bindAddress', '127.0.0.1'),
+    proxyDomain: lando.config.domain,
+    proxyIp: _.get(lando.config, 'engineConfig.host', '127.0.0.1'),
   }});
 };

@@ -6,4 +6,4 @@ tooling:
     cmd: npm
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..

@@ -21,4 +21,4 @@ services:
     command: sleep infinity
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..

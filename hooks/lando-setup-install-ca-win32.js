@@ -45,27 +45,23 @@ module.exports = async (lando, options) => {
       return true;
     },
     task: async (ctx, task) => {
-      try {
-        task.title = 'Installing Lando Development Certificate Authority (CA)';
+      task.title = 'Installing Lando Development Certificate Authority (CA)';
 
-        // Assemble the installation command
-        const script = path.join(lando.config.userConfRoot, 'scripts', 'install-system-ca-win32.ps1');
-        const args = ['-CA', caCert];
+      // Assemble the installation command
+      const script = path.join(lando.config.userConfRoot, 'scripts', 'install-system-ca-win32.ps1');
+      const args = ['-CA', caCert];
 
-        // Add optional arguments
-        if (options.debug || options.verbose > 0 || lando.debuggy) args.push('-Debug');
-        if (!lando.config.isInteractive) args.push('-NonInteractive');
+      // Add optional arguments
+      if (options.debug || options.verbose > 0 || lando.debuggy) args.push('-Debug');
+      if (!lando.config.isInteractive) args.push('-NonInteractive');
 
-        // Run the installation command
-        const result = await require('../utils/run-powershell-script')(script, args, {debug});
+      // Run the installation command
+      const result = await require('../utils/run-powershell-script')(script, args, {debug});
 
-        // Update task title on successful installation
-        task.title = 'Installed Lando Development Certificate Authority (CA)';
+      // Update task title on successful installation
+      task.title = 'Installed Lando Development Certificate Authority (CA)';
 
-        return result;
-      } catch (error) {
-        throw error;
-      }
+      return result;
     },
   });
 };

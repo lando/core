@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 
-module.exports = async (app, lando) => {
+module.exports = async app => {
   const info = require('../utils/to-object')(_.map(app.info, 'service'), {});
   _.forEach(info, (value, key) => {
     info[key] = _.find(app.info, {service: key});

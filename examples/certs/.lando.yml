@@ -87,8 +87,4 @@ tooling:
         describe: Runs on a different service
 
 plugins:
-  "@lando/core": "../.."
-  "@lando/healthcheck": "../../plugins/healthcheck"
-  "@lando/networking": "../../plugins/networking"
-  "@lando/proxy": "../../plugins/proxy"
-  "@lando/scanner": "../../plugins/scanner"
+  "@lando/core": ../..

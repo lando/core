@@ -10,5 +10,4 @@ proxy:
           value: riker
 
 plugins:
-  "@lando/core": "../.."
-  "@lando/proxy": "../../plugins/proxy"
+  "@lando/core": ../..

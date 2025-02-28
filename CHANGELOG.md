@@ -1,5 +1,26 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.24.0-beta.12 - [January 24, 2025](https://github.com/lando/core/releases/tag/v3.24.0-beta.12)
+
+* Merged in improvements from `@lando/core@v3.23.26`
+
+## v3.24.0-beta.11 - [January 18, 2025](https://github.com/lando/core/releases/tag/v3.24.0-beta.11)
+
+* Improved config loading guards for generic Lando 3 service
+
+## v3.24.0-beta.10 - [January 15, 2025](https://github.com/lando/core/releases/tag/v3.24.0-beta.10)
+
+### New Features
+
+* Improved Docker Destkop autostart to use new `docker desktop start` if available
+* Merged in improvements from `@lando/core@v3.23.24`
+
+### Bug Fixes
+
+* Fixed bug causing `--accept-license` flag to not work when installing Docker Desktop on macOS
+
+### Internal
+
 ## v3.23.26 - [January 24, 2025](https://github.com/lando/core/releases/tag/v3.23.26)
 
 * Fixed bug where an app’s services were inadvertently reaped if the app’s path included a comma [#322](https://github.com/lando/core/issues/322)
@@ -13,6 +34,40 @@
 * Updated recommended Docker Desktop range to `>=4.37.0`
 * Updated tested Docker Desktop range to `<=4.37`
 * Updated tested Docker Compose range to `<=2.32`
+
+## v3.24.0-beta.9 - [January 14, 2025](https://github.com/lando/core/releases/tag/v3.24.0-beta.9)
+
+* Merged in improvements from `@lando/core@v3.23.23`
+
+## v3.24.0-beta.8 - [December 14, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.8)
+
+* Merged in improvements from `@lando/core@v3.23.21`
+
+## v3.24.0-beta.7 - [December 11, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.7)
+
+* Consolidated `@lando/core` and `@lando/cli` updates into a singular `lando` update
+* Added support for `init.defaults` for explicit recipe `config` setting on `lando init`
+
+## v3.24.0-beta.6 - [December 11, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.6)
+
+* Optimized deps part 2
+
+## v3.24.0-beta.5 - [December 10, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.5)
+
+* Improved efficiency of `task` loading
+* Improved handling around corrupted `task` caches
+
+## v3.24.0-beta.4 - [December 9, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.4)
+
+* Added `getLodash()` to `lando.utils`
+* Added `getSemver()` to `lando.utils`
+* Added `getJsYaml()` to `lando.utils`
+* Switched to optimized deps part 1
+
+## v3.24.0-beta.3 - [December 7, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.3)
+
+* Fixed bug causing auto setup to not correctly reset the orchestrator binary path
+* Improved `lando init` so that it can auto setup if needed
 
 ## v3.23.24 - [January 14, 2025](https://github.com/lando/core/releases/tag/v3.23.24)
 
@@ -42,6 +97,23 @@
 
 * Fixed bug causing auto setup to not correctly reset the orchestrator binary path
 * Improved `lando init` so that it can auto setup if needed
+
+## v3.24.0-beta.2 - [December 6, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.2)
+
+* Improved release flow to better accommodate double barrelled development
+
+## v3.24.0-beta.1 - [December 6, 2024](https://github.com/lando/core/releases/tag/v3.24.0-beta.1)
+
+* Consolidated core plugins
+* Introduced `midcore` consolidated build which includes all "common" plugins
+
+## v3.24.0-alpha.2 - [December 3, 2024](https://github.com/lando/core/releases/tag/v3.24.0-alpha.2)
+
+* This release has no new content it is just a test of dual branch development and `edge` branch release deployment
+
+## v3.24.0-alpha.1 - [December 3, 2024](https://github.com/lando/core/releases/tag/v3.24.0-alpha.1)
+
+* This release has no new content it is just a test of dual branch development and `edge` branch release deployment
 
 ## v3.23.18 - [December 6, 2024](https://github.com/lando/core/releases/tag/v3.23.18)
 

@@ -121,10 +121,10 @@ class DC2Renderer extends LandoRenderer {
   getSpacer(data = '', max = 0) {
     data = require('strip-ansi')(data);
     if (!max || max === 0 || !Number.isInteger(max)) return '  ';
-    return require('lodash/range')(max - data.trim().length + this.options.spacer).map(s => '').join(' ');
+    return require('lodash/range')(max - data.trim().length + this.options.spacer).map(() => '').join(' ');
   }
 
-  renderer(tasks, level, max = 0) {
+  renderer(tasks, level) {
     // get output
     const output = super.renderer(tasks, level);
 

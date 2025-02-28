@@ -3,8 +3,12 @@
 // Modules
 const _ = require('lodash');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
+const write = require('../utils/write-file');
+
 const {color} = require('listr2');
+const {nanoid} = require('nanoid');
 
 /*
  * The lowest level lando service, this is where a lot of the deep magic lives
@@ -21,7 +25,7 @@ module.exports = {
         type,
         userConfRoot,
         version,
-        app = '',
+        // app = '',
         confDest = '',
         confSrc = '',
         config = {},
@@ -48,12 +52,15 @@ module.exports = {
         supported = ['custom'],
         supportedIgnore = false,
         root = '',
-        webroot = '/app',
+        // webroot = '/app',
       } = {},
       ...sources
     ) {
       // Add custom to list of supported
       supported.push('custom');
+
+      // rebase remoteFiles on testing data
+      remoteFiles = _.merge({}, {'_lando_test_': '/tmp/rooster'}, remoteFiles);
 
       // If this version is not supported throw an error
       // @TODO: get this someplace else for unit tezting
@@ -135,20 +142,36 @@ module.exports = {
       if (refreshCerts) volumes.push(`${refreshCertsScript}:/scripts/999-refresh-certs`);
 
       // Add in any custom pre-runscripts
-      _.forEach(scripts, script => {
+      for (const script of scripts) {
         const local = path.resolve(root, script);
         const remote = path.join('/scripts', path.basename(script));
         volumes.push(`${local}:${remote}`);
-      });
+      }
 
       // Handle custom config files
-      _.forEach(config, (file, type) => {
-        if (_.has(remoteFiles, type)) {
-          const local = path.resolve(root, config[type]);
-          const remote = remoteFiles[type];
-          volumes.push(`${local}:${remote}`);
+      for (let [remote, local] of Object.entries(config)) {
+        // if we dont have entries we can work with then just go to the next iteration
+        if (!_.has(remoteFiles, remote) && typeof remote !== 'string') continue;
+
+        // if this is special type then get it from remoteFile
+        remote = _.has(remoteFiles, remote) ? remoteFiles[remote] : path.resolve('/', remote);
+
+        // if file is an imported string lets just get the file path instead
+        if (local?.constructor?.name === 'ImportString') {
+          const meta = local.getMetadata();
+          if (meta.file) local = meta.file;
+          else local = local.toString();
         }
-      });
+
+        // if file is still a multiline string then dump to tmp and use that
+        if (typeof local === 'string' && local.split('\n').length > 1) {
+          const contents = local;
+          local = path.join(os.tmpdir(), nanoid());
+          write(local, contents, {forcePosixLineEndings: true});
+        }
+
+        volumes.push(`${path.resolve(root, local)}:${remote}`);
+      }
 
       // Add named volumes and other thingz into our primary service
       const namedVols = {};
@@ -190,6 +213,6 @@ module.exports = {
 
       // Pass it down
       super(id, info, ...sources);
-    };
+    }
   },
 };

@@ -11,9 +11,8 @@ module.exports = (config, injected) => {
   env.DEBUG = injected.debuggy ? '1' : '';
   env.LANDO_DEBUG = injected.debuggy ? '1' : '';
 
-  // service api 4 services that canExec
-  const canExec = Object.fromEntries((config?.app?.info ?? [])
-    .map(service => ([service.service, config?.app?.executors?.[service.service] ?? false])));
+  // get the service api
+  const sapis = config?.app?.sapis ?? {};
 
   // Handle dynamic services and passthrough options right away
   // Get the event name handler
@@ -22,7 +21,7 @@ module.exports = (config, injected) => {
     // Kick off the pre event wrappers
     .then(() => app.events.emit(`pre-${eventName}`, config, answers))
     // Get an interable of our commandz
-    .then(() => _.map(require('./parse-tooling-config')(cmd, service, options, answers, canExec)))
+    .then(() => _.map(require('./parse-tooling-config')(cmd, service, options, answers, sapis)))
     // Build run objects
     .map(({command, service}) => require('./build-tooling-runner')(app, command, service, user, env, dir, appMount))
     // Try to run the task quickly first and then fallback to compose launch

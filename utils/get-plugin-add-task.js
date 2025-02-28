@@ -12,11 +12,9 @@ module.exports = (plugin, {
     title: `Adding ${plugin}`,
     id: `install-${plugin}`,
     description: plugin,
-    isInstalled: async () => {
-      // parse into a full package
-      const pkg = require('./parse-package-name')(plugin);
-      // get location
-      const location = pkg.scope === '@lando' ? path.join(dir, '@lando', pkg.package) : path.join(dir, pkg.package);
+    isInstalled: async location => {
+      // if we dont have a location then use the information we have to get one
+      if (!location) location = path.join(dir, Plugin.getLocation(plugin));
 
       try {
         const plugin = new Plugin(location);
@@ -32,7 +30,8 @@ module.exports = (plugin, {
     task: async (ctx, task) => {
       try {
         // add the plugin
-        task.plugin = await require('./fetch-plugin')(plugin, {config: Plugin.config, dest: dir}, Plugin);
+        task.plugin = await Plugin.fetch(plugin, {config: Plugin.config, dest: dir});
+
         // update and and return
         task.title = `Installed ${task.plugin.name}@${task.plugin.version} to ${task.plugin.location}`;
         ctx.results.push(task.plugin);

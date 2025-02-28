@@ -34,6 +34,7 @@ module.exports = async (app, lando) => {
       primary: app._defaultService,
       project: app.project,
       root: app.root,
+      sapis: require('./utils/get-service-apis')(app),
     }, {persist: true});
   };
 
@@ -54,15 +55,16 @@ module.exports = async (app, lando) => {
       compose: app.compose,
       containers: app.containers,
       info: _.cloneDeep(app.info).map(service => ({...service, hostname: [], urls: []})),
-      executors: require('./utils/get-executors')(_.get(app, 'v4.services', {})),
       name: app.name,
       mounts: require('./utils/get-mounts')(_.get(app, 'v4.services', {})),
+      primary: app._defaultService,
+      project: app.project,
       root: app.root,
+      sapis: require('./utils/get-service-apis')(app),
       overrides: {
         tooling: app._coreToolingOverrides,
       },
-      primary: app._defaultService,
-      project: app.project,
+
     }, {persist: true});
   };
 
@@ -92,6 +94,12 @@ module.exports = async (app, lando) => {
   // load in and parse v4 services
   app.events.on('pre-init', async () => await require('./hooks/app-add-v4-services')(app, lando));
 
+  // initialize proxy stuff
+  app.events.on('pre-init', async () => await require('./hooks/app-init-proxy')(app, lando));
+
+  // add in hostname
+  app.events.on('post-init', 1, async () => await require('./hooks/app-add-hostnames')(app, lando));
+
   // run v3 build steps
   app.events.on('post-init', async () => await require('./hooks/app-run-v3-build-steps')(app, lando));
 
@@ -112,6 +120,9 @@ module.exports = async (app, lando) => {
 
   // Add tooling if applicable
   app.events.on('post-init', async () => await require('./hooks/app-add-tooling')(app, lando));
+
+  // add proxy info as needed
+  app.events.on('post-init', async () => await require('./hooks/app-add-proxy-info')(app, lando));
 
   // Collect info so we can inject LANDO_INFO
   // @NOTE: this is not currently the full lando info because a lot of it requires the app to be on
@@ -157,6 +168,9 @@ module.exports = async (app, lando) => {
   // i really wish thre was a better way to do this but alas i do not think there is
   app.events.on('pre-rebuild', 10, async () => await require('./hooks/app-shuffle-locals')(app, lando));
 
+  // start up proxy
+  app.events.on('pre-start', 1, async () => await require('./hooks/app-start-proxy')(app, lando));
+
   // Check for updates if the update cache is empty
   app.events.on('pre-start', 1, async () => await require('./hooks/app-check-for-updates')(app, lando));
 
@@ -166,8 +180,23 @@ module.exports = async (app, lando) => {
   // If the app already is installed but we can't determine the builtAgainst, then set it to something bogus
   app.events.on('pre-start', async () => await require('./hooks/app-update-built-against-pre')(app, lando));
 
+  // add healthchecks
+  app.events.on('post-start', 1, async () => await require('./hooks/app-add-healthchecks')(app, lando));
+
+  // add proxy 2 landonet
+  app.events.on('post-start', 1, async () => await require('./hooks/app-add-proxy-2-landonet')(app, lando));
+
+  // add 2 landonet
+  app.events.on('post-start', 1, async () => await require('./hooks/app-add-2-landonet')(app, lando));
+
+  // run healthchecks
+  app.events.on('post-start', 2, async () => await require('./hooks/app-run-healthchecks')(app, lando));
+
   // Add path info/shellenv tip if needed
   app.events.on('post-start', async () => await require('./hooks/app-add-updates-info')(app, lando));
+
+  // add proxy info as needed
+  app.events.on('post-start', async () => await require('./hooks/app-add-proxy-info')(app, lando));
 
   // Add update tip if needed
   app.events.on('post-start', async () => await require('./hooks/app-add-path-info')(app, lando));
@@ -183,6 +212,9 @@ module.exports = async (app, lando) => {
 
   // throw service not start errors
   app.events.on('post-start', 1, async () => await require('./hooks/app-check-v4-service-running')(app, lando));
+
+  // add app url scanning
+  app.events.on('post-start', 10, async () => await require('./hooks/app-add-url-scans')(app, lando));
 
   // Reset app info on a stop, this helps prevent wrong/duplicate information being reported on a restart
   app.events.on('post-stop', async () => require('./utils/get-app-info-defaults')(app));
@@ -218,15 +250,13 @@ module.exports = async (app, lando) => {
     });
   }
 
-  // LEGACY healthchecks
-  if (_.get(lando, 'config.healthcheck', true) === 'legacy') {
-    app.events.on('post-start', 2, async () => await require('./hooks/app-run-legacy-healthchecks')(app, lando));
-  }
-
   // LEGACY URL Scanner urls
   if (_.get(lando, 'config.scanner', true) === 'legacy') {
     app.events.on('post-start', 10, async () => await require('./hooks/app-run-legacy-scanner')(app, lando));
-  };
+  }
+
+  // legacy sharing stuff
+  await require('./hooks/app-load-legacy-sharing')(app, lando);
 
   // REturn defualts
   return {

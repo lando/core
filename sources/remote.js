@@ -8,7 +8,7 @@ module.exports = {
   sources: [{
     name: 'remote',
     label: 'remote git repo or archive',
-    options: lando => ({
+    options: () => ({
       'remote-url': {
         describe: 'Uses the URL of your git repo or archive, only works when you set source to remote',
         string: true,

@@ -41,6 +41,12 @@ lando config --format json | grep "^{\""
 
 # Should output in table format
 lando config --format table | grep landoFileConfig.name | grep lando-config
+
+# Should be able to mount config files in a few different ways
+lando exec web2 -- cat /tmp/rooster | grep "here they come to snuff the rooster"
+lando exec web2 -- cat /tmp/somewhere | grep "here they come to snuff the rooster"
+lando exec web2 -- cat /tmp/somewhere-else | grep "here they come to snuff the rooster"
+lando exec web2 -- cat /tmp/somewhere-else-else | grep "here they come to snuff the rooster"
 ```
 
 ## Destroy tests

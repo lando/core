@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = lando => ({
+module.exports = () => ({
   command: 'stuff',
   level: 'tasks',
   describe: 'Tests an app loaded plugin',

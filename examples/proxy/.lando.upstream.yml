@@ -7,5 +7,4 @@ proxy:
           value: kirk
 
 plugins:
-  "@lando/core": "../.."
-  "@lando/proxy": "../../plugins/proxy"
+  "@lando/core": ../..

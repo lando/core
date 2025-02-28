@@ -3,10 +3,10 @@
 module.exports = async lando => {
   // get the user setup defaults
   const sopts = lando?.config?.setup;
-  // skip common plugins for now?
-  sopts.skipCommonPlugins = true;
   // we dont need to show the summary here
   sopts.yes = true;
+  // skip common plugins for now?
+  sopts.skipCommonPlugins = true;
 
   // get our setup tasks
   const tasks = await lando.getSetupStatus(sopts);

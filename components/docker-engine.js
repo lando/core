@@ -128,7 +128,6 @@ class DockerEngine extends Dockerode {
     for (const source of sources) {
       try {
         fs.copySync(source.source, path.join(context, source.target), {dereference: true});
-        debug('copied %o into build context %o', source.source, path.join(context, source.target));
       } catch (error) {
         error.message = `Failed to copy ${source.source} into build context at ${source.target}!: ${error.message}`;
         throw error;
@@ -139,7 +138,6 @@ class DockerEngine extends Dockerode {
     // @NOTE: we do this last to ensure we overwrite any dockerfile that may happenstance end up in the build-context
     // from source above
     fs.copySync(dockerfile, path.join(context, 'Dockerfile'));
-    debug('copied Imagefile from %o to %o', dockerfile, path.join(context, 'Dockerfile'));
 
     // on windows we want to ensure the build context has linux line endings
     if (process.platform === 'win32') {
@@ -229,7 +227,6 @@ class DockerEngine extends Dockerode {
     for (const source of sources) {
       try {
         fs.copySync(source.source, path.join(context, source.target), {dereference: true});
-        debug('copied %o into build context %o', source.source, path.join(context, source.target));
       } catch (error) {
         error.message = `Failed to copy ${source.source} into build context at ${source.target}!: ${error.message}`;
         throw error;
@@ -245,7 +242,6 @@ class DockerEngine extends Dockerode {
 
     // copy the dockerfile to the correct place and reset
     fs.copySync(dockerfile, path.join(context, 'Dockerfile'));
-    debug('copied Imagefile from %o to %o', dockerfile, path.join(context, 'Dockerfile'));
     dockerfile = path.join(context, 'Dockerfile');
 
     // build initial buildx command

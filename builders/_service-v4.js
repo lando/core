@@ -44,8 +44,8 @@ module.exports = {
       // Add in creds if we have them
       if (options.creds) options.info.creds = options.creds;
 
-      super(id, options, imageFile, ...sources);
-    };
+      super(id, options, ...sources);
+    }
 
     addBuildStep
   },

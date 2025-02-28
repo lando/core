@@ -99,7 +99,7 @@ module.exports = (lando, config = lando.appConfig) => ({
     }
 
     // if this service has /etc/lando/exec then prepend
-    if (app?.executors?.[options.service]) options.command.unshift('/etc/lando/exec.sh');
+    if (app?.sapis?.[options.service] === 4) options.command.unshift('/etc/lando/exec.sh');
 
     // spoof options we can pass into build tooling runner
     const ropts = [

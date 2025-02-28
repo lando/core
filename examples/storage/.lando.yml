@@ -88,8 +88,4 @@ services:
         permissions: 777
 
 plugins:
-  "@lando/core": "../.."
-  "@lando/healthcheck": "../../plugins/healthcheck"
-  "@lando/networking": "../../plugins/networking"
-  "@lando/proxy": "../../plugins/proxy"
-  "@lando/scanner": "../../plugins/scanner"
+  "@lando/core": ../..

@@ -3,6 +3,7 @@
 const fs = require('fs');
 const groupBy = require('lodash/groupBy');
 const isObject = require('lodash/isPlainObject');
+const isStringy = require('../utils/is-stringy');
 const os = require('os');
 const merge = require('lodash/merge');
 const path = require('path');
@@ -90,7 +91,6 @@ class L337ServiceV4 extends EventEmitter {
     }
     this.emit('state', this.#data.info);
     this.#app.v4.updateComposeCache();
-    this.debug('updated app info to %o', this.#data.info);
   }
 
   get info() {
@@ -103,7 +103,7 @@ class L337ServiceV4 extends EventEmitter {
 
   constructor(id, {
     appRoot = path.join(os.tmpdir(), project, 'app', id),
-    buildArgs = {},
+    // buildArgs = {},
     context = path.join(os.tmpdir(), project, 'build-contexts', id),
     config = {},
     debug = L337ServiceV4.debug,
@@ -127,11 +127,12 @@ class L337ServiceV4 extends EventEmitter {
 
     // set top level required stuff
     this.id = id;
+    this.api = 'l337';
     this.appRoot = appRoot;
     this.buildkit = true;
     this.config = config;
     this.context = context;
-    this.debug = debug;
+    this.debug = debug.extend(id);
     this.name = name ?? id;
     this.primary = primary;
     this.project = project;
@@ -210,8 +211,8 @@ class L337ServiceV4 extends EventEmitter {
     args = args
       .map(arg => typeof arg === 'string' ? arg.split('=') : arg)
       .filter(arg => arg !== null && arg !== undefined)
-      .filter(([key, value]) => key !== null && key !== undefined)
-      .filter(([key, value]) => value !== null && value !== undefined)
+      .filter(([key]) => key !== null && key !== undefined)
+      .filter(([, value]) => value !== null && value !== undefined)
       .map(([key, value]) => ([key, String(value)]))
       .map(([key, value]) => ([key.trim(), value.trim()]));
 
@@ -253,7 +254,6 @@ class L337ServiceV4 extends EventEmitter {
 
     // update and log
     this.#app.v4.updateComposeCache();
-    this.debug('%o added top level compose data %o', this.id, data);
   }
 
   // adds files/dirs to the build context
@@ -327,7 +327,6 @@ class L337ServiceV4 extends EventEmitter {
         if (group) this.addSteps({group, instructions: file.instructions.join('\n'), contexted: true});
 
         // return normalized data
-        this.debug('%o added %o to the build context', this.id, file);
         return file;
       }));
     }
@@ -446,8 +445,6 @@ class L337ServiceV4 extends EventEmitter {
         if (step.offset && Number(step.offset)) step.weight = step.weight + step.offset;
         // and finally lets rewrite the group for better instruction grouping
         step.group = `${step.group}-${step.weight}-${step.user}`;
-        // log
-        this.debug('%o added build step %o', this.id, step);
         // push
         this.#data.steps.push(step);
       });
@@ -576,8 +573,8 @@ class L337ServiceV4 extends EventEmitter {
     // remove build contexts and tmp
     remove(this.context);
     remove(this.tmpdir);
-    this.debug('removed %o build-context %o', `${this.project}-${this.id}`, this.context);
-    this.debug('removed %o tmpdir %o', `${this.project}-${this.id}`, this.id, this.tmpdir);
+    this.debug('removed build-context %o', this.context);
+    this.debug('removed tmpdir %o', this.tmpdir);
   }
 
   generateBuildContext() {
@@ -706,6 +703,29 @@ class L337ServiceV4 extends EventEmitter {
     return candidates.length > 0 && candidates[0] !== data ? candidates[0] : false;
   }
 
+  normalizeFileInput(data, {dest = undefined} = {}) {
+    // if data is not a stringy then do something else?
+    if (!isStringy(data)) {
+      this.debug('%o does not seem to be valid file input data', data);
+      return data;
+    }
+
+    // if data is a single line string then just return it
+    if (data.split('\n').length === 1) return path.resolve(this.appRoot, data);
+
+    // if dest is undefined and we have ImportString then lets use that filename
+    if (dest === undefined && data?.constructor?.name === 'ImportString') {
+      const {file} = data.getMetadata();
+      if (file) dest = path.basename(file);
+    }
+
+    // if we are here it is multiline and lets dump to a tmp file and return that
+    const file = path.join(this.tmpdir, dest ?? nanoid());
+    write(file, data, {forcePosixLineEndings: true});
+
+    return file;
+  }
+
   normalizeVolumes(volumes = []) {
     if (!Array.isArray) return [];
 
@@ -791,8 +811,8 @@ class L337ServiceV4 extends EventEmitter {
     }
 
     // log
-    this.debug('%o set base image to %o with instructions %o', this.id, this.#data.image, this.#data.imageInstructions);
+    this.debug('set base image to %o with instructions %o', this.#data.image, this.#data.imageInstructions);
   }
-};
+}
 
 module.exports = L337ServiceV4;

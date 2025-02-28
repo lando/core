@@ -1,7 +1,6 @@
 'use strict';
 
-const get = require('lodash/get');
-const sortBy = require('lodash/sortBy');
+const orderBy = require('lodash/orderBy');
 
 // assumes non-scoped plugins are lando ones
 const normalize = name => {
@@ -21,12 +20,12 @@ const normalize = name => {
 module.exports = lando => ({
   command: 'version',
   describe: 'Displays lando version information',
-  usage: '$0 version [--all] [--component <component>] [--full]',
+  usage: '$0 version [--all] [--full] [--plugin <plugin>]',
   examples: [
     '$0 version --all',
     '$0 version --full',
-    '$0 version --component @lando/cli',
-    '$0 version --component cli',
+    '$0 version --plugin @lando/php',
+    '$0 version --plugin php',
   ],
   level: 'tasks',
   options: {
@@ -36,45 +35,50 @@ module.exports = lando => ({
       type: 'boolean',
     },
     component: {
+      hidden: true,
       describe: 'Shows version info for specific component',
       alias: ['c'],
       type: 'string',
-      default: '@lando/core',
+      default: 'lando',
     },
     full: {
       describe: 'Shows full version string',
       alias: ['f'],
       type: 'boolean',
     },
+    plugin: {
+      describe: 'Shows version info for specific plugin',
+      alias: ['p'],
+      type: 'string',
+    },
   },
   run: options => {
     // get UX
     const ux = lando.cli.getUX();
-    // normalize component
-    options.component = normalize(options.component);
-    // start by getting the core version
-    const versions = {'@lando/core': `v${lando.config.version}`};
 
-    // if full/all and component = cli then add cli
-    if (options.full || options.all || options.component === '@lando/cli') {
-      versions['@lando/cli'] = `v${get(lando, 'config.cli.version', lando.config.version)}`;
+    // if legacy component is set and plugin is not then reset
+    if (options.component && !options.plugin) options.plugin = options.component;
+
+    // normalize
+    options.plugin = normalize(options.plugin);
+
+    // start by getting the core version
+    const versions = {'lando': `v${lando.config.version}`};
+
+    // legacy handling for @lando/core && @lando/cli
+    if (options.plugin === '@lando/core' || options.plugin === '@lando/cli' || options.plugin === '@lando/lando') {
+      options.plugin = 'lando';
     }
 
     // if all or component is non cli/core then also add all our plugin versions
-    if (options.all || (options.component !== '@lando/core' && options.component !== '@lando/cli')) {
+    // but do not show core if its coming from CLI
+    if (options.all || (options.plugin !== '@lando/core' && options.plugin !== '@lando/cli')) {
       const Plugin = require('../components/plugin');
       for (const data of lando.config.plugins) {
         const plugin = new Plugin(data.dir);
-        // if we are an internal lando core in packaged dev version then reset any core plugin to match that
-        if (lando.config.cli
-          && lando.config.cli.dev
-          && lando.config.cli.coreBase
-          && plugin.package === '@lando/core') {
-          plugin.version = lando.config.version;
+        if (plugin.location !== lando.config.cli.plugin) {
+          versions[plugin.name] = `v${plugin.version}`;
         }
-
-        // then set the version
-        versions[plugin.name] = `v${plugin.version}`;
       }
     }
 
@@ -82,9 +86,9 @@ module.exports = lando => ({
     if (options.full) {
       const os = `${lando.config.os.platform}-${lando.config.os.arch}`;
       const node = `node-${lando.config.node}`;
-      const cli = `cli-${versions['@lando/cli']}`;
       for (const [name, version] of Object.entries(versions)) {
-        versions[name] = `${name}/${version} ${os} ${node} ${cli}`;
+        const prefix = name === 'lando' ? '' : `${name}/`;
+        versions[name] = `${prefix}${version} ${os} ${node}`;
       }
     }
 
@@ -92,12 +96,12 @@ module.exports = lando => ({
     if (options.all) {
       const rows = Object.entries(versions).map(([name, version]) => ({name, version}));
       console.log();
-      ux.table(sortBy(rows, ['name']), {name: {}, version: {}});
+      ux.table(orderBy(rows, ['name'], ['desc']), {name: {}, version: {}});
       console.log();
       return;
     }
 
     // if we get here then just print component version
-    console.log(versions[options.component]);
+    console.log(versions[options.plugin]);
   },
 });

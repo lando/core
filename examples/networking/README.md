@@ -22,10 +22,6 @@ cp -rf index.php lemp/index.php
 cp -rf nginx.conf lemp/nginx.conf
 cp -rf .lando.lemp.yml lemp/.lando.yml
 cd lemp && lando start
-
-# Should copy .config.yml to ~/.lando/config.yml
-cp config.yml ~/.lando/config.yml
-lando --clear
 ```
 
 ## Verification commands
@@ -68,8 +64,13 @@ lando exec appserver_nginx -- curl https://appserver.landolamp.internal
 cd lamp
 lando exec database -- mysql -uroot -h database.landolemp.internal -e "quit"
 
-# Should see the correct network limit
-lando config | grep "networkLimit: 64"
+# Should have 32 networks by default
+lando config | grep "networkLimit" | grep 32
+
+# Should be able to set the networkLimit in config
+cp config.yml ~/.lando/config.yml
+lando --clear
+lando config | grep "networkLimit" | grep 64
 ```
 
 ## Destroy tests

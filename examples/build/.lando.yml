@@ -14,6 +14,8 @@ events:
     - cat /var/www/run_internal.txt | grep www-data
     - cat /run_as_root.txt | grep root
     - cat /var/www/run.txt | grep www-data
+    - cat /tmp/famous-blogger | grep famous-blogger
+    - cat /tmp/paperback-writer | grep paperback-writer
     - /bin/sh -c 'echo "$LANDO_APP_PROJECT" | grep landobuild'
     # uncomment below to test out https://github.com/lando/core/issues/70
     # this is commented out by default because of https://github.com/actions/runner/issues/241
@@ -40,6 +42,9 @@ services:
       # - bash /app/build_as_root.bash
     build:
       - echo "$(id)" > /var/www/build.txt
+      - !load paperback-writer.sh
+      - /app/paperback-writer.sh --writer famous-blogger
+
     run_as_root:
       - echo "$(id)" > /run_as_root.txt
     run:
@@ -68,4 +73,4 @@ services:
         - "./test.txt:/var/www/test.txt"
 
 plugins:
-  "@lando/core": "../.."
+  "@lando/core": ../..
