@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.24.0 - [February 28, 2025](https://github.com/lando/core/releases/tag/v3.24.0)
+
 ### New Features
 
 * Added support for `init.defaults` for explicit recipe `config` setting on `lando init`
