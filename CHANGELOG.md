@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.24.1 - [March 3, 2025](https://github.com/lando/core/releases/tag/v3.24.1)
+
 ### Bug Fixes
 
 * Fixed bug causing legacy excluding to fail with `utils.getNamedVolumes is not a function` [#346](https://github.com/lando/core/issues/346)
