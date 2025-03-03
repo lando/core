@@ -1,4 +1,8 @@
-name: "XYŹ | AFFAIR"
+name: excludes
+
+excludes:
+  - excludes
+
 services:
   defaults:
     type: lando
@@ -9,6 +13,7 @@ services:
         - 80
       volumes:
         - ./:/usr/share/nginx/html:ro
+
   defaults-v4:
     api: 4
     type: l337

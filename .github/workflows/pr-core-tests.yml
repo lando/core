@@ -24,6 +24,7 @@ jobs:
           - entrypoint
           # - environment
           - events
+          - excludes
           - exec
           - experimental
           - healthcheck

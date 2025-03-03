@@ -89,9 +89,16 @@ module.exports = (app, lando) => {
     app.events.on('post-init', () => {
       const serviceExcludes = getServiceVolumes(excludes, '/app');
       const serviceIncludes = getIncludeVolumes(includes, app.root);
+
+      // only allow excludes on non api4 services
+      const services = app.services.filter(service => {
+        const {api} = app.info.find(s => s.service === service) ?? {api: 3};
+        return api !== 4;
+      });
+
       app.add(new app.ComposeService('excludes', {}, {
         volumes: getNamedVolumes(excludes),
-        services: toObject(app.services, {
+        services: toObject(services, {
           volumes: _.compact(serviceExcludes.concat(serviceIncludes)),
         }),
       }));
