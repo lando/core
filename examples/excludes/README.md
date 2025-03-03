@@ -19,10 +19,9 @@ lando start
 Run the following commands to validate things are rolling as they should.
 
 ```bash
-# Should excludes from non v4 services
-docker inspect excludes_defaults_1 | grep
-docker inspect --format '{{ range .Mounts }}{{ if and (eq .Type "volume") (eq .Name "excludes_exclude_excludes") }}{{ printf "%+v\n" . }}{{ end }}{{ end }}' excludes_defaults_1 | grep "Destination:/app/excludes"
+# Should exclude from non v4 services
 lando exec defaults -- stat /app/excludes/file1
+docker inspect --format '{{ range .Mounts }}{{ if and (eq .Type "volume") (eq .Name "excludes_exclude_excludes") }}{{ printf "%+v\n" . }}{{ end }}{{ end }}' excludes_defaults_1 | grep "Destination:/app/excludes"
 
 # Should not exclude in v4 services
 lando exec defaults-v4 -- stat /usr/share/nginx/html/excludes/file1
