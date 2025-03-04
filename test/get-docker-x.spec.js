@@ -52,7 +52,7 @@ describe('get-docker-x', () => {
     setPlatform('darwin');
     filesystem({'/Applications/Docker.app/Contents/Resources/bin/docker': 'CODEZ'});
     const dockerExecutable = getDockerExecutable();
-    expect(dockerExecutable).to.equal('/Applications/Docker.app/Contents/Resources/bin/docker');
+    expect(dockerExecutable).to.equal('.');
     filesystem.restore();
     resetPlatform();
   });

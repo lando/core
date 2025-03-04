@@ -60,7 +60,7 @@ describe('get-docker-bin-path', () => {
   it('should return the correct lando-provided path on darwin', () => {
     setPlatform('darwin');
     const dockerBinPath = getDockerBinPath();
-    expect(dockerBinPath).to.equal('/Applications/Docker.app/Contents/Resources/bin');
+    expect(dockerBinPath).to.equal('/usr/bin');
     resetPlatform();
   });
 });

@@ -5,8 +5,6 @@ const path = require('path');
 
 module.exports = (platform = process.landoPlatform ?? process.platform) => {
   switch (platform) {
-    case 'darwin':
-      return '/Applications/Docker.app/Contents/Resources/bin';
     case 'linux':
       return '/usr/share/lando/bin';
     case 'win32': {
