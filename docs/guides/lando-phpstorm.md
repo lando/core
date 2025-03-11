@@ -51,7 +51,7 @@ services:
 
 Out of the box, PhpStorm is already configured to connect to Xdebug. You shouldn't need to change anything, though you may refine settings to meet your needs in PhpStorm's Settings under Languages and frameworks >> PHP >> Debug.
 
-1. Install the Xdebug helper extention for your browser. For Chrome-based browsers, use the [Xdebug helper](https://chromewebstore.google.com/search/xdebug) extension. For Firefox, use the [Xdebug Helper for Firefox](https://addons.mozilla.org/en-US/firefox/addon/xdebug-helper-for-firefox/) add-on.
+1. Install the Xdebug helper extension for your browser. For Chrome-based browsers, use the [Xdebug helper](https://chromewebstore.google.com/search/xdebug) extension. For Firefox, use the [Xdebug Helper for Firefox](https://addons.mozilla.org/en-US/firefox/addon/xdebug-helper-for-firefox/) add-on.
 1. Find the "Listen for PHP Debug Connections" button in your PhpStorm toolbar and click it to start listening for connections. The button will look like a beetle (or a phone in the classic UI).
 1. Add a debug breakpoint to a line in your code by clicking the line number.
 1. In your browser, navigate to your Lando app's URL and click the "beetle" icon that the Xdebug helper added to your address bar. Select "Debug" from the menu to tell your browser to send the appropriate parameters to Xdebug so that Xdebug activates when a request is made.
