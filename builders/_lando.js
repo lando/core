@@ -1,3 +1,10 @@
+/**
+ * @module builders/_lando
+ * @description Lando service builder for Lando services. This module provides the base
+ * implementation for all Lando services, handling configuration, environment setup,
+ * and container orchestration.
+ */
+
 'use strict';
 
 // Modules
@@ -10,13 +17,68 @@ const write = require('../utils/write-file');
 const {color} = require('listr2');
 const {nanoid} = require('nanoid');
 
-/*
- * The lowest level lando service, this is where a lot of the deep magic lives
+/**
+ * Configuration options for a Lando service.
+ * @typedef {Object} LandoServiceConfig
+ * @property {string} name - Service name
+ * @property {Object} [healthcheck] - Health check configuration
+ * @property {string} type - Service type (e.g., 'apache', 'nginx', 'php')
+ * @property {string} userConfRoot - User config root directory
+ * @property {string} version - Service version
+ * @property {string} [confDest] - Config destination path in container
+ * @property {string} [confSrc] - Config source path on host
+ * @property {Object} [config] - Configuration files mapping (remote path -> local path)
+ * @property {string} [data] - Data directory name for persistent storage
+ * @property {string} [dataHome] - Data home directory name for user data
+ * @property {string} [entrypoint] - Container entrypoint script
+ * @property {string} [home] - Home directory path in container
+ * @property {string[]} [moreHttpPorts] - Additional HTTP ports to expose
+ * @property {Object} [info] - Service information for display
+ * @property {string[]} [legacy] - Legacy versions to warn about
+ * @property {string} [meUser] - Service user inside container
+ * @property {boolean} [patchesSupported] - Whether patch versions are supported
+ * @property {Object} [pinPairs] - Version pinning configuration
+ * @property {string[]} [ports] - Ports to expose
+ * @property {string} [project] - Project name for namespacing
+ * @property {Object} [overrides] - Docker compose overrides
+ * @property {boolean} [refreshCerts] - Whether to refresh SSL certificates
+ * @property {Object} [remoteFiles] - Remote files mapping
+ * @property {string[]} [scripts] - Additional scripts to mount
+ * @property {boolean|string} [scriptsDir] - Scripts directory to mount
+ * @property {string} [sport] - SSL port number
+ * @property {boolean} [ssl] - Whether SSL is enabled
+ * @property {boolean} [sslExpose] - Whether to expose SSL ports
+ * @property {string[]} [supported] - List of supported versions
+ * @property {boolean} [supportedIgnore] - Whether to ignore version support check
+ * @property {string} [root] - Root directory for relative paths
+ */
+
+/**
+ * The lowest level lando service definition.
+ * @typedef {Object} ServiceTypeLando
+ * @property {string} parent - The parent service type to extend from.
+ * @property {(parent: any) => any} builder - Builder function that returns a service class.
+ */
+
+/**
+ * Base Lando service implementation.
+ * @type {ServiceTypeLando}
  */
 module.exports = {
   name: '_lando',
   parent: '_compose',
+  /**
+   * Creates a new LandoLando service class.
+   * @param {any} parent - The parent class to extend from.
+   * @return {any} The LandoLando service class.
+   */
   builder: parent => class LandoLando extends parent {
+    /**
+     * Creates a new LandoLando service instance.
+     * @param {string} id - The unique identifier for the service.
+     * @param {Partial<LandoServiceConfig>} options - Service configuration options.
+     * @param {...Object} sources - Additional configuration sources to merge.
+     */
     constructor(
       id,
       {
@@ -25,7 +87,6 @@ module.exports = {
         type,
         userConfRoot,
         version,
-        // app = '',
         confDest = '',
         confSrc = '',
         config = {},
@@ -52,7 +113,6 @@ module.exports = {
         supported = ['custom'],
         supportedIgnore = false,
         root = '',
-        // webroot = '/app',
       } = {},
       ...sources
     ) {
