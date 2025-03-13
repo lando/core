@@ -1,5 +1,9 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+### Bug Fixes
+
+* Fixed bug causing some recipe configs to throw `TypeError [ERR_INVALID_ARG_TYPE]` [#348]https://github.com/lando/core/pull/348
+
 ## v3.24.1 - [March 3, 2025](https://github.com/lando/core/releases/tag/v3.24.1)
 
 ### Bug Fixes
