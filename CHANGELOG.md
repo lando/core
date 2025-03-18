@@ -1,5 +1,8 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Added `pre-` and `post-` as syntactical sugar for `L337` service `group` override syntax
+* Fixed bug causing `v4` services to be unnecessarily rebuilt on non-rebuildy commands eg `lando start`
+
 ## v3.24.0-beta.12 - [January 24, 2025](https://github.com/lando/core/releases/tag/v3.24.0-beta.12)
 
 * Merged in improvements from `@lando/core@v3.23.26`
