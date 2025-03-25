@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.24.3 - [March 25, 2025](https://github.com/lando/core/releases/tag/v3.24.3)
+
 ### Bug Fixes
 
 * Fixed bug causing `too many colons` error on Windows [#354]https://github.com/lando/core/pull/354
