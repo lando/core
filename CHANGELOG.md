@@ -1,5 +1,9 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+### Bug Fixes
+
+* Fixed bug causing `too many colons` error on Windows [#354]https://github.com/lando/core/pull/354
+
 ## v3.24.2 - [March 13, 2025](https://github.com/lando/core/releases/tag/v3.24.2)
 
 ### Bug Fixes

@@ -150,12 +150,14 @@ module.exports = {
 
       // Handle custom config files
       for (let [remote, local] of Object.entries(config)) {
-        // if we dont have entries we can work with then just go to the next iteration
-        const isValidLocal = typeof local === 'string' || local?.constructor?.name === 'ImportString';
-        if (!_.has(remoteFiles, remote) && (typeof remote !== 'string' || !isValidLocal)) continue;
+        // if remote does not start with / them assume it is a remote file key
+        if (!remote.startsWith('/')) remote = remoteFiles[remote];
 
-        // if this is special type then get it from remoteFile
-        remote = _.has(remoteFiles, remote) ? remoteFiles[remote] : path.resolve('/', remote);
+        // if we get here and remote is undefined then we should skip to the next iteration
+        if (!remote) continue;
+
+        // if local is not a valid import type then also continue
+        if (typeof local !== 'string' && local?.constructor?.name !== 'ImportString') continue;
 
         // if file is an imported string lets just get the file path instead
         if (local?.constructor?.name === 'ImportString') {
