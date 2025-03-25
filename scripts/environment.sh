@@ -49,6 +49,9 @@ set_package_manager() {
     ol)
       export LANDO_LINUX_PACKAGE_MANAGER="microdnf"
       ;;
+    opensuse-tumbleweed|opensuse-leap|opensuse)
+      export LANDO_LINUX_PACKAGE_MANAGER="zypper"
+      ;;
     *)
       return 1
       ;;
