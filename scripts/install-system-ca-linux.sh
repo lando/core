@@ -82,6 +82,9 @@ set_package_manager() {
     ol)
       export LANDO_LINUX_PACKAGE_MANAGER="microdnf"
       ;;
+    opensuse-tumbleweed|opensuse-leap|opensuse)
+      export LANDO_LINUX_PACKAGE_MANAGER="zypper"
+      ;;
     *)
       return 1
       ;;
@@ -126,6 +129,9 @@ if [ ! -x "$(command -v update-ca-certificates)" ]; then
     apt)
       apt install -y ca-certificates
       ;;
+    zypper)
+      zypper install -y ca-certificates
+      ;;
   esac
 fi
 
@@ -142,6 +148,9 @@ if [ ! -x "$(command -v update-ca-trust)" ]; then
       ;;
     yum)
       yum install -y ca-certificates
+      ;;
+    zypper)
+      zypper install -y p11-kit
       ;;
   esac
 fi
@@ -163,6 +172,11 @@ case $LANDO_LINUX_PACKAGE_MANAGER in
     mkdir -p /etc/ca-certificates/trust-source/anchors
     cp -rf "$CA" /etc/ca-certificates/trust-source/anchors/
     update-ca-trust
+    ;;
+  zypper)
+    mkdir -p /etc/pki/trust/anchors
+    cp -rf "$CA" /etc/pki/trust/anchors/
+    update-ca-certificates
     ;;
   *)
     mkdir -p /usr/local/share/ca-certificates
