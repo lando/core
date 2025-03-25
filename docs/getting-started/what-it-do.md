@@ -65,7 +65,7 @@ If you are interested in using something Lando does not currently offer as a ser
 
 **[events](https://docs.lando.dev/landofile/events.html)** - Events allow the user to run arbitrary commands, or combinations of commands, on arbitrary services, or combinations of services before or after certain parts of the Lando runtime. A good example is clearing out an application's cache after a database is imported.
 
-**[recipe](https://docs.lando.dev/landofile/recipes.html)** - Recipes are combinations of [services]([https://docs.lando.dev/landofile/services.html](https://docs.lando.dev/landofile/services.html)), [proxies](https://docs.lando.dev/landofile/proxy.html), and [tooling](https://docs.lando.dev/landofile/tooling.html) designed as a start-state-of-sane-defaults for a particular use case - e.g. `drupal9`.
+**[recipe](https://docs.lando.dev/landofile/recipes.html)** - Recipes are combinations of [services](https://docs.lando.dev/landofile/services.html), [proxies](https://docs.lando.dev/landofile/proxy.html), and [tooling](https://docs.lando.dev/landofile/tooling.html) designed as a start-state-of-sane-defaults for a particular use case - e.g. `drupal9`.
 
 **[config](https://docs.lando.dev/landofile/recipes.html#config)** - Config allows you to set some of the more important things your recipe provides. These settings are usually different depending on the recipe you select.
 
