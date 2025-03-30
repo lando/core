@@ -84,6 +84,7 @@ perm_sweep() {
   chown -R $USER:$GROUP /usr/local/bin
   chown $USER:$GROUP /var/www
   chown $USER:$GROUP /app
+  chown $USER:$GROUP /tmp
   chmod 755 /var/www
 
   # Do other dirs first if we have them
