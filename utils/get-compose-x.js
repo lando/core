@@ -33,10 +33,13 @@ module.exports = ({orchestratorVersion = '2.31.0', userConfRoot = os.tmpdir()} =
     case 'darwin':
     case 'linux':
       // use lando bin if available
+      console.log('checking for lando bin in', path.join(userConfRoot, 'bin', orchestratorBin));
       if (fs.existsSync(path.join(userConfRoot, 'bin', orchestratorBin))) {
+        console.log('using lando bin');
         return getDockerBin(orchestratorBin, path.join(userConfRoot, 'bin'), false);
       }
       // otherwise use docker desktop one if available
+      console.log('using docker desktop bin at ', require('./get-compose-bin-path')());
       return getDockerBin('docker-compose', require('./get-compose-bin-path')(), process.platform === 'linux');
     case 'win32':
       // use lando bin if available
