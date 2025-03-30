@@ -1,0 +1,118 @@
+name: Setup WSL Tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  leia-tests:
+    runs-on: ${{ matrix.os }}
+    env:
+      TERM: xterm
+    strategy:
+      fail-fast: false
+      matrix:
+        leia-test:
+          - setup-linux
+        node-version:
+          - "20"
+        os:
+          - windows-2022
+
+    steps:
+      - name: Install Ubuntu for WSL2
+        shell: pwsh
+        run: |
+          # Manually download and install Ubuntu to avoid the reboot that kills the Actions runner
+          Set-Service -Name StorSvc -StartupType Automatic
+          wsl.exe --set-default-version 2
+          wsl.exe --update
+          $distributionInfo = Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/microsoft/WSL/refs/heads/master/distributions/DistributionInfo.json'
+          $downloadUrl = $distributionInfo.Distributions.Where({ $_.Name -eq 'Ubuntu' }).Amd64PackageUrl
+          $filename = [System.IO.Path]::GetFileName($downloadUrl)
+          Write-Output 'Installing Ubuntu for WSL2...'
+          Set-Location $env:TEMP
+          Invoke-WebRequest -Uri $downloadUrl -OutFile $filename
+          Expand-Archive -Path $filename -DestinationPath .\
+          .\ubuntu.exe install --root
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          ref: ${{ github.sha }}
+
+      - name: Setup WSL Run Action
+        shell: pwsh
+        run: |
+          cd .github/actions/wsl-run
+          npm install
+          # Install Node.js and git in WSL environment
+          wsl.exe bash -c "curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs git"
+
+      - name: Install node ${{ matrix.node-version }}
+        uses: ./.github/actions/wsl-run
+        with:
+          uses: actions/setup-node@v4
+          with: |
+            node-version: ${{ matrix.node-version }}
+
+      - name: Bundle Deps
+        uses: ./.github/actions/wsl-run
+        with:
+          run: |
+            mkdir -p ~/prepare-release-action
+            git clone --depth 1 https://github.com/lando/prepare-release-action.git ~/prepare-release-action
+            cd ~/prepare-release-action
+            env \
+              INPUT_LANDO-PLUGIN=true \
+              INPUT_VERSION=dev \
+              INPUT_SYNC=false \
+              INPUT_BUNDLE-DEPENDENCIES=true \
+              node dist/index.js
+
+      - name: Install pkg dependencies
+        uses: ./.github/actions/wsl-run
+        with:
+          run: npm clean-install --prefer-offline --frozen-lockfile --production
+
+      - name: Package into node binary
+        uses: ./.github/actions/wsl-run
+        id: pkg-action
+        with:
+          run: |
+            npm install -g @yao-pkg/pkg@5.16.1
+            pkg bin/lando --target node${{ matrix.node-version }}-linux-x64 --options dns-result-order=ipv4first --output lando
+            echo "PKG_OUTPUT=lando" >> $GITHUB_ENV
+
+      - name: Install full deps
+        uses: ./.github/actions/wsl-run
+        with:
+          run: npm clean-install --prefer-offline --frozen-lockfile
+
+      - name: Setup lando ${{ steps.pkg-action.outputs.file }}
+        uses: ./.github/actions/wsl-run
+        with:
+          run: |
+            mkdir -p ~/setup-lando
+            git clone --depth 1 https://github.com/lando/setup-lando.git ~/setup-lando
+            cd ~/setup-lando
+            env \
+              INPUT_AUTO-SETUP=false \
+              INPUT_LANDO-VERSION="${{ steps.pkg-action.outputs.file }}" \
+              INPUT_TELEMETRY=false \
+              node dist/index.js
+
+      - name: Run Leia Tests
+        uses: ./.github/actions/wsl-run
+        with:
+          run: |
+            mkdir -p ~/run-leia-action
+            git clone --depth 1 https://github.com/lando/run-leia-action.git ~/run-leia-action
+            cd ~/run-leia-action
+            env \
+              INPUT_LEIA-TEST="./examples/${{ matrix.leia-test }}/README.md" \
+              INPUT_CLEANUP-HEADER="Destroy tests" \
+              INPUT_SHELL="bash" \
+              INPUT_STDIN=true \
+              node dist/index.js
