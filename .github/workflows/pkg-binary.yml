@@ -19,9 +19,9 @@ on:
         required: false
         type: string
       node-version:
-        default: "20.18.3"
+        default: "20"
         description: The node version to build for eg 16 | 18 | 20
-        required: false
+        required: true
         type: string
       os:
         default: linux
