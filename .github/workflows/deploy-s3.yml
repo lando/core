@@ -48,6 +48,4 @@ jobs:
       - name: Upload releases to S3
         shell: bash
         run: |
-          aws s3 sync /tmp/deploy-s3/${{ github.sha }} s3://files.lando.dev
-          aws s3 sync /tmp/deploy-s3/${{ github.sha }} s3://files.lando.dev/cli
           aws s3 sync /tmp/deploy-s3/${{ github.sha }} s3://files.lando.dev/core
