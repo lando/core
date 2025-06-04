@@ -23,7 +23,6 @@ jobs:
       arch: ${{ matrix.arch }}
       edge: ${{ github.event.release.prerelease }}
       filename: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}
-      node-version: "20"
       os: ${{ matrix.os }}
       version: ${{ github.event.release.tag_name }}
 
