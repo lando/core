@@ -68,6 +68,7 @@ fi
   @lando/laravel@$TAG \
   @lando/lemp@$TAG \
   @lando/mailhog@$TAG \
+  @lando/mailpit@$TAG \
   @lando/mariadb@$TAG \
   @lando/mean@$TAG \
   @lando/memcached@$TAG \
