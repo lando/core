@@ -66,6 +66,7 @@ const defaultConfig = options => ({
       '@lando/laravel': 'latest',
       '@lando/lemp': 'latest',
       '@lando/mailhog': 'latest',
+      '@lando/mailpit': 'latest',
       '@lando/mariadb': 'latest',
       '@lando/mean': 'latest',
       '@lando/memcached': 'latest',
