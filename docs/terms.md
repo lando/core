@@ -14,9 +14,9 @@ prev:
 
 # Terms and Conditions
 
-**Last updated:** _November 26, 2019_
+**Last updated:** _July 4, 2025_
 
-These Terms and Conditions ("Terms", "Terms and Conditions") govern your relationship with <https://docs.lando.dev> website (the "Service") operated by Kalabox Inc DBA Tandem ("us", "we", or "our").
+These Terms and Conditions ("Terms", "Terms and Conditions") govern your relationship with <https://docs.lando.dev> website (the "Service") operated by Lando Alliance ("us", "we", or "our").
 
 Please read these Terms and Conditions carefully before using the Service.
 
@@ -30,9 +30,9 @@ If you are looking for the Terms and Conditions for Lando the software you shoul
 
 ## Links To Other Web Sites
 
-Our Service may contain links to third-party web sites or services that are not owned or controlled by Kalabox Inc DBA Tandem.
+Our Service may contain links to third-party web sites or services that are not owned or controlled by Lando Alliance.
 
-Kalabox Inc DBA Tandem has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third party web sites or services. You further acknowledge and agree that Kalabox Inc DBA Tandem shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with use of or reliance on any such content, goods or services available on or through any such web sites or services.
+Lando Alliance has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third party web sites or services. You further acknowledge and agree that KLando Alliance shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with use of or reliance on any such content, goods or services available on or through any such web sites or services.
 
 We strongly advise you to read the terms and conditions and privacy policies of any third-party web sites or services that you visit.
 
