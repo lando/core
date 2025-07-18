@@ -27,7 +27,7 @@ features:
     title: Liberating
     details: Free yourself from the mind-forged manacles of lesser dev tools. Save time, headaches, frustration and do more real work
 
-footer: Copyright ©2025 Kalabox Inc.
+footer: Copyright ©2025 Lando Alliance
 ---
 
 <VPHomeHero>
