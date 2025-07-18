@@ -70,7 +70,7 @@ footer: Copyright ©2025 Lando Alliance
   <footer id="footer">
     <div class="footer-container">
       <div class="footer-copyright">
-        <span class="copyright">© 2024</span> LANDO SYSTEM
+        <span class="copyright">© 2025</span> LANDO ALLIANCE
       </div>
       <div class="footer-links">
         <div class="menu-primary">
