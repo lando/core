@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.25.0 - [July 19, 2025](https://github.com/lando/core/releases/tag/v3.25.0)
+
 * Granted permission
 
 ## v3.24.3 - [March 25, 2025](https://github.com/lando/core/releases/tag/v3.24.3)
