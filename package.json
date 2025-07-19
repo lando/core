@@ -3,7 +3,7 @@
   "description": "The libraries that power all of Lando.",
   "version": "3.24.3",
   "author": "Mike Pirog @pirog",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "repository": "lando/core",
   "bugs": "https://github.com/lando/core/issues/new/choose",
   "homepage": "https://github.com/lando/core",
