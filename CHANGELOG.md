@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Granted permission
+
 ## v3.24.3 - [March 25, 2025](https://github.com/lando/core/releases/tag/v3.24.3)
 
 ### Bug Fixes
