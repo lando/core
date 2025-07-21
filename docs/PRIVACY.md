@@ -13,5 +13,4 @@ url-loader:
   source: https://raw.githubusercontent.com/lando/website/refs/heads/main/privacy/index.md
   content: replace
   frontmatter: false
-editLink: false
 ---
