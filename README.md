@@ -43,10 +43,8 @@ We try to log all changes big and small in both [THE CHANGELOG](https://github.c
 
 Made with [contributors-img](https://contrib.rocks).`
 
-      ## Other Selected Resources
-      
-      * [LICENSE](/LICENSE)
-      * [TERMS OF USE](https://docs.lando.dev/terms)
-      * [PRIVACY POLICY](https://docs.lando.dev/privacy)
-      
-      
+## Other Selected Resources
+
+* [LICENSE](/LICENSE)
+* [TERMS OF USE](https://docs.lando.dev/terms)
+* [PRIVACY POLICY](https://docs.lando.dev/privacy)
