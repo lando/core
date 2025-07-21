@@ -43,6 +43,10 @@ We try to log all changes big and small in both [THE CHANGELOG](https://github.c
 
 Made with [contributors-img](https://contrib.rocks).`
 
-## Other Selected Resources
-
-* [The best professional advice ever](https://www.youtube.com/watch?v=tkBVDh7my9Q)
+      ## Other Selected Resources
+      
+      * [LICENSE](/LICENSE)
+      * [TERMS OF USE](https://docs.lando.dev/terms)
+      * [PRIVACY POLICY](https://docs.lando.dev/privacy)
+      
+      
