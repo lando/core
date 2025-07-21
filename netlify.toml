@@ -21,6 +21,10 @@
       "https://docs.google.com/forms",
       "https://github.com",
       "https://www.drupal.org/community/events",
+      "build-steps",
+      "overrides",
+      "fragment-check",
+      "sqlshack",
       "/v/"
     ]
     skipPatterns = [
