@@ -45,5 +45,4 @@ Made with [contributors-img](https://contrib.rocks).`
 
 ## Other Selected Resources
 
-* [LICENSE](https://github.com/lando/core/blob/main/LICENSE.md)
 * [The best professional advice ever](https://www.youtube.com/watch?v=tkBVDh7my9Q)
