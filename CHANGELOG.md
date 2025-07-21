@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.25.2 - [July 21, 2025](https://github.com/lando/core/releases/tag/v3.25.2)
+
 * Updated to consolidated `Terms of Use` and `Privacy Policy` to reflect transition to Lando Alliance non-profit part 2
 
 ## v3.25.1 - [July 21, 2025](https://github.com/lando/core/releases/tag/v3.25.1)
