@@ -61,7 +61,7 @@ Out of the box, PhpStorm is already configured to connect to Xdebug. You shouldn
 ## Debugging CLI Commands
 
 By default, our Drupal recipes come with Drush out of the box and also the Symfony recipe has a console tooling, which can be debugged with the following config. In order to debug any Drush/Symfony or CLI command using Xdebug with
-PhpStorm or a similar IDE, you will need to set two additional environment variables `PHP_IDE_CONFIG` + `XDEBUG_SESSION` and configure the
+PhpStorm or a similar IDE, you will need to set three additional environment variables `PHP_IDE_CONFIG` + `XDEBUG_SESSION` + `DRUSH_ALLOW_XDEBUG` and configure the
 path mapping in your IDE accordingly.
 
 ```yaml
@@ -71,7 +71,8 @@ services:
       environment:
         # Support debugging CLI with Xdebug.
         PHP_IDE_CONFIG: "serverName=appserver"
-        XDEBUG_SESSION: drush
+        XDEBUG_SESSION: 1
+        DRUSH_ALLOW_XDEBUG: 1
 ```
 
 You are free to assign any name to "serverName" as long as it matches the server you define in the IDE settings.
