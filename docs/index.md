@@ -67,6 +67,18 @@ footer: Copyright ©2025 Lando Alliance
     title="Lando Newsletter"
     byline="Join our revolution to free developers from the mind forged manacled of lesser dev tools"
   />
+
+  <div class="divider">
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="netlify">
+    All Lando sites and documentation are powered by Netlify
+    <a href="https://www.netlify.com">
+      <img src="https://www.netlify.com/img/global/badges/netlify-color-bg.svg"/>
+    </a>
+  </div>
+
   <footer id="footer">
     <div class="footer-container">
       <div class="footer-copyright">
@@ -104,6 +116,9 @@ footer: Copyright ©2025 Lando Alliance
           </a>
           <a href="/privacy">
             Privacy Policy
+          </a>
+          <a href="/coc">
+            Code of Conduct
           </a>
           <a href="https://www.kalabox.io" target="_blank" rel="noopener noreferrer">
             Kalabox
@@ -266,7 +281,7 @@ onMounted(async () => {
   }
 }
 
-.et-tu {
+.et-tu, .netlify {
   text-align: center;
   a {
     font-weight: 500;
@@ -276,6 +291,21 @@ onMounted(async () => {
     transition: color 0.25s, opacity 0.25s;
     font-size: 14px;
   }
+}
+
+.netlify {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  letter-spacing: 1px !important;
+  line-height: 24px;
+  font-size: .8em;
+  width: 100%;
+  gap: 1em;
+  font-weight: 600;
+  color: var(--vp-c-text-2);
+  padding-bottom: 1em;
 }
 
 #footer {
