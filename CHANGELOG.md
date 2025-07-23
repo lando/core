@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.25.3 - [July 23, 2025](https://github.com/lando/core/releases/tag/v3.25.3)
+
 * Added [Code of Conduct](https://docs.lando.dev/coc)
 
 ## v3.25.2 - [July 21, 2025](https://github.com/lando/core/releases/tag/v3.25.2)
