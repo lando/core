@@ -140,6 +140,8 @@ module.exports = async lando => {
   // regen task cache
   lando.events.on('before-end', 9999, async () => await require('./hooks/lando-generate-tasks-cache')(lando));
 
+  lando.events.on('post-bootstrap-config', async () => await require('./hooks/plugin-auth-from-npmrc')(lando));
+
   // return some default things
   return _.merge({}, defaults, uc(), {config: {
     appEnv: {
