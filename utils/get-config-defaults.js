@@ -10,10 +10,9 @@ const getBuildEngineVersion = (platform = process.landoPlatform ?? process.platf
     case 'darwin':
       return '4.37.2';
     case 'linux':
+    case 'wsl':
       return '27.5.0';
     case 'win32':
-      return '4.37.1';
-    case 'wsl':
       return '4.37.1';
   }
 };

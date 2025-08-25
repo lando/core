@@ -39,7 +39,7 @@ module.exports = async (lando, options) => {
       if (lando.engine.dockerInstalled === false) return false;
 
       // we also want to do an additional check on docker-destkop
-      if (lando.config.os.landoPlatform !== 'linux' && !fs.existsSync(getDockerDesktopBin())) return false;
+      if (!['linux', 'wsl'].includes(lando.config.os.landoPlatform) && !fs.existsSync(getDockerDesktopBin())) return false;
 
       // otherwise attempt to sus things out
       try {
