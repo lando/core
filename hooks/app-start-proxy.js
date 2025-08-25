@@ -190,7 +190,7 @@ const parseRoutes = (service, urls = [], sslReady, labels = {}) => {
     rule.middlewares.push({name: 'lando', key: 'headers.customrequestheaders.X-Lando', value: 'on'});
 
     // Add in any path stripping middleware we need it
-    if (rule.pathname.length > 1) {
+    if (rule.pathname.length > 1 && _.get(rule, 'stripPrefix', true)) {
       rule.middlewares.push({name: 'stripprefix', key: 'stripprefix.prefixes', value: rule.pathname});
     }
 
