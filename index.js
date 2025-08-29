@@ -84,7 +84,7 @@ module.exports = async lando => {
   lando.events.on('pre-setup', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
 
   // ensure we setup docker if needed
-  lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-build-engine-${process.platform}`)(lando, options));
+  lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-build-engine-${platform}`)(lando, options));
 
   // do some sepecial handling on wsl
   lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-create-ca-wsl')(lando, options));

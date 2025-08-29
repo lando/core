@@ -67,7 +67,7 @@ module.exports = lando => {
   // get defaults from the lando config
   const defaults = lando.config.setup;
   // determine label for build engine
-  const buildEngine = ['linux', 'wsl'].includes(process.landoPlatform) ? 'docker-engine' : 'docker-desktop';
+  const buildEngine = process.landoPlatform === 'linux' || process.platform === 'linux' ? 'docker-engine' : 'docker-desktop';
   // default options
   const options = {
     'build-engine': {
