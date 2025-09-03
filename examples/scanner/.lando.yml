@@ -97,7 +97,7 @@ services:
     api: 4
     type: l337
     image:
-      imagefile: nginx:1.22.1
+      imagefile: nginx:1.26.1
       context:
         - ./nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
