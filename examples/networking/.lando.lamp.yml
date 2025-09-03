@@ -14,7 +14,7 @@ services:
       volumes:
         - ./apache.conf:/etc/apache2/sites-enabled/000-default.conf
       ports:
-        - 80
+        - 0:80
   database:
     api: 3
     type: lando

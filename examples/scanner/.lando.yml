@@ -12,7 +12,7 @@ services:
       volumes:
         - ./:/usr/local/apache2/htdocs/
       ports:
-        - 80
+        - 0:80
   moreports:
     api: 3
     type: lando
@@ -22,7 +22,7 @@ services:
       volumes:
         - ./:/usr/local/apache2/htdocs/
       ports:
-        - 80
+        - 0:80
     moreHttpPorts:
       - '8888'
   dontlookatme:
@@ -34,7 +34,7 @@ services:
       volumes:
         - ./:/usr/local/apache2/htdocs/
       ports:
-        - 80
+        - 0:80
     scanner: false
   redirect:
     api: 3
@@ -45,7 +45,7 @@ services:
       volumes:
         - ./:/var/www/html/
       ports:
-        - 80
+        - 0:80
     scanner:
       timeout: 1000
       retry: 10
@@ -58,7 +58,7 @@ services:
       volumes:
         - ./:/usr/local/apache2/htdocs/
       ports:
-        - 80
+        - 0:80
     scanner:
       timeout: 1000
       retry: 10
@@ -74,7 +74,7 @@ services:
       volumes:
         - ./:/var/www/html/
       ports:
-        - 80
+        - 0:80
     scanner:
       path: /missing.html
       maxRedirects: 6
@@ -89,7 +89,7 @@ services:
       volumes:
         - ./:/usr/local/apache2/htdocs/
       ports:
-        - 80
+        - 0:80
     scanner:
       path: /missing.html
       retry: 4
