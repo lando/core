@@ -23,8 +23,6 @@ This seems to be caused by a convergence of two factors:
 1. How Docker Desktop uses `SMB` to mount files
 2. How the built in php function [`is_writable`](http://php.net/manual/en/function.is-writable.php) behaves
 
-[This comment](https://github.com/wodby/docker4drupal/issues/29#issuecomment-316055081) while Drupal in flavor is helpful for a deeper dive on things.
-
 If you are interested in replicating the issue yourself you should be able to do something like:
 
 1. `lando start` a Drupal flavored app you have

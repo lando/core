@@ -109,7 +109,7 @@ Our highest two tiers are fairly customizable based around your needs. If you wo
 
 We rely on third party sponsorship platforms to manage your sponsorship so you will want to terminate your sponsorship with them! For convenience, the relevant docs on how to do so for each of the platforms we support are shown below:
 
-* [Cancel GitHub Sponsors Sponsorship](https://docs.github.com/en/billing/managing-billing-for-your-products/managing-billing-for-github-sponsors/downgrading-a-sponsorship)
+* [Cancel GitHub Sponsors Sponsorship](https://docs.github.com/en/billing/how-tos/pay-third-parties/downgrade-sponsorship)
 * [Cancel Patreon Sponsorship](https://support.patreon.com/hc/en-us/articles/360000126286-Changing-your-tier)
 * [Cancel OpenCollective Sponsorship](https://docs.opencollective.com/help/financial-contributors/organizations/organization-faq#can-i-cancel-or-change-my-contribution)
 

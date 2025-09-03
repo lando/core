@@ -11,11 +11,6 @@
   package = "netlify-plugin-checklinks"
   [context.deploy-preview.plugins.inputs]
     todoPatterns = [
-      "load",
-      "CHANGELOG.html",
-      "x.com",
-      "twitter.com",
-      "yargs.js.org/docs",
       "https://support.patreon.com",
       "https://docs.google.com/document",
       "https://docs.google.com/forms",
@@ -23,13 +18,18 @@
       "https://github.com/wodby",
       "https://www.drupal.org/community/events",
       "https://docs.lando.dev",
+      "https://www.contributor-covenant.org",
+      "https://opensource.org/licenses/MIT",
+      "security.stackexchange.com/questions/158332/what-are-wildcard-certificate-limitations-in-san-extension",
+      "load",
+      "CHANGELOG.html",
+      "x.com",
+      "twitter.com",
+      "yargs.js.org/docs",
       "build-steps",
       "overrides",
       "fragment-check",
       "sqlshack",
-      "security.stackexchange.com/questions/158332/what-are-wildcard-certificate-limitations-in-san-extension",
-      "https://opensource.org/licenses/MIT",
-
       "/v/"
     ]
     skipPatterns = [
