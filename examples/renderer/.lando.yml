@@ -17,7 +17,7 @@ services:
       image: nginx:1.22.1
       command: /docker-entrypoint.sh nginx -g "daemon off;"
       ports:
-        - 80
+        - 0:80
       volumes:
         - ./:/usr/share/nginx/html
         - "./healthcheck.sh:/usr/local/bin/healthcheck"

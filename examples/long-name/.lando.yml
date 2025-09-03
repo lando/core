@@ -9,13 +9,13 @@ services:
       - ./index.html:/usr/share/nginx/html/index.html
       command: /docker-entrypoint.sh nginx -g "daemon off;"
       ports:
-        - '80'
+        - '0:80'
   l337:
     api: 4
     type: l337
     image: nginx:1.22.1
     ports:
-      - '80'
+      - '0:80lando'
     volumes:
     - ./:/usr/share/nginx/html
 

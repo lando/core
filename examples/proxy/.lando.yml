@@ -81,7 +81,7 @@ services:
       volumes:
         - "./web:/var/www/html"
       ports:
-        - "80"
+        - "0:80"
   web3:
     api: 3
     type: lando
