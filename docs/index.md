@@ -83,6 +83,14 @@ footer: Copyright ©2025 Lando Alliance
     <div class="footer-container">
       <div class="footer-copyright">
         <span class="copyright">© 2025</span> LANDO ALLIANCE
+        <span class="nonprofit">
+          <a
+            href="https://drive.google.com/file/d/1Gms46fU-PKHnze49cKE-sCIxJWv7SeiF/view"
+            target="_blank"
+          >
+            a 501(c)(3) nonprofit organization
+          </a>
+        </span>
       </div>
       <div class="footer-links">
         <div class="menu-primary">
@@ -323,7 +331,7 @@ onMounted(async () => {
   justify-content: space-between;
 
 	.footer-copyright {
-		width: 20%;
+		width: 50%;
 		text-align: left;
 		color: var(--vp-c-text-1);
 		font-size: 14px;
@@ -333,6 +341,17 @@ onMounted(async () => {
 			color: var(--vp-c-brand-1);
 			font-weight: 900;
 		}
+    .nonprofit {
+      font-size: 12px;
+      color: var(--vp-c-text-2);
+      text-transform: uppercase;
+      a {
+        &:hover {
+          color: var(--vp-c-brand-1);
+          text-decoration: underline;
+        }
+      }
+    }
 	}
 	.footer-links {
 		width: 0%;
