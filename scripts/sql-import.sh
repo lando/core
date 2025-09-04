@@ -48,10 +48,14 @@ while (( "$#" )); do
       shift
       ;;
     *)
-      if [[ "$1" = /* ]]; then
-        FILE="${1//\\//}"
+      if [[ -z "$FILE" ]]; then
+        if [[ "$1" = /* ]]; then
+          FILE="${1//\\//}"
+        else
+          FILE="$(pwd)/${1//\\//}"
+        fi
       else
-        FILE="$(pwd)/${1//\\//}"
+        DATABASE="$1"
       fi
       shift
       ;;
