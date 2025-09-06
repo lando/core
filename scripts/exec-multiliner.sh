@@ -10,8 +10,8 @@ fi
 ENCODED_SCRIPT_CONTENTS="$1"
 shift
 
-# create a temporary file with a unique name in /tmp and a .sh extension
-SCRIPT=$(mktemp /tmp/lando.XXXXXX.sh || mktemp)
+# create a temporary file with a unique name in /tmp
+SCRIPT=$(mktemp /tmp/lando.exec-multiliner.sh.XXXXXX || mktemp)
 
 # decode the Base64 script and write it to the temporary file
 echo "$ENCODED_SCRIPT_CONTENTS" | base64 -d > "$SCRIPT"
