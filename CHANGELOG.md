@@ -1,5 +1,25 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.25.4 - [September 3, 2025](https://github.com/lando/core/releases/tag/v3.25.4)
+
+* Added 501(c)(3) status and link to [IRS Determination Letter](https://drive.google.com/file/d/1Gms46fU-PKHnze49cKE-sCIxJWv7SeiF/view)
+
+## v3.25.3 - [July 23, 2025](https://github.com/lando/core/releases/tag/v3.25.3)
+
+* Added [Code of Conduct](https://docs.lando.dev/coc)
+
+## v3.25.2 - [July 21, 2025](https://github.com/lando/core/releases/tag/v3.25.2)
+
+* Updated to consolidated `Terms of Use` and `Privacy Policy` to reflect transition to Lando Alliance non-profit part 2
+
+## v3.25.1 - [July 21, 2025](https://github.com/lando/core/releases/tag/v3.25.1)
+
+* Updated to consolidated `Terms of Use` and `Privacy Policy` to reflect transition to Lando Alliance non-profit
+
+## v3.25.0 - [July 19, 2025](https://github.com/lando/core/releases/tag/v3.25.0)
+
+* Granted permission
+
 ## v3.24.3 - [March 25, 2025](https://github.com/lando/core/releases/tag/v3.24.3)
 
 ### Bug Fixes

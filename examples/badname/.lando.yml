@@ -6,7 +6,7 @@ services:
       image: nginx:1.22.1
       command: /docker-entrypoint.sh nginx -g "daemon off;"
       ports:
-        - 80
+        - 0:80
       volumes:
         - ./:/usr/share/nginx/html:ro
   defaults-v4:
@@ -14,7 +14,7 @@ services:
     type: l337
     image: nginx:1.22.1
     ports:
-      - 80
+      - 0:80
     volumes:
       - ./:/usr/share/nginx/html:ro
 

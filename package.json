@@ -1,9 +1,9 @@
 {
   "name": "@lando/core",
   "description": "The libraries that power all of Lando.",
-  "version": "3.24.3",
+  "version": "3.25.4",
   "author": "Mike Pirog @pirog",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "repository": "lando/core",
   "bugs": "https://github.com/lando/core/issues/new/choose",
   "homepage": "https://github.com/lando/core",
@@ -83,7 +83,7 @@
     ]
   },
   "dependencies": {
-    "@lando/argv": "^1.1.2",
+    "@lando/argv": "^1.2.0",
     "@npmcli/agent": "^2.2.2",
     "@npmcli/arborist": "^6.2.9",
     "@oclif/core": "^3.27.0",

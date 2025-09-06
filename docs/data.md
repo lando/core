@@ -14,7 +14,7 @@ prev:
 
 # Privacy Policy for Humans
 
-Because most sane people are not lawyers we've included this more-human-accessible explanation of Lando's [Privacy Policy](https://github.com/lando/lando/blob/master/PRIVACY.md). Note that this *_is not_* the actual Privacy Policy.
+Because most sane people are not lawyers we've included this more-human-accessible explanation of Lando's [Privacy Policy](https://lando.dev/privacy). Note that this *_is not_* the actual Privacy Policy.
 
 ## tl;dr
 
