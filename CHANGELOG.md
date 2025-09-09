@@ -1,7 +1,8 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
 * Added `@lando/mailpit` to common plugins
-* Fixed bug causing install failure for plugins with _both_ `ignoreDependencies` _and_ `undefined` `dependencies`
+* Improved `mktemp` usage in `exec-multiliner` to better support `alpine` [#374](https://github.com/lando/core/pull/374)
+* Fixed bug causing install failure for plugins with _both_ `ignoreDependencies` _and_ `undefined` `dependencies` [#362](https://github.com/lando/core/pull/362)
 
 ## v3.25.4 - [September 3, 2025](https://github.com/lando/core/releases/tag/v3.25.4)
 
@@ -27,13 +28,13 @@
 
 ### Bug Fixes
 
-* Fixed bug causing `too many colons` error on Windows [#354]https://github.com/lando/core/pull/354
+* Fixed bug causing `too many colons` error on Windows [#354](https://github.com/lando/core/pull/354)
 
 ## v3.24.2 - [March 13, 2025](https://github.com/lando/core/releases/tag/v3.24.2)
 
 ### Bug Fixes
 
-* Fixed bug causing some recipe configs to throw `TypeError [ERR_INVALID_ARG_TYPE]` [#348]https://github.com/lando/core/pull/348
+* Fixed bug causing some recipe configs to throw `TypeError [ERR_INVALID_ARG_TYPE]` [#348](https://github.com/lando/core/pull/348)
 
 ## v3.24.1 - [March 3, 2025](https://github.com/lando/core/releases/tag/v3.24.1)
 
