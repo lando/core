@@ -9,12 +9,12 @@ services:
     ssl: true
     healthcheck: curl -I http://localhost
     services:
-      image: php:8.2-apache
+      image: php:8.3-apache
       command: docker-php-entrypoint apache2-foreground
       volumes:
         - ./apache.conf:/etc/apache2/sites-enabled/000-default.conf
       ports:
-        - 80
+        - 0:80
   database:
     api: 3
     type: lando

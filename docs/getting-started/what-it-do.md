@@ -71,7 +71,7 @@ If you are interested in using something Lando does not currently offer as a ser
 
 **[proxy](https://docs.lando.dev/landofile/proxy.html)** - Proxy settings allow users to map arbitrary domain names to arbitrary ports inside of arbitrary services. Think: I go to the browser and type in `myapp.lndo.site` or `millard.filmore.for.lyfe` and it loads my application.
 
-**[services](https://docs.lando.dev/landofile/services.html)** - Services are simplified but still highly configurable Docker containers. They are able to run [build steps](https://docs.lando.dev/landofile/services.html#build-steps) such as installing a `php-extension` or running `yarn install` and can also be [overridden](https://docs.lando.dev/landofile/services.html#overrides) down to the `docker-compose` level. They also get some automatic [networking](https://docs.lando.dev/config/networking.html) and [security](https://docs.lando.dev/config/security.html) features.
+**[services](https://docs.lando.dev/landofile/services.html)** - Services are simplified but still highly configurable Docker containers. They are able to run [build steps](https://docs.lando.dev/services/lando-3.html#build-steps) such as installing a `php-extension` or running `yarn install` and can also be [overridden](https://docs.lando.dev/services/lando-3.html#overrides) down to the `docker-compose` level. They also get some automatic [networking](https://docs.lando.dev/config/networking.html) and [security](https://docs.lando.dev/config/security.html) features.
 
 **[tooling](https://docs.lando.dev/landofile/tooling.html)** - Tooling allows users to run arbitrary commands, or combinations of commands, on arbitrary services, or combinations of services when invoked.
 
@@ -86,7 +86,7 @@ There are various ways to craft your Landofile but we've found and observed a st
 1. Shop around for a [recipe](https://docs.lando.dev/landofile/recipes.html) that can serve as a good starting point. [lando init](https://docs.lando.dev/cli/init.html) is helpful for this.
 2. Add in additional [services](https://docs.lando.dev/landofile/recipes.html) when you need more **JUICE**.
 3. Define more complex [tooling](https://docs.lando.dev/landofile/tooling.html) and [events](https://docs.lando.dev/landofile/events.html) to simplify difficult command patterns and automate common tasks.
-4. Add in some [build steps](https://docs.lando.dev/landofile/services.html#build-steps) to further automate setting your services up or to mix in additional project dependencies.
+4. Add in some [build steps](https://docs.lando.dev/services/lando-3.html#build-steps) to further automate setting your services up or to mix in additional project dependencies.
 5. Define [custom services](https://docs.lando.dev/compose) as a catch all for anything else you need.
 6. Create [custom recipes or services](https://docs.lando.dev/contrib/contrib-plugins.html) to lock down your new power tools.
 7. Rinse and repeat.

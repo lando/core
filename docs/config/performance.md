@@ -33,7 +33,7 @@ To install Lando on your Linux environment in WSL2, follow the appropriate [Linu
 
 ## 3. Excluding directories
 
-Users can now `exclude` certain directories from using the default Docker Desktop sharing mechanism. Depending on the amount of files you exclude, this can bring your application from [_ugh fml_ to _pretty close_](https://github.com/lando/lando/issues/1460#issuecomment-467126103) to native speed.
+Users can now `exclude` certain directories from using the default Docker Desktop sharing mechanism. Depending on the amount of files you exclude, this can bring your application from _ugh fml_ to _pretty close_ to native speed.
 
 The downside of this approach is that all "excluded" directories are decoupled from your host, meaning that you can no longer edit their contents from your host machine. As a result, we recommend you only exclude directories containing code you don't need to modify such as `vendor` or `node_modules`.
 

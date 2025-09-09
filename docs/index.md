@@ -27,7 +27,7 @@ features:
     title: Liberating
     details: Free yourself from the mind-forged manacles of lesser dev tools. Save time, headaches, frustration and do more real work
 
-footer: Copyright ©2025 Kalabox Inc.
+footer: Copyright ©2025 Lando Alliance
 ---
 
 <VPHomeHero>
@@ -67,10 +67,30 @@ footer: Copyright ©2025 Kalabox Inc.
     title="Lando Newsletter"
     byline="Join our revolution to free developers from the mind forged manacled of lesser dev tools"
   />
+
+  <div class="divider">
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="netlify">
+    All Lando sites and documentation are powered by Netlify
+    <a href="https://www.netlify.com">
+      <img src="https://www.netlify.com/img/global/badges/netlify-color-bg.svg"/>
+    </a>
+  </div>
+
   <footer id="footer">
     <div class="footer-container">
       <div class="footer-copyright">
-        <span class="copyright">© 2024</span> LANDO SYSTEM
+        <span class="copyright">© 2025</span> LANDO ALLIANCE
+        <span class="nonprofit">
+          <a
+            href="https://drive.google.com/file/d/1Gms46fU-PKHnze49cKE-sCIxJWv7SeiF/view"
+            target="_blank"
+          >
+            a 501(c)(3) nonprofit organization
+          </a>
+        </span>
       </div>
       <div class="footer-links">
         <div class="menu-primary">
@@ -104,6 +124,9 @@ footer: Copyright ©2025 Kalabox Inc.
           </a>
           <a href="/privacy">
             Privacy Policy
+          </a>
+          <a href="/coc">
+            Code of Conduct
           </a>
           <a href="https://www.kalabox.io" target="_blank" rel="noopener noreferrer">
             Kalabox
@@ -266,7 +289,7 @@ onMounted(async () => {
   }
 }
 
-.et-tu {
+.et-tu, .netlify {
   text-align: center;
   a {
     font-weight: 500;
@@ -276,6 +299,21 @@ onMounted(async () => {
     transition: color 0.25s, opacity 0.25s;
     font-size: 14px;
   }
+}
+
+.netlify {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  letter-spacing: 1px !important;
+  line-height: 24px;
+  font-size: .8em;
+  width: 100%;
+  gap: 1em;
+  font-weight: 600;
+  color: var(--vp-c-text-2);
+  padding-bottom: 1em;
 }
 
 #footer {
@@ -293,7 +331,7 @@ onMounted(async () => {
   justify-content: space-between;
 
 	.footer-copyright {
-		width: 20%;
+		width: 50%;
 		text-align: left;
 		color: var(--vp-c-text-1);
 		font-size: 14px;
@@ -303,6 +341,17 @@ onMounted(async () => {
 			color: var(--vp-c-brand-1);
 			font-weight: 900;
 		}
+    .nonprofit {
+      font-size: 12px;
+      color: var(--vp-c-text-2);
+      text-transform: uppercase;
+      a {
+        &:hover {
+          color: var(--vp-c-brand-1);
+          text-decoration: underline;
+        }
+      }
+    }
 	}
 	.footer-links {
 		width: 0%;
