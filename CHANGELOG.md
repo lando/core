@@ -1,6 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
 * Added `@lando/mailpit` to common plugins
+* Fixed bug causing install failure for plugins with _both_ `ignoreDependencies` _and_ `undefined` `dependencies`
 
 ## v3.25.4 - [September 3, 2025](https://github.com/lando/core/releases/tag/v3.25.4)
 
