@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.25.5 - [September 9, 2025](https://github.com/lando/core/releases/tag/v3.25.5)
+
 * Added `@lando/mailpit` to common plugins
 * Improved `mktemp` usage in `exec-multiliner` to better support `alpine` [#374](https://github.com/lando/core/pull/374)
 * Fixed bug causing install failure for plugins with _both_ `ignoreDependencies` _and_ `undefined` `dependencies` [#362](https://github.com/lando/core/pull/362)
