@@ -134,6 +134,10 @@
   to = "https://lando-mailhog.netlify.app/:splat"
   status = 200
 [[redirects]]
+  from = "/plugins/mailpit/*"
+  to = "https://lando-mailpit.netlify.app/:splat"
+  status = 200
+[[redirects]]
   from = "/plugins/mariadb/*"
   to = "https://lando-mariadb.netlify.app/:splat"
   status = 200
