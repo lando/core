@@ -273,7 +273,7 @@ class Plugin {
     if (this.source && this.commit) this.version = `${this.version}-0-${this.commit}`;
 
     // if we have ignoreDependencies then lets mutate this.pjson.dependencies for downstream considerations
-    if (this.pjson.ignoreDependencies) {
+    if (this.pjson.ignoreDependencies && this.pjson.dependencies) {
       for (const ignored of this.pjson?.ignoreDependencies) {
         delete this.pjson.dependencies[ignored];
       }
