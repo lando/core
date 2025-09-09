@@ -167,7 +167,7 @@ lando exec alpine -- stat /universal/test1
 # Should persist storage across rebuilds
 lando exec db -- mysql -u root -e "CREATE DATABASE IF NOT EXISTS vibes;"
 lando exec db -- mysql -u root -e "SHOW DATABASES;" | grep vibes
-lando rebuild -y
+lando rebuild -y || lando rebuild -y --debug
 lando exec db -- mysql -u root -e "SHOW DATABASES;" | grep vibes
 lando exec db -- stat /shared-again/test1
 lando exec alpine -- stat /shared-again/test1
