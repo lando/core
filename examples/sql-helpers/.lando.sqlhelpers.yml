@@ -7,7 +7,7 @@ services:
     overrides:
       platform: linux/amd64
     services:
-      image: bitnami/mariadb:10.4
+      image: bitnamilegacy/mariadb:10.4
       command: /opt/bitnami/scripts/mariadb/entrypoint.sh /opt/bitnami/scripts/mariadb/run.sh
       environment:
         ALLOW_EMPTY_PASSWORD: yes
@@ -22,7 +22,7 @@ services:
     overrides:
       platform: linux/amd64
     services:
-      image: bitnami/mariadb:10.4
+      image: bitnamilegacy/mariadb:10.4
       command: /opt/bitnami/scripts/mariadb/entrypoint.sh /opt/bitnami/scripts/mariadb/run.sh
       environment:
         ALLOW_EMPTY_PASSWORD: yes
@@ -36,7 +36,7 @@ services:
     type: lando
     healthcheck: mysqladmin ping -h mysql57 -u test -ptest
     services:
-      image: bitnami/mysql:5.7
+      image: bitnamilegacy/mysql:5.7
       command: /opt/bitnami/scripts/mysql/entrypoint.sh /opt/bitnami/scripts/mysql/run.sh
       environment:
         ALLOW_EMPTY_PASSWORD: yes
@@ -49,7 +49,7 @@ services:
     type: lando
     healthcheck: mysqladmin ping -h mysql57-default -u test -ptest
     services:
-      image: bitnami/mysql:5.7
+      image: bitnamilegacy/mysql:5.7
       command: /opt/bitnami/scripts/mysql/entrypoint.sh /opt/bitnami/scripts/mysql/run.sh
       environment:
         ALLOW_EMPTY_PASSWORD: yes
@@ -63,7 +63,7 @@ services:
     type: lando
     healthcheck: mysqladmin ping -h mysql80 -u test -ptest
     services:
-      image: bitnami/mysql:8.0
+      image: bitnamilegacy/mysql:8.0
       command: /opt/bitnami/scripts/mysql/entrypoint.sh /opt/bitnami/scripts/mysql/run.sh
       environment:
         ALLOW_EMPTY_PASSWORD: yes
@@ -76,7 +76,7 @@ services:
     type: lando
     healthcheck: mysqladmin ping -h mysql80-default -u test -ptest
     services:
-      image: bitnami/mysql:8.0
+      image: bitnamilegacy/mysql:8.0
       command: /opt/bitnami/scripts/mysql/entrypoint.sh /opt/bitnami/scripts/mysql/run.sh
       environment:
         ALLOW_EMPTY_PASSWORD: yes
@@ -90,7 +90,7 @@ services:
     type: lando
     healthcheck: pg_isready -h postgres16 -U postgres
     services:
-      image: bitnami/postgresql:16.3.0
+      image: bitnamilegacy/postgresql:16.3.0
       command: /opt/bitnami/scripts/postgresql/entrypoint.sh /opt/bitnami/scripts/postgresql/run.sh
       environment:
         ALLOW_EMPTY_PASSWORD: yes
@@ -101,7 +101,7 @@ services:
     type: lando
     healthcheck: pg_isready -h postgres16-default -U postgres
     services:
-      image: bitnami/postgresql:16.3.0
+      image: bitnamilegacy/postgresql:16.3.0
       command: /opt/bitnami/scripts/postgresql/entrypoint.sh /opt/bitnami/scripts/postgresql/run.sh
       environment:
         ALLOW_EMPTY_PASSWORD: yes

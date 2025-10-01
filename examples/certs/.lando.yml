@@ -13,7 +13,7 @@ services:
     sslExpose: true
     sport: "8443"
     services:
-      image: bitnami/nginx
+      image: bitnamilegacy/nginx
       command: /opt/bitnami/scripts/nginx/entrypoint.sh /opt/bitnami/scripts/nginx/run.sh
       ports:
         - "8080"
