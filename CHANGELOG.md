@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Updated plugins to handle image switch to [bitnamilegacy](https://github.com/bitnami/containers/issues/83267) namespace
+
 ## v3.25.5 - [September 9, 2025](https://github.com/lando/core/releases/tag/v3.25.5)
 
 * Added `@lando/mailpit` to common plugins
