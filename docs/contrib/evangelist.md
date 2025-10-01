@@ -105,7 +105,7 @@ These are intended to try and convince a more-technical audience to adopt Lando.
 * **Parity** - Achieve parity with each project's hosting target.
 * **Tooling** - Containerize tools along with services and lock down versions of things like `node` on a project to project basis. Say goodbye to things like `rvm` forever.
 * **VCS** - Put your Landofile configuration in version control so it can be shared and tracked.
-* **Integrations** - Integrate with hosting providers like [Pantheon](https://pantheon.io) or [Platform.sh](https://platform.sh).
+* **Integrations** - Integrate with hosting providers like [Pantheon](https://pantheon.io).
 * **Sane defaults** - Lando will give you recommended settings out of the box but it is hyper-configurable. You can have a two line or two hundred line Landofile.
 
 ### Key Differences
