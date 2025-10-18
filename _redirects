@@ -60,6 +60,7 @@ https://api.lando.dev/*               https://docs.lando.dev/:splat          302
 /basics/ssh.html                     /cli/ssh.html                           301
 /basics/basics.html                  /getting-started/what-it-do.html        301
 /config/index.html                   /config/global.html                     301
+/config/proxy.html                   /landofile/proxy.html                   301
 /contrib/contributing.html           /contrib                                301
 /contrib/talking-points.html         /contrib/evangelist.html#talking-points 301
 /contrib/triage-getting-started.html /contrib/coder.html#triaging-issues     301
