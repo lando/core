@@ -10,7 +10,7 @@ const getProxy = ({proxyCommand, proxyPassThru, proxyDomain, userConfRoot, versi
   return {
     services: {
       proxy: {
-        image: 'traefik:2.2.0',
+        image: 'traefik:2.11.31',
         command: proxyCommand.join(' '),
         environment: {
           LANDO_APP_PROJECT: '_lando_',
