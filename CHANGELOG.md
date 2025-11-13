@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Upgraded to `traefik` 2.11 [#400](https://github.com/lando/core/pull/400)
+
 ## v3.25.6 - [October 1, 2025](https://github.com/lando/core/releases/tag/v3.25.6)
 
 * Updated plugins to handle image switch to [bitnamilegacy](https://github.com/bitnami/containers/issues/83267) namespace
