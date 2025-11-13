@@ -53,7 +53,7 @@ gff ~/code/lando-ops/guides-example-code/introduction-to-lando/lando-init
 CONTAINER ID        IMAGE                                COMMAND                  CREATED             STATUS              PORTS                                                                     NAMES
 c92d36534d66        devwithlando/php:7.3-apache-2        "/lando-entrypoint.s…"   25 seconds ago      Up 23 seconds       127.0.0.1:32953->80/tcp, 127.0.0.1:32952->443/tcp                         lando101_appserver_1
 a5d7060a15be        bitnami/mysql:5.7.29-debian-10-r51   "/lando-entrypoint.s…"   25 seconds ago      Up 23 seconds       127.0.0.1:32951->3306/tcp                                                 lando101_database_1
-7f64e8add1fd        traefik:2.2.0                        "/lando-entrypoint.s…"   30 hours ago        Up 25 seconds       127.0.0.1:80->80/tcp, 127.0.0.1:443->443/tcp, 127.0.0.1:32950->8080/tcp   landoproxyhyperion5000gandalfedition_proxy_1
+7f64e8add1fd        traefik:2.11.31                      "/lando-entrypoint.s…"   30 hours ago        Up 25 seconds       127.0.0.1:80->80/tcp, 127.0.0.1:443->443/tcp, 127.0.0.1:32950->8080/tcp   landoproxyhyperion5000gandalfedition_proxy_1
 
 ```
 
