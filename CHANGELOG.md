@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.26.0 - [November 14, 2025](https://github.com/lando/core/releases/tag/v3.26.0)
+
 * Upgraded `traefik` to version `2.11.31`. **FIXES CRITICAL ISSUE [#399](https://github.com/lando/core/issues/399).**
 
 ## v3.25.6 - [October 1, 2025](https://github.com/lando/core/releases/tag/v3.25.6)
