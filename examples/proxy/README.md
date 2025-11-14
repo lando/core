@@ -22,6 +22,9 @@ Run the following commands to verify things work as expected
 # Should start up the proxy container
 docker ps | grep landoproxyhyperion5000gandalfedition
 
+# Should run the correct version of traefik
+docker exec landoproxyhyperion5000gandalfedition_proxy_1 traefik version | grep Version | grep "2.11.31"
+
 # Should return 404 when no route is found
 curl -s -o /dev/null -I -w "%{http_code}" idonotexist.lndo.site | grep 404
 
