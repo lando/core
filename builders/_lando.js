@@ -116,7 +116,7 @@ module.exports = {
 
       // Handle volumes
       const volumes = [
-        `${userConfRoot}:/lando:cached`,
+        `${userConfRoot}/keys:/lando/keys:cached`,
         `${globalScriptsDir}:/helpers`,
         `${entrypointScript}:/lando-entrypoint.sh`,
       ];
@@ -137,6 +137,10 @@ module.exports = {
         volumes.push(`${addCertsScript}:/scripts/000-add-cert`);
         volumes.push(`${path.join(userConfRoot, 'certs', certname)}:/certs/cert.crt`);
         volumes.push(`${path.join(userConfRoot, 'certs', keyname)}:/certs/cert.key`);
+        volumes.push(`${path.join(userConfRoot, 'certs', certname)}:/lando/certs/${certname}`);
+        volumes.push(`${path.join(userConfRoot, 'certs', keyname)}:/lando/certs/${keyname}`);
+        volumes.push(`${userConfRoot}/certs/LandoCA.crt:/lando/certs/LandoCA.crt`);
+        volumes.push(`${userConfRoot}/certs/LandoCA.key:/lando/certs/LandoCA.key`);
       }
 
       // Add in some more dirz if it makes sense
