@@ -201,7 +201,7 @@ module.exports = async (app, lando) => {
   app.events.on('post-start', async () => await require('./hooks/app-add-proxy-info')(app, lando));
 
   // Add update tip if needed
-  app.events.on('post-start', async () => await require('./hooks/app-add-path-info')(app, lando));
+  // app.events.on('post-start', async () => await require('./hooks/app-add-path-info')(app, lando));
 
   // If we don't have a builtAgainst already then we must be spinning up for the first time and its safe to set this
   app.events.on('post-start', async () => await require('./hooks/app-update-built-against-post')(app, lando));
