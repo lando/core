@@ -7,7 +7,7 @@ const path = require('path');
 /*
  * Helper to get docker compose v2 download url
  */
-const getComposeDownloadUrl = (version = '2.31.0') => {
+const getComposeDownloadUrl = (version = '2.40.3') => {
   const mv = version.split('.')[0] > 1 ? '2' : '1';
   const arch = process.arch === 'arm64' ? 'aarch64' : 'x86_64';
   const toggle = `${process.platform}-${mv}`;
