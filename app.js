@@ -146,9 +146,6 @@ module.exports = async (app, lando) => {
   // v4 parts of the app are ready
   app.events.on('ready', 6, async () => await require('./hooks/app-v4-ready')(app, lando));
 
-  // this is a gross hack we need to do to reset the engine because the lando 3 runtime has no idea
-  app.events.on('ready-engine', 1, async () => await require('./hooks/app-reset-orchestrator')(app, lando));
-
   // Discover portforward true info
   app.events.on('ready-engine', async () => await require('./hooks/app-set-portforwards')(app, lando));
 
