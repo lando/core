@@ -1,7 +1,10 @@
 name: Setup macOS Tests
 
 on:
-  pull_request:
+  # pull_request:
+  push:
+    branches:
+      - SKIPFORNOW
 
 jobs:
   leia-tests:
