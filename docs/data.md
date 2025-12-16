@@ -20,7 +20,7 @@ Because most sane people are not lawyers we've included this more-human-accessib
 
 Lando collects two kinds of information for the sole purpose of improving Lando: _Usage Data_ and _Crash Data_.
 
-We store and process this data in [Amplitude](https://amplitude.com/). Additionally, we store Crash Data in [Bugsnag](https://www.bugsnag.com/). Lando does not share, sell or transmit your data to any other parties. We have obtained DPAs with both Amplitude and Bugsnag for this purpose.
+We store and process this data in [Amplitude](https://amplitude.com/). Lando does not share, sell or transmit your data to any other parties. We have obtained DPAs with both Amplitude and Bugsnag for this purpose.
 
 ### Usage Data
 

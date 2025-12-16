@@ -49,7 +49,7 @@ jobs:
   codesign-binary:
     runs-on: ${{
       (contains(inputs.os, 'linux') || contains(inputs.file, 'linux')) && 'ubuntu-24.04' ||
-      (contains(inputs.os, 'macos') || contains(inputs.file, 'macos')) && 'macos-14' ||
+      (contains(inputs.os, 'macos') || contains(inputs.file, 'macos')) && 'macos-15' ||
       (contains(inputs.os, 'win') || contains(inputs.file, 'win')) && 'windows-2022'}}
     env:
       TERM: xterm
@@ -74,9 +74,9 @@ jobs:
           apple-notary-user: ${{ secrets.apple-notary-user }}
           apple-notary-password: ${{ secrets.apple-notary-password }}
           apple-product-id: dev.lando.cli
-          apple-team-id: FY8GAUX282
+          apple-team-id: 466VYKC9T5
           certificate-data: ${{ secrets.certificate-data }}
-          certificate-id: FY8GAUX282
+          certificate-id: 466VYKC9T5
           certificate-password: ${{ secrets.certificate-password }}
           file: ${{ steps.download-artifacts.outputs.download-path }}/${{ inputs.file }}${{ runner.os == 'Windows' && !endsWith(inputs.file, '.exe') && '.exe' || '' }}
           keylocker-api-key: ${{ secrets.keylocker-api-key }}
