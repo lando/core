@@ -16,8 +16,7 @@ jobs:
         node-version:
           - "20"
         os:
-          - macos-13
-          - macos-14
+          - macos-15
 
     steps:
       - name: Checkout code

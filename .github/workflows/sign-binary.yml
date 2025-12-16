@@ -49,7 +49,7 @@ jobs:
   codesign-binary:
     runs-on: ${{
       (contains(inputs.os, 'linux') || contains(inputs.file, 'linux')) && 'ubuntu-24.04' ||
-      (contains(inputs.os, 'macos') || contains(inputs.file, 'macos')) && 'macos-14' ||
+      (contains(inputs.os, 'macos') || contains(inputs.file, 'macos')) && 'macos-15' ||
       (contains(inputs.os, 'win') || contains(inputs.file, 'win')) && 'windows-2022'}}
     env:
       TERM: xterm

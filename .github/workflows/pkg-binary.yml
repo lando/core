@@ -36,7 +36,7 @@ on:
 
 jobs:
   pkg-binary:
-    runs-on: ${{ inputs.arch == 'arm64' && 'macos-14' || 'ubuntu-24.04' }}
+    runs-on: ${{ inputs.arch == 'arm64' && 'macos-15' || 'ubuntu-24.04' }}
     env:
       TERM: xterm
     steps:
