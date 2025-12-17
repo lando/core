@@ -1,5 +1,8 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Updated to use new Lando Alliance Apple Developer certificates
+* Updated to `npm` Trusted Publishing
+
 ## v3.26.1 - [December 17, 2025](https://github.com/lando/core/releases/tag/v3.26.1)
 
 * Updated to use new Lando Alliance Apple Developer certificates
