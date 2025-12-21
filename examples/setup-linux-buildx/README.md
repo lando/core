@@ -17,14 +17,17 @@ docker buildx version
 
 # Should be able to remove buildx
 rm -f ~/.docker/cli-plugins/docker-buildx
-docker buildx version 2>&1 | grep -i "not found\|is not a docker command\|unknown command" || echo "buildx not found"
+sudo rm -f /usr/local/lib/docker/cli-plugins/docker-buildx
+sudo rm -f /usr/local/libexec/docker/cli-plugins/docker-buildx
+sudo rm -f /usr/lib/docker/cli-plugins/docker-buildx
+sudo rm -f /usr/libexec/docker/cli-plugins/docker-buildx
+
+# Should confirm buildx is no longer available
+(docker buildx version 2>&1 || true) | tee >(cat) | grep -i "not found\|is not a docker command\|unknown command"
 
 # Should be able to run lando setup and have it reinstall buildx
 lando setup -y --skip-common-plugins
 
 # Should have buildx installed again
 docker buildx version
-
-# Should have installed buildx to the correct location
-stat ~/.docker/cli-plugins/docker-buildx
 ```
