@@ -251,6 +251,7 @@ class DockerEngine extends Dockerode {
         'buildx',
         'build',
         `--file=${dockerfile}`,
+        '--load',
         '--progress=plain',
         `--tag=${tag}`,
         context,
