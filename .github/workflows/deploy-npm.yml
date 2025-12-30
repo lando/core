@@ -12,9 +12,6 @@ on:
       github-token:
         description: "The github token"
         required: true
-      npm-token:
-        description: "The npm deploy token"
-        required: true
 
 jobs:
   deploy-npm:
@@ -28,7 +25,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node-version }}
-          registry-url: https://registry.npmjs.org
           cache: npm
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile
@@ -64,8 +60,8 @@ jobs:
           PACKAGE=$(node -p "require('./package.json').name")
 
           if [ "${{ github.event.release.prerelease }}" ==  "false" ]; then
-            npm publish --access public --dry-run
-            npm publish --access public
+            npm publish --access public --tag latest --dry-run
+            npm publish --access public --tag latest
             npm dist-tag add "$PACKAGE@$VERSION" edge
 
             echo "::notice title=Published $VERSION to $PACKAGE::This is a stable release published to the default 'latest' npm tag"
@@ -78,8 +74,6 @@ jobs:
             echo "::notice title=Published $VERSION to $PACKAGE::This is a prerelease published to the 'edge' npm tag"
             echo "::notice title=Updated edge tag to $VERSION::The edge tag now points to $VERSION"
           fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.npm-token }}
       - name: Update edge release alias on main
         if: github.event.release.target_commitish == 'edge'
         run: |

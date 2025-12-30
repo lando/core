@@ -156,7 +156,6 @@ jobs:
       - checksum
     secrets:
       github-token: ${{ secrets.RTFM47_COAXIUM_INJECTOR }}
-      npm-token: ${{ secrets.NPM_DEPLOY_TOKEN }}
   deploy-legacy-notifications:
     runs-on: ubuntu-24.04
     needs:
