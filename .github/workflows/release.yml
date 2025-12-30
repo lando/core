@@ -31,38 +31,38 @@ jobs:
       os: ${{ matrix.os }}
       version: ${{ github.event.release.tag_name }}
 
-  sign:
-    uses: ./.github/workflows/sign-binary.yml
-    needs:
-      - package
-    strategy:
-      fail-fast: false
-      matrix:
-        file:
-          - lando-linux-arm64-${{ github.ref_name }}
-          - lando-macos-arm64-${{ github.ref_name }}
-          - lando-win-arm64-${{ github.ref_name }}
+#  sign:
+#    uses: ./.github/workflows/sign-binary.yml
+#    needs:
+#      - package
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        file:
+#          - lando-linux-arm64-${{ github.ref_name }}
+#          - lando-macos-arm64-${{ github.ref_name }}
+#          - lando-win-arm64-${{ github.ref_name }}
 
-          - lando-linux-x64-${{ github.ref_name }}
-          - lando-macos-x64-${{ github.ref_name }}
-          - lando-win-x64-${{ github.ref_name }}
+#          - lando-linux-x64-${{ github.ref_name }}
+#          - lando-macos-x64-${{ github.ref_name }}
+#          - lando-win-x64-${{ github.ref_name }}
 
-    with:
-      download-pattern: packaged-lando-*
-      file: ${{ matrix.file }}
-    secrets:
-      apple-notary-user: ${{ secrets.APPLE_NOTARY_USER }}
-      apple-notary-password: ${{ secrets.APPLE_NOTARY_PASSWORD }}
-      certificate-data: ${{ contains(matrix.file, 'macos') && secrets.APPLE_CERT_DATA || secrets.KEYLOCKER_CLIENT_CERT }}
-      certificate-password: ${{ contains(matrix.file, 'macos') && secrets.APPLE_CERT_PASSWORD || secrets.KEYLOCKER_CLIENT_CERT_PASSWORD }}
-      keylocker-api-key: ${{ secrets.KEYLOCKER_API_KEY }}
-      keylocker-cert-sha1-hash: ${{ secrets.KEYLOCKER_CERT_SHA1_HASH }}
-      keylocker-keypair-alias: ${{ secrets.KEYLOCKER_KEYPAIR_ALIAS }}
+#    with:
+#      download-pattern: packaged-lando-*
+#      file: ${{ matrix.file }}
+#    secrets:
+#      apple-notary-user: ${{ secrets.APPLE_NOTARY_USER }}
+#      apple-notary-password: ${{ secrets.APPLE_NOTARY_PASSWORD }}
+#      certificate-data: ${{ contains(matrix.file, 'macos') && secrets.APPLE_CERT_DATA || secrets.KEYLOCKER_CLIENT_CERT }}
+#      certificate-password: ${{ contains(matrix.file, 'macos') && secrets.APPLE_CERT_PASSWORD || secrets.KEYLOCKER_CLIENT_CERT_PASSWORD }}
+#      keylocker-api-key: ${{ secrets.KEYLOCKER_API_KEY }}
+#      keylocker-cert-sha1-hash: ${{ secrets.KEYLOCKER_CERT_SHA1_HASH }}
+#      keylocker-keypair-alias: ${{ secrets.KEYLOCKER_KEYPAIR_ALIAS }}
 
   build-release-binary-alias:
     uses: ./.github/workflows/release-rename-binary.yml
     needs:
-      - sign
+      - package
     strategy:
       fail-fast: false
       matrix:
@@ -78,11 +78,11 @@ jobs:
     with:
       source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}
       destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.alias }}
-      download-pattern: signed-lando-*
+      download-pattern: packaged-lando-*
   build-release-binary-tag:
     uses: ./.github/workflows/release-rename-binary.yml
     needs:
-      - sign
+      - package
     strategy:
       fail-fast: false
       matrix:
@@ -96,7 +96,7 @@ jobs:
     with:
       source: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}
       destination: lando-${{ matrix.os }}-${{ matrix.arch }}-${{ github.ref_name }}
-      download-pattern: signed-lando-*
+      download-pattern: packaged-lando-*
 
   checksum:
     uses: ./.github/workflows/generate-checksums.yml
@@ -127,17 +127,17 @@ jobs:
       show: true
       upload-name: release-checksums${{ matrix.alias }}
 
-  deploy-releases-s3:
-    uses: ./.github/workflows/deploy-s3.yml
-    needs:
-      - checksum
-      - checksum-s3-aliases
-    with:
-      download-pattern: release-*
-    secrets:
-      aws-secret-access-key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
-      aws-access-key-id: ${{ secrets.S3_ACCESS_KEY_ID }}
-      aws-region: us-east-1
+#  deploy-releases-s3:
+#    uses: ./.github/workflows/deploy-s3.yml
+#    needs:
+#      - checksum
+#      - checksum-s3-aliases
+#    with:
+#      download-pattern: release-*
+#    secrets:
+#      aws-secret-access-key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+#      aws-access-key-id: ${{ secrets.S3_ACCESS_KEY_ID }}
+#      aws-region: us-east-1
   deploy-releases-artifacts:
     uses: ./.github/workflows/deploy-artifacts.yml
     needs:
@@ -156,51 +156,51 @@ jobs:
       - checksum
     secrets:
       github-token: ${{ secrets.RTFM47_COAXIUM_INJECTOR }}
-  deploy-legacy-notifications:
-    runs-on: ubuntu-24.04
-    needs:
-      - checksum
-    env:
-      TERM: xterm
-    steps:
-      - name: Push release to lando/lando
-        uses: softprops/action-gh-release@v2
-        with:
-          repository: lando/lando
-          name: ${{ github.event.release.tag_name }}
-          draft: ${{ github.event.release.draft }}
-          prerelease: ${{ github.event.release.prerelease }}
-          tag_name: ${{ github.event.release.tag_name }}
-          token: ${{ secrets.RTFM47_COAXIUM_INJECTOR }}
-          body: |
-            **Starting with v3.21.0-beta.18, Lando is no longer distributed via package installers in here in this releases page!**
+#  deploy-legacy-notifications:
+#    runs-on: ubuntu-24.04
+#    needs:
+#      - checksum
+#    env:
+#      TERM: xterm
+#    steps:
+#      - name: Push release to lando/lando
+#        uses: softprops/action-gh-release@v2
+#        with:
+#          repository: lando/lando
+#          name: ${{ github.event.release.tag_name }}
+#          draft: ${{ github.event.release.draft }}
+#          prerelease: ${{ github.event.release.prerelease }}
+#          tag_name: ${{ github.event.release.tag_name }}
+#          token: ${{ secrets.RTFM47_COAXIUM_INJECTOR }}
+#          body: |
+#            **Starting with v3.21.0-beta.18, Lando is no longer distributed via package installers in here in this releases page!*#*
 
-            To install Lando please visit the [official install docs](https://docs.lando.dev/install).
+#            To install Lando please visit the [official install docs](https://docs.lando.dev/install)#.
 
-            ## Changelogs
+#            ## Changelogs
 
-            Lando now runs as a distributed plugin-based ecosystem so you will want to check the releases/changelogs in
-            the various [plugins](https://docs.lando.dev/plugins.html) for relevant notes.
+#            Lando now runs as a distributed plugin-based ecosystem so you will want to check the releases/changelogs in
+#            the various [plugins](https://docs.lando.dev/plugins.html) for relevant notes#.
 
-            [Click Here](https://github.com/lando/core/releases/tag/${{ github.event.release.tag_name }}) to check out the notes for `@lando/core@${{ github.event.release.tag_name }}`.
+#            [Click Here](https://github.com/lando/core/releases/tag/${{ github.event.release.tag_name }}) to check out the notes for `@lando/core@${{ github.event.release.tag_name }}`#.
 
-            ## Notes
+#            ## Notes
 
-            * We will continue to push releases here for backwards compatibility, posterity, etc
-            * [Extended release notes](https://lando.dev/blog/2024/01/16/v321-extended.html)
+#            * We will continue to push releases here for backwards compatibility, posterity, etc
+#            * [Extended release notes](https://lando.dev/blog/2024/01/16/v321-extended.html#)
 
-      - name: Push release to lando/cli
-        uses: softprops/action-gh-release@v2
-        with:
-          repository: lando/legacy-cli
-          name: ${{ github.event.release.tag_name }}
-          draft: ${{ github.event.release.draft }}
-          prerelease: ${{ github.event.release.prerelease }}
-          tag_name: ${{ github.event.release.tag_name }}
-          token: ${{ secrets.RTFM47_COAXIUM_INJECTOR }}
-          body: |
-            **Starting with v3.23.0, Lando CLI binaries are no longer distributed here in these releases!**
+#      - name: Push release to lando/cli
+#        uses: softprops/action-gh-release@v2
+#        with:
+#          repository: lando/legacy-cli
+#          name: ${{ github.event.release.tag_name }}
+#          draft: ${{ github.event.release.draft }}
+#          prerelease: ${{ github.event.release.prerelease }}
+#          tag_name: ${{ github.event.release.tag_name }}
+#          token: ${{ secrets.RTFM47_COAXIUM_INJECTOR }}
+#          body: |
+#            **Starting with v3.23.0, Lando CLI binaries are no longer distributed here in these releases!*#*
 
-            They are now available in the `@lando/core` [releases page](https://github.com/lando/core/releases) including [this ${{ github.event.release.tag_name }} release](https://github.com/lando/core/releases/tag/${{ github.event.release.tag_name }}).
+#            They are now available in the `@lando/core` [releases page](https://github.com/lando/core/releases) including [this ${{ github.event.release.tag_name }} release](https://github.com/lando/core/releases/tag/${{ github.event.release.tag_name }})#.
 
-            All that said we don't recommned you use these binaries directly. Instead, to install Lando please visit the [official install docs](https://docs.lando.dev/install).
+#            All that said we don't recommned you use these binaries directly. Instead, to install Lando please visit the [official install docs](https://docs.lando.dev/install).

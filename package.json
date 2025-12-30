@@ -1,12 +1,15 @@
 {
-  "name": "@lando/core",
+  "name": "@florianpat/lando-core",
   "description": "The libraries that power all of Lando.",
-  "version": "3.26.2",
-  "author": "Mike Pirog @pirog",
+  "version": "3.26.3-1florianPat.2",
+  "author": "Florian Patruck @florianPat",
   "license": "MIT",
-  "repository": "lando/core",
-  "bugs": "https://github.com/lando/core/issues/new/choose",
-  "homepage": "https://github.com/lando/core",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HDNET/lando-core.git"
+  },
+  "bugs": "https://github.com/HDNET/lando-core/issues/new/choose",
+  "homepage": "https://github.com/HDNET/lando-core",
   "keywords": [
     "lando",
     "lando-plugin"

@@ -51,8 +51,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm clean-install --prefer-offline --frozen-lockfile --production
-      - name: Install plugins
-        run: scripts/install-plugins.sh --lando bin/lando ${{ inputs.edge == true && '--edge' || '' }}
+      #- name: Install plugins
+      #  run: scripts/install-plugins.sh --lando bin/lando ${{ inputs.edge == true && '--edge' || '' }}
       - name: Switch to edge channel
         if: inputs.edge == true
         run: |
@@ -82,8 +82,8 @@ jobs:
       - name: Ensure channel
         if: (inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')
         run: ./dist/${{ inputs.filename }} config --path channel | grep ${{ inputs.edge == true && 'edge' || 'stable' }}
-      - name: Ensure plugin install
-        if: ((inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS'))
-        run: |
-          ./dist/${{ inputs.filename }} config --path fatcore | grep true
-          ./dist/${{ inputs.filename }} config | grep -q "/snapshot/core/plugins/wordpress"
+      #- name: Ensure plugin install
+      #  if: ((inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS'))
+      #  run: |
+      #    ./dist/${{ inputs.filename }} config --path fatcore | grep true
+      #    ./dist/${{ inputs.filename }} config | grep -q "/snapshot/core/plugins/wordpress"
