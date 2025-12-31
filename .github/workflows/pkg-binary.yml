@@ -71,7 +71,7 @@ jobs:
           node-version: ${{ inputs.node-version }}
           os: ${{ inputs.os }}
           options: --options dns-result-order=ipv4first
-          pkg: "@yao-pkg/pkg@5.16.1"
+          pkg: "@yao-pkg/pkg@6.4.0"
           upload-key: "packaged-${{ inputs.filename }}-${{ inputs.os }}-${{ inputs.arch }}-${{ github.sha }}"
       - name: Ensure version
         if: (inputs.os == 'linux' && runner.os == 'Linux') || (inputs.os == 'macos' && runner.os == 'macOS')

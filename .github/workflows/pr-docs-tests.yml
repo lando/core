@@ -74,7 +74,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           options: --options dns-result-order=ipv4first
           upload: false
-          pkg: "@yao-pkg/pkg@5.16.1"
+          pkg: "@yao-pkg/pkg@6.4.0"
       - name: Install full deps
         run: npm clean-install --prefer-offline --frozen-lockfile
       - name: Setup lando ${{ steps.pkg-action.outputs.file }}
