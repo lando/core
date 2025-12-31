@@ -84,6 +84,8 @@ module.exports = lando => {
         },
       });
 
+      await lando.events.emit('post-install-plugins', {errors, results, total});
+
       // status
       console.log();
       console.log('added %s of %s plugins with %s errors', results.length, total, errors.length); // eslint-disable-line max-len

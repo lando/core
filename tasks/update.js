@@ -157,6 +157,7 @@ module.exports = lando => {
         },
       });
 
+      await lando.events.emit('post-install-plugins', {errors, results});
       // flush relevant caches
       lando.cli.clearTaskCaches();
       lando.cache.remove('updates-2');

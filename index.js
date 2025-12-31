@@ -81,7 +81,7 @@ module.exports = async lando => {
   lando.events.once('pre-install-plugins', async options => await require('./hooks/lando-setup-common-plugins')(lando, options));
 
   // move v3 scripts directories as needed
-  lando.events.on('pre-setup', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
+  lando.events.on('post-install-plugins', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
 
   // ensure we setup docker if needed
   lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-build-engine-${platform}`)(lando, options));
@@ -99,12 +99,6 @@ module.exports = async lando => {
 
   // ensure we setup landonet
   lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-landonet')(lando, options));
-
-  // also move scripts for init considerations
-  lando.events.on('pre-init', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
-
-  // move v3 scripts directories as needed
-  lando.events.on('pre-init', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
 
   // set proxy config
   lando.events.on('post-bootstrap-config', async () => await require('./hooks/lando-set-proxy-config')(lando));
@@ -130,9 +124,6 @@ module.exports = async lando => {
 
   // autostart docker if we need to
   lando.events.once('engine-autostart', async () => await require('./hooks/lando-autostart-engine')(lando));
-
-  // move v3 scripts directories as needed
-  lando.events.on('pre-engine-start', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
 
   // clean networks
   lando.events.on('pre-engine-start', 1, async () => await require('./hooks/lando-clean-networks')(lando));
