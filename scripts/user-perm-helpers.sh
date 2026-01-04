@@ -39,6 +39,7 @@ reset_user() {
   local HOST_UID=$3
   local HOST_GID=$4
   local DISTRO=$5
+  local USER_HOME=$6
   local HOST_GROUP=$GROUP
   if getent group "$HOST_GID" 1>/dev/null 2>/dev/null; then
     HOST_GROUP=$(getent group "$HOST_GID" | cut -d: -f1)
@@ -47,7 +48,7 @@ reset_user() {
     deluser "$USER" 2>/dev/null
     addgroup -g "$HOST_GID" "$GROUP" 2>/dev/null | addgroup "$GROUP" 2>/dev/null
     addgroup -g "$HOST_GID" "$HOST_GROUP" 2>/dev/null
-    adduser -u "$HOST_UID" -G "$HOST_GROUP" -h /var/www -D "$USER" 2>/dev/null
+    adduser -u "$HOST_UID" -G "$HOST_GROUP" -h "$USER_HOME" -D "$USER" 2>/dev/null
     adduser "$USER" "$GROUP" 2>/dev/null
   else
     if [ "$(id -u $USER)"  != "$HOST_UID" ]; then

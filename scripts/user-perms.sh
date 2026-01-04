@@ -103,7 +103,7 @@ verify_user $LANDO_WEBROOT_USER $LANDO_WEBROOT_GROUP $FLAVOR
 # Lets do this regardless of OS now
 lando_info "Remapping ownership to handle docker volume sharing..."
 lando_info "Resetting $LANDO_WEBROOT_USER:$LANDO_WEBROOT_GROUP from $LANDO_WEBROOT_UID:$LANDO_WEBROOT_GID to $LANDO_HOST_UID:$LANDO_HOST_GID"
-reset_user $LANDO_WEBROOT_USER $LANDO_WEBROOT_GROUP $LANDO_HOST_UID $LANDO_HOST_GID $FLAVOR
+reset_user $LANDO_WEBROOT_USER $LANDO_WEBROOT_GROUP $LANDO_HOST_UID $LANDO_HOST_GID $FLAVOR $WEBROOT_HOME
 lando_info "$LANDO_WEBROOT_USER:$LANDO_WEBROOT_GROUP is now running as $(id $LANDO_WEBROOT_USER)!"
 
 # Make sure we set the ownership of the mount and HOME when we start a service
