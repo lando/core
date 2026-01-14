@@ -65,7 +65,7 @@ module.exports = lando => {
   return {
     command: 'init',
     level: 'app',
-    describe: 'Fetched code and/or initializes a Landofile for use with lando',
+    describe: 'Fetches code and/or initializes a Landofile for use with lando',
     usage: `$0 init
     [--name <name>]
     [--recipe <recipe>]
