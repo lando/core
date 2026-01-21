@@ -1,0 +1,15 @@
+name: 'WSL Run Action'
+description: 'Runs GitHub actions in WSL environment'
+inputs:
+  uses:
+    description: 'The action to run in WSL'
+    required: false
+  with:
+    description: 'Input parameters for the action'
+    required: false
+  run:
+    description: 'Commands to run in WSL bash shell'
+    required: false
+runs:
+  using: 'node20'
+  main: 'wsl-run-action.js' 
