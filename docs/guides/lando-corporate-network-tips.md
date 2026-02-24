@@ -138,7 +138,7 @@ services:
       - cp /app/yourcert.crt /usr/local/share/ca-certificates/
       - chmod 644 /usr/local/share/ca-certificates/yourcert.crt
       - update-ca-certificates
-      - /etc/lando/service/helpers/install-composer.sh 2 # Install composer after cert
+      - /etc/lando/service/helpers/install-composer.sh # Install composer after cert
 ```
 
 The same approach applies to other PHP tools — disable their automatic installation via config, install your cert first, then install the tools manually using the helper scripts in `/etc/lando/service/helpers/`.
