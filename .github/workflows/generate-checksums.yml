@@ -46,11 +46,11 @@ jobs:
       TERM: xterm
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Ensure path
         run: mkdir -p /tmp/checksums/${{ github.sha }}
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.download-name }}
           path: /tmp/checksums/${{ github.sha }}
@@ -69,7 +69,7 @@ jobs:
             --output=/tmp/${{ inputs.output }} \
             ${{ inputs.show == true && '--show' || ''}}
       - name: Upload checksums
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ inputs.upload-name }}
           path: /tmp/${{ inputs.output }}
