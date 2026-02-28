@@ -97,6 +97,9 @@ module.exports = async lando => {
   // ensure we setup docker-compose if needed
   lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-orchestrator')(lando, options));
 
+  // ensure we setup buildx if needed
+  lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-buildx')(lando, options));
+
   // ensure we setup landonet
   lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-landonet')(lando, options));
 
