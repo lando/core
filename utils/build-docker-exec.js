@@ -8,7 +8,7 @@ const _ = require('lodash');
 const getExecOpts = (docker, datum) => {
   const exec = [docker, 'exec'];
   // Should only use this if we have to
-  if (process.stdin.isTTY) exec.push('--tty');
+  if (process.stdin.isTTY && process.stdout.isTTY) exec.push('--tty');
   // Should only set interactive in node mode
   if (process.lando === 'node') exec.push('--interactive');
   // add workdir if we can
