@@ -22,6 +22,12 @@ describe('TTY allocation', () => {
   const originalStdinIsTTY = process.stdin.isTTY;
   const originalStdoutIsTTY = process.stdout.isTTY;
 
+  beforeEach(() => {
+    // Clear require cache so compose.js re-evaluates with test-set TTY values
+    delete require.cache[require.resolve('./../lib/compose')];
+    delete require.cache[require.resolve('./../utils/build-docker-exec')];
+  });
+
   afterEach(() => {
     // Restore after each test
     process.stdin.isTTY = originalStdinIsTTY;
