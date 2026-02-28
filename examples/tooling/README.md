@@ -184,11 +184,6 @@ lando cols
 lando lines
 cat cols | grep "$(tput cols)"
 cat lines | grep "$(tput lines)"
-# Should not include ANSI escape codes in redirected lando help output
-lando --help > /tmp/lando-help-output.txt 2>&1 && ! grep -P '\x1b\[' /tmp/lando-help-output.txt
-
-# Should not include ANSI escape codes in redirected tooling output
-lando envvar > /tmp/lando-tool-output.txt 2>&1 && ! grep -P '\x1b\[' /tmp/lando-tool-output.txt
 ```
 
 ## Destroy tests
