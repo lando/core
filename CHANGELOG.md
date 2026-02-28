@@ -5,6 +5,7 @@
 * Fixed crash when `config.yml` is empty instead of containing `{}` [#439](https://github.com/lando/core/issues/439)
 * Updated `lando setup` to install `docker-buildx` if missing
 * Fixed `buildx` built images not being available locally by adding `--load` flag
+* Fixed ANSI escape codes appearing in redirected output by checking `stdout.isTTY` instead of `stdin.isTTY` for TTY allocation [#345](https://github.com/lando/core/issues/345)
 
 ## v3.26.2 - [December 17, 2025](https://github.com/lando/core/releases/tag/v3.26.2)
 
