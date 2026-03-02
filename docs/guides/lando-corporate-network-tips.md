@@ -125,6 +125,25 @@ services:
       - update-ca-certificates
 ```
 
+::: warning PHP plugin tools install before user build steps
+As of `@lando/php` 1.10.0+, tools like Composer are installed during the build phase **before** your `build_as_root` commands run. This means the cert won't be in place yet when tools try to download, causing SSL errors.
+
+To work around this, disable automatic tool installation and install them manually after your cert is in place:
+
+```yaml
+services:
+  appserver:
+    composer_version: false # Prevent automatic composer install
+    build_as_root:
+      - cp /app/yourcert.crt /usr/local/share/ca-certificates/
+      - chmod 644 /usr/local/share/ca-certificates/yourcert.crt
+      - update-ca-certificates
+      - /etc/lando/service/helpers/install-composer.sh # Install composer after cert
+```
+
+The same approach applies to other PHP tools — disable their automatic installation via config, install your cert first, then install the tools manually using the helper scripts in `/etc/lando/service/helpers/`.
+:::
+
 #### Adding Certs for PHP cURL Requests
 If you make external requests with the PHP process in your app, you will also need to include the cert in your appserver's `php.ini` file:
 
