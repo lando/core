@@ -55,12 +55,12 @@ jobs:
       TERM: xterm
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Create paths
         run: mkdir -p /tmp/sign/${{ github.sha }}
       - name: Download binaries
         id: download-artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.download-name }}
           merge-multiple: true
@@ -85,7 +85,7 @@ jobs:
           keylocker-keypair-alias: ${{ secrets.keylocker-keypair-alias }}
           options: ${{ runner.os == 'macOS' && '--options runtime --entitlements "$GITHUB_WORKSPACE/entitlements.xml"' || '' }}
       - name: Upload signed binaries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: signed-${{ inputs.file }}
           path: /tmp/sign/${{ github.sha }}/${{ inputs.file }}${{ runner.os == 'Windows' && !endsWith(inputs.file, '.exe') && '.exe' || '' }}
