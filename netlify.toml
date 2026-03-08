@@ -32,7 +32,8 @@
       "sqlshack",
       "/v/",
       "dockerfile-release-notes",
-      "jeffgeerling.com"
+      "jeffgeerling.com",
+      "hub.docker.com",
     ]
     skipPatterns = [
       ".gif",
