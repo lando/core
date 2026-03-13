@@ -27,6 +27,14 @@ const defaultConfig = options => ({
   disablePlugins: [],
   dockerBin: require('../utils/get-docker-x')(),
   dockerBinDir: require('../utils/get-docker-bin-path')(),
+  // Engine selection: 'auto' | 'docker' | 'containerd'
+  engine: 'auto',
+  // Containerd binary path overrides (null = use defaults at ~/.lando/bin/*)
+  containerdBin: null,
+  nerdctlBin: null,
+  buildkitdBin: null,
+  // Containerd socket path override (null = use default at ~/.lando/run/containerd.sock)
+  containerdSocket: null,
   env: process.env,
   home: os.homedir(),
   isArmed: _.includes(['arm64', 'aarch64'], process.arch),
