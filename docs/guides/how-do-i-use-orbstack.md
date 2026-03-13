@@ -2,13 +2,12 @@
 title: Using Lando with Orbstack
 description: Learn how to use Lando with Orbstack today.
 guide: true
-
 authors:
   - name: Oscar Arzola
     pic: https://avatars.githubusercontent.com/u/4997549?v=4
     link: https://twitter.com/init_sh
 updated:
-  timestamp: 1733175010
+  timestamp: 1770760290
 ---
 
 # Using Lando with Orbstack
@@ -21,25 +20,35 @@ Official support for swapping Docker providers will be available in [Lando 4](ht
 
 After installing Lando, follow these steps:
 
-### 1. Kill all running containers, close Docker Desktop and ensure that auto-start is disabled in Docker Desktop settings.
+## 1. Kill all running containers and close Docker Desktop
 
-You can do this by running the following command:
+Ensure that auto-start is disabled in Docker Desktop settings. You can stop all containers by running:
 
 ```bash
 lando poweroff && docker stop $(docker ps -a -q)
 ```
 
-### 2. Install Orbstack (You can migrate your existing containers easily; see below).
+## 2. Install Orbstack
 
 ```bash
 brew install orbstack
 ```
 
-> Lando only checks for the presence of the **Docker.app** client; **it does not require Docker Desktop to be running**. By opening Orbstack, it binds the necessary Docker CLI commands that Lando expects and uses. This allows you to run Lando seamlessly without relying on Docker Desktop.
+## 3. Create a symbolic link for Docker.app (if needed)
 
-### 3. Migrating Existing Containers
+Lando checks for the presence of **Docker.app**, but doesn't actually require Docker Desktop to be installed or running. If you want to completely remove Docker Desktop, you can create a symbolic link from Orbstack to Docker.app:
 
-Orbstack will migrate your containers as soon you do a lando start but if you want to do it manually, and you have existing containers that you want to migrate to Orbstack, run the following command
+```bash
+sudo ln -s /Applications/OrbStack.app /Applications/Docker.app
+```
+
+This tricks Lando into thinking Docker.app is present, while Orbstack handles all the Docker CLI commands seamlessly.
+
+> **Note:** By opening Orbstack, it binds the necessary Docker CLI commands that Lando expects and uses. This allows you to run Lando without relying on Docker Desktop.
+
+## 4. Migrating Existing Containers
+
+Orbstack will automatically migrate your containers the first time you run `lando start`. If you prefer to migrate manually, run:
 
 ```bash
 orb migrate docker
@@ -53,13 +62,13 @@ orb migrate docker
 docker context use orbstack
 ```
 
-> If you have admin access, OrbStack will automatically update the /var/run/docker.sock symlink to point to its own Docker engine. This improves compatibility with some third-party tools.
+> If you have admin access, OrbStack will automatically update the `/var/run/docker.sock` symlink to point to its own Docker engine. This improves compatibility with some third-party tools.
 
-More https://docs.orbstack.dev/install#docker-migration
+More info: https://docs.orbstack.dev/install#docker-migration
 
 ### Reverting to Docker Desktop
 
-If you changed your mind, and you want to unlink Orbstack and use Docker Desktop again, you can do so by running the following command:
+If you want to switch back to Docker Desktop, run:
 
 ```bash
 docker context use desktop-linux
