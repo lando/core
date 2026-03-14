@@ -35,6 +35,10 @@ const defaultConfig = options => ({
   buildkitdBin: null,
   // Containerd socket path override (null = use default at ~/.lando/run/containerd.sock)
   containerdSocket: null,
+  // Finch daemon binary path override (null = use default at ~/.lando/bin/finch-daemon)
+  finchDaemonBin: null,
+  // Finch daemon socket path override (null = use default at ~/.lando/run/finch.sock)
+  finchDaemonSocket: null,
   // Registry auth config path override (null = use default ~/.docker/config.json)
   registryAuth: null,
   // BuildKit build cache max size (human-readable string for config display)
