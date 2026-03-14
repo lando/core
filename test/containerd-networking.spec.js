@@ -44,7 +44,7 @@ describe('containerd-networking', () => {
   // createNet
   // ===========================================================================
   describe('#createNet', () => {
-    it('should build correct nerdctl args with --internal and lando label', async () => {
+    it('should build correct nerdctl args with lando label (no --internal)', async () => {
       const {cc, calls} = createMockedInstance({
         nerdctlReturn: args => {
           // network inspect returns JSON
@@ -61,14 +61,15 @@ describe('containerd-networking', () => {
       const createArgs = calls[0];
       createArgs[0].should.equal('network');
       createArgs[1].should.equal('create');
-      expect(createArgs).to.include('--internal');
+      // nerdctl does not support --internal; should NOT be present
+      expect(createArgs).to.not.include('--internal');
       expect(createArgs).to.include('--label');
       expect(createArgs).to.include('io.lando.container=TRUE');
       // Network name should be last
       createArgs[createArgs.length - 1].should.equal('my-net');
     });
 
-    it('should skip --internal when Internal: false', async () => {
+    it('should not include --internal even when Internal option is not set', async () => {
       const {cc, calls} = createMockedInstance({
         nerdctlReturn: args => {
           if (args[0] === 'network' && args[1] === 'inspect') {
