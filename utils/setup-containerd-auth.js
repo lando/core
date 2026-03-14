@@ -141,15 +141,10 @@ const getContainerdAuthConfig = (opts = {}) => {
       if (configJson.credsStore) {
         const helperBin = `docker-credential-${configJson.credsStore}`;
         const {execSync} = require('child_process');
-        let helperExists = false;
-        try {
-          execSync(`which ${helperBin}`, {stdio: 'pipe'});
-          helperExists = true;
-        } catch {
-          helperExists = false;
-        }
-
-        if (!helperExists) {
+        // nerdctl treats credential helper errors as fatal (unlike Docker which
+        // falls back to anonymous). On WSL, desktop.exe helper exists but fails
+        // for registries without stored credentials. Always sanitize for nerdctl.
+        {
           // Create a sanitized config without the broken credsStore
           const sanitizedDir = path.join(os.homedir(), '.lando', 'docker-config');
           fs.mkdirSync(sanitizedDir, {recursive: true});
