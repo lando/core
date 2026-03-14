@@ -17,6 +17,16 @@ const defaults = {
     appLabels: {
       'io.lando.container': 'TRUE',
     },
+    engine: 'auto',
+    containerdBin: null,
+    nerdctlBin: null,
+    buildkitdBin: null,
+    containerdSocket: null,
+    supportedContainerdVersions: {
+      containerd: {min: '2.0.0', max: '3.0.0', link: 'https://github.com/containerd/containerd/releases'},
+      nerdctl: {min: '2.0.0', max: '3.0.0', link: 'https://github.com/containerd/nerdctl/releases'},
+      buildkit: {min: '0.17.0', max: '1.0.0', link: 'https://github.com/moby/buildkit/releases'},
+    },
     proxy: 'ON',
     proxyName: 'landoproxyhyperion5000gandalfedition',
     proxyCache: 'proxyCache',
