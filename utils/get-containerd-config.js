@@ -33,29 +33,31 @@ module.exports = (opts = {}) => {
   const disableCri = opts.disableCri !== false; // default true
   const platform = opts.platform || process.platform;
 
+  // Top-level keys MUST come before any [section] in TOML
   const lines = [
     '# Lando containerd configuration',
     '# Auto-generated — do not edit manually',
     'version = 3',
-    '',
-    '[grpc]',
-    `  address = "${socketPath}"`,
-    '',
-    `state = "${stateDir}"`,
     `root = "${rootDir}"`,
-    '',
+    `state = "${stateDir}"`,
   ];
+
+  // Disable CRI plugin (not needed for Lando — saves resources)
+  if (disableCri) {
+    lines.push('disabled_plugins = ["io.containerd.grpc.v1.cri"]');
+  }
+
+  lines.push('');
+
+  // Sections
+  lines.push('[grpc]');
+  lines.push(`  address = "${socketPath}"`);
+  lines.push('');
 
   // Debug logging
   if (debug) {
     lines.push('[debug]');
     lines.push('  level = "debug"');
-    lines.push('');
-  }
-
-  // Disable CRI plugin (not needed for Lando — saves resources)
-  if (disableCri) {
-    lines.push('disabled_plugins = ["io.containerd.grpc.v1.cri"]');
     lines.push('');
   }
 
