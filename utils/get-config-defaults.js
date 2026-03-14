@@ -35,6 +35,8 @@ const defaultConfig = options => ({
   buildkitdBin: null,
   // Containerd socket path override (null = use default at ~/.lando/run/containerd.sock)
   containerdSocket: null,
+  // BuildKit build cache max size (human-readable string for config display)
+  buildkitCacheMax: '10GB',
   env: process.env,
   home: os.homedir(),
   isArmed: _.includes(['arm64', 'aarch64'], process.arch),
