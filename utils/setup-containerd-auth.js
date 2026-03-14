@@ -135,6 +135,30 @@ const getContainerdAuthConfig = (opts = {}) => {
       const raw = fs.readFileSync(configFile, 'utf8');
       const configJson = JSON.parse(raw);
       credentialHelpers = detectCredentialHelpers(configJson);
+
+      // Check if credsStore references a non-existent helper binary (e.g. desktop.exe on WSL).
+      // If so, create a sanitized config without it and redirect DOCKER_CONFIG.
+      if (configJson.credsStore) {
+        const helperBin = `docker-credential-${configJson.credsStore}`;
+        const {execSync} = require('child_process');
+        let helperExists = false;
+        try {
+          execSync(`which ${helperBin}`, {stdio: 'pipe'});
+          helperExists = true;
+        } catch {
+          helperExists = false;
+        }
+
+        if (!helperExists) {
+          // Create a sanitized config without the broken credsStore
+          const sanitizedDir = path.join(os.homedir(), '.lando', 'docker-config');
+          fs.mkdirSync(sanitizedDir, {recursive: true});
+          const sanitized = {...configJson};
+          delete sanitized.credsStore;
+          fs.writeFileSync(path.join(sanitizedDir, 'config.json'), JSON.stringify(sanitized, null, 2), 'utf8');
+          env.DOCKER_CONFIG = sanitizedDir;
+        }
+      }
     }
   } catch {
     // If we can't read or parse the config, that's fine — nerdctl will
