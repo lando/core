@@ -35,6 +35,8 @@ const defaultConfig = options => ({
   buildkitdBin: null,
   // Containerd socket path override (null = use default at ~/.lando/run/containerd.sock)
   containerdSocket: null,
+  // Registry auth config path override (null = use default ~/.docker/config.json)
+  registryAuth: null,
   // BuildKit build cache max size (human-readable string for config display)
   buildkitCacheMax: '10GB',
   env: process.env,
