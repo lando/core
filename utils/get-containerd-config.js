@@ -54,6 +54,12 @@ module.exports = (opts = {}) => {
   lines.push(`  address = "${socketPath}"`);
   lines.push('');
 
+  // ttrpc socket must also be redirected to avoid /run/containerd permission errors
+  const ttrpcSocket = socketPath.replace(/containerd\.sock$/, 'containerd-ttrpc.sock');
+  lines.push('[ttrpc]');
+  lines.push(`  address = "${ttrpcSocket}"`);
+  lines.push('');
+
   // Debug logging
   if (debug) {
     lines.push('[debug]');

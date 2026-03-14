@@ -24,14 +24,14 @@ module.exports = async (lando, options) => {
       id: "setup-containerd",
       bin: lando.config.containerdBin || path.join(binDir, "containerd"),
       version: "2.0.4",
-      tarballEntry: "bin/containerd",
+      tarballEntries: ["bin/containerd", "bin/containerd-shim-runc-v2"],
     },
     {
       name: "buildkitd",
       id: "setup-buildkitd",
       bin: lando.config.buildkitdBin || path.join(binDir, "buildkitd"),
       version: "0.18.2",
-      tarballEntry: "bin/buildkitd",
+      tarballEntries: ["bin/buildkitd", "bin/buildctl"],
       dependsOn: ["setup-containerd"],
     },
     {
@@ -39,10 +39,52 @@ module.exports = async (lando, options) => {
       id: "setup-nerdctl",
       bin: lando.config.nerdctlBin || path.join(binDir, "nerdctl"),
       version: "2.0.5",
-      tarballEntry: "nerdctl",
+      tarballEntries: ["nerdctl", "containerd-rootless-setuptool.sh", "containerd-rootless.sh"],
       dependsOn: ["setup-buildkitd"],
     },
   ];
+
+  // Add runc (direct binary, not a tarball)
+  const runcVersion = "1.2.5";
+  const runcArch = process.arch === "arm64" ? "arm64" : "amd64";
+  const runcBin = path.join(binDir, "runc");
+  const runcUrl = `https://github.com/opencontainers/runc/releases/download/v${runcVersion}/runc.${runcArch}`;
+
+  options.tasks.push({
+    title: "Installing runc",
+    id: "setup-runc",
+    description: "@lando/runc (containerd engine)",
+    version: `runc v${runcVersion}`,
+    hasRun: async () => fs.existsSync(runcBin),
+    canRun: async () => {
+      if (engine === "docker") return false;
+      if (engine === "auto") {
+        try {
+          if (lando.engine && lando.engine.dockerInstalled) return false;
+        } catch { /* continue */ }
+      }
+      await axios.head(runcUrl);
+      return true;
+    },
+    dependsOn: ["setup-containerd"],
+    task: async (ctx, task) => {
+      task.title = `Downloading runc...`;
+      const download = require("../utils/download-x")(runcUrl, {debug, dest: runcBin});
+      await new Promise((resolve, reject) => {
+        download.on("done", result => {
+          task.title = "Downloaded runc";
+          resolve(result);
+        });
+        download.on("error", error => reject(error));
+        download.on("progress", progress => {
+          task.title = `Downloading runc ${color.dim(`[${progress.percentage}%]`)}`;
+        });
+      });
+
+      fs.chmodSync(runcBin, 0o755);
+      task.title = `Installed runc to ${runcBin}`;
+    },
+  });
 
   for (const binary of binaries) {
     const url = getUrl(binary.name === "buildkitd" ? "buildkit" : binary.name, {version: binary.version});
@@ -81,19 +123,22 @@ module.exports = async (lando, options) => {
           });
         });
 
-        // Extract the specific binary from the tarball
+        // Extract binaries from the tarball
         task.title = `Extracting ${binary.name}...`;
         const {execSync} = require("child_process");
+        const entries = binary.tarballEntries || [binary.tarballEntry];
         execSync(
-          `tar -xzf "${path.join(tmpDir, binary.name + ".tar.gz")}" -C "${tmpDir}" "${binary.tarballEntry}"`,
+          `tar -xzf "${path.join(tmpDir, binary.name + ".tar.gz")}" -C "${tmpDir}" ${entries.map(e => `"${e}"`).join(" ")}`,
           {stdio: "pipe"},
         );
 
-        // Move to bin dir
-        const extracted = path.join(tmpDir, binary.tarballEntry);
-        const dest = binary.bin;
-        fs.copyFileSync(extracted, dest);
-        require("../utils/make-executable")([path.basename(dest)], path.dirname(dest));
+        // Move all extracted files to bin dir
+        for (const entry of entries) {
+          const extracted = path.join(tmpDir, entry);
+          const destPath = path.join(binDir, path.basename(entry));
+          fs.copyFileSync(extracted, destPath);
+          require("../utils/make-executable")([path.basename(destPath)], path.dirname(destPath));
+        }
 
         // Cleanup temp
         fs.rmSync(tmpDir, {recursive: true, force: true});
