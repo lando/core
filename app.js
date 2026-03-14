@@ -210,6 +210,9 @@ module.exports = async (app, lando) => {
   // Check for docker compat warnings and surface them nicely as well
   app.events.on('post-start', async () => await require('./hooks/app-check-docker-compat')(app, lando));
 
+  // Check for containerd compat warnings and surface them nicely as well
+  app.events.on('post-start', async () => await require('./hooks/app-check-containerd-compat')(app, lando));
+
   // throw service not start errors
   app.events.on('post-start', 1, async () => await require('./hooks/app-check-v4-service-running')(app, lando));
 

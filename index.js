@@ -130,6 +130,7 @@ module.exports = async lando => {
 
   // run engine compat checks
   lando.events.on('almost-ready', 2, async () => await require('./hooks/lando-get-compat')(lando));
+  lando.events.on('almost-ready', 2, async () => await require('./hooks/lando-get-containerd-compat')(lando));
 
   // throw error if engine is not available
   lando.events.once('pre-engine-autostart', async () => await require('./hooks/lando-setup-check')(lando));
