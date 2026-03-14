@@ -39,7 +39,7 @@ module.exports = async (lando, options) => {
       id: "setup-nerdctl",
       bin: lando.config.nerdctlBin || path.join(binDir, "nerdctl"),
       version: "2.0.5",
-      tarballEntry: "bin/nerdctl",
+      tarballEntry: "nerdctl",
       dependsOn: ["setup-buildkitd"],
     },
   ];
