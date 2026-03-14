@@ -93,6 +93,9 @@ module.exports = async lando => {
   // move v3 scripts directories as needed
   lando.events.on('pre-setup', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
 
+  // Engine selection (before any engine-specific setup)
+  lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-engine-select')(lando, options));
+
   // ensure we setup docker if needed
   lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-build-engine-${platform}`)(lando, options));
 
