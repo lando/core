@@ -93,7 +93,7 @@ module.exports = async (lando, options) => {
         const extracted = path.join(tmpDir, binary.tarballEntry);
         const dest = binary.bin;
         fs.copyFileSync(extracted, dest);
-        require("../utils/make-executable")([dest]);
+        require("../utils/make-executable")([path.basename(dest)], path.dirname(dest));
 
         // Cleanup temp
         fs.rmSync(tmpDir, {recursive: true, force: true});

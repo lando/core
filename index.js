@@ -110,6 +110,11 @@ module.exports = async lando => {
   // ensure we setup containerd engine if needed
   lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-containerd-engine')(lando, options));
 
+  // ensure we setup lima for containerd on macOS
+  if (platform === 'darwin') {
+    lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-containerd-engine-darwin')(lando, options));
+  }
+
   // ensure we check containerd engine status
   lando.events.once('pre-engine-autostart', async () => await require('./hooks/lando-setup-containerd-engine-check')(lando));
 
