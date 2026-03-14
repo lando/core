@@ -65,7 +65,6 @@ jobs:
           - yaml
         engine:
           - docker
-          - containerd
         node-version:
           - "20"
         os:
