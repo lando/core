@@ -385,7 +385,16 @@ module.exports = async (lando, options) => {
       });
       fs.writeFileSync(configPath, config, "utf8");
 
-      // 4. Create systemd service file
+      // 4. Create nerdctl config for finch-daemon (points to our containerd socket)
+      const nerdctlConfig = [
+        `address = "${socketPath}"`,
+        `namespace = "default"`,
+        `cni_netconfpath = "/etc/cni/net.d/finch"`,
+        "",
+      ].join("\n");
+      fs.writeFileSync(path.join(configDir, "nerdctl.toml"), nerdctlConfig, "utf8");
+
+      // 5. Create systemd service file
       task.title = "Creating systemd service...";
       const finchSocket = "/run/lando/finch.sock";
       const finchCredSocket = "/run/lando/finch-credential.sock";
@@ -399,11 +408,10 @@ module.exports = async (lando, options) => {
         "[Service]",
         "Type=simple",
         "RuntimeDirectory=lando",
-        `ExecStartPre=/bin/sh -c "mkdir -p /etc/cni/net.d/finch /opt/cni/bin /run/containerd 2>/dev/null || true"`,
-        `ExecStartPre=/bin/sh -c "ln -sf ${socketPath} /run/containerd/containerd.sock 2>/dev/null || true"`,
+        `ExecStartPre=/bin/sh -c "mkdir -p /etc/cni/net.d/finch /opt/cni/bin 2>/dev/null || true"`,
         `ExecStart=${systemBinDir}/containerd --config ${configPath}`,
         `ExecStartPost=/bin/sh -c "while ! [ -S ${socketPath} ]; do sleep 0.1; done; chgrp lando ${socketPath}; chmod 660 ${socketPath}"`,
-        `ExecStartPost=/bin/sh -c "CONTAINERD_ADDRESS=${socketPath} PATH=${binDir}:/usr/sbin:$$PATH ${systemBinDir}/finch-daemon --socket-addr ${finchSocket} --socket-owner ${uid} --pidfile ${finchPidFile} --credential-socket-addr ${finchCredSocket} --credential-socket-owner ${uid} &"`,
+        `ExecStartPost=/bin/sh -c "NERDCTL_TOML=${configDir}/nerdctl.toml CONTAINERD_ADDRESS=${socketPath} PATH=${binDir}:/usr/sbin:$$PATH ${systemBinDir}/finch-daemon --socket-addr ${finchSocket} --socket-owner ${uid} --pidfile ${finchPidFile} --credential-socket-addr ${finchCredSocket} --credential-socket-owner ${uid} &"`,
         `ExecStartPost=/bin/sh -c "while ! [ -S ${finchSocket} ]; do sleep 0.1; done; chgrp lando ${finchSocket}; chmod 660 ${finchSocket}"`,
         "Restart=always",
         "RestartSec=5",
