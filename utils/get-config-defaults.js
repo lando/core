@@ -29,7 +29,13 @@ const defaultConfig = options => ({
   dockerBinDir: require('../utils/get-docker-bin-path')(),
   // Engine selection: 'auto' | 'docker' | 'containerd'
   engine: 'auto',
-  // Containerd binary path overrides (null = use defaults at ~/.lando/bin/*)
+  // Containerd system-level binary directory for root-owned binaries
+  // (containerd, containerd-shim-runc-v2, runc, buildkitd, buildctl)
+  containerdSystemBinDir: '/usr/local/lib/lando/bin',
+  // Containerd binary path overrides (null = use defaults)
+  // containerdBin defaults to containerdSystemBinDir/containerd
+  // nerdctlBin defaults to ~/.lando/bin/nerdctl (user-owned, only talks to socket)
+  // buildkitdBin defaults to containerdSystemBinDir/buildkitd
   containerdBin: null,
   nerdctlBin: null,
   buildkitdBin: null,
