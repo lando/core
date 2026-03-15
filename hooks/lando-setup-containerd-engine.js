@@ -22,8 +22,8 @@ module.exports = async (lando, options) => {
   // System-level binary directory for root-owned binaries
   const systemBinDir = lando.config.containerdSystemBinDir || "/usr/local/lib/lando/bin";
 
-  // Socket path
-  const socketPath = lando.config.containerdSocket || path.join(runDir, "containerd.sock");
+  // Socket path — sockets go in /run/lando/ (root-owned, group-accessible via systemd RuntimeDirectory)
+  const socketPath = lando.config.containerdSocket || "/run/lando/containerd.sock";
 
   // =========================================================================
   // Root-owned binaries: containerd, containerd-shim-runc-v2, runc, buildkitd, buildctl
@@ -369,6 +369,7 @@ module.exports = async (lando, options) => {
 
       // 4. Create systemd service file
       task.title = "Creating systemd service...";
+      const finchSocket = "/run/lando/finch.sock";
       const serviceContent = [
         "[Unit]",
         "Description=Lando Containerd",
@@ -376,8 +377,10 @@ module.exports = async (lando, options) => {
         "",
         "[Service]",
         "Type=simple",
+        "RuntimeDirectory=lando",
         `ExecStart=${systemBinDir}/containerd --config ${configPath}`,
         `ExecStartPost=/bin/sh -c "while ! [ -S ${socketPath} ]; do sleep 0.1; done; chgrp lando ${socketPath}; chmod 660 ${socketPath}"`,
+        `ExecStartPost=/bin/sh -c "while ! [ -S ${finchSocket} ]; do sleep 0.1; done; chgrp lando ${finchSocket}; chmod 660 ${finchSocket}"`,
         "Restart=always",
         "RestartSec=5",
         "",
@@ -396,7 +399,8 @@ module.exports = async (lando, options) => {
       );
       try { fs.unlinkSync(tmpServiceFile); } catch { /* ignore */ }
 
-      // 5. Ensure run directory exists (for socket)
+      // 5. /run/lando/ is created automatically by systemd via RuntimeDirectory=lando
+      // Ensure ~/.lando/run/ still exists for PID files
       fs.mkdirSync(runDir, {recursive: true});
 
       // 6. Reload systemd, enable and start the service

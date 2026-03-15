@@ -27,14 +27,12 @@ describe('finch-daemon-manager', () => {
 
     it('should set correct default socket path', () => {
       const mgr = new FinchDaemonManager({debug: noopDebug});
-      const expected = path.join(os.homedir(), '.lando', 'run', 'finch.sock');
-      mgr.socketPath.should.equal(expected);
+      mgr.socketPath.should.equal('/run/lando/finch.sock');
     });
 
     it('should set correct default containerd socket', () => {
       const mgr = new FinchDaemonManager({debug: noopDebug});
-      const expected = path.join(os.homedir(), '.lando', 'run', 'containerd.sock');
-      mgr.containerdSocket.should.equal(expected);
+      mgr.containerdSocket.should.equal('/run/lando/containerd.sock');
     });
 
     it('should set correct default pid file', () => {
@@ -48,8 +46,9 @@ describe('finch-daemon-manager', () => {
     it('should accept custom userConfRoot', () => {
       const mgr = new FinchDaemonManager({userConfRoot: '/custom/root', debug: noopDebug});
       mgr.finchDaemonBin.should.equal(path.join('/custom/root', 'bin', 'finch-daemon'));
-      mgr.socketPath.should.equal(path.join('/custom/root', 'run', 'finch.sock'));
-      mgr.containerdSocket.should.equal(path.join('/custom/root', 'run', 'containerd.sock'));
+      // socketPath and containerdSocket now default to /run/lando/ (not userConfRoot)
+      mgr.socketPath.should.equal('/run/lando/finch.sock');
+      mgr.containerdSocket.should.equal('/run/lando/containerd.sock');
       mgr.pidFile.should.equal(path.join('/custom/root', 'run', 'finch-daemon.pid'));
     });
 
@@ -82,8 +81,7 @@ describe('finch-daemon-manager', () => {
 
     it('should return default socket path when no custom path given', () => {
       const mgr = new FinchDaemonManager({debug: noopDebug});
-      const expected = path.join(os.homedir(), '.lando', 'run', 'finch.sock');
-      mgr.getSocketPath().should.equal(expected);
+      mgr.getSocketPath().should.equal('/run/lando/finch.sock');
     });
   });
 

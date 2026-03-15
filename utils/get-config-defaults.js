@@ -39,11 +39,11 @@ const defaultConfig = options => ({
   containerdBin: null,
   nerdctlBin: null,
   buildkitdBin: null,
-  // Containerd socket path override (null = use default at ~/.lando/run/containerd.sock)
+  // Containerd socket path override (null = use default at /run/lando/containerd.sock)
   containerdSocket: null,
   // Finch daemon binary path override (null = use default at ~/.lando/bin/finch-daemon)
   finchDaemonBin: null,
-  // Finch daemon socket path override (null = use default at ~/.lando/run/finch.sock)
+  // Finch daemon socket path override (null = use default at /run/lando/finch.sock)
   finchDaemonSocket: null,
   // Registry auth config path override (null = use default ~/.docker/config.json)
   registryAuth: null,
