@@ -317,8 +317,9 @@ module.exports = async (lando, options) => {
           encoding: "utf8",
         }).trim();
         if (result !== "enabled") return false;
-        // Also verify finch socket exists (service may be outdated without finch-daemon)
-        return fs.existsSync("/run/lando/finch.sock") && fs.existsSync("/run/lando/containerd.sock");
+        // Verify sockets exist AND nerdctl config exists (ensures service has latest config)
+        if (!fs.existsSync("/run/lando/finch.sock") || !fs.existsSync("/run/lando/containerd.sock")) return false;
+        return fs.existsSync(path.join(configDir, "nerdctl.toml"));
       } catch {
         return false;
       }
