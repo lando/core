@@ -411,6 +411,7 @@ module.exports = async (lando, options) => {
         "Type=simple",
         "RuntimeDirectory=lando",
         `ExecStartPre=/bin/sh -c "mkdir -p /etc/cni/net.d/finch /opt/cni/bin 2>/dev/null || true; [ -d /usr/lib/cni ] && ln -sf /usr/lib/cni/* /opt/cni/bin/ 2>/dev/null || true"`,
+        `Environment=PATH=${systemBinDir}:/usr/sbin:/usr/bin:/sbin:/bin`,
         `ExecStart=${systemBinDir}/containerd --config ${configPath}`,
         `ExecStartPost=/bin/sh -c "while ! [ -S ${socketPath} ]; do sleep 0.1; done; chgrp lando ${socketPath}; chmod 660 ${socketPath}"`,
         `ExecStartPost=/bin/sh -c "NERDCTL_TOML=${configDir}/nerdctl.toml CONTAINERD_ADDRESS=${socketPath} PATH=${binDir}:/usr/sbin:$$PATH ${systemBinDir}/finch-daemon --socket-addr ${finchSocket} --socket-owner ${uid} --pidfile ${finchPidFile} --credential-socket-addr ${finchCredSocket} --credential-socket-owner ${uid} &"`,
