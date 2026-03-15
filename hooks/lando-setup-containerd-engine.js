@@ -402,7 +402,7 @@ module.exports = async (lando, options) => {
         `ExecStartPre=/bin/sh -c "mkdir -p /etc/cni/net.d /opt/cni/bin 2>/dev/null || true"`,
         `ExecStart=${systemBinDir}/containerd --config ${configPath}`,
         `ExecStartPost=/bin/sh -c "while ! [ -S ${socketPath} ]; do sleep 0.1; done; chgrp lando ${socketPath}; chmod 660 ${socketPath}"`,
-        `ExecStartPost=/bin/sh -c "PATH=${binDir}:/usr/sbin:$$PATH ${systemBinDir}/finch-daemon --socket-addr ${finchSocket} --socket-owner ${uid} --pidfile ${finchPidFile} --credential-socket-addr ${finchCredSocket} --credential-socket-owner ${uid} &"`,
+        `ExecStartPost=/bin/sh -c "CONTAINERD_ADDRESS=${socketPath} PATH=${binDir}:/usr/sbin:$$PATH ${systemBinDir}/finch-daemon --socket-addr ${finchSocket} --socket-owner ${uid} --pidfile ${finchPidFile} --credential-socket-addr ${finchCredSocket} --credential-socket-owner ${uid} &"`,
         `ExecStartPost=/bin/sh -c "while ! [ -S ${finchSocket} ]; do sleep 0.1; done; chgrp lando ${finchSocket}; chmod 660 ${finchSocket}"`,
         "Restart=always",
         "RestartSec=5",
