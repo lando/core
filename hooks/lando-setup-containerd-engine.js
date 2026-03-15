@@ -435,8 +435,9 @@ module.exports = async (lando, options) => {
         ["systemctl", "enable", "lando-containerd.service"],
         {debug, password: ctx.password},
       );
+      // Use restart (not start) in case the service was already running with old config
       await require("../utils/run-elevated")(
-        ["systemctl", "start", "lando-containerd.service"],
+        ["systemctl", "restart", "lando-containerd.service"],
         {debug, password: ctx.password},
       );
 
