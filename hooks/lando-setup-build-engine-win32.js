@@ -95,6 +95,9 @@ module.exports = async (lando, options) => {
   // @NOTE: this is mostly for internal stuff
   if (options.buildEngine === false) return;
 
+  // Skip Docker install when containerd engine is selected
+  if (lando.config.engine === 'containerd') return;
+
   // get stuff from config/opts
   const build = getId(options.buildEngine);
   const version = getVersion(options.buildEngine);
