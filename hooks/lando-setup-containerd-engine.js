@@ -47,6 +47,16 @@ module.exports = async (lando, options) => {
       tarballEntries: ["bin/buildkitd", "bin/buildctl"],
       dependsOn: ["setup-containerd"],
     },
+    {
+      name: "finch-daemon",
+      id: "setup-finch-daemon",
+      bin: lando.config.finchDaemonBin || path.join(systemBinDir, "finch-daemon"),
+      version: "0.22.0",
+      tarballEntries: ["finch-daemon"],
+      dependsOn: ["setup-containerd"],
+      // finch-daemon uses a different URL pattern than containerd/nerdctl
+      customUrl: true,
+    },
   ];
 
   // runc (direct binary download, also root-owned)
@@ -126,9 +136,15 @@ module.exports = async (lando, options) => {
     },
   });
 
-  // Root-owned tarball binaries (containerd, buildkitd)
+  // Root-owned tarball binaries (containerd, buildkitd, finch-daemon)
   for (const binary of rootBinaries) {
-    const url = getUrl(binary.name === "buildkitd" ? "buildkit" : binary.name, {version: binary.version});
+    let url;
+    if (binary.customUrl && binary.name === "finch-daemon") {
+      const arch = process.arch === "arm64" ? "arm64" : "amd64";
+      url = `https://github.com/runfinch/finch-daemon/releases/download/v${binary.version}/finch-daemon-${binary.version}-linux-${arch}.tar.gz`;
+    } else {
+      url = getUrl(binary.name === "buildkitd" ? "buildkit" : binary.name, {version: binary.version});
+    }
 
     const task = {
       title: `Installing ${binary.name}`,
@@ -291,7 +307,7 @@ module.exports = async (lando, options) => {
     id: "setup-containerd-service",
     description: "@lando/containerd-service (systemd)",
     version: "containerd service v1.0.0",
-    dependsOn: ["setup-containerd", "setup-runc", "setup-buildkitd"],
+    dependsOn: ["setup-containerd", "setup-runc", "setup-buildkitd", "setup-finch-daemon"],
     hasRun: async () => {
       // Check if the systemd service exists and is enabled
       try {
@@ -370,6 +386,9 @@ module.exports = async (lando, options) => {
       // 4. Create systemd service file
       task.title = "Creating systemd service...";
       const finchSocket = "/run/lando/finch.sock";
+      const finchCredSocket = "/run/lando/finch-credential.sock";
+      const finchPidFile = "/run/lando/finch-daemon.pid";
+      const uid = process.getuid ? process.getuid() : 1000;
       const serviceContent = [
         "[Unit]",
         "Description=Lando Containerd",
@@ -380,6 +399,7 @@ module.exports = async (lando, options) => {
         "RuntimeDirectory=lando",
         `ExecStart=${systemBinDir}/containerd --config ${configPath}`,
         `ExecStartPost=/bin/sh -c "while ! [ -S ${socketPath} ]; do sleep 0.1; done; chgrp lando ${socketPath}; chmod 660 ${socketPath}"`,
+        `ExecStartPost=/bin/sh -c "PATH=${binDir}:/usr/sbin:$$PATH ${systemBinDir}/finch-daemon --socket-addr unix://${finchSocket} --socket-owner ${uid} --pidfile ${finchPidFile} --credential-socket-addr ${finchCredSocket} --credential-socket-owner ${uid} &"`,
         `ExecStartPost=/bin/sh -c "while ! [ -S ${finchSocket} ]; do sleep 0.1; done; chgrp lando ${finchSocket}; chmod 660 ${finchSocket}"`,
         "Restart=always",
         "RestartSec=5",
