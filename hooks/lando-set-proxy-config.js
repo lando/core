@@ -23,4 +23,10 @@ module.exports = async lando => {
   lando.config.proxyScanHttps = ports2Urls(lando.config.proxyHttpsPorts, true, lando.config.proxyBindAddress);
   // And dependent things
   lando.config.proxyConfigDir = path.join(lando.config.proxyDir, 'config');
+  
+  // Set dockerSocket for containerd backend (finch-daemon provides Docker API compatibility)
+  const backend = _.get(lando, 'engine.engineBackend', _.get(lando, 'config.engine', 'auto'));
+  if (backend === 'containerd') {
+    lando.config.dockerSocket = lando.config.finchDaemonSocket || path.join(lando.config.userConfRoot, 'run', 'finch.sock');
+  }
 };
