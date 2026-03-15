@@ -426,7 +426,14 @@ module.exports = async (lando, options) => {
       // Ensure ~/.lando/run/ still exists for PID files
       fs.mkdirSync(runDir, {recursive: true});
 
-      // 6. Reload systemd, enable and start the service
+      // 6. Create CNI directories needed by finch-daemon/nerdctl networking
+      task.title = "Creating CNI directories...";
+      await require("../utils/run-elevated")(
+        ["bash", "-c", "mkdir -p /etc/cni/net.d /opt/cni/bin"],
+        {debug, password: ctx.password},
+      );
+
+      // 7. Reload systemd, enable and start the service
       task.title = "Enabling and starting containerd service...";
       await require("../utils/run-elevated")(
         ["systemctl", "daemon-reload"],
