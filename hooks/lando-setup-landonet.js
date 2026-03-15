@@ -41,9 +41,10 @@ module.exports = async (lando, options) => {
       // we also want to do an additional check on docker-destkop
       if (lando.config.os.landoPlatform !== 'linux' && !fs.existsSync(getDockerDesktopBin())) return false;
 
-      // otherwise attempt to sus things out
+      // passive check: see if the daemon is already up without trying to start it
       try {
-        await lando.engine.daemon.up({max: 10, backoff: 1000});
+        const isUp = await lando.engine.daemon.isUp();
+        if (!isUp) return false;
         const landonet = lando.engine.getNetwork(lando.config.networkBridge);
         await landonet.inspect();
         return lando.versions.networking > 1;
