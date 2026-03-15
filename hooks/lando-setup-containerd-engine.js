@@ -309,14 +309,16 @@ module.exports = async (lando, options) => {
     version: "containerd service v1.0.0",
     dependsOn: ["setup-containerd", "setup-runc", "setup-buildkitd", "setup-finch-daemon"],
     hasRun: async () => {
-      // Check if the systemd service exists and is enabled
+      // Check if the systemd service exists, is enabled, AND finch-daemon socket is present
       try {
         const {execSync} = require("child_process");
         const result = execSync("systemctl is-enabled lando-containerd.service 2>/dev/null", {
           stdio: "pipe",
           encoding: "utf8",
         }).trim();
-        return result === "enabled";
+        if (result !== "enabled") return false;
+        // Also verify finch socket exists (service may be outdated without finch-daemon)
+        return fs.existsSync("/run/lando/finch.sock") && fs.existsSync("/run/lando/containerd.sock");
       } catch {
         return false;
       }
