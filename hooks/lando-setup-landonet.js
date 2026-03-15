@@ -19,8 +19,12 @@ module.exports = async (lando, options) => {
   if (options.skipNetworking) return;
 
   // we need access to dat socket for this to work
-  const dependsOn = ['linux', 'wsl']
-    .includes(lando.config.os.landoPlatform) ? ['setup-build-engine-group', 'setup-build-engine'] : ['setup-build-engine'];
+  const isContainerd = lando.config.engine === 'containerd';
+  const dependsOn = isContainerd
+    ? ['setup-containerd-service']
+    : ['linux', 'wsl'].includes(lando.config.os.landoPlatform)
+      ? ['setup-build-engine-group', 'setup-build-engine']
+      : ['setup-build-engine'];
 
   options.tasks.push({
     title: `Creating Landonet`,
@@ -36,7 +40,7 @@ module.exports = async (lando, options) => {
     },
     hasRun: async () => {
       // if docker isnt even installed then this is easy
-      if (lando.engine.dockerInstalled === false) return false;
+      if (!isContainerd && lando.engine.dockerInstalled === false) return false;
 
       // we also want to do an additional check on docker-destkop
       if (lando.config.os.landoPlatform !== 'linux' && !fs.existsSync(getDockerDesktopBin())) return false;
