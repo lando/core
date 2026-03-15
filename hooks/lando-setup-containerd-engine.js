@@ -429,7 +429,7 @@ module.exports = async (lando, options) => {
       // 6. Create CNI directories needed by finch-daemon/nerdctl networking
       task.title = "Creating CNI directories...";
       await require("../utils/run-elevated")(
-        ["bash", "-c", "mkdir -p /etc/cni/net.d /opt/cni/bin"],
+        ["bash", "-c", "mkdir -p /etc/cni/net.d/finch /opt/cni/bin"],
         {debug, password: ctx.password},
       );
 
