@@ -2,8 +2,6 @@
 
 const chai = require("chai");
 const expect = chai.expect;
-const path = require("path");
-const os = require("os");
 
 const runChecks = require("../hooks/lando-doctor-containerd");
 
@@ -12,9 +10,9 @@ describe("lando-doctor-containerd", () => {
     config: {
       userConfRoot: "/tmp/test-lando-doctor",
       containerdBin: null,
-      nerdctlBin: null,
       buildkitdBin: null,
       finchDaemonBin: null,
+      orchestratorBin: null,
       containerdSocket: null,
       finchDaemonSocket: null,
       ...overrides,
@@ -31,12 +29,19 @@ describe("lando-doctor-containerd", () => {
     it("should include binary checks for all required binaries", async () => {
       const checks = await runChecks(mockLando());
       const binaryChecks = checks.filter(c => c.title.includes("binary"));
+      // containerd, buildkitd, finch-daemon, docker-compose
       expect(binaryChecks).to.have.lengthOf(4);
       const names = binaryChecks.map(c => c.title);
       expect(names).to.include("containerd binary");
-      expect(names).to.include("nerdctl binary");
       expect(names).to.include("buildkitd binary");
       expect(names).to.include("finch-daemon binary");
+      expect(names).to.include("docker-compose binary");
+    });
+
+    it("should NOT include nerdctl binary check (per BRIEF)", async () => {
+      const checks = await runChecks(mockLando());
+      const nerdctlCheck = checks.find(c => c.title === "nerdctl binary");
+      expect(nerdctlCheck).to.be.undefined;
     });
 
     it("should include daemon checks for all required daemons", async () => {
@@ -49,9 +54,9 @@ describe("lando-doctor-containerd", () => {
       expect(names).to.include("finch-daemon daemon");
     });
 
-    it("should include nerdctl connectivity check", async () => {
+    it("should include finch-daemon connectivity check", async () => {
       const checks = await runChecks(mockLando());
-      const connCheck = checks.find(c => c.title === "nerdctl connectivity");
+      const connCheck = checks.find(c => c.title === "finch-daemon connectivity");
       expect(connCheck).to.exist;
     });
 
@@ -67,7 +72,6 @@ describe("lando-doctor-containerd", () => {
     it("should report error for missing binaries", async () => {
       const checks = await runChecks(mockLando({
         containerdBin: "/nonexistent/containerd",
-        nerdctlBin: "/nonexistent/nerdctl",
       }));
       const containerdCheck = checks.find(c => c.title === "containerd binary");
       expect(containerdCheck.status).to.equal("error");

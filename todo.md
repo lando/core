@@ -14,6 +14,13 @@ Status of production-readiness tasks. Completed tasks are listed briefly for ref
 - **Task 27:** Networking parity — `test/containerd-networking.spec.js`, `hooks/app-add-2-landonet.js` (updated for Dockerode)
 - **Task 29:** Engine selection UX — `hooks/lando-setup-engine-select.js`, `hooks/lando-doctor-containerd.js`, `docs/config/engine.md`
 - **Task 31:** Performance benchmarking — `scripts/benchmark-engines.sh`, `utils/perf-timer.js`, `docs/dev/containerd-performance.md`
+- **Task 32:** Fix BRIEF violations — removed nerdctl shellouts from user-facing code:
+  - `hooks/lando-doctor-containerd.js` — removed nerdctl binary check, added docker-compose check
+  - `messages/nerdctl-not-found.js` → renamed to `containerd-binaries-not-found.js`
+  - `messages/nerdctl-compose-failed.js` → renamed to `compose-failed-containerd.js`
+  - `messages/update-nerdctl-warning.js` → renamed/rewritten as `update-containerd-warning.js`
+  - `hooks/app-check-containerd-compat.js` — replaced nerdctl compose shellout with docker-compose + DOCKER_HOST check
+  - Updated tests: `containerd-messages.spec.js`, `lando-doctor-containerd.spec.js`, `backend-manager.spec.js`, `containerd-integration.spec.js`
 
 ---
 
@@ -51,29 +58,3 @@ Status of production-readiness tasks. Completed tasks are listed briefly for ref
 
 **Files to create:**
 - `docs/troubleshooting/containerd.md`
-
----
-
-### Task 32: Fix BRIEF violations in implemented code
-
-**Goal:** Remove nerdctl shellouts and references from user-facing runtime code per the BRIEF's prime directive.
-
-**Details:**
-The BRIEF states: "Never shell out to nerdctl from user-facing code." Several implemented files violate this:
-
-1. **`hooks/lando-doctor-containerd.js`** — Shells out to `nerdctl ps` to check connectivity. Should use Dockerode ping against finch-daemon socket instead.
-
-2. **`messages/nerdctl-not-found.js`** — Assumes nerdctl is a user-facing dependency. nerdctl is only used internally by OCI runtime hooks (invoked as root by systemd). Users should never see this error. Rethink or remove.
-
-3. **`messages/nerdctl-compose-failed.js`** — Says "nerdctl compose is used as the Docker Compose alternative." This contradicts the BRIEF: docker-compose is the compose tool, talking to finch-daemon via `DOCKER_HOST`. Rewrite to reference docker-compose + finch-daemon.
-
-4. **`scripts/benchmark-engines.sh`** — Benchmarks nerdctl directly instead of docker-compose + finch-daemon. The benchmarks should measure the actual runtime path.
-
-5. **`utils/setup-containerd-auth.js`** — Comments reference nerdctl throughout. Auth setup should target docker-compose + finch-daemon (which reads `~/.docker/config.json` natively). Verify the implementation actually works with docker-compose, update comments.
-
-**Files to modify:**
-- `hooks/lando-doctor-containerd.js`
-- `messages/nerdctl-not-found.js`
-- `messages/nerdctl-compose-failed.js`
-- `scripts/benchmark-engines.sh`
-- `utils/setup-containerd-auth.js`

@@ -1,7 +1,23 @@
 'use strict';
 
 const _ = require('lodash');
+const fs = require('fs');
 
+/**
+ * App-level containerd backend compatibility checks.
+ *
+ * Runs when the containerd backend is active to verify:
+ * - Component version recommendations
+ * - docker-compose availability (via finch-daemon Docker API)
+ * - buildkitd socket availability
+ *
+ * Per BRIEF: never shell out to nerdctl from user-facing code. All checks
+ * use Dockerode against finch-daemon or check socket/binary existence directly.
+ *
+ * @param {Object} app - The Lando app instance.
+ * @param {Object} lando - The Lando instance.
+ * @returns {Promise<void>}
+ */
 module.exports = async (app, lando) => {
   // Skip if not using the containerd backend
   const backend = _.get(lando, 'engine.engineBackend', _.get(lando, 'config.engine', 'auto'));
@@ -17,9 +33,9 @@ module.exports = async (app, lando) => {
     }));
     if (thing.untested) app.addMessage(require('../messages/untested-version-notice')(thing));
 
-    // handle nerdctl (compose equivalent) recommend update
-    if (thing.name === 'nerdctl' && thing.rupdate) {
-      app.addMessage(require('../messages/update-nerdctl-warning')(thing));
+    // handle containerd backend component update recommendations
+    if (thing.rupdate) {
+      app.addMessage(require('../messages/update-containerd-warning')(thing));
     }
   });
 
@@ -27,7 +43,8 @@ module.exports = async (app, lando) => {
   try {
     const daemon = lando.engine.daemon;
 
-    // Verify containerd daemon is running
+    // Verify containerd daemon is running via Dockerode ping against finch-daemon
+    // Per BRIEF: finch-daemon provides Docker API compatibility — use it.
     const isUp = await daemon.isUp();
     if (!isUp) {
       app.addMessage({
@@ -41,29 +58,32 @@ module.exports = async (app, lando) => {
       });
     }
 
-    // Verify nerdctl compose is functional
+    // Verify docker-compose is functional with finch-daemon
+    // Per BRIEF: compose operations use docker-compose with DOCKER_HOST, NOT nerdctl compose
     if (isUp) {
       try {
-        const runCommand = require('../utils/run-command');
-        await runCommand(daemon.nerdctlBin, ['compose', 'version'], {
-          debug: daemon.debug,
-          ignoreReturnCode: false,
+        const {execSync} = require('child_process');
+        const finchSocket = _.get(daemon, 'finchDaemon.socketPath', '/run/lando/finch.sock');
+        const composeBin = lando.config.orchestratorBin || 'docker-compose';
+        execSync(`${composeBin} version`, {
+          stdio: 'ignore',
+          env: {...process.env, DOCKER_HOST: `unix://${finchSocket}`},
         });
       } catch (err) {
         app.addMessage({
           type: 'warning',
-          title: 'nerdctl compose is not functional',
+          title: 'docker-compose is not functional',
           detail: [
-            'Could not run "nerdctl compose version" successfully.',
-            'nerdctl compose is required for service orchestration.',
+            'Could not run "docker-compose version" successfully.',
+            'docker-compose is required for service orchestration with the containerd backend.',
+            'It communicates with finch-daemon via the DOCKER_HOST environment variable.',
             `Error: ${err.message}`,
           ],
-          url: 'https://github.com/containerd/nerdctl/releases',
+          url: 'https://docs.lando.dev/config/engine.html',
         });
       }
 
       // Verify buildkitd socket exists (systemd service manages the process)
-      const fs = require('fs');
       if (!fs.existsSync(daemon.buildkitSocket)) {
         app.addMessage({
           type: 'warning',
@@ -73,7 +93,7 @@ module.exports = async (app, lando) => {
             'BuildKit is required for building container images with the containerd backend.',
             'Run "lando setup" to install and start the containerd engine service.',
           ],
-          url: 'https://github.com/moby/buildkit/releases',
+          url: 'https://docs.lando.dev/config/engine.html',
         });
       }
     }

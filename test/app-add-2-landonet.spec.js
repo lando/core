@@ -3,6 +3,7 @@
 const chai = require('chai');
 const expect = chai.expect;
 const sinon = require('sinon');
+const {EventEmitter} = require('events');
 const Promise = require('./../lib/promise');
 
 const hook = require('./../hooks/app-add-2-landonet');
@@ -36,7 +37,30 @@ describe('app-add-2-landonet', () => {
   });
 
   it('should update container hosts files for containerd backends', async () => {
-    const shell = {sh: sinon.stub().resolves()};
+    // Build a mock exec stream that emits 'end' after listeners are attached.
+    // The hook awaits exec.start(), stores the stream, then wraps it in a
+    // new Promise and attaches on('end'). We need to delay the 'end' event
+    // until after all of that happens.
+    const mockStream = new EventEmitter();
+
+    const mockExec = {
+      start: sinon.stub().callsFake(() => {
+        // Use setTimeout(0) to fire after the microtask queue drains
+        // (the hook's Promise constructor runs synchronously after await)
+        setTimeout(() => mockStream.emit('end'), 5);
+        return Promise.resolve(mockStream);
+      }),
+      inspect: sinon.stub().resolves({ExitCode: 0}),
+    };
+
+    const mockContainer = {
+      exec: sinon.stub().resolves(mockExec),
+    };
+
+    const mockDockerode = {
+      getContainer: sinon.stub().returns(mockContainer),
+    };
+
     const app = {
       project: 'docscore',
       services: ['cli'],
@@ -54,6 +78,7 @@ describe('app-add-2-landonet', () => {
       },
       engine: {
         engineBackend: 'containerd',
+        docker: {dockerode: mockDockerode},
         exists: sinon.stub().resolves(true),
         scan: sinon.stub()
           .onFirstCall().resolves({
@@ -63,14 +88,22 @@ describe('app-add-2-landonet', () => {
           })
           .onSecondCall().resolves({Name: '/landoproxyhyperion5000gandalfedition-proxy-1'}),
       },
-      shell,
     };
 
     await hook(app, lando);
 
-    expect(shell.sh.calledTwice).to.equal(true);
-    expect(shell.sh.firstCall.args[0].join(' ')).to.include('exec --user root docscore-cli-1');
-    expect(shell.sh.firstCall.args[0].join(' ')).to.include('10.0.0.5 cli.docscore.internal');
-    expect(shell.sh.secondCall.args[0].join(' ')).to.include('exec --user root landoproxyhyperion5000gandalfedition-proxy-1');
+    // updateHosts should be called for each unique target
+    // Targets: docscore-cli-1, landoproxyhyperion5000gandalfedition-proxy-1
+    expect(mockDockerode.getContainer.calledTwice).to.equal(true);
+    expect(mockDockerode.getContainer.firstCall.args[0]).to.equal('docscore-cli-1');
+    expect(mockDockerode.getContainer.secondCall.args[0]).to.equal('landoproxyhyperion5000gandalfedition-proxy-1');
+
+    // Each container should have exec called with root user and a hosts-update script
+    expect(mockContainer.exec.calledTwice).to.equal(true);
+    const execOpts = mockContainer.exec.firstCall.args[0];
+    expect(execOpts.User).to.equal('root');
+    expect(execOpts.Cmd[0]).to.equal('sh');
+    expect(execOpts.Cmd[2]).to.include('10.0.0.5 cli.docscore.internal');
+    expect(execOpts.Cmd[2]).to.include('lando-internal-aliases');
   });
 });

@@ -8,7 +8,7 @@ const validTypes = ['error', 'warning', 'tip'];
 const noArgMessages = [
   {name: 'containerd-not-running', file: '../messages/containerd-not-running'},
   {name: 'buildkitd-not-running', file: '../messages/buildkitd-not-running'},
-  {name: 'nerdctl-not-found', file: '../messages/nerdctl-not-found'},
+  {name: 'containerd-binaries-not-found', file: '../messages/containerd-binaries-not-found'},
   {name: 'lima-not-installed', file: '../messages/lima-not-installed'},
   {name: 'lima-vm-not-running', file: '../messages/lima-vm-not-running'},
   {name: 'containerd-permission-denied', file: '../messages/containerd-permission-denied'},
@@ -18,7 +18,7 @@ const noArgMessages = [
 
 // Messages that take a string argument
 const paramMessages = [
-  {name: 'nerdctl-compose-failed', file: '../messages/nerdctl-compose-failed'},
+  {name: 'compose-failed-containerd', file: '../messages/compose-failed-containerd'},
 ];
 
 describe('containerd error/warning messages', () => {

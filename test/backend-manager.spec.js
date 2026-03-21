@@ -81,15 +81,16 @@ describe('backend-manager', () => {
       expect(engine).to.have.property('compose');
     });
 
-    it('should wire containerd compose through the nerdctl binary', () => {
+    it('should wire containerd compose through docker-compose (not nerdctl)', () => {
       const config = stubConfig({engine: 'containerd'});
       const {cache, events, log, shell} = stubDeps();
       const manager = new BackendManager(config, cache, events, log, shell);
 
       const engine = manager.createEngine('test-id');
 
-      expect(engine.daemon.compose).to.equal('/tmp/.lando-test/bin/nerdctl');
-      expect(engine.composeInstalled).to.equal(fs.existsSync('/tmp/.lando-test/bin/nerdctl'));
+      // Per BRIEF: compose operations use docker-compose with DOCKER_HOST, NOT nerdctl
+      expect(engine.daemon.compose).to.equal('/usr/bin/docker-compose');
+      expect(engine.composeInstalled).to.equal(fs.existsSync('/usr/bin/docker-compose'));
     });
 
     it('should default to "auto" when engine is not specified', () => {

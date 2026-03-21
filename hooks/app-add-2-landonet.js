@@ -1,12 +1,20 @@
 'use strict';
 
 const _ = require('lodash');
-const Docker = require('dockerode');
 
 
 const isNotConnectedError = error => _.includes(error.message, 'is not connected to network')
   || _.includes(error.message, 'network or container is not found');
 
+/**
+ * Resolve the container's IP on the preferred Lando network.
+ *
+ * @param {Object} lando - Lando instance.
+ * @param {Object} app - Lando app instance.
+ * @param {Object} [data={}] - Container inspect data.
+ * @returns {string|undefined} IP address if found.
+ * @private
+ */
 const getContainerdNetworkIP = (lando, app, data = {}) => {
   const configuredNetworks = JSON.parse(_.get(data, 'Config.Labels.nerdctl/networks', '[]'));
   const networks = _.get(data, 'NetworkSettings.Networks', {});
@@ -22,14 +30,39 @@ const getContainerdNetworkIP = (lando, app, data = {}) => {
 };
 
 /**
+ * Retrieve the Dockerode instance from the Lando engine.
+ *
+ * Uses the existing Dockerode instance on the containerd container backend
+ * (already pointed at finch-daemon) rather than creating a new one. This makes
+ * the function testable and avoids duplicate socket connections.
+ *
+ * @param {Object} lando - Lando instance.
+ * @returns {import('dockerode')} Dockerode instance.
+ * @private
+ */
+const getDockerode = lando => {
+  // Prefer the Dockerode instance already wired to finch-daemon
+  if (_.get(lando, 'engine.docker.dockerode')) return lando.engine.docker.dockerode;
+  // Fallback: create one (shouldn't normally happen)
+  const Docker = require('dockerode');
+  const finchSocket = lando.config.finchSocket || '/run/lando/finch.sock';
+  return new Docker({socketPath: finchSocket});
+};
+
+/**
  * Update /etc/hosts inside a container using Dockerode exec via finch-daemon.
  *
  * Per BRIEF: "Never shell out to nerdctl from user-facing code." This uses
  * the Docker API exec endpoint through finch-daemon instead.
+ *
+ * @param {Object} lando - Lando instance.
+ * @param {string} target - Container name.
+ * @param {Array<{ip: string, alias: string}>} entries - Host entries to add.
+ * @returns {Promise<void>}
+ * @private
  */
 const updateHosts = async (lando, target, entries) => {
-  const finchSocket = lando.config.finchSocket || '/run/lando/finch.sock';
-  const dockerode = new Docker({socketPath: finchSocket});
+  const dockerode = getDockerode(lando);
   const container = dockerode.getContainer(target);
 
   const echoLines = entries

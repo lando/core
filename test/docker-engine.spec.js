@@ -57,26 +57,32 @@ describe('docker-engine', () => {
     });
   });
 
-  describe('#_getContainerdNerdctlLoadCommand', () => {
-    it('should generate a sudo nerdctl load command for built images', () => {
+  describe('#_loadContainerdImageIntoFinch', () => {
+    it('should exist as a method for loading images via Dockerode/finch-daemon', () => {
+      // Per BRIEF: image loading uses Dockerode.loadImage() via finch-daemon,
+      // NOT sudo nerdctl load. The old _getContainerdNerdctlLoadCommand was
+      // never implemented because it would violate "never shell out to nerdctl".
       const engine = new DockerEngine({
         containerdMode: true,
-        containerdSocket: '/run/lando/containerd.sock',
-        containerdNamespace: 'default',
         userConfRoot: '/tmp/.lando-test',
       });
 
-      const result = engine._getContainerdNerdctlLoadCommand('/tmp/build-context/image.tar');
+      expect(engine._loadContainerdImageIntoFinch).to.be.a('function');
+      expect(engine._loadContainerdImage).to.be.a('function');
+    });
 
-      expect(result.command).to.equal('sudo');
-      expect(result.args[0]).to.equal('-n');
-      expect(result.args.slice(1)).to.deep.equal([
-        '/tmp/.lando-test/bin/nerdctl',
-        '--address', '/run/lando/containerd.sock',
-        '--namespace', 'default',
-        'load',
-        '-i', '/tmp/build-context/image.tar',
-      ]);
+    it('should delegate _loadContainerdImage to _loadContainerdImageIntoFinch', () => {
+      const engine = new DockerEngine({
+        containerdMode: true,
+        userConfRoot: '/tmp/.lando-test',
+      });
+
+      const stub = sinon.stub(engine, '_loadContainerdImageIntoFinch').resolves('loaded');
+      const result = engine._loadContainerdImage('/tmp/image.tar', 'test:latest');
+
+      sinon.assert.calledOnce(stub);
+      sinon.assert.calledWith(stub, '/tmp/image.tar', 'test:latest');
+      return result.then(r => expect(r).to.equal('loaded'));
     });
   });
 });

@@ -37,7 +37,7 @@ const describeIfContainerd = hasContainerd ? describe : describe.skip;
 /** Minimal stub config for BackendManager */
 const stubConfig = (overrides = {}) => ({
   engine: 'containerd',
-  orchestratorBin: '/usr/bin/nerdctl',
+  orchestratorBin: '/usr/bin/docker-compose',
   orchestratorVersion: '2.0.0',
   dockerBin: '/usr/bin/docker',
   engineConfig: {},
@@ -123,7 +123,7 @@ describe('containerd integration: BackendManager', () => {
     expect(engine.daemon.getVersions).to.be.a('function');
   });
 
-  it('should set composeInstalled based on nerdctl binary existence', () => {
+  it('should set composeInstalled based on orchestrator binary existence', () => {
     const config = stubConfig({engine: 'containerd'});
     const {cache, events, log, shell} = stubDeps();
     const manager = new BackendManager(config, cache, events, log, shell);
@@ -189,7 +189,7 @@ describeIfContainerd('containerd integration: ContainerdDaemon lifecycle', funct
     expect(isUpNow).to.equal(true);
   });
 
-  it('should stop containerd cleanly with down()', async function() {
+  it('should complete down() without error (no-op on Linux per BRIEF)', async function() {
     const isUpBefore = await daemon.isUp();
 
     if (!isUpBefore) {
@@ -207,8 +207,15 @@ describeIfContainerd('containerd integration: ContainerdDaemon lifecycle', funct
       throw err;
     }
 
+    // Per BRIEF: "ContainerdDaemon.down() is a no-op on Linux/WSL. The service
+    // keeps running for fast restart." The daemon should still be up.
     const isUpAfter = await daemon.isUp();
-    expect(isUpAfter).to.equal(false);
+    if (process.platform === 'linux') {
+      expect(isUpAfter).to.equal(true);
+    } else {
+      // macOS: Lima VM actually stops
+      expect(isUpAfter).to.equal(false);
+    }
   });
 });
 
@@ -562,7 +569,7 @@ describeIfContainerd('containerd integration: full engine lifecycle', function()
     expect(containers).to.be.an('array');
   });
 
-  it('should stop the daemon cleanly', async function() {
+  it('should complete down() without error (no-op on Linux per BRIEF)', async function() {
     const isUp = await engine.daemon.isUp();
 
     if (!isUp) {
@@ -580,7 +587,13 @@ describeIfContainerd('containerd integration: full engine lifecycle', function()
       throw err;
     }
 
+    // Per BRIEF: "ContainerdDaemon.down() is a no-op on Linux/WSL. The service
+    // keeps running for fast restart."
     const isUpAfter = await engine.daemon.isUp();
-    expect(isUpAfter).to.equal(false);
+    if (process.platform === 'linux') {
+      expect(isUpAfter).to.equal(true);
+    } else {
+      expect(isUpAfter).to.equal(false);
+    }
   });
 });

@@ -1,10 +1,28 @@
 "use strict";
 
+const {execSync} = require("child_process");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
 
 const getContainerdPaths = require('../utils/get-containerd-paths');
+
+/**
+ * Check whether a binary exists — either as an absolute path or on $PATH.
+ *
+ * @param {string} bin - Absolute path or bare command name.
+ * @returns {boolean}
+ * @private
+ */
+const binExists = bin => {
+  if (path.isAbsolute(bin)) return fs.existsSync(bin);
+  try {
+    execSync(`command -v ${bin}`, {stdio: 'ignore'});
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 /**
  * Run containerd engine health checks.
@@ -23,11 +41,14 @@ const runChecks = async (lando) => {
   const binDir = path.join(userConfRoot, "bin");
   const paths = getContainerdPaths(lando.config);
 
+  // Per BRIEF: nerdctl is only used internally by OCI runtime hooks (invoked
+  // as root by systemd). It is NOT a user-facing dependency, so we don't
+  // check for it here.
   const bins = {
     containerd: lando.config.containerdBin || path.join(binDir, "containerd"),
-    nerdctl: lando.config.nerdctlBin || path.join(binDir, "nerdctl"),
     buildkitd: lando.config.buildkitdBin || path.join(binDir, "buildkitd"),
     "finch-daemon": lando.config.finchDaemonBin || path.join(binDir, "finch-daemon"),
+    "docker-compose": lando.config.orchestratorBin || "docker-compose",
   };
 
   const sockets = {
@@ -37,12 +58,12 @@ const runChecks = async (lando) => {
   };
 
   // Check binaries
-  for (const [name, binPath] of Object.entries(bins)) {
-    const exists = fs.existsSync(binPath);
+  for (const [name, bin] of Object.entries(bins)) {
+    const exists = binExists(bin);
     checks.push({
       title: `${name} binary`,
       status: exists ? "ok" : "error",
-      message: exists ? `Found at ${binPath}` : `Not found at ${binPath}. Run "lando setup" to install.`,
+      message: exists ? `Found at ${bin}` : `Not found at ${bin}. Run "lando setup" to install.`,
     });
   }
 
