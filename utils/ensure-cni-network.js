@@ -86,11 +86,26 @@ module.exports = (networkName, opts = {}) => {
     ],
   };
 
+  // Write atomically via temp file + rename to prevent concurrent processes
+  // from reading a partially-written conflist
+  const tmpPath = `${conflistPath}.${process.pid}.tmp`;
   try {
-    fs.writeFileSync(conflistPath, JSON.stringify(conflist, null, 2), 'utf8');
+    fs.writeFileSync(tmpPath, JSON.stringify(conflist, null, 2), 'utf8');
+    fs.renameSync(tmpPath, conflistPath);
     debug('created CNI conflist for network %s at %s (subnet 10.4.%d.0/24)', networkName, conflistPath, subnet);
     return true;
   } catch (err) {
+    // Clean up temp file on failure
+    try { fs.unlinkSync(tmpPath); } catch {}
+
+    // Permission errors must surface to the user — silent failure here leads
+    // to cryptic container networking errors downstream
+    if (err.code === 'EACCES' || err.code === 'EPERM') {
+      throw new Error(
+        `Permission denied writing CNI config for network "${networkName}" at ${conflistPath}. `
+        + 'Run "lando setup" to fix CNI directory permissions.',
+      );
+    }
     debug('failed to create CNI conflist for network %s: %s', networkName, err.message);
     return false;
   }

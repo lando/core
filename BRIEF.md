@@ -176,7 +176,7 @@ If the service isn't active → throw an error telling the user to run `lando se
 - CNI network config bridging (finch-daemon doesn't create CNI configs via Docker API; OCI hooks need them)
 - Full `lando start` → running container end-to-end flow
 - Container networking (compose-created networks need CNI conflist files)
-- Proxy/Traefik integration with containerd backend (Task 28 — next up)
+- CNI directory permissions — `/etc/cni/net.d/finch` is root-owned; `ensureCniNetwork()` from user-land hits EACCES. Needs `lando setup` to set group-writable permissions for `lando` group.
 
 ### Not Started 📋
 - macOS support (Lima VM integration exists but untested with new architecture)
@@ -187,4 +187,5 @@ If the service isn't active → throw an error telling the user to run `lando se
 - Troubleshooting documentation for containerd (Task 30)
 
 ### Recently Completed
+- **Task 28: Proxy (Traefik) compatibility** — Traefik proxy now works with containerd backend via finch-daemon's Docker API. Created `proxy-adapter.js` for CNI pre-creation and compatibility checks. Fixed `app-add-proxy-2-landonet.js` to no longer skip containerd (uses Dockerode-compatible getNetwork). Updated `app-start-proxy.js` to ensure proxy CNI networks. finch-daemon verified compatible: ping, events API, and label format all pass. See `docs/dev/containerd-proxy-design.md`. **Known caveat:** end-to-end test blocked by Docker Desktop's WSL proxy binding ports 80/443 and CNI dir permissions (pre-existing issues).
 - **Task 32: BRIEF violation cleanup** — Removed all nerdctl shellouts from user-facing code. Renamed misleading `nerdctl-*` message files. Fixed `app-check-containerd-compat.js` to use docker-compose + DOCKER_HOST instead of `nerdctl compose`. Updated all related tests. (See `todo.md` for full file list.)

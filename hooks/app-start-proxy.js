@@ -245,6 +245,19 @@ module.exports = async (app, lando) => {
       'proxy._lando_.internal',
     ]});
 
+    // For containerd backend: ensure CNI network configs exist for proxy networks.
+    // docker-compose via finch-daemon creates networks at the Docker API level but
+    // NOT at the CNI level. The nerdctl OCI hook needs CNI configs for container
+    // networking to work. This must happen BEFORE the proxy container starts.
+    if (lando.engine?.engineBackend === 'containerd') {
+      const {ContainerdProxyAdapter} = require('../lib/backends/containerd');
+      const proxyAdapter = new ContainerdProxyAdapter({
+        config: lando.config,
+        debug: lando.log.debug.bind(lando.log),
+      });
+      proxyAdapter.ensureProxyNetworks(lando.config.proxyName);
+    }
+
     // Determine what ports we need to discover
     const protocolStatus = needsProtocolScan(lando.config.proxyCurrentPorts, lando.config.proxyLastPorts);
     // And then discover!
@@ -309,6 +322,20 @@ module.exports = async (app, lando) => {
 
       // Parse config
       return parseConfig(app.config.proxy, _.compact(_.flatten([sslReady, servedBy, sslReadyV4])));
+    })
+
+    // For containerd backend: ensure the external proxy edge network has a
+    // CNI config before app services try to join it. The proxy start above
+    // already ensures this, but this is a safety net in case the proxy was
+    // already running from a previous app start.
+    .then(services => {
+      if (lando.engine?.engineBackend === 'containerd') {
+        const ensureCniNetwork = require('../utils/ensure-cni-network');
+        ensureCniNetwork(lando.config.proxyNet, {
+          debug: lando.log.debug.bind(lando.log),
+        });
+      }
+      return services;
     })
 
     // Map to docker compose things
