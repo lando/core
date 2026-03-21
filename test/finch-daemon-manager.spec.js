@@ -94,23 +94,30 @@ describe('finch-daemon-manager', () => {
       });
       const args = mgr.getStartArgs();
       expect(args).to.be.an('array');
-      args.length.should.equal(7);
+      args.length.should.equal(13);
     });
 
-    it('should include --socket-addr with unix:// prefix', () => {
+    it('should include --socket-addr with plain socket path', () => {
       const mgr = new FinchDaemonManager({socketPath: '/tmp/finch.sock', debug: noopDebug});
       const args = mgr.getStartArgs();
       const idx = args.indexOf('--socket-addr');
       expect(idx).to.not.equal(-1);
-      args[idx + 1].should.equal('unix:///tmp/finch.sock');
+      args[idx + 1].should.equal('/tmp/finch.sock');
     });
 
-    it('should include --containerd-addr with containerd socket', () => {
+    it('should include --config-file for the finch-daemon config', () => {
       const mgr = new FinchDaemonManager({containerdSocket: '/tmp/containerd.sock', debug: noopDebug});
       const args = mgr.getStartArgs();
-      const idx = args.indexOf('--containerd-addr');
+      const idx = args.indexOf('--config-file');
       expect(idx).to.not.equal(-1);
-      args[idx + 1].should.equal('/tmp/containerd.sock');
+      args[idx + 1].should.match(/finch-daemon\.toml$/);
+    });
+
+    it('should include credential socket args', () => {
+      const mgr = new FinchDaemonManager({debug: noopDebug});
+      const args = mgr.getStartArgs();
+      expect(args).to.include('--credential-socket-addr');
+      expect(args).to.include('--credential-socket-owner');
     });
 
     it('should include --socket-owner', () => {

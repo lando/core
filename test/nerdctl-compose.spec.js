@@ -12,7 +12,7 @@ chai.should();
 
 const NerdctlCompose = require('./../lib/backends/containerd/nerdctl-compose');
 
-const defaultSocketPath = '/run/containerd/containerd.sock';
+const defaultSocketPath = '/run/lando/containerd.sock';
 const customSocketPath = '/tmp/lando/run/containerd.sock';
 
 const composeFiles = ['docker-compose.yml', 'docker-compose.override.yml'];
@@ -36,23 +36,27 @@ describe('nerdctl-compose', () => {
   });
 
   describe('#_transform', () => {
-    it('should prepend --address, socket, and compose to cmd', () => {
+    it('should prepend connection flags and compose to cmd', () => {
       const nc = new NerdctlCompose({socketPath: customSocketPath});
       const result = nc._transform({cmd: ['up', '--detach'], opts: {mode: 'attach'}});
 
       result.cmd.should.deep.equal([
-        '--address', customSocketPath, 'compose',
+        '--address', customSocketPath, '--namespace', 'default', 'compose',
         'up', '--detach',
       ]);
-      result.opts.should.deep.equal({mode: 'attach'});
+      result.opts.mode.should.equal('attach');
     });
 
-    it('should preserve the original opts unchanged', () => {
+    it('should preserve existing opts while merging auth env when needed', () => {
       const nc = new NerdctlCompose();
       const originalOpts = {cwd: '/tmp', env: {FOO: 'bar'}};
       const result = nc._transform({cmd: ['ps'], opts: originalOpts});
 
-      result.opts.should.equal(originalOpts);
+      result.opts.cwd.should.equal('/tmp');
+      result.opts.env.FOO.should.equal('bar');
+      result.opts.env.CONTAINERD_ADDRESS.should.equal(defaultSocketPath);
+      result.opts.env.CONTAINERD_NAMESPACE.should.equal('default');
+      originalOpts.env.FOO.should.equal('bar');
     });
   });
 
@@ -66,13 +70,15 @@ describe('nerdctl-compose', () => {
       expect(result).to.have.property('opts').that.is.an('object');
     });
 
-    it('should include --address and compose in cmd', () => {
+    it('should include connection flags and compose in cmd', () => {
       const nc = new NerdctlCompose({socketPath: customSocketPath});
       const result = nc.start(composeFiles, project, {});
 
       result.cmd[0].should.equal('--address');
       result.cmd[1].should.equal(customSocketPath);
-      result.cmd[2].should.equal('compose');
+      result.cmd[2].should.equal('--namespace');
+      result.cmd[3].should.equal('default');
+      result.cmd[4].should.equal('compose');
     });
 
     it('should include project name in cmd', () => {
@@ -94,13 +100,15 @@ describe('nerdctl-compose', () => {
       expect(result).to.have.property('opts');
     });
 
-    it('should include compose prefix with address', () => {
+    it('should include compose prefix with connection flags', () => {
       const nc = new NerdctlCompose({socketPath: customSocketPath});
       const result = nc.build(composeFiles, project, {services: ['web'], local: ['web']});
 
       result.cmd[0].should.equal('--address');
       result.cmd[1].should.equal(customSocketPath);
-      result.cmd[2].should.equal('compose');
+      result.cmd[2].should.equal('--namespace');
+      result.cmd[3].should.equal('default');
+      result.cmd[4].should.equal('compose');
     });
 
     it('should include build subcommand when local services match', () => {
@@ -168,7 +176,9 @@ describe('nerdctl-compose', () => {
 
       result.cmd[0].should.equal('--address');
       result.cmd[1].should.equal(customSocketPath);
-      result.cmd[2].should.equal('compose');
+      result.cmd[2].should.equal('--namespace');
+      result.cmd[3].should.equal('default');
+      result.cmd[4].should.equal('compose');
     });
   });
 
@@ -185,8 +195,8 @@ describe('nerdctl-compose', () => {
       const nc = new NerdctlCompose({socketPath: customSocketPath});
       const result = nc.stop(composeFiles, project, {});
 
-      result.cmd.slice(0, 3).should.deep.equal([
-        '--address', customSocketPath, 'compose',
+      result.cmd.slice(0, 5).should.deep.equal([
+        '--address', customSocketPath, '--namespace', 'default', 'compose',
       ]);
     });
   });

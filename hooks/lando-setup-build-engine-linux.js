@@ -4,6 +4,8 @@ const axios = require('../utils/get-axios')();
 const os = require('os');
 const path = require('path');
 
+const getSetupEngine = require('../utils/get-setup-engine');
+
 const {color} = require('listr2');
 
 const downloadDockerEngine = (url = 'https://get.docker.com', {debug, task}) => new Promise((resolve, reject) => {
@@ -30,8 +32,7 @@ module.exports = async (lando, options) => {
   // @NOTE: this is mostly for internal stuff
   if (options.buildEngine === false) return;
 
-  // Skip Docker install when containerd engine is selected
-  if (lando.config.engine === 'containerd') return;
+  if (getSetupEngine(lando, options) !== 'docker') return;
 
   const version = options.buildEngine;
   const url = 'https://get.docker.com';

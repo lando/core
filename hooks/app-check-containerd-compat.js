@@ -7,7 +7,9 @@ module.exports = async (app, lando) => {
   const backend = _.get(lando, 'engine.engineBackend', _.get(lando, 'config.engine', 'auto'));
   if (backend !== 'containerd') return;
 
-  _.forEach(_(lando.versions).filter(version => version && !version.dockerVersion).value(), thing => {
+  _.forEach(_(lando.versions)
+    .filter(version => version && version.name && !version.dockerVersion)
+    .value(), thing => {
     // handle generic unsupported or untested notices
     if (!thing.satisfied) app.addMessage(require('../messages/unsupported-version-warning')({
       ...thing,
@@ -60,19 +62,16 @@ module.exports = async (app, lando) => {
         });
       }
 
-      // Verify buildkitd is running
-      const buildkitRunning = daemon._isProcessRunning
-        ? daemon._isProcessRunning(daemon.buildkitdPidFile)
-        : false;
-
-      if (!buildkitRunning) {
+      // Verify buildkitd socket exists (systemd service manages the process)
+      const fs = require('fs');
+      if (!fs.existsSync(daemon.buildkitSocket)) {
         app.addMessage({
           type: 'warning',
           title: 'BuildKit daemon is not running',
           detail: [
             'The BuildKit daemon (buildkitd) does not appear to be running.',
             'BuildKit is required for building container images with the containerd backend.',
-            'Try running "lando start" which will attempt to start buildkitd automatically.',
+            'Run "lando setup" to install and start the containerd engine service.',
           ],
           url: 'https://github.com/moby/buildkit/releases',
         });

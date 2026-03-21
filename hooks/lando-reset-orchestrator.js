@@ -1,6 +1,12 @@
 'use strict';
 
 module.exports = async lando => {
+  // Containerd engine manages its own compose binary — skip Docker-era workaround
+  if (lando.engine?.engineBackend === 'containerd' || lando.config.engine === 'containerd') {
+    lando.log.debug('using docker-compose %s', lando.config.orchestratorBin);
+    return;
+  }
+
   // if we dont have an orchestrator bin yet then discover it
   if (!lando.config.orchestratorBin) lando.config.orchestratorBin = require('../utils/get-compose-x')(lando.config);
 

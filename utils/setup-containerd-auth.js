@@ -8,8 +8,9 @@ const path = require('path');
  * Known Docker credential helper binaries.
  *
  * These are the `credsStore` / `credHelpers` values that may appear in a
- * Docker config.json. nerdctl supports the same credential helper protocol,
- * so we just need to verify the helper binary is available on `$PATH`.
+ * Docker config.json. finch-daemon and docker-compose support the same
+ * credential helper protocol, so we just need to verify the helper binary
+ * is available on `$PATH`.
  *
  * @type {string[]}
  * @private
@@ -73,22 +74,24 @@ const detectCredentialHelpers = configJson => {
 };
 
 /**
- * Build the auth configuration for containerd/nerdctl image operations.
+ * Build the auth configuration for the containerd backend.
  *
- * nerdctl reads `~/.docker/config.json` natively for registry authentication,
- * using the same format and credential helpers as Docker. This function:
+ * finch-daemon and docker-compose read `~/.docker/config.json` natively for
+ * registry authentication, using the same format and credential helpers as
+ * Docker. This function:
  *
  * 1. Locates the Docker config directory (respects `DOCKER_CONFIG` env var).
  * 2. Reads and parses `config.json` if it exists.
  * 3. Detects any credential helpers referenced in the config.
- * 4. Returns the config path and environment variables to inject into nerdctl
- *    commands so that auth "just works" with Lando's isolated containerd.
+ * 4. Returns the config path and environment variables to inject into
+ *    docker-compose/Dockerode commands so that auth "just works" with
+ *    Lando's isolated containerd.
  *
  * @param {Object} [opts={}] - Configuration options.
  * @param {string} [opts.configPath] - Explicit Docker config directory override.
- *   When set, `DOCKER_CONFIG` will be injected into the returned env so nerdctl
- *   finds it. When `null`/`undefined`, the default `~/.docker` is used and no
- *   extra env is needed.
+ *   When set, `DOCKER_CONFIG` will be injected into the returned env so
+ *   docker-compose/Dockerode finds it. When `null`/`undefined`, the default
+ *   `~/.docker` is used and no extra env is needed.
  * @param {Object} [opts.env] - Environment variables to inspect (default: `process.env`).
  * @param {boolean} [opts.debug] - Reserved for future debug logging support.
  * @returns {{dockerConfig: string, env: Object, configExists: boolean, credentialHelpers: string[]}}
@@ -115,8 +118,8 @@ const getContainerdAuthConfig = (opts = {}) => {
   const configFile = path.join(configDir, 'config.json');
 
   // Determine whether we need to set DOCKER_CONFIG.
-  // nerdctl uses ~/.docker by default — we only need to override when the
-  // config lives somewhere non-standard.
+  // docker-compose uses ~/.docker by default — we only need to override when
+  // the config lives somewhere non-standard.
   const defaultDir = path.join(os.homedir(), '.docker');
   const isNonStandardPath = path.resolve(configDir) !== path.resolve(defaultDir);
 
@@ -139,11 +142,9 @@ const getContainerdAuthConfig = (opts = {}) => {
       // Check if credsStore references a non-existent helper binary (e.g. desktop.exe on WSL).
       // If so, create a sanitized config without it and redirect DOCKER_CONFIG.
       if (configJson.credsStore) {
-        const helperBin = `docker-credential-${configJson.credsStore}`;
-        const {execSync} = require('child_process');
-        // nerdctl treats credential helper errors as fatal (unlike Docker which
-        // falls back to anonymous). On WSL, desktop.exe helper exists but fails
-        // for registries without stored credentials. Always sanitize for nerdctl.
+        // finch-daemon treats credential helper errors as fatal (unlike Docker
+        // which falls back to anonymous). On WSL, desktop.exe helper exists but
+        // fails for registries without stored credentials. Always sanitize.
         {
           // Create a sanitized config without the broken credsStore
           const sanitizedDir = path.join(os.homedir(), '.lando', 'docker-config');
@@ -156,7 +157,7 @@ const getContainerdAuthConfig = (opts = {}) => {
       }
     }
   } catch {
-    // If we can't read or parse the config, that's fine — nerdctl will
+    // If we can't read or parse the config, that's fine — finch-daemon will
     // simply operate without auth, which is correct for public images.
     configExists = false;
     credentialHelpers = [];

@@ -56,8 +56,7 @@ done
 # Helpers
 # ---------------------------------------------------------------------------
 DOCKER_BIN="${DOCKER_BIN:-docker}"
-NERDCTL_BIN="${NERDCTL_BIN:-${LANDO_DIR}/bin/nerdctl}"
-CONTAINERD_SOCK="${CONTAINERD_SOCK:-${LANDO_DIR}/run/containerd.sock}"
+FINCH_SOCK="${FINCH_SOCK:-/run/lando/finch.sock}"
 IMAGE="alpine:latest"
 
 # Time a command in milliseconds using bash built-in SECONDS or date
@@ -182,23 +181,26 @@ if [[ "$ENGINE" == "docker" || "$ENGINE" == "both" ]]; then
   fi
 fi
 
-# containerd (nerdctl) benchmark
+# containerd (via finch-daemon Docker API) benchmark
 if [[ "$ENGINE" == "containerd" || "$ENGINE" == "both" ]]; then
-  if [[ -x "$NERDCTL_BIN" ]]; then
-    echo "Benchmarking containerd (nerdctl)..."
-    benchmark_engine "containerd (nerdctl)" "$NERDCTL_BIN" "--address" "$CONTAINERD_SOCK"
+  if [[ -S "$FINCH_SOCK" ]]; then
+    echo "Benchmarking containerd (docker cli via finch-daemon)..."
+    # Use docker CLI pointed at finch-daemon — per BRIEF, never shell out to nerdctl
+    export DOCKER_HOST="unix://${FINCH_SOCK}"
+    benchmark_engine "containerd (finch-daemon)" "$DOCKER_BIN"
+    unset DOCKER_HOST
   else
-    echo "WARNING: nerdctl not found at ${NERDCTL_BIN}, skipping containerd benchmark." >&2
-    echo "## containerd (nerdctl)" >> "$RESULTS_FILE"
+    echo "WARNING: finch-daemon socket not found at ${FINCH_SOCK}, skipping containerd benchmark." >&2
+    echo "## containerd (finch-daemon)" >> "$RESULTS_FILE"
     echo "" >> "$RESULTS_FILE"
-    echo "_Skipped: \`nerdctl\` binary not found at \`${NERDCTL_BIN}\`._" >> "$RESULTS_FILE"
+    echo "_Skipped: finch-daemon socket not found at \`${FINCH_SOCK}\`._" >> "$RESULTS_FILE"
     echo "" >> "$RESULTS_FILE"
   fi
 fi
 
 # Clean up test image from both engines
 "$DOCKER_BIN" rmi "$IMAGE" >/dev/null 2>&1 || true
-"$NERDCTL_BIN" --address "$CONTAINERD_SOCK" rmi "$IMAGE" >/dev/null 2>&1 || true
+DOCKER_HOST="unix://${FINCH_SOCK}" "$DOCKER_BIN" rmi "$IMAGE" >/dev/null 2>&1 || true
 
 echo ""
 echo "Done! Results written to: ${RESULTS_FILE}"

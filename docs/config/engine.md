@@ -68,10 +68,10 @@ nerdctlBin: /usr/local/bin/nerdctl
 buildkitdBin: /usr/local/bin/buildkitd
 
 # Override the containerd socket path
-containerdSocket: /run/containerd/containerd.sock
+containerdSocket: /run/lando/containerd.sock
 ```
 
-By default, Lando looks for binaries in `~/.lando/bin/` and manages its own isolated containerd socket at `~/.lando/run/containerd.sock`.
+By default, Lando looks for binaries in `~/.lando/bin/` and manages its own isolated containerd socket at `/run/lando/containerd.sock`.
 
 ## How It Works
 

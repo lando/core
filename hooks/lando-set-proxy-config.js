@@ -4,6 +4,8 @@ const _ = require('lodash');
 const path = require('path');
 const url = require('url');
 
+const getContainerdPaths = require('../utils/get-containerd-paths');
+
 const ports2Urls = (ports, secure = false, hostname = '127.0.0.1') => _(ports)
   .map(port => url.format({protocol: (secure) ? 'https' : 'http', hostname, port}))
   .value();
@@ -27,6 +29,6 @@ module.exports = async lando => {
   // Set dockerSocket for containerd backend (finch-daemon provides Docker API compatibility)
   const backend = _.get(lando, 'engine.engineBackend', _.get(lando, 'config.engine', 'auto'));
   if (backend === 'containerd') {
-    lando.config.dockerSocket = lando.config.finchDaemonSocket || path.join(lando.config.userConfRoot, 'run', 'finch.sock');
+    lando.config.dockerSocket = getContainerdPaths(lando.config).finchSocket;
   }
 };

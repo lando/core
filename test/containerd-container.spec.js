@@ -72,22 +72,20 @@ describe('containerd-container', () => {
         debug: () => {},
       });
 
-      expect(cc).to.have.property('nerdctlBin');
-      expect(cc).to.have.property('socketPath');
+      expect(cc).to.have.property('finchSocket');
+      expect(cc).to.have.property('dockerode');
       expect(cc).to.have.property('id');
       cc.id.should.equal('lando');
     });
 
     it('should accept custom options', () => {
       const cc = new ContainerdContainer({
-        nerdctlBin: '/custom/nerdctl',
-        socketPath: '/custom/socket.sock',
+        finchSocket: '/custom/socket.sock',
         id: 'custom-id',
         debug: () => {},
       });
 
-      cc.nerdctlBin.should.equal('/custom/nerdctl');
-      cc.socketPath.should.equal('/custom/socket.sock');
+      cc.finchSocket.should.equal('/custom/socket.sock');
       cc.id.should.equal('custom-id');
     });
   });

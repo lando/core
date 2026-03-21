@@ -1,14 +1,14 @@
 'use strict';
 
 module.exports = message => ({
-  title: 'nerdctl compose failed',
+  title: 'docker-compose failed (containerd backend)',
   type: 'warning',
   detail: [
     `${message}`,
-    'nerdctl compose is used as the Docker Compose alternative',
-    'for the containerd engine backend.',
+    'The containerd engine backend uses docker-compose with finch-daemon',
+    'as the Docker API compatibility layer.',
     'Check that all services in your Landofile are compatible',
-    'with nerdctl compose.',
+    'with the containerd backend.',
   ],
   url: 'https://docs.lando.dev/config/engine.html',
 });

@@ -1,12 +1,14 @@
 'use strict';
 
 module.exports = () => ({
-  title: 'nerdctl binary not found',
+  title: 'containerd backend binaries not found',
   type: 'error',
   detail: [
-    'The nerdctl binary was not found at the expected path.',
-    'nerdctl is required for the containerd engine backend.',
-    'Run "lando setup" to install it.',
+    'One or more required binaries for the containerd engine backend',
+    'were not found at the expected path.',
+    'The containerd backend requires containerd, buildkitd, finch-daemon,',
+    'and docker-compose to be installed.',
+    'Run "lando setup" to install them.',
   ],
   url: 'https://docs.lando.dev/config/engine.html',
 });

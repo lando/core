@@ -2,7 +2,12 @@
 
 const _ = require('lodash');
 
+const isNotConnectedError = error => _.includes(error.message, 'is not connected to network')
+  || _.includes(error.message, 'network or container is not found');
+
 module.exports = async (app, lando) => {
+  if (lando.engine?.engineBackend === 'containerd') return;
+
   // If the proxy isnt on then just bail
   if (lando.config.proxy !== 'ON') return;
 
@@ -17,6 +22,8 @@ module.exports = async (app, lando) => {
 
     // Otherwise scan and add as needed
     return lando.engine.scan({id: proxyContainer}).then(data => {
+      const containerId = _.get(data, 'Id', proxyContainer);
+
       // Get existing aliases and merge them into our new ones
       // @NOTE: Do we need to handle wildcards and paths?
       const aliasPath = `NetworkSettings.Networks.${lando.config.networkBridge}.Aliases`;
@@ -31,14 +38,14 @@ module.exports = async (app, lando) => {
         .value();
 
       // Disconnect so we can reconnect
-      return bridgeNet.disconnect({Container: proxyContainer, Force: true})
+      return bridgeNet.disconnect({Container: containerId, Force: true})
         // Only throw non not connected errors
         .catch(error => {
-          if (!_.includes(error.message, 'is not connected to network')) throw error;
+          if (!isNotConnectedError(error)) throw error;
         })
         // Connect
+        .then(() => bridgeNet.connect({Container: containerId, EndpointConfig: {Aliases: aliases}}))
         .then(() => {
-          bridgeNet.connect({Container: proxyContainer, EndpointConfig: {Aliases: aliases}});
           app.log.debug('aliased %j to the proxynet', aliases);
         });
     });

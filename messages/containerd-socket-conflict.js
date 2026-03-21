@@ -6,7 +6,7 @@ module.exports = () => ({
   detail: [
     'Another containerd instance may be using the socket.',
     'Lando uses its own isolated containerd instance at',
-    '~/.lando/run/containerd.sock to avoid conflicts.',
+    '/run/lando/containerd.sock to avoid conflicts.',
     'If problems persist, stop any other containerd instances',
     'or check for stale socket files.',
   ],

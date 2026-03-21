@@ -33,7 +33,7 @@ Results are written as a markdown table to `/tmp/lando-benchmark-<timestamp>.md`
 |----------|---------|-------------|
 | `DOCKER_BIN` | `docker` | Path to the Docker CLI binary |
 | `NERDCTL_BIN` | `~/.lando/bin/nerdctl` | Path to the nerdctl binary |
-| `CONTAINERD_SOCK` | `~/.lando/run/containerd.sock` | Path to the containerd socket |
+| `CONTAINERD_SOCK` | `/run/lando/containerd.sock` | Path to the containerd socket |
 | `LANDO_DIR` | `~/.lando` | Lando configuration root |
 
 ## Known Performance Characteristics
@@ -85,9 +85,7 @@ These GC policies ensure the build cache doesn't grow unbounded while retaining 
 
 The containerd daemon includes built-in performance timers (via `utils/perf-timer.js`) that log elapsed time for key operations when debug mode is enabled:
 
-- `up()` — total engine startup time
-- `_startContainerd()` — containerd daemon spawn + socket ready
-- `_startBuildkitd()` — buildkitd daemon spawn + socket ready
+- `up()` — total engine startup time (systemd service check + socket verification)
 
 Enable debug logging with `DEBUG=@lando/*` or by setting `debug: true` in your Lando config to see these timings.
 

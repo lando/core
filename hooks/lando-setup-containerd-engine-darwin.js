@@ -5,6 +5,8 @@ const os = require('os');
 const path = require('path');
 const {execSync} = require('child_process');
 
+const getSetupEngine = require('../utils/get-setup-engine');
+
 const LIMA_VERSION = '1.0.6';
 const VM_NAME = 'lando';
 
@@ -134,9 +136,7 @@ module.exports = async (lando, options) => {
   const {color} = require('listr2');
   const axios = require('../utils/get-axios')();
 
-  // Only run for containerd or auto engine selection
-  const engine = lando.config.engine || 'auto';
-  if (engine === 'docker') return;
+  if (getSetupEngine(lando, options) !== 'containerd') return;
 
   const userConfRoot = lando.config.userConfRoot || path.join(os.homedir(), '.lando');
   const binDir = path.join(userConfRoot, 'bin');

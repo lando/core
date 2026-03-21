@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const fs = require('fs');
 const getDockerDesktopBin = require('../utils/get-docker-desktop-x');
+const getSetupEngine = require('../utils/get-setup-engine');
 
 /**
  * Installs the Lando Development Certificate Authority (CA) on Windows systems.
@@ -19,7 +20,7 @@ module.exports = async (lando, options) => {
   if (options.skipNetworking) return;
 
   // we need access to dat socket for this to work
-  const isContainerd = lando.config.engine === 'containerd';
+  const isContainerd = getSetupEngine(lando, options) === 'containerd';
   const dependsOn = isContainerd
     ? ['setup-containerd-service']
     : ['linux', 'wsl'].includes(lando.config.os.landoPlatform)
@@ -58,9 +59,9 @@ module.exports = async (lando, options) => {
       }
     },
     task: async (ctx, task) => {
-      // we reinstantiate instead of using lando.engine.daemon so we can ensure an up-to-date docker bin
-      const LandoDaemon = require('../lib/daemon');
-      const daemon = new LandoDaemon(lando.cache, lando.events, undefined, lando.log);
+      const daemon = isContainerd
+        ? lando.engine.daemon
+        : new (require('../lib/daemon'))(lando.cache, lando.events, undefined, lando.log);
 
       // we need docker up for this
       await daemon.up({max: 5, backoff: 1000});

@@ -3,6 +3,8 @@
 const os = require('os');
 const path = require('path');
 
+const getContainerdPaths = require('./get-containerd-paths');
+
 /**
  * Create a containerd-backed Engine instance.
  *
@@ -44,12 +46,14 @@ module.exports = (config, cache, events, log, shell, id = 'lando') => {
   const {ContainerdDaemon, ContainerdContainer, NerdctlCompose} = require('../lib/backends/containerd');
 
   const userConfRoot = config.userConfRoot || path.join(os.homedir(), '.lando');
+  const paths = getContainerdPaths(config);
+  const systemBinDir = config.containerdSystemBinDir || '/usr/local/lib/lando/bin';
 
   // Resolve binary paths — config overrides take precedence, then standard ~/.lando/bin/ locations
-  const containerdBin = config.containerdBin || path.join(userConfRoot, 'bin', 'containerd');
+  const containerdBin = config.containerdBin || path.join(systemBinDir, 'containerd');
   const nerdctlBin = config.nerdctlBin || path.join(userConfRoot, 'bin', 'nerdctl');
-  const buildkitdBin = config.buildkitdBin || path.join(userConfRoot, 'bin', 'buildkitd');
-  const socketPath = config.containerdSocket || path.join(userConfRoot, 'run', 'containerd.sock');
+  const buildkitdBin = config.buildkitdBin || path.join(systemBinDir, 'buildkitd');
+  const socketPath = paths.containerdSocket;
 
   // Create the daemon backend — manages containerd + buildkitd lifecycle
   const daemon = new ContainerdDaemon({
@@ -63,10 +67,12 @@ module.exports = (config, cache, events, log, shell, id = 'lando') => {
     log,
   });
 
-  // Create the container backend — low-level container/network ops via nerdctl
+  // Create the container backend — low-level container/network ops via Dockerode + finch-daemon
+  // ContainerdContainer uses Dockerode pointed at finch-daemon's Docker-compatible socket
+  // instead of shelling out to nerdctl. finch-daemon provides Docker API v1.43 compat backed
+  // by containerd.
   const docker = new ContainerdContainer({
-    nerdctlBin,
-    socketPath,
+    finchSocket: paths.finchSocket,
     id,
     debug: require('./debug-shim')(log),
   });
@@ -74,6 +80,9 @@ module.exports = (config, cache, events, log, shell, id = 'lando') => {
   // Create the compose backend — produces {cmd, opts} shell descriptors
   const nerdctlCompose = new NerdctlCompose({
     socketPath,
+    buildkitHost: `unix://${daemon.buildkitSocket}`,
+    namespace: 'default',
+    nerdctlConfig: path.join(userConfRoot, 'config', 'nerdctl.toml'),
   });
 
   // Create the compose function with the standard (cmd, datum) => Promise contract.

@@ -13,27 +13,39 @@ chai.should();
 const ContainerdContainer = require('./../lib/backends/containerd/containerd-container');
 
 /**
- * Create a ContainerdContainer instance with a mocked _nerdctl method.
+ * Create a ContainerdContainer instance with mocked Docker API methods.
  *
- * The mock captures every call's args array into `calls` and resolves with
- * a configurable return value. This lets us verify that the correct nerdctl
- * CLI arguments are built without needing a real containerd socket.
+ * The mock captures network API calls so we can verify the containerd backend
+ * routes network operations through the finch-daemon Docker API.
  *
  * @param {Object} [overrides={}] - Per-test overrides.
- * @param {string|Function} [overrides.nerdctlReturn=''] - Value _nerdctl resolves with,
- *   or a function `(args) => string` for dynamic returns.
- * @param {Error} [overrides.nerdctlError=null] - If set, _nerdctl rejects with this error.
- * @return {{cc: ContainerdContainer, calls: Array<Array<string>>}}
+ * @param {Array<Object>} [overrides.networks=[]] - Network list returned by Docker API.
+ * @param {Object} [overrides.inspectData] - Inspect result for getNetwork().inspect().
+ * @param {Error} [overrides.disconnectError=null] - Error thrown by network disconnect.
+ * @return {{cc: ContainerdContainer, calls: Array<Object>}}
  */
 function createMockedInstance(overrides = {}) {
   const calls = [];
   const cc = new ContainerdContainer({debug: () => {}});
 
-  cc._nerdctl = async (args, opts) => {
-    calls.push(args);
-    if (overrides.nerdctlError) throw overrides.nerdctlError;
-    if (typeof overrides.nerdctlReturn === 'function') return overrides.nerdctlReturn(args);
-    return overrides.nerdctlReturn || '';
+  cc.dockerode = {
+    createNetwork: async opts => {
+      calls.push({method: 'createNetwork', opts});
+    },
+    listNetworks: async () => overrides.networks || [],
+    getNetwork: () => ({
+      inspect: async () => overrides.inspectData || {Name: 'my-net', Id: 'abc123'},
+      remove: async () => {
+        calls.push({method: 'remove'});
+      },
+      connect: async opts => {
+        calls.push({method: 'connect', opts});
+      },
+      disconnect: async opts => {
+        if (overrides.disconnectError) throw overrides.disconnectError;
+        calls.push({method: 'disconnect', opts});
+      },
+    }),
   };
 
   return {cc, calls};
@@ -44,59 +56,27 @@ describe('containerd-networking', () => {
   // createNet
   // ===========================================================================
   describe('#createNet', () => {
-    it('should build correct nerdctl args with lando label (no --internal)', async () => {
-      const {cc, calls} = createMockedInstance({
-        nerdctlReturn: args => {
-          // network inspect returns JSON
-          if (args[0] === 'network' && args[1] === 'inspect') {
-            return JSON.stringify([{Name: 'my-net', Id: 'abc123'}]);
-          }
-          return 'abc123';
-        },
-      });
+    it('should create a Docker API network with the lando label', async () => {
+      const {cc, calls} = createMockedInstance();
 
       await cc.createNet('my-net');
 
-      // First call: network create
-      const createArgs = calls[0];
-      createArgs[0].should.equal('network');
-      createArgs[1].should.equal('create');
-      // nerdctl does not support --internal; should NOT be present
-      expect(createArgs).to.not.include('--internal');
-      expect(createArgs).to.include('--label');
-      expect(createArgs).to.include('io.lando.container=TRUE');
-      // Network name should be last
-      createArgs[createArgs.length - 1].should.equal('my-net');
+      calls[0].method.should.equal('createNetwork');
+      calls[0].opts.Name.should.equal('my-net');
+      calls[0].opts.Labels.should.deep.equal({'io.lando.container': 'TRUE'});
+      calls[0].opts.Attachable.should.equal(true);
     });
 
     it('should not include --internal even when Internal option is not set', async () => {
-      const {cc, calls} = createMockedInstance({
-        nerdctlReturn: args => {
-          if (args[0] === 'network' && args[1] === 'inspect') {
-            return JSON.stringify([{Name: 'my-net', Id: 'abc123'}]);
-          }
-          return 'abc123';
-        },
-      });
+      const {cc, calls} = createMockedInstance();
 
       await cc.createNet('my-net', {Internal: false});
 
-      const createArgs = calls[0];
-      expect(createArgs).to.not.include('--internal');
-      expect(createArgs).to.include('--label');
-      expect(createArgs).to.include('io.lando.container=TRUE');
-      createArgs[createArgs.length - 1].should.equal('my-net');
+      expect(calls[0].opts).to.not.have.property('Internal');
     });
 
     it('should include extra labels from opts.Labels', async () => {
-      const {cc, calls} = createMockedInstance({
-        nerdctlReturn: args => {
-          if (args[0] === 'network' && args[1] === 'inspect') {
-            return JSON.stringify([{Name: 'my-net', Id: 'abc123'}]);
-          }
-          return 'abc123';
-        },
-      });
+      const {cc, calls} = createMockedInstance();
 
       await cc.createNet('my-net', {
         Labels: {
@@ -105,32 +85,20 @@ describe('containerd-networking', () => {
         },
       });
 
-      const createArgs = calls[0];
-      // Should have the default lando label plus the two extra labels
-      expect(createArgs).to.include('io.lando.container=TRUE');
-      expect(createArgs).to.include('com.example.env=production');
-      expect(createArgs).to.include('com.example.version=2.0');
-      createArgs[createArgs.length - 1].should.equal('my-net');
+      calls[0].opts.Labels.should.deep.equal({
+        'io.lando.container': 'TRUE',
+        'com.example.env': 'production',
+        'com.example.version': '2.0',
+      });
     });
 
     it('should call network inspect after creation and return parsed data', async () => {
       const inspectData = {Name: 'my-net', Id: 'abc123', Driver: 'bridge'};
-      const {cc, calls} = createMockedInstance({
-        nerdctlReturn: args => {
-          if (args[0] === 'network' && args[1] === 'inspect') {
-            return JSON.stringify([inspectData]);
-          }
-          return 'abc123';
-        },
-      });
+      const {cc, calls} = createMockedInstance({inspectData});
 
       const result = await cc.createNet('my-net');
 
-      // Should have made two calls: create and inspect
-      calls.length.should.equal(2);
-      calls[1][0].should.equal('network');
-      calls[1][1].should.equal('inspect');
-      calls[1][2].should.equal('my-net');
+      calls.length.should.equal(1);
 
       result.should.deep.equal(inspectData);
     });
@@ -148,18 +116,17 @@ describe('containerd-networking', () => {
       expect(network.disconnect).to.be.a('function');
     });
 
-    it('should build correct nerdctl network connect args', async () => {
+    it('should proxy network connect through dockerode', async () => {
       const {cc, calls} = createMockedInstance();
       const network = cc.getNetwork('landonet');
 
       await network.connect({Container: 'my-container-id'});
 
       calls.length.should.equal(1);
-      const args = calls[0];
-      args.should.deep.equal(['network', 'connect', 'landonet', 'my-container-id']);
+      calls[0].should.deep.equal({method: 'connect', opts: {Container: 'my-container-id'}});
     });
 
-    it('should include --alias flags for EndpointConfig.Aliases', async () => {
+    it('should preserve aliases on dockerode network connect', async () => {
       const {cc, calls} = createMockedInstance();
       const network = cc.getNetwork('landonet');
 
@@ -171,13 +138,15 @@ describe('containerd-networking', () => {
       });
 
       calls.length.should.equal(1);
-      const args = calls[0];
-      args.should.deep.equal([
-        'network', 'connect',
-        '--alias', 'web.myapp.internal',
-        '--alias', 'web',
-        'landonet', 'my-container-id',
-      ]);
+      calls[0].should.deep.equal({
+        method: 'connect',
+        opts: {
+          Container: 'my-container-id',
+          EndpointConfig: {
+            Aliases: ['web.myapp.internal', 'web'],
+          },
+        },
+      });
     });
 
     it('should throw if Container is not provided', async () => {
@@ -214,8 +183,7 @@ describe('containerd-networking', () => {
       });
 
       calls.length.should.equal(1);
-      const args = calls[0];
-      args.should.deep.equal(['network', 'connect', 'landonet', 'cid-123']);
+      calls[0].should.deep.equal({method: 'connect', opts: {Container: 'cid-123', EndpointConfig: {}}});
     });
   });
 
@@ -223,26 +191,24 @@ describe('containerd-networking', () => {
   // getNetwork().disconnect
   // ===========================================================================
   describe('#getNetwork().disconnect', () => {
-    it('should build correct nerdctl network disconnect args', async () => {
+    it('should proxy network disconnect through dockerode', async () => {
       const {cc, calls} = createMockedInstance();
       const network = cc.getNetwork('landonet');
 
       await network.disconnect({Container: 'my-container-id'});
 
       calls.length.should.equal(1);
-      const args = calls[0];
-      args.should.deep.equal(['network', 'disconnect', 'landonet', 'my-container-id']);
+      calls[0].should.deep.equal({method: 'disconnect', opts: {Container: 'my-container-id'}});
     });
 
-    it('should include --force flag when Force is true', async () => {
+    it('should ignore Force when nerdctl does not support it', async () => {
       const {cc, calls} = createMockedInstance();
       const network = cc.getNetwork('landonet');
 
       await network.disconnect({Container: 'my-container-id', Force: true});
 
       calls.length.should.equal(1);
-      const args = calls[0];
-      args.should.deep.equal(['network', 'disconnect', '--force', 'landonet', 'my-container-id']);
+      calls[0].should.deep.equal({method: 'disconnect', opts: {Container: 'my-container-id', Force: true}});
     });
 
     it('should not include --force flag when Force is false', async () => {
@@ -252,8 +218,7 @@ describe('containerd-networking', () => {
       await network.disconnect({Container: 'my-container-id', Force: false});
 
       calls.length.should.equal(1);
-      const args = calls[0];
-      args.should.deep.equal(['network', 'disconnect', 'landonet', 'my-container-id']);
+      calls[0].should.deep.equal({method: 'disconnect', opts: {Container: 'my-container-id', Force: false}});
     });
 
     it('should throw if Container is not provided', async () => {
@@ -269,9 +234,7 @@ describe('containerd-networking', () => {
     });
 
     it('should silently ignore "is not connected" errors (Docker parity)', async () => {
-      const {cc} = createMockedInstance({
-        nerdctlError: new Error('container abc123 is not connected to network landonet'),
-      });
+      const {cc} = createMockedInstance({disconnectError: new Error('container abc123 is not connected to network landonet')});
       const network = cc.getNetwork('landonet');
 
       // Should NOT throw
@@ -279,9 +242,7 @@ describe('containerd-networking', () => {
     });
 
     it('should re-throw non "is not connected" errors', async () => {
-      const {cc} = createMockedInstance({
-        nerdctlError: new Error('permission denied'),
-      });
+      const {cc} = createMockedInstance({disconnectError: new Error('permission denied')});
       const network = cc.getNetwork('landonet');
 
       try {
@@ -299,11 +260,11 @@ describe('containerd-networking', () => {
   describe('#listNetworks', () => {
     it('should filter networks by name', async () => {
       const {cc} = createMockedInstance({
-        nerdctlReturn: [
+        networks: [
           JSON.stringify({Name: 'lando_bridge_network', ID: 'abc123', Labels: ''}),
           JSON.stringify({Name: 'other-network', ID: 'def456', Labels: ''}),
           JSON.stringify({Name: 'lando_custom_net', ID: 'ghi789', Labels: ''}),
-        ].join('\n'),
+        ].map(JSON.parse),
       });
 
       const result = await cc.listNetworks({filters: {name: ['lando']}});
@@ -314,10 +275,10 @@ describe('containerd-networking', () => {
 
     it('should filter networks by id (prefix match)', async () => {
       const {cc} = createMockedInstance({
-        nerdctlReturn: [
+        networks: [
           JSON.stringify({Name: 'net1', ID: 'abc123def', Labels: ''}),
           JSON.stringify({Name: 'net2', ID: 'xyz789ghi', Labels: ''}),
-        ].join('\n'),
+        ].map(JSON.parse),
       });
 
       const result = await cc.listNetworks({filters: {id: ['abc']}});
@@ -327,10 +288,10 @@ describe('containerd-networking', () => {
 
     it('should filter networks by label', async () => {
       const {cc} = createMockedInstance({
-        nerdctlReturn: [
+        networks: [
           JSON.stringify({Name: 'net1', ID: 'abc', Labels: 'io.lando.container=TRUE'}),
           JSON.stringify({Name: 'net2', ID: 'def', Labels: 'other=label'}),
-        ].join('\n'),
+        ].map(JSON.parse),
       });
 
       const result = await cc.listNetworks({filters: {label: ['io.lando.container=TRUE']}});
@@ -340,11 +301,11 @@ describe('containerd-networking', () => {
 
     it('should return all networks when no filters are specified', async () => {
       const {cc} = createMockedInstance({
-        nerdctlReturn: [
+        networks: [
           JSON.stringify({Name: 'net1', ID: 'abc'}),
           JSON.stringify({Name: 'net2', ID: 'def'}),
           JSON.stringify({Name: 'net3', ID: 'ghi'}),
-        ].join('\n'),
+        ].map(JSON.parse),
       });
 
       const result = await cc.listNetworks();
@@ -352,16 +313,15 @@ describe('containerd-networking', () => {
     });
 
     it('should return empty array when nerdctl fails', async () => {
-      const {cc} = createMockedInstance({
-        nerdctlError: new Error('containerd not running'),
-      });
+      const {cc} = createMockedInstance();
+      cc.dockerode.listNetworks = async () => { throw new Error('containerd not running'); };
 
       const result = await cc.listNetworks();
       result.should.deep.equal([]);
     });
 
     it('should return empty array when nerdctl returns empty output', async () => {
-      const {cc} = createMockedInstance({nerdctlReturn: ''});
+      const {cc} = createMockedInstance({networks: []});
 
       const result = await cc.listNetworks();
       result.should.deep.equal([]);
@@ -369,11 +329,11 @@ describe('containerd-networking', () => {
 
     it('should handle multiple name filters (match any)', async () => {
       const {cc} = createMockedInstance({
-        nerdctlReturn: [
+        networks: [
           JSON.stringify({Name: 'alpha-net', ID: 'a1'}),
           JSON.stringify({Name: 'beta-net', ID: 'b1'}),
           JSON.stringify({Name: 'gamma-net', ID: 'c1'}),
-        ].join('\n'),
+        ].map(JSON.parse),
       });
 
       const result = await cc.listNetworks({filters: {name: ['alpha', 'gamma']}});

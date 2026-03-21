@@ -3,6 +3,7 @@
 
 const fs = require('fs-extra');
 const path = require('path');
+
 const merge = require('lodash/merge');
 const slugify = require('slugify');
 
@@ -35,7 +36,21 @@ class DockerEngine extends Dockerode {
     orchestrator = DockerEngine.orchestrator,
   } = {}) {
     super(config);
-    this.builder = builder;
+    const userConfRoot = config.userConfRoot || path.join(require('os').homedir(), '.lando');
+    const systemBinDir = config.containerdSystemBinDir || '/usr/local/lib/lando/bin';
+
+    this.containerdMode = config.containerdMode === true
+      || config.engine === 'containerd'
+      || process.env.LANDO_ENGINE === 'containerd';
+    this.containerdNamespace = config.containerdNamespace || 'default';
+    this.containerdSocket = config.containerdSocket || '/run/lando/containerd.sock';
+    this.buildkitHost = config.buildkitHost || 'unix:///run/lando/buildkitd.sock';
+    this.buildctl = config.buildctlBin
+      || (fs.existsSync(path.join(userConfRoot, 'bin', 'buildctl')) ? path.join(userConfRoot, 'bin', 'buildctl') : path.join(systemBinDir, 'buildctl'));
+    this.nerdctlConfig = config.nerdctlConfig || path.join(userConfRoot, 'config', 'nerdctl.toml');
+    this.authConfig = config.authConfig || {env: {}};
+    this.builder = this.containerdMode ? path.join(userConfRoot, 'bin', 'nerdctl') : builder;
+    if (this.containerdMode) this.modem.socketPath = config.socketPath || '/run/lando/finch.sock';
     this.debug = debug;
     this.orchestrator = orchestrator;
   }
@@ -56,6 +71,10 @@ class DockerEngine extends Dockerode {
       id = tag,
       sources = [],
     } = {}) {
+    if (this.containerdMode) {
+      return this.buildx(dockerfile, {attach, buildArgs, context, id, sources, tag});
+    }
+
     // handles the promisification of the merged return
     const awaitHandler = async () => {
       return new Promise((resolve, reject) => {
@@ -244,21 +263,27 @@ class DockerEngine extends Dockerode {
     fs.copySync(dockerfile, path.join(context, 'Dockerfile'));
     dockerfile = path.join(context, 'Dockerfile');
 
-    // build initial buildx command
-    const args = {
-      command: this.builder,
-      args: [
-        'buildx',
-        'build',
-        `--file=${dockerfile}`,
-        '--progress=plain',
-        `--tag=${tag}`,
-        context,
-      ],
-    };
+    const outputPath = this.containerdMode ? path.join(context, 'image.tar') : null;
+
+    // build initial build command
+    const args = this.containerdMode
+      ? this._getContainerdBuildctlCommand({buildArgs, context, dockerfile, outputPath, tag})
+      : {
+        command: this.builder,
+        args: [
+          'buildx',
+          'build',
+          `--file=${dockerfile}`,
+          '--progress=plain',
+          `--tag=${tag}`,
+          context,
+        ],
+      };
 
     // add any needed build args into the command
-    for (const [key, value] of Object.entries(buildArgs)) args.args.push(`--build-arg=${key}=${value}`);
+    if (!this.containerdMode) {
+      for (const [key, value] of Object.entries(buildArgs)) args.args.push(`--build-arg=${key}=${value}`);
+    }
 
     // if we have sshKeys then lets pass those in
     if (sshKeys.length > 0) {
@@ -274,7 +299,7 @@ class DockerEngine extends Dockerode {
 
     // if we have an sshAuth socket then add that as well
     if (sshSocket && fs.existsSync(sshSocket)) {
-      args.args.push(`--ssh=agent=${sshSocket}`);
+      args.args.push(`--ssh=${this.containerdMode ? 'default' : 'agent'}=${sshSocket}`);
       debug('passing in ssh agent socket %o', sshSocket);
     }
 
@@ -282,7 +307,8 @@ class DockerEngine extends Dockerode {
     // @TODO: consider other opts? https://docs.docker.com/reference/cli/docker/buildx/build/ args?
     // secrets?
     // gha cache-from/to?
-    const buildxer = require('../utils/run-command')(args.command, args.args, {debug});
+    const env = {...process.env, ...(this.authConfig.env || {})};
+    const buildxer = require('../utils/run-command')(args.command, args.args, {debug, env});
 
     // augment buildxer with more events so it has the same interface as build
     buildxer.stdout.on('data', data => {
@@ -297,12 +323,24 @@ class DockerEngine extends Dockerode {
       for (const line of data.toString().trim().split('\n')) debug(line);
       stderr += data;
     });
-    buildxer.on('close', code => {
+    buildxer.on('close', async code => {
       // if code is non-zero and we arent ignoring then reject here
       if (code !== 0 && !ignoreReturnCode) {
         buildxer.emit('error', require('../utils/get-buildx-error')({code, stdout, stderr}));
       // otherwise return done
       } else {
+        try {
+          if (this.containerdMode && outputPath) {
+            const loadOutput = await this._loadContainerdImage(outputPath, tag, debug);
+            stdout += loadOutput;
+          }
+        } catch (error) {
+          buildxer.emit('error', error);
+          return;
+        } finally {
+          if (outputPath && fs.existsSync(outputPath)) fs.removeSync(outputPath);
+        }
+
         buildxer.emit('done', {code, stdout, stderr});
         buildxer.emit('finished', {code, stdout, stderr});
         buildxer.emit('success', {code, stdout, stderr});
@@ -310,10 +348,61 @@ class DockerEngine extends Dockerode {
     });
 
     // debug
-    debug('buildxing image %o from %o with build-args', tag, context, buildArgs);
+    debug('%s image %o from %o with build-args %o', this.containerdMode ? 'building with buildctl' : 'buildxing', tag, context, buildArgs);
 
     // return merger
     return mergePromise(buildxer, awaitHandler);
+  }
+
+  _getContainerdBuildctlCommand({buildArgs = {}, context, dockerfile, outputPath, tag}) {
+    const filename = path.basename(dockerfile);
+    const args = [
+      '--addr', this.buildkitHost,
+      'build',
+      '--frontend', 'dockerfile.v0',
+      '--local', `context=${context}`,
+      '--local', `dockerfile=${path.dirname(dockerfile)}`,
+      '--opt', `filename=${filename}`,
+      '--opt', `platform=${process.arch === 'arm64' ? 'linux/arm64' : 'linux/amd64'}`,
+      '--output', `type=docker,name=${tag},dest=${outputPath}`,
+      '--progress=plain',
+    ];
+
+    for (const [key, value] of Object.entries(buildArgs)) args.push('--opt', `build-arg:${key}=${value}`);
+
+    return {
+      command: this.buildctl,
+      args,
+    };
+  }
+
+  async _loadContainerdImage(imageTarball, tag, debug = this.debug) {
+    // Load via finch-daemon's Docker-compatible API (Dockerode).
+    // finch-daemon proxies to containerd, so this loads into both.
+    return this._loadContainerdImageIntoFinch(imageTarball, tag, debug);
+  }
+
+  async _loadContainerdImageIntoFinch(imageTarball, tag, debug = this.debug) {
+    return new Promise((resolve, reject) => {
+      const stream = fs.createReadStream(imageTarball);
+
+      this.loadImage(stream, (error, responseStream) => {
+        if (error) return reject(error);
+        if (!responseStream) return resolve('');
+
+        this.modem.followProgress(responseStream, (followError, output = []) => {
+          if (followError) return reject(followError);
+
+          const messages = output
+            .map(event => event.stream || event.status || '')
+            .filter(Boolean);
+
+          for (const message of messages) debug(message.trim());
+          debug('loaded image %o into finch-daemon from %o', tag, imageTarball);
+          resolve(messages.join(''));
+        });
+      });
+    });
   }
 
   /*

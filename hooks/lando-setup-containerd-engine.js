@@ -3,6 +3,10 @@
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const getSetupEngine = require('../utils/get-setup-engine');
+const getBuildkitConfig = require('../utils/get-buildkit-config');
+const getContainerdPaths = require('../utils/get-containerd-paths');
+const getNerdctlConfig = require('../utils/get-nerdctl-config');
 
 module.exports = async (lando, options) => {
   const debug = require("../utils/debug-shim")(lando.log);
@@ -10,9 +14,7 @@ module.exports = async (lando, options) => {
   const getUrl = require("../utils/get-containerd-download-url");
   const axios = require("../utils/get-axios")();
 
-  // Only run for containerd or auto engine selection
-  const engine = lando.config.engine || "auto";
-  if (engine === "docker") return;
+  if (getSetupEngine(lando, options) !== 'containerd') return;
 
   const userConfRoot = lando.config.userConfRoot || path.join(os.homedir(), ".lando");
   const binDir = path.join(userConfRoot, "bin");
@@ -23,7 +25,8 @@ module.exports = async (lando, options) => {
   const systemBinDir = lando.config.containerdSystemBinDir || "/usr/local/lib/lando/bin";
 
   // Socket path — sockets go in /run/lando/ (root-owned, group-accessible via systemd RuntimeDirectory)
-  const socketPath = lando.config.containerdSocket || "/run/lando/containerd.sock";
+  const containerdPaths = getContainerdPaths(lando.config);
+  const socketPath = containerdPaths.containerdSocket;
 
   // =========================================================================
   // Root-owned binaries: containerd, containerd-shim-runc-v2, runc, buildkitd, buildctl
@@ -72,12 +75,6 @@ module.exports = async (lando, options) => {
     version: `runc v${runcVersion}`,
     hasRun: async () => fs.existsSync(runcBin),
     canRun: async () => {
-      if (engine === "docker") return false;
-      if (engine === "auto") {
-        try {
-          if (lando.engine && lando.engine.dockerInstalled) return false;
-        } catch { /* continue */ }
-      }
       await axios.head(runcUrl);
       return true;
     },
@@ -153,11 +150,6 @@ module.exports = async (lando, options) => {
       version: `${binary.name} v${binary.version}`,
       hasRun: async () => fs.existsSync(binary.bin),
       canRun: async () => {
-        if (engine === "auto") {
-          try {
-            if (lando.engine && lando.engine.dockerInstalled) return false;
-          } catch {}
-        }
         await axios.head(url);
         return true;
       },
@@ -249,11 +241,6 @@ module.exports = async (lando, options) => {
     version: `nerdctl v${nerdctlVersion}`,
     hasRun: async () => fs.existsSync(nerdctlBin),
     canRun: async () => {
-      if (engine === "auto") {
-        try {
-          if (lando.engine && lando.engine.dockerInstalled) return false;
-        } catch {}
-      }
       await axios.head(nerdctlUrl);
       return true;
     },
@@ -312,25 +299,24 @@ module.exports = async (lando, options) => {
       // Check if the systemd service exists, is enabled, AND finch-daemon socket is present
       try {
         const {execSync} = require("child_process");
+        const serviceFile = '/etc/systemd/system/lando-containerd.service';
         const result = execSync("systemctl is-enabled lando-containerd.service 2>/dev/null", {
           stdio: "pipe",
           encoding: "utf8",
         }).trim();
         if (result !== "enabled") return false;
-        // Verify sockets exist AND nerdctl config exists (ensures service has latest config)
+        if (!fs.existsSync(serviceFile)) return false;
+        const serviceContents = fs.readFileSync(serviceFile, 'utf8');
+        if (!serviceContents.includes('buildkitd --config')) return false;
+        if (!serviceContents.includes(containerdPaths.buildkitSocket)) return false;
         if (!fs.existsSync("/run/lando/finch.sock") || !fs.existsSync("/run/lando/containerd.sock")) return false;
-        return fs.existsSync(path.join(configDir, "nerdctl.toml"));
+        if (!fs.existsSync(path.join(configDir, "finch-daemon.toml"))) return false;
+        return fs.existsSync(path.join(configDir, "buildkitd.toml"));
       } catch {
         return false;
       }
     },
     canRun: async () => {
-      if (engine === "docker") return false;
-      if (engine === "auto") {
-        try {
-          if (lando.engine && lando.engine.dockerInstalled) return false;
-        } catch {}
-      }
       // Require Linux for systemd
       if (process.platform !== "linux") return false;
       return true;
@@ -353,6 +339,7 @@ module.exports = async (lando, options) => {
 
       const homeDir = os.homedir();
       const username = lando.config.username || os.userInfo().username;
+      const logDir = path.join(userConfRoot, 'logs');
 
       // 1. Create lando group if it doesn't exist
       task.title = "Creating lando group...";
@@ -371,6 +358,7 @@ module.exports = async (lando, options) => {
       // 3. Write containerd config to ~/.lando/config/containerd-config.toml
       task.title = "Writing containerd config...";
       fs.mkdirSync(configDir, {recursive: true});
+      fs.mkdirSync(logDir, {recursive: true});
       const configPath = path.join(configDir, "containerd-config.toml");
       const stateDir = path.join(userConfRoot, "state", "containerd");
       const rootDir = path.join(userConfRoot, "data", "containerd");
@@ -386,21 +374,27 @@ module.exports = async (lando, options) => {
       });
       fs.writeFileSync(configPath, config, "utf8");
 
-      // 4. Create nerdctl config for finch-daemon (points to our containerd socket)
-      const nerdctlConfig = [
-        `address = "${socketPath}"`,
-        `namespace = "default"`,
-        `cni_netconfpath = "/etc/cni/net.d/finch"`,
-        `cni_path = "/usr/lib/cni"`,
-        "",
-      ].join("\n");
-      fs.writeFileSync(path.join(configDir, "nerdctl.toml"), nerdctlConfig, "utf8");
+      const buildkitConfigPath = path.join(configDir, 'buildkitd.toml');
+      const nerdctlConfigPath = path.join(configDir, 'nerdctl.toml');
+      const buildkitCacheDir = path.join(userConfRoot, 'cache', 'buildkit');
+      fs.mkdirSync(buildkitCacheDir, {recursive: true});
+      fs.writeFileSync(buildkitConfigPath, getBuildkitConfig({
+        containerdSocket: socketPath,
+        buildkitSocket: containerdPaths.buildkitSocket,
+        cacheDir: buildkitCacheDir,
+        debug: false,
+      }), 'utf8');
+      fs.writeFileSync(nerdctlConfigPath, getNerdctlConfig({containerdSocket: socketPath}), 'utf8');
+
+      // 4. Create finch-daemon config so it talks to Lando's isolated containerd socket
+      const finchConfigPath = path.join(configDir, 'finch-daemon.toml');
+      fs.writeFileSync(finchConfigPath, getNerdctlConfig({containerdSocket: socketPath}), 'utf8');
 
       // 5. Create systemd service file
       task.title = "Creating systemd service...";
-      const finchSocket = "/run/lando/finch.sock";
-      const finchCredSocket = "/run/lando/finch-credential.sock";
-      const finchPidFile = "/run/lando/finch-daemon.pid";
+      const finchSocket = containerdPaths.finchSocket;
+      const finchCredSocket = containerdPaths.finchCredentialSocket;
+      const finchPidFile = path.join(runDir, 'finch-daemon.pid');
       const uid = process.getuid ? process.getuid() : 1000;
       const serviceContent = [
         "[Unit]",
@@ -412,9 +406,12 @@ module.exports = async (lando, options) => {
         "RuntimeDirectory=lando",
         `ExecStartPre=/bin/sh -c "mkdir -p /etc/cni/net.d/finch /opt/cni/bin 2>/dev/null || true; [ -d /usr/lib/cni ] && ln -sf /usr/lib/cni/* /opt/cni/bin/ 2>/dev/null || true"`,
         `Environment=PATH=${systemBinDir}:/usr/sbin:/usr/bin:/sbin:/bin`,
+        `Environment=CONTAINERD_ADDRESS=${socketPath}`,
         `ExecStart=${systemBinDir}/containerd --config ${configPath}`,
         `ExecStartPost=/bin/sh -c "while ! [ -S ${socketPath} ]; do sleep 0.1; done; chgrp lando ${socketPath}; chmod 660 ${socketPath}"`,
-        `ExecStartPost=/bin/sh -c "NERDCTL_TOML=${configDir}/nerdctl.toml CONTAINERD_ADDRESS=${socketPath} PATH=${binDir}:/usr/sbin:$$PATH ${systemBinDir}/finch-daemon --socket-addr ${finchSocket} --socket-owner ${uid} --pidfile ${finchPidFile} --credential-socket-addr ${finchCredSocket} --credential-socket-owner ${uid} &"`,
+        `ExecStartPost=/bin/sh -c "${systemBinDir}/buildkitd --config ${buildkitConfigPath} >/dev/null 2>>/run/lando/buildkitd.log &"`,
+        `ExecStartPost=/bin/sh -c "while ! [ -S ${containerdPaths.buildkitSocket} ]; do sleep 0.1; done; chgrp lando ${containerdPaths.buildkitSocket}; chmod 660 ${containerdPaths.buildkitSocket}"`,
+        `ExecStartPost=/bin/sh -c "PATH=${binDir}:${systemBinDir}:/usr/sbin:$$PATH ${systemBinDir}/finch-daemon --config-file ${finchConfigPath} --socket-addr ${finchSocket} --socket-owner ${uid} --pidfile ${finchPidFile} --credential-socket-addr ${finchCredSocket} --credential-socket-owner ${uid} &"`,
         `ExecStartPost=/bin/sh -c "while ! [ -S ${finchSocket} ]; do sleep 0.1; done; chgrp lando ${finchSocket}; chmod 660 ${finchSocket}"`,
         "Restart=always",
         "RestartSec=5",

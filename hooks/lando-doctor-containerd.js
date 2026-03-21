@@ -4,6 +4,8 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 
+const getContainerdPaths = require('../utils/get-containerd-paths');
+
 /**
  * Run containerd engine health checks.
  *
@@ -19,7 +21,7 @@ const runChecks = async (lando) => {
   const checks = [];
   const userConfRoot = lando.config.userConfRoot || path.join(os.homedir(), ".lando");
   const binDir = path.join(userConfRoot, "bin");
-  const runDir = path.join(userConfRoot, "run");
+  const paths = getContainerdPaths(lando.config);
 
   const bins = {
     containerd: lando.config.containerdBin || path.join(binDir, "containerd"),
@@ -29,9 +31,9 @@ const runChecks = async (lando) => {
   };
 
   const sockets = {
-    containerd: lando.config.containerdSocket || path.join(runDir, "containerd.sock"),
-    buildkitd: path.join(runDir, "buildkitd.sock"),
-    "finch-daemon": lando.config.finchDaemonSocket || path.join(runDir, "finch.sock"),
+    containerd: paths.containerdSocket,
+    buildkitd: paths.buildkitSocket,
+    "finch-daemon": paths.finchSocket,
   };
 
   // Check binaries
@@ -54,20 +56,21 @@ const runChecks = async (lando) => {
     });
   }
 
-  // Check nerdctl connectivity
+  // Check finch-daemon connectivity via Dockerode (Docker API)
+  // Per BRIEF: never shell out to nerdctl from user-facing code.
+  // finch-daemon provides Docker API compatibility, so we ping it instead.
   try {
-    const nerdctlBin = bins.nerdctl;
-    const socketPath = sockets.containerd;
-    // Only attempt connectivity check if the binary exists
-    if (fs.existsSync(nerdctlBin)) {
-      const runCommand = require("../utils/run-command");
-      await runCommand(nerdctlBin, ["--address", socketPath, "ps"], {debug: () => {}});
-      checks.push({title: "nerdctl connectivity", status: "ok", message: "nerdctl can reach containerd"});
+    const finchSocket = sockets['finch-daemon'];
+    if (fs.existsSync(finchSocket)) {
+      const Dockerode = require('dockerode');
+      const docker = new Dockerode({socketPath: finchSocket});
+      await docker.ping();
+      checks.push({title: "finch-daemon connectivity", status: "ok", message: "finch-daemon Docker API is responding"});
     } else {
-      checks.push({title: "nerdctl connectivity", status: "error", message: `nerdctl binary not found at ${nerdctlBin}`});
+      checks.push({title: "finch-daemon connectivity", status: "warning", message: `finch-daemon socket not found at ${finchSocket}. Daemon may not be running.`});
     }
   } catch (err) {
-    checks.push({title: "nerdctl connectivity", status: "error", message: `nerdctl cannot reach containerd: ${err.message}`});
+    checks.push({title: "finch-daemon connectivity", status: "error", message: `finch-daemon is not responding: ${err.message}`});
   }
 
   return checks;

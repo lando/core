@@ -4,6 +4,8 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 
+const getSetupEngine = require('../utils/get-setup-engine');
+
 module.exports = async (lando, options) => {
   const debug = require("../utils/debug-shim")(lando.log);
 
@@ -13,15 +15,22 @@ module.exports = async (lando, options) => {
     description: "@lando/engine-select",
     version: "engine selection",
     hasRun: async () => {
-      // Already selected if engine is explicitly docker or containerd (not auto)
-      const engine = lando.config.engine || "auto";
-      return engine !== "auto";
+      return getSetupEngine(lando, options) !== 'auto';
     },
     canRun: async () => true,
     task: async (ctx, task) => {
       const engine = lando.config.engine || "auto";
       if (engine !== "auto") {
+        options.engine = engine;
         task.title = `Container engine: ${engine}`;
+        return;
+      }
+
+      const cached = lando.cache.get('engine-selection');
+      if (cached === 'docker' || cached === 'containerd') {
+        options.engine = cached;
+        task.title = `Container engine: ${cached}`;
+        debug('engine selection from cache: %s', cached);
         return;
       }
 
@@ -59,6 +68,7 @@ module.exports = async (lando, options) => {
         });
       }
 
+      options.engine = selection;
       lando.config.engine = selection;
       lando.cache.set("engine-selection", selection, {persist: true});
       task.title = `Container engine: ${selection}`;

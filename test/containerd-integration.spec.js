@@ -223,8 +223,7 @@ describeIfContainerd('containerd integration: ContainerdContainer operations', f
 
   before(() => {
     container = new ContainerdContainer({
-      nerdctlBin: path.join(os.homedir(), '.lando/bin/nerdctl'),
-      socketPath: path.join(os.homedir(), '.lando/run/containerd.sock'),
+      finchSocket: '/run/lando/finch.sock',
       id: 'lando',
     });
   });
@@ -309,7 +308,7 @@ describeIfContainerd('containerd integration: ContainerdContainer operations', f
 // ============================================================================
 describe('containerd integration: NerdctlCompose command generation', () => {
   let nerdctlCompose;
-  const socketPath = '/run/containerd/containerd.sock';
+  const socketPath = '/run/lando/containerd.sock';
 
   before(() => {
     nerdctlCompose = new NerdctlCompose({socketPath});
@@ -331,10 +330,12 @@ describe('containerd integration: NerdctlCompose command generation', () => {
       expect(result).to.have.property('cmd').that.is.an('array');
       expect(result).to.have.property('opts').that.is.an('object');
 
-      // Should start with --address <socket> compose
+      // Should start with --address <socket> --namespace <ns> compose
       expect(result.cmd[0]).to.equal('--address');
       expect(result.cmd[1]).to.equal(socketPath);
-      expect(result.cmd[2]).to.equal('compose');
+      expect(result.cmd[2]).to.equal('--namespace');
+      expect(result.cmd[3]).to.equal('default');
+      expect(result.cmd[4]).to.equal('compose');
 
       // Should contain 'up' somewhere in the command
       expect(result.cmd).to.include('up');
@@ -379,7 +380,9 @@ describe('containerd integration: NerdctlCompose command generation', () => {
       expect(result).to.have.property('cmd').that.is.an('array');
       expect(result.cmd[0]).to.equal('--address');
       expect(result.cmd[1]).to.equal(socketPath);
-      expect(result.cmd[2]).to.equal('compose');
+      expect(result.cmd[2]).to.equal('--namespace');
+      expect(result.cmd[3]).to.equal('default');
+      expect(result.cmd[4]).to.equal('compose');
       expect(result.cmd).to.include('stop');
     });
   });
@@ -394,7 +397,9 @@ describe('containerd integration: NerdctlCompose command generation', () => {
 
       expect(result.cmd[0]).to.equal('--address');
       expect(result.cmd[1]).to.equal(socketPath);
-      expect(result.cmd[2]).to.equal('compose');
+      expect(result.cmd[2]).to.equal('--namespace');
+      expect(result.cmd[3]).to.equal('default');
+      expect(result.cmd[4]).to.equal('compose');
 
       // purge = true → uses 'down'
       expect(result.cmd).to.include('down');
@@ -409,7 +414,9 @@ describe('containerd integration: NerdctlCompose command generation', () => {
 
       expect(result.cmd[0]).to.equal('--address');
       expect(result.cmd[1]).to.equal(socketPath);
-      expect(result.cmd[2]).to.equal('compose');
+      expect(result.cmd[2]).to.equal('--namespace');
+      expect(result.cmd[3]).to.equal('default');
+      expect(result.cmd[4]).to.equal('compose');
 
       // purge = false → uses 'rm'
       expect(result.cmd).to.include('rm');
@@ -446,7 +453,9 @@ describe('containerd integration: NerdctlCompose command generation', () => {
 
       expect(result.cmd[0]).to.equal('--address');
       expect(result.cmd[1]).to.equal(socketPath);
-      expect(result.cmd[2]).to.equal('compose');
+      expect(result.cmd[2]).to.equal('--namespace');
+      expect(result.cmd[3]).to.equal('default');
+      expect(result.cmd[4]).to.equal('compose');
       expect(result.cmd).to.include('build');
     });
   });
@@ -461,7 +470,9 @@ describe('containerd integration: NerdctlCompose command generation', () => {
 
       expect(result.cmd[0]).to.equal('--address');
       expect(result.cmd[1]).to.equal(socketPath);
-      expect(result.cmd[2]).to.equal('compose');
+      expect(result.cmd[2]).to.equal('--namespace');
+      expect(result.cmd[3]).to.equal('default');
+      expect(result.cmd[4]).to.equal('compose');
     });
   });
 
@@ -475,7 +486,9 @@ describe('containerd integration: NerdctlCompose command generation', () => {
 
       expect(result.cmd[0]).to.equal('--address');
       expect(result.cmd[1]).to.equal(socketPath);
-      expect(result.cmd[2]).to.equal('compose');
+      expect(result.cmd[2]).to.equal('--namespace');
+      expect(result.cmd[3]).to.equal('default');
+      expect(result.cmd[4]).to.equal('compose');
       expect(result.cmd).to.include('logs');
     });
   });
@@ -490,7 +503,9 @@ describe('containerd integration: NerdctlCompose command generation', () => {
 
       expect(result.cmd[0]).to.equal('--address');
       expect(result.cmd[1]).to.equal(socketPath);
-      expect(result.cmd[2]).to.equal('compose');
+      expect(result.cmd[2]).to.equal('--namespace');
+      expect(result.cmd[3]).to.equal('default');
+      expect(result.cmd[4]).to.equal('compose');
       expect(result.cmd).to.include('pull');
     });
   });
