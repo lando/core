@@ -133,6 +133,19 @@ describe('containerd integration: BackendManager', () => {
     // composeInstalled is a boolean derived from fs.existsSync(orchestratorBin)
     expect(engine.composeInstalled).to.be.a('boolean');
   });
+
+  it('should mark dockerInstalled false when the containerd binary is missing', () => {
+    const config = stubConfig({
+      engine: 'containerd',
+      containerdBin: '/definitely/missing/containerd',
+    });
+    const {cache, events, log, shell} = stubDeps();
+    const manager = new BackendManager(config, cache, events, log, shell);
+
+    const engine = manager.createEngine('test-id');
+
+    expect(engine.dockerInstalled).to.equal(false);
+  });
 });
 
 // ============================================================================

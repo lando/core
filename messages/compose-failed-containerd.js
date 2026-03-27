@@ -10,5 +10,5 @@ module.exports = message => ({
     'Check that all services in your Landofile are compatible',
     'with the containerd backend.',
   ],
-  url: 'https://docs.lando.dev/config/engine.html',
+  url: 'https://docs.lando.dev/troubleshooting/containerd.html#docker-compose-failed',
 });

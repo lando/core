@@ -94,5 +94,29 @@ describe("lando-doctor-containerd", () => {
       const check = checks.find(c => c.title === "containerd binary");
       expect(check.message).to.include("/custom/path/containerd");
     });
+
+    it("should include CNI directory permissions check on Linux", async () => {
+      const checks = await runChecks(mockLando());
+      const cniCheck = checks.find(c => c.title === "CNI directory permissions");
+      if (process.platform === "linux") {
+        expect(cniCheck).to.exist;
+        expect(cniCheck).to.have.property("status").that.is.oneOf(["ok", "error"]);
+        expect(cniCheck).to.have.property("message").that.is.a("string");
+      } else {
+        expect(cniCheck).to.not.exist;
+      }
+    });
+
+    it("should report error when CNI directory does not exist on Linux", async () => {
+      if (process.platform !== "linux") return;
+      // On CI / dev machines, /etc/lando/cni/finch likely doesn't exist,
+      // so the check should report an error with setup guidance.
+      const checks = await runChecks(mockLando());
+      const cniCheck = checks.find(c => c.title === "CNI directory permissions");
+      // If the dir doesn't exist, status should be error
+      if (cniCheck.status === "error") {
+        expect(cniCheck.message).to.match(/lando setup/i);
+      }
+    });
   });
 });

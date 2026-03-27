@@ -10,5 +10,5 @@ module.exports = () => ({
     'and docker-compose to be installed.',
     'Run "lando setup" to install them.',
   ],
-  url: 'https://docs.lando.dev/config/engine.html',
+  url: 'https://docs.lando.dev/troubleshooting/containerd.html#binaries-not-found',
 });

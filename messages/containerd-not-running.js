@@ -9,5 +9,5 @@ module.exports = () => ({
     'or start it manually if already installed.',
     'Check ~/.lando/logs/containerd.log for details.',
   ],
-  url: 'https://docs.lando.dev/config/engine.html',
+  url: 'https://docs.lando.dev/troubleshooting/containerd.html#containerd-is-not-running',
 });

@@ -40,6 +40,11 @@ describe('finch-daemon-manager', () => {
       const expected = path.join(os.homedir(), '.lando', 'run', 'finch-daemon.pid');
       mgr.pidFile.should.equal(expected);
     });
+
+    it('should set correct default CNI plugin path', () => {
+      const mgr = new FinchDaemonManager({debug: noopDebug});
+      mgr.cniPath.should.equal('/usr/local/lib/lando/cni/bin');
+    });
   });
 
   describe('#constructor custom options', () => {

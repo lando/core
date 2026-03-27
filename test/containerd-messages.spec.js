@@ -1,6 +1,6 @@
 'use strict';
 
-const {expect} = require('chai');
+const {expect} = require('chai'); // eslint-disable-line
 
 const validTypes = ['error', 'warning', 'tip'];
 

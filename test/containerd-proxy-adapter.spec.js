@@ -145,15 +145,27 @@ describe('ContainerdProxyAdapter', () => {
 
 describe('app-add-proxy-2-landonet hook (containerd compat)', () => {
   let hook;
+  // Pre-require modules that use fs so mock-fs doesn't intercept their loading
+  const bluebird = require('bluebird');
 
   before(() => {
+    // Pre-require the hook (and its transitive deps) before any mock-fs calls
     hook = require('../hooks/app-add-proxy-2-landonet');
+  });
+
+  afterEach(() => {
+    mockFs.restore();
   });
 
   it('should not bail early for containerd backend', async () => {
     // The hook should attempt to find the proxy container even with containerd.
     // It will bail because the container doesn't exist, but it should NOT
     // return immediately due to engineBackend === 'containerd'.
+    //
+    // Mock the CNI directory so ensureCniNetwork() can write conflist files
+    // without requiring real root-owned /etc/lando/cni/finch permissions.
+    mockFs({'/etc/lando/cni/finch': {}});
+
     const mockApp = {
       config: {proxy: []},
       log: {debug: sinon.spy()},
@@ -174,7 +186,7 @@ describe('app-add-proxy-2-landonet hook (containerd compat)', () => {
         exists: existsSpy,
       },
       log: {debug: sinon.spy()},
-      Promise: require('bluebird'),
+      Promise: bluebird,
     };
 
     await hook(mockApp, mockLando);

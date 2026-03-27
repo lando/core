@@ -23,6 +23,7 @@ Status of production-readiness tasks. Completed tasks are listed briefly for ref
   - `test/containerd-proxy-adapter.spec.js` (new) — 14 tests covering proxy-adapter and hook changes
   - **Verified:** finch-daemon passes all Traefik compat checks (ping, events API, label format)
   - **Known caveats:** End-to-end `lando start` blocked by Docker Desktop WSL proxy (ports 80/443) and CNI dir permissions (pre-existing issues, not Task 28 specific)
+- **Task 33:** CNI directory permissions — `lando setup` now sets group-writable perms on `/etc/cni/net.d/finch`; doctor checks CNI dir; fixed proxy-adapter test
 - **Task 32:** Fix BRIEF violations — removed nerdctl shellouts from user-facing code:
   - `hooks/lando-doctor-containerd.js` — removed nerdctl binary check, added docker-compose check
   - `messages/nerdctl-not-found.js` → renamed to `containerd-binaries-not-found.js`
@@ -35,13 +36,20 @@ Status of production-readiness tasks. Completed tasks are listed briefly for ref
 
 ## Remaining Work
 
-### Task 30 (partial): Missing troubleshooting doc
+No remaining tasks. All production-readiness tasks are complete.
 
-**Goal:** Create the troubleshooting documentation.
+---
 
-**Details:**
-- All 8 error message modules exist in `messages/`
-- Missing: `docs/troubleshooting/containerd.md`
+## Recently Completed
 
-**Files to create:**
-- `docs/troubleshooting/containerd.md`
+- **Task 33:** CNI directory permissions — fix EACCES blocker for user-land `ensureCniNetwork()`
+  - `hooks/lando-setup-containerd-engine.js` — setup task now runs `chgrp lando` + `chmod g+w` on `/etc/cni/net.d/finch` after creating it
+  - Systemd `ExecStartPre` updated to enforce CNI dir permissions on every service start (survives package updates, manual resets)
+  - `hasRun` check updated to detect missing CNI permissions (re-running `lando setup` will trigger the fix on existing installs)
+  - `hooks/lando-doctor-containerd.js` — added CNI directory permissions check (reports error if dir missing or not group-writable)
+  - `test/lando-doctor-containerd.spec.js` — added 2 tests for CNI permission check
+  - `test/containerd-proxy-adapter.spec.js` — fixed pre-existing test failure (added mock-fs for CNI directory in `app-add-proxy-2-landonet` hook test)
+- **Task 30:** Troubleshooting documentation — `docs/troubleshooting/containerd.md`
+  - Covers all 10 error scenarios from message modules
+  - Sections: quick diagnostics, containerd/buildkitd/finch-daemon not running, binaries not found, permission denied, socket conflict, compose failures, component updates, macOS Lima issues, CNI networking, logs reference
+  - Updated 7 message modules (`containerd-not-running`, `containerd-socket-conflict`, `containerd-binaries-not-found`, `containerd-permission-denied`, `compose-failed-containerd`, `buildkitd-not-running`, `finch-daemon-not-running`) to link to the new troubleshooting page instead of the generic engine config page

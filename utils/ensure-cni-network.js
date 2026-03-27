@@ -14,12 +14,12 @@ const crypto = require('crypto');
  *
  * @param {string} networkName - The network name (e.g. 'containerdtest_default').
  * @param {Object} [opts={}] - Options.
- * @param {string} [opts.cniNetconfPath='/etc/cni/net.d/finch'] - CNI config directory.
+ * @param {string} [opts.cniNetconfPath='/etc/lando/cni/finch'] - CNI config directory.
  * @param {Function} [opts.debug] - Debug logging function.
  * @returns {boolean} true if a conflist was created, false if it already existed.
  */
 module.exports = (networkName, opts = {}) => {
-  const cniNetconfPath = opts.cniNetconfPath || '/etc/cni/net.d/finch';
+  const cniNetconfPath = opts.cniNetconfPath || '/etc/lando/cni/finch';
   const debug = opts.debug || (() => {});
   const conflistPath = path.join(cniNetconfPath, `nerdctl-${networkName}.conflist`);
 

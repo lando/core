@@ -20,6 +20,8 @@ module.exports = async (lando, options) => {
   const binDir = path.join(userConfRoot, "bin");
   const runDir = path.join(userConfRoot, "run");
   const configDir = path.join(userConfRoot, "config");
+  const cniBinDir = lando.config.cniBinDir || "/usr/local/lib/lando/cni/bin";
+  const cniConfDir = lando.config.cniNetconfPath || "/etc/lando/cni/finch";
 
   // System-level binary directory for root-owned binaries
   const systemBinDir = lando.config.containerdSystemBinDir || "/usr/local/lib/lando/bin";
@@ -28,10 +30,63 @@ module.exports = async (lando, options) => {
   const containerdPaths = getContainerdPaths(lando.config);
   const socketPath = containerdPaths.containerdSocket;
 
+  const ensurePassword = async (ctx, task, message) => {
+    if (ctx.password !== undefined || !lando.config.isInteractive) return;
+
+    ctx.password = await task.prompt({
+      type: "password",
+      name: "password",
+      message,
+      validate: async input => {
+        const opts = {debug, ignoreReturnCode: true, password: input};
+        const response = await require("../utils/run-elevated")(["echo", "hello there"], opts);
+        if (response.code !== 0) return response.stderr;
+        return true;
+      },
+    });
+  };
+
   // =========================================================================
   // Root-owned binaries: containerd, containerd-shim-runc-v2, runc, buildkitd, buildctl
   // These get downloaded to temp, then `sudo cp` to /usr/local/lib/lando/bin/
   // =========================================================================
+
+  options.tasks.push({
+    title: "Authorizing elevated access",
+    id: "setup-containerd-elevated-access",
+    description: "@lando/containerd authorization",
+    version: "elevated access",
+    hidden: true,
+    comments: {
+      "NOT INSTALLED": "Will prompt for sudo password before downloads",
+    },
+    hasRun: async () => {
+      if (!lando.config.isInteractive) return true;
+
+      const serviceFile = "/etc/systemd/system/lando-containerd.service";
+      const shimBin = path.join(systemBinDir, "containerd-shim-runc-v2");
+      const buildctlBin = path.join(systemBinDir, "buildctl");
+
+      return fs.existsSync(path.join(systemBinDir, "containerd"))
+        && fs.existsSync(shimBin)
+        && fs.existsSync(path.join(systemBinDir, "runc"))
+        && fs.existsSync(path.join(systemBinDir, "buildkitd"))
+        && fs.existsSync(buildctlBin)
+        && fs.existsSync(path.join(systemBinDir, "finch-daemon"))
+        && fs.existsSync(path.join(binDir, "nerdctl"))
+        && fs.existsSync(path.join(cniBinDir, "bridge"))
+        && fs.existsSync(serviceFile);
+    },
+    canRun: async () => process.platform === "linux",
+    task: async (ctx, task) => {
+      await ensurePassword(
+        ctx,
+        task,
+        `Enter computer password for ${lando.config.username} to set up the containerd engine`,
+      );
+      task.title = "Authorized elevated access";
+    },
+  });
 
   // Binary definitions for root-owned binaries (installed to systemBinDir via sudo)
   const rootBinaries = [
@@ -48,7 +103,7 @@ module.exports = async (lando, options) => {
       bin: lando.config.buildkitdBin || path.join(systemBinDir, "buildkitd"),
       version: "0.18.2",
       tarballEntries: ["bin/buildkitd", "bin/buildctl"],
-      dependsOn: ["setup-containerd"],
+      dependsOn: ["setup-containerd", "setup-containerd-elevated-access"],
     },
     {
       name: "finch-daemon",
@@ -96,20 +151,7 @@ module.exports = async (lando, options) => {
         });
       });
 
-      // Prompt for password if interactive and we don't have it
-      if (ctx.password === undefined && lando.config.isInteractive) {
-        ctx.password = await task.prompt({
-          type: "password",
-          name: "password",
-          message: `Enter computer password for ${lando.config.username} to install runc`,
-          validate: async input => {
-            const opts = {debug, ignoreReturnCode: true, password: input};
-            const response = await require("../utils/run-elevated")(["echo", "hello there"], opts);
-            if (response.code !== 0) return response.stderr;
-            return true;
-          },
-        });
-      }
+      await ensurePassword(ctx, task, `Enter computer password for ${lando.config.username} to install runc`);
 
       // sudo cp to system bin dir
       task.title = "Installing runc to system...";
@@ -179,20 +221,7 @@ module.exports = async (lando, options) => {
           {stdio: "pipe"},
         );
 
-        // Prompt for password if interactive and we don't have it
-        if (ctx.password === undefined && lando.config.isInteractive) {
-          ctx.password = await task.prompt({
-            type: "password",
-            name: "password",
-            message: `Enter computer password for ${lando.config.username} to install ${binary.name}`,
-            validate: async input => {
-              const opts = {debug, ignoreReturnCode: true, password: input};
-              const response = await require("../utils/run-elevated")(["echo", "hello there"], opts);
-              if (response.code !== 0) return response.stderr;
-              return true;
-            },
-          });
-        }
+        await ensurePassword(ctx, task, `Enter computer password for ${lando.config.username} to install ${binary.name}`);
 
         // sudo cp extracted files to system bin dir
         task.title = `Installing ${binary.name} to system...`;
@@ -221,7 +250,7 @@ module.exports = async (lando, options) => {
       },
     };
 
-    if (binary.dependsOn) task.dependsOn = binary.dependsOn;
+    task.dependsOn = [...(binary.dependsOn || []), "setup-containerd-elevated-access"];
     options.tasks.push(task);
   }
 
@@ -233,6 +262,61 @@ module.exports = async (lando, options) => {
   const nerdctlVersion = "2.0.5";
   const nerdctlBin = lando.config.nerdctlBin || path.join(binDir, "nerdctl");
   const nerdctlUrl = getUrl("nerdctl", {version: nerdctlVersion});
+
+  const cniPluginsVersion = "1.6.2";
+  const cniPluginsArch = process.arch === "arm64" ? "arm64" : "amd64";
+  const cniPluginsUrl = `https://github.com/containernetworking/plugins/releases/download/v${cniPluginsVersion}/cni-plugins-linux-${cniPluginsArch}-v${cniPluginsVersion}.tgz`;
+
+  options.tasks.push({
+    title: "Installing CNI plugins",
+    id: "setup-cni-plugins",
+    description: "@lando/cni-plugins (containerd engine)",
+    version: `cni-plugins v${cniPluginsVersion}`,
+    hasRun: async () => fs.existsSync(path.join(cniBinDir, "bridge")),
+    canRun: async () => {
+      await axios.head(cniPluginsUrl);
+      return true;
+    },
+    dependsOn: ["setup-containerd", "setup-containerd-elevated-access"],
+    task: async (ctx, task) => {
+      const tmpDir = path.join(os.tmpdir(), `lando-cni-plugins-${Date.now()}`);
+      fs.mkdirSync(tmpDir, {recursive: true});
+
+      await new Promise((resolve, reject) => {
+        const download = require("../utils/download-x")(cniPluginsUrl, {
+          debug,
+          dest: path.join(tmpDir, "cni-plugins.tgz"),
+        });
+        download.on("done", resolve);
+        download.on("error", reject);
+        download.on("progress", progress => {
+          task.title = `Downloading CNI plugins ${color.dim(`[${progress.percentage}%]`)}`;
+        });
+      });
+
+      task.title = "Extracting CNI plugins...";
+      const {execSync} = require("child_process");
+      execSync(
+        `tar -xzf "${path.join(tmpDir, "cni-plugins.tgz")}" -C "${tmpDir}"`,
+        {stdio: "pipe"},
+      );
+
+      await ensurePassword(ctx, task, `Enter computer password for ${lando.config.username} to install CNI plugins`);
+
+      task.title = "Installing CNI plugins to system...";
+      await require("../utils/run-elevated")(
+        ["mkdir", "-p", cniBinDir],
+        {debug, password: ctx.password},
+      );
+      await require("../utils/run-elevated")(
+        ["bash", "-c", `for file in \"${tmpDir}\"/*; do [ -f \"$file\" ] && [ -x \"$file\" ] && cp \"$file\" \"${cniBinDir}\"/; done; chmod 755 \"${cniBinDir}\"/*`],
+        {debug, password: ctx.password},
+      );
+
+      fs.rmSync(tmpDir, {recursive: true, force: true});
+      task.title = `Installed CNI plugins to ${cniBinDir}`;
+    },
+  });
 
   options.tasks.push({
     title: "Installing nerdctl",
@@ -294,7 +378,7 @@ module.exports = async (lando, options) => {
     id: "setup-containerd-service",
     description: "@lando/containerd-service (systemd)",
     version: "containerd service v1.0.0",
-    dependsOn: ["setup-containerd", "setup-runc", "setup-buildkitd", "setup-finch-daemon"],
+    dependsOn: ["setup-containerd", "setup-runc", "setup-buildkitd", "setup-finch-daemon", "setup-nerdctl", "setup-cni-plugins"],
     hasRun: async () => {
       // Check if the systemd service exists, is enabled, AND finch-daemon socket is present
       try {
@@ -309,6 +393,16 @@ module.exports = async (lando, options) => {
         const serviceContents = fs.readFileSync(serviceFile, 'utf8');
         if (!serviceContents.includes('buildkitd --config')) return false;
         if (!serviceContents.includes(containerdPaths.buildkitSocket)) return false;
+        if (!serviceContents.includes(cniBinDir)) return false;
+        // Ensure CNI directory has lando group write permissions — without this,
+        // ensureCniNetwork() hits EACCES at runtime. Also verify the service file
+        // includes the ExecStartPre fix so permissions are maintained across restarts.
+        if (!serviceContents.includes(`chgrp lando ${cniConfDir}`)) return false;
+        if (!fs.existsSync(path.join(cniBinDir, 'bridge'))) return false;
+        try {
+          const cniStats = fs.statSync(cniConfDir);
+          if ((cniStats.mode & 0o020) === 0) return false;
+        } catch { return false; }
         if (!fs.existsSync("/run/lando/finch.sock") || !fs.existsSync("/run/lando/containerd.sock")) return false;
         if (!fs.existsSync(path.join(configDir, "finch-daemon.toml"))) return false;
         return fs.existsSync(path.join(configDir, "buildkitd.toml"));
@@ -322,20 +416,7 @@ module.exports = async (lando, options) => {
       return true;
     },
     task: async (ctx, task) => {
-      // Prompt for password if interactive and we don't have it
-      if (ctx.password === undefined && lando.config.isInteractive) {
-        ctx.password = await task.prompt({
-          type: "password",
-          name: "password",
-          message: `Enter computer password for ${lando.config.username} to configure containerd service`,
-          validate: async input => {
-            const opts = {debug, ignoreReturnCode: true, password: input};
-            const response = await require("../utils/run-elevated")(["echo", "hello there"], opts);
-            if (response.code !== 0) return response.stderr;
-            return true;
-          },
-        });
-      }
+      await ensurePassword(ctx, task, `Enter computer password for ${lando.config.username} to configure containerd service`);
 
       const homeDir = os.homedir();
       const username = lando.config.username || os.userInfo().username;
@@ -384,11 +465,11 @@ module.exports = async (lando, options) => {
         cacheDir: buildkitCacheDir,
         debug: false,
       }), 'utf8');
-      fs.writeFileSync(nerdctlConfigPath, getNerdctlConfig({containerdSocket: socketPath}), 'utf8');
+      fs.writeFileSync(nerdctlConfigPath, getNerdctlConfig({containerdSocket: socketPath, cniPath: cniBinDir}), 'utf8');
 
       // 4. Create finch-daemon config so it talks to Lando's isolated containerd socket
       const finchConfigPath = path.join(configDir, 'finch-daemon.toml');
-      fs.writeFileSync(finchConfigPath, getNerdctlConfig({containerdSocket: socketPath}), 'utf8');
+      fs.writeFileSync(finchConfigPath, getNerdctlConfig({containerdSocket: socketPath, cniPath: cniBinDir}), 'utf8');
 
       // 5. Create systemd service file
       task.title = "Creating systemd service...";
@@ -404,7 +485,7 @@ module.exports = async (lando, options) => {
         "[Service]",
         "Type=simple",
         "RuntimeDirectory=lando",
-        `ExecStartPre=/bin/sh -c "mkdir -p /etc/cni/net.d/finch /opt/cni/bin 2>/dev/null || true; [ -d /usr/lib/cni ] && ln -sf /usr/lib/cni/* /opt/cni/bin/ 2>/dev/null || true"`,
+        `ExecStartPre=/bin/sh -c "mkdir -p ${cniConfDir} ${cniBinDir} 2>/dev/null || true; chgrp lando ${cniConfDir} 2>/dev/null || true; chmod g+w ${cniConfDir} 2>/dev/null || true"`,
         `Environment=PATH=${systemBinDir}:/usr/sbin:/usr/bin:/sbin:/bin`,
         `Environment=CONTAINERD_ADDRESS=${socketPath}`,
         `ExecStart=${systemBinDir}/containerd --config ${configPath}`,
@@ -435,10 +516,20 @@ module.exports = async (lando, options) => {
       // Ensure ~/.lando/run/ still exists for PID files
       fs.mkdirSync(runDir, {recursive: true});
 
-      // 6. Create CNI directories needed by finch-daemon/nerdctl networking
+      // 6. Create CNI directories and set group-writable permissions for lando group
+      // Without this, ensureCniNetwork() hits EACCES when called from user-land
       task.title = "Creating CNI directories...";
       await require("../utils/run-elevated")(
-        ["bash", "-c", "mkdir -p /etc/cni/net.d/finch /opt/cni/bin"],
+        ["bash", "-c", `mkdir -p \"${cniConfDir}\" \"${cniBinDir}\"`],
+        {debug, password: ctx.password},
+      );
+      task.title = "Setting CNI directory permissions...";
+      await require("../utils/run-elevated")(
+        ["chgrp", "lando", cniConfDir],
+        {debug, password: ctx.password},
+      );
+      await require("../utils/run-elevated")(
+        ["chmod", "g+w", cniConfDir],
         {debug, password: ctx.password},
       );
 

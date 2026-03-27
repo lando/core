@@ -9,5 +9,5 @@ module.exports = () => ({
     'or run with sudo.',
     'Check ~/.lando/logs/containerd.log for permission errors.',
   ],
-  url: 'https://docs.lando.dev/config/engine.html',
+  url: 'https://docs.lando.dev/troubleshooting/containerd.html#permission-denied',
 });

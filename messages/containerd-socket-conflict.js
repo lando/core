@@ -10,5 +10,5 @@ module.exports = () => ({
     'If problems persist, stop any other containerd instances',
     'or check for stale socket files.',
   ],
-  url: 'https://docs.lando.dev/config/engine.html',
+  url: 'https://docs.lando.dev/troubleshooting/containerd.html#socket-conflict',
 });

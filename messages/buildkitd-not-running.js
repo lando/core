@@ -9,5 +9,5 @@ module.exports = () => ({
     'Try running "lando setup" to restart it,',
     'or check ~/.lando/logs/buildkitd.log for errors.',
   ],
-  url: 'https://docs.lando.dev/config/engine.html',
+  url: 'https://docs.lando.dev/troubleshooting/containerd.html#buildkit-daemon-is-not-running',
 });

@@ -6,6 +6,7 @@ const os = require("os");
 const path = require("path");
 
 const getContainerdPaths = require('../utils/get-containerd-paths');
+const getComposeX = require('../utils/get-compose-x');
 
 /**
  * Check whether a binary exists — either as an absolute path or on $PATH.
@@ -39,16 +40,20 @@ const runChecks = async (lando) => {
   const checks = [];
   const userConfRoot = lando.config.userConfRoot || path.join(os.homedir(), ".lando");
   const binDir = path.join(userConfRoot, "bin");
+  const systemBinDir = lando.config.containerdSystemBinDir || '/usr/local/lib/lando/bin';
   const paths = getContainerdPaths(lando.config);
+  const orchestratorBin = lando.config.orchestratorBin
+    || getComposeX({...lando.config, userConfRoot})
+    || 'docker-compose';
 
   // Per BRIEF: nerdctl is only used internally by OCI runtime hooks (invoked
   // as root by systemd). It is NOT a user-facing dependency, so we don't
   // check for it here.
   const bins = {
-    containerd: lando.config.containerdBin || path.join(binDir, "containerd"),
-    buildkitd: lando.config.buildkitdBin || path.join(binDir, "buildkitd"),
-    "finch-daemon": lando.config.finchDaemonBin || path.join(binDir, "finch-daemon"),
-    "docker-compose": lando.config.orchestratorBin || "docker-compose",
+    containerd: lando.config.containerdBin || path.join(systemBinDir, "containerd"),
+    buildkitd: lando.config.buildkitdBin || path.join(systemBinDir, "buildkitd"),
+    "finch-daemon": lando.config.finchDaemonBin || path.join(systemBinDir, "finch-daemon"),
+    "docker-compose": orchestratorBin,
   };
 
   const sockets = {
@@ -75,6 +80,35 @@ const runChecks = async (lando) => {
       status: exists ? "ok" : "warning",
       message: exists ? `Socket active at ${socketPath}` : `Socket not found at ${socketPath}. Daemon may not be running.`,
     });
+  }
+
+  // Check CNI directory permissions on Linux/WSL-native installs only.
+  // macOS uses Lima, so the host should not have this Linux CNI path.
+  if (process.platform === 'linux') {
+    const cniDir = '/etc/lando/cni/finch';
+    try {
+      const cniStats = fs.statSync(cniDir);
+      const isGroupWritable = (cniStats.mode & 0o020) !== 0;
+      if (isGroupWritable) {
+        checks.push({
+          title: 'CNI directory permissions',
+          status: 'ok',
+          message: `${cniDir} is group-writable`,
+        });
+      } else {
+        checks.push({
+          title: 'CNI directory permissions',
+          status: 'error',
+          message: `${cniDir} is not group-writable. Run "lando setup" to fix permissions.`,
+        });
+      }
+    } catch {
+      checks.push({
+        title: 'CNI directory permissions',
+        status: 'error',
+        message: `${cniDir} does not exist. Run "lando setup" to create it.`,
+      });
+    }
   }
 
   // Check finch-daemon connectivity via Dockerode (Docker API)

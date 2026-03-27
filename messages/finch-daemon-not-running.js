@@ -9,5 +9,5 @@ module.exports = () => ({
     'Try running "lando setup" or restarting Lando.',
     'Check ~/.lando/logs/finch-daemon.log for errors.',
   ],
-  url: 'https://docs.lando.dev/config/engine.html',
+  url: 'https://docs.lando.dev/troubleshooting/containerd.html#finch-daemon-is-not-running',
 });
