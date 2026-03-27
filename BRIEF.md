@@ -171,11 +171,10 @@ If the service isn't active → throw an error telling the user to run `lando se
 - Container creation and network creation (no sudo)
 - Container start with `CONTAINERD_ADDRESS` env var for OCI hooks
 - `lando destroy` (no sudo)
+- CNI network config bridging — all compose-defined networks get CNI conflist files pre-created before docker-compose up (covers `_default`, custom named networks, proxy networks, etc.)
 
 ### In Progress 🔧
-- CNI network config bridging (finch-daemon doesn't create CNI configs via Docker API; OCI hooks need them)
-- Full `lando start` → running container end-to-end flow
-- Container networking (compose-created networks need CNI conflist files)
+- Full `lando start` → running container end-to-end flow (CNI bridging now complete; remaining blockers are Docker Desktop WSL proxy binding ports 80/443 and end-to-end integration testing)
 
 ### Not Started 📋
 - macOS support (Lima VM integration exists but untested with new architecture)
@@ -185,6 +184,7 @@ If the service isn't active → throw an error telling the user to run `lando se
 - Installer/packaging updates to bundle containerd stack
 
 ### Recently Completed
+- **Task 34: Comprehensive CNI network config bridging** — Created `utils/ensure-compose-cni-networks.js` to parse compose YAML files and pre-create CNI conflist files for ALL non-external networks before docker-compose up. Updated `lib/backend-manager.js` compose wrapper to use this instead of single-network `ensureCniNetwork()`. Previously only `${project}_default` got a CNI config; now custom networks (e.g. `frontend`, `backend`, proxy `edge`) are covered. 17 new tests in `test/ensure-compose-cni-networks.spec.js`. This resolves the "compose-created networks need CNI conflist files" item from the In Progress list.
 - **Task 33: CNI directory permissions** — Fixed the EACCES blocker: `lando setup` now sets `chgrp lando` + `chmod g+w` on `/etc/cni/net.d/finch` so `ensureCniNetwork()` can write conflist files from user-land without sudo. Permissions are also enforced on every systemd service start via `ExecStartPre`. The `hasRun` check detects missing permissions so re-running `lando setup` will fix existing installs. Added CNI directory permission check to `lando doctor`. Fixed pre-existing test failure in `containerd-proxy-adapter.spec.js` (missing mock-fs for CNI directory).
 - **Task 30: Troubleshooting documentation** — Created `docs/troubleshooting/containerd.md` covering all 10 error scenarios. Updated 7 message modules to link to specific troubleshooting sections instead of the generic engine config page.
 - **Task 28: Proxy (Traefik) compatibility** — Traefik proxy now works with containerd backend via finch-daemon's Docker API. Created `proxy-adapter.js` for CNI pre-creation and compatibility checks. Fixed `app-add-proxy-2-landonet.js` to no longer skip containerd (uses Dockerode-compatible getNetwork). Updated `app-start-proxy.js` to ensure proxy CNI networks. finch-daemon verified compatible: ping, events API, and label format all pass. See `docs/dev/containerd-proxy-design.md`. **Known caveat:** end-to-end test blocked by Docker Desktop's WSL proxy binding ports 80/443.

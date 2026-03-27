@@ -42,6 +42,12 @@ No remaining tasks. All production-readiness tasks are complete.
 
 ## Recently Completed
 
+- **Task 34:** Comprehensive CNI network config bridging for all compose-defined networks
+  - `utils/ensure-compose-cni-networks.js` (new) — Parses compose YAML files and pre-creates CNI conflist files for ALL non-external networks, not just `_default`. Resolves docker-compose-style network names (explicit `name:` property or `${project}_${networkName}` convention). Handles multiple compose files with merge semantics matching docker-compose behavior.
+  - `lib/backend-manager.js` — Updated containerd compose wrapper to use `ensureComposeCniNetworks()` instead of single-network `ensureCniNetwork()`. Now ensures CNI configs for the implicit `_default` network PLUS any explicitly defined networks (custom bridge networks, proxy edge networks, etc.) before docker-compose up.
+  - `test/ensure-compose-cni-networks.spec.js` (new) — 17 tests covering: default network handling, custom network extraction, explicit `name:` resolution, external network skipping (both `external: true` and compose v2 object syntax), multiple compose file merging, proxy network scenario, deduplication, error handling (missing files, invalid YAML), and CNI conflist content validation (unique subnet allocation).
+  - **Fixes the core blocker:** Previously, only `${project}_default` got a CNI conflist in the compose wrapper. Custom networks defined in compose files (e.g. `frontend`, `backend`, proxy `edge`) would fail at container start because the nerdctl OCI hook couldn't find their CNI configs. Now all compose-defined networks are covered.
+
 - **Task 33:** CNI directory permissions — fix EACCES blocker for user-land `ensureCniNetwork()`
   - `hooks/lando-setup-containerd-engine.js` — setup task now runs `chgrp lando` + `chmod g+w` on `/etc/cni/net.d/finch` after creating it
   - Systemd `ExecStartPre` updated to enforce CNI dir permissions on every service start (survives package updates, manual resets)
