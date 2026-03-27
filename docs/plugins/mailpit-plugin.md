@@ -3,7 +3,7 @@ title: Mailpit Plugin
 description: This plugin allows you to use Mailpit with your Lando app.
 link: https://docs.lando.dev/plugins/mailpit
 source: https://github.com/lando/mailpit
-image: https://docs.lando.dev/mailpit/images/mailpiticon.png
+image: /images/mailpit.png
 maintainers:
   - name: Team Lando
     avatar: /images/icon.svg
@@ -17,4 +17,3 @@ tags:
   - official
   - dev tool
 ---
-
