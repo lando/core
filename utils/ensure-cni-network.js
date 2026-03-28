@@ -10,9 +10,16 @@ const crypto = require('crypto');
  *
  * Plugin chain:
  * - bridge: Creates Linux bridge, assigns IP via IPAM, enables MASQUERADE
- * - portmap: Maps container ports to host ports (capabilities-based)
  * - firewall: Manages iptables FORWARD rules for container traffic
  * - tuning: Allows sysctl and interface tuning on the container veth
+ *
+ * NOTE: portmap was previously included but is removed because:
+ * 1. The CNI portmap plugin rejects HostPort:0 (random port), which Docker
+ *    handles via its own port allocator before container start. In the
+ *    containerd path, nerdctl's OCI hook passes HostPort:0 directly to
+ *    portmap, which fails with "Invalid host port number: 0".
+ * 2. Lando uses Traefik proxy for HTTP port routing, not CNI-level port
+ *    publishing. Port mappings in docker-compose are handled by the proxy.
  *
  * NOTE: tc-redirect-tap was previously included but is NOT installed by
  * `lando setup` (it's from github.com/awslabs/tc-redirect-tap, not
@@ -21,7 +28,7 @@ const crypto = require('crypto');
  *
  * @type {string[]}
  */
-const EXPECTED_PLUGIN_TYPES = ['bridge', 'portmap', 'firewall', 'tuning'];
+const EXPECTED_PLUGIN_TYPES = ['bridge', 'firewall', 'tuning'];
 
 /**
  * Build the standard CNI plugin array for a Lando network conflist.
@@ -42,10 +49,6 @@ const buildPlugins = (bridgeName, subnet) => [
       routes: [{dst: '0.0.0.0/0'}],
       type: 'host-local',
     },
-  },
-  {
-    type: 'portmap',
-    capabilities: {portMappings: true},
   },
   {
     type: 'firewall',

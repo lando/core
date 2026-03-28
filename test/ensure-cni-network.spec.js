@@ -80,7 +80,7 @@ describe('ensure-cni-network', () => {
       expect(content).to.have.property('plugins').that.is.an('array');
     });
 
-    it('should include bridge, portmap, firewall, and tuning plugins', () => {
+    it('should include bridge, firewall, and tuning plugins', () => {
       mockFs({[cniDir]: {}});
 
       ensureCniNetwork('testnet', {cniNetconfPath: cniDir});
@@ -89,20 +89,19 @@ describe('ensure-cni-network', () => {
       const content = JSON.parse(fs.readFileSync(conflistPath, 'utf8'));
       const pluginTypes = content.plugins.map(p => p.type);
 
-      expect(pluginTypes).to.deep.equal(['bridge', 'portmap', 'firewall', 'tuning']);
+      expect(pluginTypes).to.deep.equal(['bridge', 'firewall', 'tuning']);
     });
 
-    it('should configure portmap plugin with port mapping capabilities', () => {
+    it('should NOT include portmap plugin', () => {
       mockFs({[cniDir]: {}});
 
       ensureCniNetwork('testnet', {cniNetconfPath: cniDir});
 
       const conflistPath = path.join(cniDir, 'nerdctl-testnet.conflist');
       const content = JSON.parse(fs.readFileSync(conflistPath, 'utf8'));
-      const portmap = content.plugins.find(p => p.type === 'portmap');
+      const pluginTypes = content.plugins.map(p => p.type);
 
-      expect(portmap).to.exist;
-      expect(portmap.capabilities).to.deep.equal({portMappings: true});
+      expect(pluginTypes).to.not.include('portmap');
     });
 
     it('should NOT include tc-redirect-tap plugin', () => {
@@ -452,7 +451,7 @@ describe('ensure-cni-network', () => {
         fs.readFileSync(path.join(cniDir, 'nerdctl-myapp_default.conflist'), 'utf8'),
       );
       const pluginTypes = updated.plugins.map(p => p.type);
-      expect(pluginTypes).to.deep.equal(['bridge', 'portmap', 'firewall', 'tuning']);
+      expect(pluginTypes).to.deep.equal(['bridge', 'firewall', 'tuning']);
     });
 
     it('should preserve subnet during migration', () => {
@@ -586,7 +585,7 @@ describe('ensure-cni-network', () => {
       expect(result).to.be.false;
     });
 
-    it('should migrate conflist missing portmap and tuning plugins', () => {
+    it('should migrate conflist missing tuning plugin', () => {
       const oldConflist = {
         cniVersion: '1.0.0',
         name: 'myapp_default',
@@ -622,7 +621,7 @@ describe('ensure-cni-network', () => {
         fs.readFileSync(path.join(cniDir, 'nerdctl-myapp_default.conflist'), 'utf8'),
       );
       const pluginTypes = updated.plugins.map(p => p.type);
-      expect(pluginTypes).to.deep.equal(['bridge', 'portmap', 'firewall', 'tuning']);
+      expect(pluginTypes).to.deep.equal(['bridge', 'firewall', 'tuning']);
     });
 
     it('should log debug message during migration', () => {

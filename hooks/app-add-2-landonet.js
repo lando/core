@@ -91,7 +91,13 @@ const updateHosts = async (lando, target, entries) => {
 
   return new Promise((resolve, reject) => {
     let stderr = '';
-    stream.on('data', () => {}); // drain stdout
+    stream.on('data', chunk => {
+      // Docker multiplexed stream: 8-byte header [type, 0, 0, 0, size(4)]
+      // type 1 = stdout, type 2 = stderr
+      if (chunk.length > 8 && chunk[0] === 2) {
+        stderr += chunk.slice(8).toString();
+      }
+    });
     stream.on('error', reject);
     stream.on('end', async () => {
       try {

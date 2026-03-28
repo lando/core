@@ -65,10 +65,37 @@ LANDO_ENGINE=containerd lando list | grep landocontainerd
 # Should serve content from the web service
 curl -s "$(LANDO_ENGINE=containerd lando info -s web --format json | grep -o 'http://[^"]*' | head -1)" | grep "CONTAINERD WORKS"
 
+# Should serve content from the web2 service (multi-container verification)
+curl -s "$(LANDO_ENGINE=containerd lando info -s web2 --format json | grep -o 'http://[^"]*' | head -1)" | grep "CONTAINERD WORKS"
+
+# Should list both web and web2 services
+LANDO_ENGINE=containerd lando list | grep web2
+
+# Should be able to run commands inside web2 container
+LANDO_ENGINE=containerd lando exec web2 -- cat /usr/share/nginx/html/index.html | grep "CONTAINERD WORKS"
+
+# Should have inter-container DNS aliases in web hosts file
+LANDO_ENGINE=containerd lando exec web -- cat /etc/hosts | grep "web2.landocontainerd.internal"
+
+# Should have inter-container DNS aliases in web2 hosts file
+LANDO_ENGINE=containerd lando exec web2 -- cat /etc/hosts | grep "web.landocontainerd.internal"
+
+# Should have container IPs on the same CNI subnet
+LANDO_ENGINE=containerd lando exec web -- cat /etc/hosts | grep "10\.4\."
+LANDO_ENGINE=containerd lando exec web2 -- cat /etc/hosts | grep "10\.4\."
+
 # Should be able to stop and restart cleanly
 LANDO_ENGINE=containerd lando stop
 LANDO_ENGINE=containerd lando start
 LANDO_ENGINE=containerd lando list | grep landocontainerd
+
+# Should retain inter-container DNS aliases after restart
+LANDO_ENGINE=containerd lando exec web -- cat /etc/hosts | grep "web2.landocontainerd.internal"
+LANDO_ENGINE=containerd lando exec web2 -- cat /etc/hosts | grep "web.landocontainerd.internal"
+
+# Should serve content from both services after restart
+curl -s "$(LANDO_ENGINE=containerd lando info -s web --format json | grep -o 'http://[^"]*' | head -1)" | grep "CONTAINERD WORKS"
+curl -s "$(LANDO_ENGINE=containerd lando info -s web2 --format json | grep -o 'http://[^"]*' | head -1)" | grep "CONTAINERD WORKS"
 
 # Should be able to run commands inside containers
 LANDO_ENGINE=containerd lando exec web -- cat /usr/share/nginx/html/index.html | grep "CONTAINERD WORKS"

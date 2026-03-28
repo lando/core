@@ -109,10 +109,14 @@ describe('containerd compose start: env injection', () => {
 
     await compose('start', datum);
 
-    sinon.assert.calledOnce(shell.sh);
-    const [, opts] = shell.sh.firstCall.args;
-    expect(opts.env).to.have.property('DOCKER_HOST');
-    expect(opts.env.DOCKER_HOST).to.match(/^unix:\/\/.*finch\.sock$/);
+    // Two-phase start: shell.sh called twice (Phase 1: --no-start, Phase 3: --detach)
+    sinon.assert.calledTwice(shell.sh);
+    // Both calls should have DOCKER_HOST
+    for (const call of shell.sh.getCalls()) {
+      const [, opts] = call.args;
+      expect(opts.env).to.have.property('DOCKER_HOST');
+      expect(opts.env.DOCKER_HOST).to.match(/^unix:\/\/.*finch\.sock$/);
+    }
   });
 
   it('should inject DOCKER_BUILDKIT=1', async () => {
@@ -270,9 +274,13 @@ describe('containerd compose start: shell execution', () => {
 
     await compose('start', datum);
 
-    sinon.assert.calledOnce(shell.sh);
-    const [cmdArray] = shell.sh.firstCall.args;
-    expect(cmdArray[0]).to.equal('/custom/docker-compose');
+    // Two-phase start: shell.sh called twice
+    sinon.assert.calledTwice(shell.sh);
+    // Both calls should use the orchestrator binary
+    for (const call of shell.sh.getCalls()) {
+      const [cmdArray] = call.args;
+      expect(cmdArray[0]).to.equal('/custom/docker-compose');
+    }
   });
 
   it('should include --project-name in the command array', async () => {
@@ -335,8 +343,13 @@ describe('containerd compose start: shell execution', () => {
 
     await compose('start', datum);
 
-    const [cmdArray] = shell.sh.firstCall.args;
-    expect(cmdArray).to.include('--detach');
+    // Two-phase start: Phase 1 has --no-start (no --detach), Phase 3 has --detach
+    sinon.assert.calledTwice(shell.sh);
+    const [phase1Cmd] = shell.sh.firstCall.args;
+    const [phase3Cmd] = shell.sh.secondCall.args;
+    expect(phase1Cmd).to.not.include('--detach');
+    expect(phase1Cmd).to.include('--no-start');
+    expect(phase3Cmd).to.include('--detach');
   });
 
   it('should include --remove-orphans flag by default for start', async () => {
@@ -429,8 +442,8 @@ networks:
 
     await compose('start', datum);
 
-    // Verify shell.sh was called (compose command executed)
-    sinon.assert.calledOnce(shell.sh);
+    // Verify shell.sh was called twice (two-phase start)
+    sinon.assert.calledTwice(shell.sh);
 
     // Verify CNI conflist files were created
     // ensureComposeCniNetworks creates configs for testapp_default and testapp_frontend
@@ -686,10 +699,18 @@ describe('containerd compose start: all compose commands', () => {
 
       await compose(cmd, datum);
 
-      sinon.assert.calledOnce(shell.sh);
-      const [, opts] = shell.sh.firstCall.args;
-      expect(opts.env.DOCKER_HOST).to.match(/^unix:\/\/.*finch\.sock$/,
-        `DOCKER_HOST should be set for "${cmd}" command`);
+      if (cmd === 'start') {
+        // Two-phase start: shell.sh called twice
+        sinon.assert.calledTwice(shell.sh);
+      } else {
+        sinon.assert.calledOnce(shell.sh);
+      }
+      // All calls should have DOCKER_HOST
+      for (const call of shell.sh.getCalls()) {
+        const [, opts] = call.args;
+        expect(opts.env.DOCKER_HOST).to.match(/^unix:\/\/.*finch\.sock$/,
+          `DOCKER_HOST should be set for "${cmd}" command`);
+      }
     }
   });
 });
@@ -791,8 +812,11 @@ describe('containerd compose start: full engine.start() flow', () => {
 
     await engine.start(data);
 
-    sinon.assert.calledOnce(deps.shell.sh);
-    const [cmdArray] = deps.shell.sh.firstCall.args;
+    // Two-phase start: shell.sh called twice per datum
+    sinon.assert.calledTwice(deps.shell.sh);
+
+    // Check Phase 3 (second call) for the actual start command
+    const [cmdArray] = deps.shell.sh.secondCall.args;
 
     // Should include the project name
     const projectIdx = cmdArray.indexOf('--project-name');
@@ -824,11 +848,13 @@ describe('containerd compose start: full engine.start() flow', () => {
 
     await engine.start(data);
 
-    // shell.sh should be called twice — once per datum
-    sinon.assert.calledTwice(deps.shell.sh);
+    // Two-phase start: shell.sh called 4 times (2 phases × 2 datums)
+    expect(deps.shell.sh.callCount).to.equal(4);
 
-    const [cmdA] = deps.shell.sh.firstCall.args;
-    const [cmdB] = deps.shell.sh.secondCall.args;
+    // Calls are: datum-a phase 1, datum-a phase 3, datum-b phase 1, datum-b phase 3
+    // Phase 3 calls (second and fourth) have --detach and contain the project names
+    const [cmdA] = deps.shell.sh.getCall(1).args; // datum-a phase 3
+    const [cmdB] = deps.shell.sh.getCall(3).args; // datum-b phase 3
 
     const projectIdxA = cmdA.indexOf('--project-name');
     expect(cmdA[projectIdxA + 1]).to.equal('project-a');
@@ -919,18 +945,19 @@ describe('containerd compose start: parity with Docker compose path', () => {
       await dockerEngine.compose('start', datum);
       await containerdEngine.compose('start', datum);
 
-      // Both should have called shell.sh
+      // Docker path calls shell.sh once; containerd path calls twice (two-phase start)
       sinon.assert.calledOnce(dockerDeps.shell.sh);
-      sinon.assert.calledOnce(cdDeps.shell.sh);
+      sinon.assert.calledTwice(cdDeps.shell.sh);
 
       const [dockerCmd] = dockerDeps.shell.sh.firstCall.args;
-      const [containerdCmd] = cdDeps.shell.sh.firstCall.args;
+      // Phase 3 (second call) is the equivalent of Docker's single start call
+      const [containerdCmd] = cdDeps.shell.sh.secondCall.args;
 
       // Both should use the same orchestrator binary
       expect(dockerCmd[0]).to.equal(containerdCmd[0]);
 
-      // Both should have the same compose sub-commands (project-name, file, up, etc.)
-      // The command arrays should be identical since they use the same compose.js
+      // Both Phase 3 and Docker's start should have the same compose sub-commands
+      // (project-name, file, up, --detach, --no-recreate, --remove-orphans)
       expect(dockerCmd).to.deep.equal(containerdCmd);
     } finally {
       mockFs.restore();
@@ -982,7 +1009,216 @@ describe('containerd compose start: parity with Docker compose path', () => {
 });
 
 // ============================================================================
-// 8. Engine construction — binary path resolution
+// 8. Multi-container orchestration — CNI + compose integration
+// ============================================================================
+describe('containerd compose start: multi-container orchestration', () => {
+  afterEach(() => {
+    mockFs.restore();
+  });
+
+  it('should create CNI configs for all networks before starting multi-service compose', async () => {
+    // Simulates a typical Lando multi-service app: web + db + cache
+    // on a shared network plus a frontend-specific network.
+    const {compose, shell} = createContainerdEngine();
+
+    mockFs({
+      '/tmp/docker-compose.yml': `
+services:
+  web:
+    image: nginx:alpine
+    networks:
+      - default
+      - frontend
+  db:
+    image: postgres:16
+    networks:
+      - default
+  cache:
+    image: redis:7
+    networks:
+      - default
+networks:
+  frontend:
+    driver: bridge
+`,
+      '/etc/lando/cni/finch': {},
+    });
+
+    const datum = {
+      compose: ['/tmp/docker-compose.yml'],
+      project: 'myapp',
+      opts: {},
+    };
+
+    await compose('start', datum);
+
+    // Verify compose command was executed (two-phase start)
+    sinon.assert.calledTwice(shell.sh);
+    // Phase 3 (second call) is the actual start with --detach
+    const [cmdArray] = shell.sh.secondCall.args;
+    expect(cmdArray).to.include('up');
+    expect(cmdArray).to.include('--detach');
+
+    // Verify CNI conflist files for both default and custom networks
+    const files = fs.readdirSync('/etc/lando/cni/finch');
+    expect(files).to.include('nerdctl-myapp_default.conflist');
+    expect(files).to.include('nerdctl-myapp_frontend.conflist');
+
+    // Verify conflist content is valid JSON with correct plugin chain
+    const defaultConflist = JSON.parse(
+      fs.readFileSync('/etc/lando/cni/finch/nerdctl-myapp_default.conflist', 'utf8'),
+    );
+    expect(defaultConflist.name).to.equal('myapp_default');
+    const pluginTypes = defaultConflist.plugins.map(p => p.type);
+    // portmap is intentionally excluded — see ensure-cni-network.js:
+    // CNI portmap rejects HostPort:0 (random port); finch-daemon handles port mapping instead.
+    expect(pluginTypes).to.deep.equal(['bridge', 'firewall', 'tuning']);
+  });
+
+  it('should merge networks from multiple compose files for multi-container apps', async () => {
+    // Simulates Lando's compose layering: base services + globals + proxy overrides
+    const {compose, shell} = createContainerdEngine();
+
+    mockFs({
+      '/tmp/compose-base.yml': `
+services:
+  web:
+    image: nginx:alpine
+  db:
+    image: mariadb:10.11
+`,
+      '/tmp/compose-proxy.yml': `
+services:
+  web:
+    networks:
+      - lando_proxyedge
+networks:
+  lando_proxyedge:
+    name: landoproxy_edge
+    external: true
+  appnet:
+    driver: bridge
+`,
+      '/etc/lando/cni/finch': {},
+    });
+
+    const datum = {
+      compose: ['/tmp/compose-base.yml', '/tmp/compose-proxy.yml'],
+      project: 'myapp',
+      opts: {},
+    };
+
+    await compose('start', datum);
+
+    // Two-phase start: shell.sh called twice
+    sinon.assert.calledTwice(shell.sh);
+
+    const files = fs.readdirSync('/etc/lando/cni/finch');
+    // Should have _default and appnet (non-external)
+    expect(files).to.include('nerdctl-myapp_default.conflist');
+    expect(files).to.include('nerdctl-myapp_appnet.conflist');
+    // Should NOT have external network (proxy edge is managed elsewhere)
+    expect(files).to.not.include('nerdctl-landoproxy_edge.conflist');
+  });
+
+  it('should allocate unique subnets for each network in multi-container setup', async () => {
+    const {compose} = createContainerdEngine();
+
+    mockFs({
+      '/tmp/docker-compose.yml': `
+services:
+  web:
+    image: nginx:alpine
+  api:
+    image: node:20
+  db:
+    image: postgres:16
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+`,
+      '/etc/lando/cni/finch': {},
+    });
+
+    const datum = {
+      compose: ['/tmp/docker-compose.yml'],
+      project: 'multiapp',
+      opts: {},
+    };
+
+    await compose('start', datum);
+
+    // Read all conflist files and verify unique subnets
+    const files = fs.readdirSync('/etc/lando/cni/finch');
+    expect(files).to.have.lengthOf(3); // default + frontend + backend
+
+    /** @type {Set<string>} */
+    const subnets = new Set();
+    for (const file of files) {
+      const conflist = JSON.parse(
+        fs.readFileSync(`/etc/lando/cni/finch/${file}`, 'utf8'),
+      );
+      const bridgePlugin = conflist.plugins.find(p => p.type === 'bridge');
+      expect(bridgePlugin).to.exist;
+      const subnet = bridgePlugin.ipam.ranges[0][0].subnet;
+      expect(subnet).to.match(/^10\.4\.\d+\.0\/24$/);
+      expect(subnets.has(subnet)).to.equal(false, `Duplicate subnet: ${subnet}`);
+      subnets.add(subnet);
+    }
+    expect(subnets.size).to.equal(3);
+  });
+
+  it('should handle engine.start with multi-service datum and CNI pre-creation', async () => {
+    // Full engine.start() flow: daemon.up() → CNI pre-creation → compose up
+    const {engine, deps} = createContainerdEngine();
+
+    sinon.stub(engine.daemon, 'up').callsFake(() => BluebirdPromise.resolve());
+
+    mockFs({
+      '/tmp/docker-compose.yml': `
+services:
+  web:
+    image: nginx:alpine
+  db:
+    image: postgres:16
+  cache:
+    image: redis:7
+`,
+      '/etc/lando/cni/finch': {},
+    });
+
+    const data = {
+      compose: ['/tmp/docker-compose.yml'],
+      project: 'fullflow',
+      opts: {},
+    };
+
+    await engine.start(data);
+
+    // daemon.up() should be called before compose
+    sinon.assert.calledOnce(engine.daemon.up);
+
+    // Two-phase start: shell.sh called twice
+    sinon.assert.calledTwice(deps.shell.sh);
+
+    // CNI default network should be created
+    const files = fs.readdirSync('/etc/lando/cni/finch');
+    expect(files).to.include('nerdctl-fullflow_default.conflist');
+
+    // DOCKER_HOST should point to finch-daemon socket on both calls
+    for (const call of deps.shell.sh.getCalls()) {
+      const [, opts] = call.args;
+      expect(opts.env.DOCKER_HOST).to.match(/finch\.sock$/);
+    }
+
+    engine.daemon.up.restore();
+  });
+});
+
+// ============================================================================
+// 9. Engine construction — binary path resolution
 // ============================================================================
 describe('containerd compose start: binary path resolution', () => {
   it('should use config.orchestratorBin when provided', () => {

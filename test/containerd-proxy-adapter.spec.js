@@ -78,14 +78,12 @@ describe('ContainerdProxyAdapter', () => {
       const validPlugins = [
         {type: 'bridge', bridge: 'br-aaaaaaaaaaaa', isGateway: true, ipMasq: true, hairpinMode: true,
           ipam: {ranges: [[{gateway: '10.4.1.1', subnet: '10.4.1.0/24'}]], routes: [{dst: '0.0.0.0/0'}], type: 'host-local'}},
-        {type: 'portmap', capabilities: {portMappings: true}},
         {type: 'firewall'},
         {type: 'tuning'},
       ];
       const validPlugins2 = [
         {type: 'bridge', bridge: 'br-bbbbbbbbbbbb', isGateway: true, ipMasq: true, hairpinMode: true,
           ipam: {ranges: [[{gateway: '10.4.2.1', subnet: '10.4.2.0/24'}]], routes: [{dst: '0.0.0.0/0'}], type: 'host-local'}},
-        {type: 'portmap', capabilities: {portMappings: true}},
         {type: 'firewall'},
         {type: 'tuning'},
       ];
@@ -143,7 +141,6 @@ describe('ContainerdProxyAdapter', () => {
       const validPlugins = [
         {type: 'bridge', bridge: 'br-aaaaaaaaaaaa', isGateway: true, ipMasq: true, hairpinMode: true,
           ipam: {ranges: [[{gateway: '10.4.1.1', subnet: '10.4.1.0/24'}]], routes: [{dst: '0.0.0.0/0'}], type: 'host-local'}},
-        {type: 'portmap', capabilities: {portMappings: true}},
         {type: 'firewall'},
         {type: 'tuning'},
       ];
