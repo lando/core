@@ -434,12 +434,16 @@ module.exports = {
       }, config.labels);
 
       // add it all 2getha
+      const networks = lando.engine?.engineBackend === 'containerd'
+        ? {}
+        : {[this.network]: {aliases: this.hostnames}};
+
       this.addLandoServiceData({
         environment,
         extra_hosts: ['host.lando.internal:host-gateway'],
         labels,
         logging: {driver: 'json-file', options: {'max-file': '3', 'max-size': '10m'}},
-        networks: {[this.network]: {aliases: this.hostnames}},
+        networks,
         user: this.user.name,
         volumes: this.volumes,
       });

@@ -6,7 +6,7 @@ const _ = require('lodash');
 /*
  * Helper to get core proxy service
  */
-const getProxy = ({proxyCommand, proxyPassThru, proxyDomain, userConfRoot, version = 'unknown'} = {}) => {
+const getProxy = ({proxyCommand, proxyPassThru, proxyDomain, userConfRoot, dockerSocket, version = 'unknown'} = {}) => {
   return {
     services: {
       proxy: {
@@ -21,7 +21,7 @@ const getProxy = ({proxyCommand, proxyPassThru, proxyDomain, userConfRoot, versi
         },
         networks: ['edge'],
         volumes: [
-          '/var/run/docker.sock:/var/run/docker.sock',
+          `${dockerSocket || '/var/run/docker.sock'}:/var/run/docker.sock`,
           `${userConfRoot}/scripts/proxy-certs.sh:/scripts/100-proxy-certs`,
           'proxy_config:/proxy_config',
         ],

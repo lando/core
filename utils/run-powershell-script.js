@@ -8,6 +8,9 @@ const winpath = require('./wslpath-2-winpath');
 const {spawn, spawnSync} = require('child_process');
 
 const parseArgs = args => args.map(arg => arg.startsWith('-') ? arg : `"${arg}"`).join(' ');
+const isWSLInteropError = stderr => typeof stderr === 'string' && stderr.includes('UtilAcceptVsock:271: accept4 failed 110');
+// TODO: Once the UI supports multi-line follow-up guidance, surface a restart-WSL recommendation alongside this error.
+const formatWSLInteropError = () => 'Windows interop is unavailable from WSL; restart WSL with `wsl --shutdown` and try again.';
 
 // get the bosmang
 const defaults = {
@@ -68,7 +71,8 @@ module.exports = (script, args = [], options = {}, stdout = '', stderr = '', car
         debug('powershell script %o done with code %o', script, code);
         // if code is non-zero and we arent ignoring then reject here
         if (code !== 0 && !options.ignoreReturnCode) {
-          const error = new Error(stderr);
+          const message = isWSLInteropError(stderr) ? formatWSLInteropError(stderr) : stderr;
+          const error = new Error(message);
           error.code = code;
           reject(error);
         }
@@ -79,3 +83,6 @@ module.exports = (script, args = [], options = {}, stdout = '', stderr = '', car
     });
   });
 };
+
+module.exports._isWSLInteropError = isWSLInteropError;
+module.exports._formatWSLInteropError = formatWSLInteropError;

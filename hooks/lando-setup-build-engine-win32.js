@@ -3,6 +3,7 @@
 const axios = require('../utils/get-axios')();
 const fs = require('fs');
 const getDockerDesktopBin = require('../utils/get-docker-desktop-x');
+const getSetupEngine = require('../utils/get-setup-engine');
 const os = require('os');
 const path = require('path');
 const semver = require('semver');
@@ -95,6 +96,8 @@ module.exports = async (lando, options) => {
   // @NOTE: this is mostly for internal stuff
   if (options.buildEngine === false) return;
 
+  if (getSetupEngine(lando, options) !== 'docker') return;
+
   // get stuff from config/opts
   const build = getId(options.buildEngine);
   const version = getVersion(options.buildEngine);
@@ -115,12 +118,11 @@ module.exports = async (lando, options) => {
       // if we are missing any files we can check then terminate here
       if (lando.engine.dockerInstalled === false || !fs.existsSync(getDockerDesktopBin())) return false;
 
-      // if we get here let's make sure the engine is on
+      // passive check: see if the daemon is already up without trying to start it
       try {
-        await lando.engine.daemon.up({max: 5, backoff: 1000});
-        return true;
+        return await lando.engine.daemon.isUp();
       } catch (error) {
-        lando.log.debug('docker install task has not run %j', error);
+        lando.log.debug('docker engine is not up %j', error);
         return false;
       }
     },
@@ -192,4 +194,3 @@ module.exports = async (lando, options) => {
     },
   });
 };
-

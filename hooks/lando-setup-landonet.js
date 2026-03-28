@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const fs = require('fs');
 const getDockerDesktopBin = require('../utils/get-docker-desktop-x');
+const getSetupEngine = require('../utils/get-setup-engine');
 
 /**
  * Installs the Lando Development Certificate Authority (CA) on Windows systems.
@@ -19,8 +20,12 @@ module.exports = async (lando, options) => {
   if (options.skipNetworking) return;
 
   // we need access to dat socket for this to work
-  const dependsOn = ['linux', 'wsl']
-    .includes(lando.config.os.landoPlatform) ? ['setup-build-engine-group', 'setup-build-engine'] : ['setup-build-engine'];
+  const isContainerd = getSetupEngine(lando, options) === 'containerd';
+  const dependsOn = isContainerd
+    ? ['setup-containerd-service']
+    : ['linux', 'wsl'].includes(lando.config.os.landoPlatform)
+      ? ['setup-build-engine-group', 'setup-build-engine']
+      : ['setup-build-engine'];
 
   options.tasks.push({
     title: `Creating Landonet`,
@@ -36,14 +41,15 @@ module.exports = async (lando, options) => {
     },
     hasRun: async () => {
       // if docker isnt even installed then this is easy
-      if (lando.engine.dockerInstalled === false) return false;
+      if (!isContainerd && lando.engine.dockerInstalled === false) return false;
 
       // we also want to do an additional check on docker-destkop
       if (lando.config.os.landoPlatform !== 'linux' && !fs.existsSync(getDockerDesktopBin())) return false;
 
-      // otherwise attempt to sus things out
+      // passive check: see if the daemon is already up without trying to start it
       try {
-        await lando.engine.daemon.up({max: 10, backoff: 1000});
+        const isUp = await lando.engine.daemon.isUp();
+        if (!isUp) return false;
         const landonet = lando.engine.getNetwork(lando.config.networkBridge);
         await landonet.inspect();
         return lando.versions.networking > 1;
@@ -53,9 +59,9 @@ module.exports = async (lando, options) => {
       }
     },
     task: async (ctx, task) => {
-      // we reinstantiate instead of using lando.engine.daemon so we can ensure an up-to-date docker bin
-      const LandoDaemon = require('../lib/daemon');
-      const daemon = new LandoDaemon(lando.cache, lando.events, undefined, lando.log);
+      const daemon = isContainerd
+        ? lando.engine.daemon
+        : new (require('../lib/daemon'))(lando.cache, lando.events, undefined, lando.log);
 
       // we need docker up for this
       await daemon.up({max: 5, backoff: 1000});
