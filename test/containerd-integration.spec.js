@@ -20,7 +20,10 @@ const os = require('os');
 const path = require('path');
 
 const BackendManager = require('./../lib/backend-manager');
-const {ContainerdDaemon, ContainerdContainer, NerdctlCompose} = require('./../lib/backends/containerd');
+const {ContainerdDaemon, ContainerdContainer} = require('./../lib/backends/containerd');
+// NerdctlCompose is deprecated (not used in production — docker-compose + DOCKER_HOST is used instead)
+// but we still test its command generation as a regression safeguard.
+const NerdctlCompose = require('./../lib/backends/containerd/nerdctl-compose');
 
 // ---------------------------------------------------------------------------
 // Detect containerd availability

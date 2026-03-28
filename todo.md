@@ -36,11 +36,30 @@ Status of production-readiness tasks. Completed tasks are listed briefly for ref
 
 ## Remaining Work
 
-No remaining tasks. All production-readiness tasks are complete.
+### Test coverage gaps (from "Not Started" list)
+- `LimaManager` (`lib/backends/containerd/lima-manager.js`) — no unit tests
+- `WslHelper` (`lib/backends/containerd/wsl-helper.js`) — no unit tests
+- End-to-end integration test for actual `lando start` via `docker-compose + finch-daemon` path (current integration tests use stubs)
+- Smoke test script (`scripts/test-containerd-engine.sh`) tests `nerdctl compose` instead of the production `docker-compose + DOCKER_HOST` path
+
+### Other remaining items
+- macOS support (Lima VM integration exists but untested with new architecture)
+- Windows non-WSL support
+- Plugin compatibility verification
+- Installer/packaging updates to bundle containerd stack
 
 ---
 
 ## Recently Completed
+
+- **Task 35:** Bug fix, test coverage, and dead code cleanup
+  - `hooks/lando-setup-containerd-engine-check.js` — **Bug fix:** binary check was looking in `~/.lando/bin/` for `containerd` and `buildkitd`, but they're installed to `/usr/local/lib/lando/bin/` (system binaries). Only `nerdctl` lives in `~/.lando/bin/`. Fixed to use `containerdSystemBinDir` config, matching the setup hook and backend-manager.
+  - `test/ensure-cni-network.spec.js` (new) — **23 tests** covering: conflist creation, duplicate detection, CNI conflist JSON structure validation, bridge plugin properties, unique nerdctlID generation, subnet allocation (empty dir, increment past existing, max across multiple, sequential allocation, exhaustion at 255), invalid JSON/non-matching subnet skip, IPAM routes, EACCES/EPERM error handling with user-friendly message, non-permission write errors, non-existent directory handling, debug logging, default/custom cniNetconfPath options.
+  - `test/finch-daemon-manager.spec.js` — **Extended from 18 to 34 tests** adding: `_isProcessRunning` (no PID file, invalid PID, running process, ESRCH, EPERM), `start` (early return when running, start args validation), `stop` (no PID file, invalid PID, already gone process, SIGTERM signal), `isRunning` (not running, running without socket, running with socket), `_cleanup` (removes files, handles missing files).
+  - `lib/backends/containerd/nerdctl-compose.js` — Marked as **@deprecated** (not used in production; `docker-compose + DOCKER_HOST` is the actual path via `BackendManager._createContainerdEngine()`).
+  - `utils/setup-engine-containerd.js` — Marked as **@deprecated** (superseded by `BackendManager._createContainerdEngine()`).
+  - `lib/backends/containerd/index.js` — Removed `NerdctlCompose` from public exports; updated JSDoc example to reflect production usage (Dockerode + finch-daemon).
+  - `test/containerd-integration.spec.js` — Updated to import `NerdctlCompose` directly instead of from index exports.
 
 - **Task 34:** Comprehensive CNI network config bridging for all compose-defined networks
   - `utils/ensure-compose-cni-networks.js` (new) — Parses compose YAML files and pre-creates CNI conflist files for ALL non-external networks, not just `_default`. Resolves docker-compose-style network names (explicit `name:` property or `${project}_${networkName}` convention). Handles multiple compose files with merge semantics matching docker-compose behavior.

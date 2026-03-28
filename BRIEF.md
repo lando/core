@@ -179,11 +179,17 @@ If the service isn't active → throw an error telling the user to run `lando se
 ### Not Started 📋
 - macOS support (Lima VM integration exists but untested with new architecture)
 - Windows non-WSL support
-- Full test coverage for containerd backend
+- Remaining test coverage: `LimaManager`, `WslHelper`, end-to-end `lando start` integration test, smoke test script update to use `docker-compose + DOCKER_HOST` instead of `nerdctl compose`
 - Plugin compatibility verification
 - Installer/packaging updates to bundle containerd stack
 
+### Gotchas for Next Agent
+- `NerdctlCompose` (`lib/backends/containerd/nerdctl-compose.js`) and `setup-engine-containerd.js` are **deprecated dead code**. Production uses `docker-compose + DOCKER_HOST` via `BackendManager._createContainerdEngine()`. The files are kept for reference but removed from the public index exports.
+- `FinchDaemonManager.start()` uses destructured `const {spawn} = require('child_process')` — cannot be stubbed with sinon alone; needs `proxyquire` or `rewire` for full spawn-level testing. The lifecycle tests cover `_isProcessRunning`, `stop`, `isRunning`, and `_cleanup` but not the actual `spawn` call.
+- The smoke test script `scripts/test-containerd-engine.sh` exercises `nerdctl compose` which is NOT the production path. An updated script should test `docker-compose` with `DOCKER_HOST=unix:///run/lando/finch.sock`.
+
 ### Recently Completed
+- **Task 35: Bug fix, test coverage, and dead code cleanup** — Fixed binary path bug in `lando-setup-containerd-engine-check.js` (was checking `~/.lando/bin/` instead of `/usr/local/lib/lando/bin/` for system binaries). Added 23 new tests for `ensure-cni-network.js` covering conflist creation, subnet allocation, error handling. Extended `finch-daemon-manager.spec.js` from 18 to 34 tests covering `_isProcessRunning`, `start`, `stop`, `isRunning`, `_cleanup`. Deprecated unused `NerdctlCompose` and `setup-engine-containerd.js`; removed `NerdctlCompose` from public exports.
 - **Task 34: Comprehensive CNI network config bridging** — Created `utils/ensure-compose-cni-networks.js` to parse compose YAML files and pre-create CNI conflist files for ALL non-external networks before docker-compose up. Updated `lib/backend-manager.js` compose wrapper to use this instead of single-network `ensureCniNetwork()`. Previously only `${project}_default` got a CNI config; now custom networks (e.g. `frontend`, `backend`, proxy `edge`) are covered. 17 new tests in `test/ensure-compose-cni-networks.spec.js`. This resolves the "compose-created networks need CNI conflist files" item from the In Progress list.
 - **Task 33: CNI directory permissions** — Fixed the EACCES blocker: `lando setup` now sets `chgrp lando` + `chmod g+w` on `/etc/cni/net.d/finch` so `ensureCniNetwork()` can write conflist files from user-land without sudo. Permissions are also enforced on every systemd service start via `ExecStartPre`. The `hasRun` check detects missing permissions so re-running `lando setup` will fix existing installs. Added CNI directory permission check to `lando doctor`. Fixed pre-existing test failure in `containerd-proxy-adapter.spec.js` (missing mock-fs for CNI directory).
 - **Task 30: Troubleshooting documentation** — Created `docs/troubleshooting/containerd.md` covering all 10 error scenarios. Updated 7 message modules to link to specific troubleshooting sections instead of the generic engine config page.

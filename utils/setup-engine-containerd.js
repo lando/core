@@ -8,28 +8,17 @@ const getContainerdPaths = require('./get-containerd-paths');
 /**
  * Create a containerd-backed Engine instance.
  *
+ * @deprecated This utility is **not used in production**. The containerd engine
+ * is now created via `BackendManager._createContainerdEngine()` in
+ * `lib/backend-manager.js`, which uses `docker-compose` + `DOCKER_HOST` instead
+ * of `NerdctlCompose`. This file is retained for reference only and may be
+ * removed in a future release.
+ *
  * This is the containerd equivalent of `utils/setup-engine.js`. It creates
  * an Engine wired with:
  * - **ContainerdDaemon** — manages the containerd + buildkitd lifecycle
- * - **ContainerdContainer** — low-level container/network ops via nerdctl
- * - **NerdctlCompose** — compose orchestration via `nerdctl compose`
- *
- * The compose function follows the same `(cmd, datum) => Promise` contract
- * as the Docker path in `setup-engine.js`:
- *
- * ```
- * const compose = (cmd, datum) => {
- *   const run = nerdctlCompose[cmd](datum.compose, datum.project, datum.opts);
- *   return shell.sh([nerdctlBin, ...run.cmd], run.opts);
- * };
- * ```
- *
- * ## Usage
- *
- * ```js
- * const setupContainerdEngine = require('../utils/setup-engine-containerd');
- * lando.engine = setupContainerdEngine(lando.config, lando.cache, lando.events, lando.log, lando.shell, lando.config.instance);
- * ```
+ * - **ContainerdContainer** — low-level container/network ops via Dockerode + finch-daemon
+ * - **NerdctlCompose** — compose orchestration via `nerdctl compose` (deprecated)
  *
  * @param {Object} config - The full Lando config object.
  * @param {Object} cache  - A Lando Cache instance.
@@ -43,7 +32,8 @@ const getContainerdPaths = require('./get-containerd-paths');
  */
 module.exports = (config, cache, events, log, shell, id = 'lando') => {
   const Engine = require('../lib/engine');
-  const {ContainerdDaemon, ContainerdContainer, NerdctlCompose} = require('../lib/backends/containerd');
+  const {ContainerdDaemon, ContainerdContainer} = require('../lib/backends/containerd');
+  const NerdctlCompose = require('../lib/backends/containerd/nerdctl-compose');
 
   const userConfRoot = config.userConfRoot || path.join(os.homedir(), '.lando');
   const paths = getContainerdPaths(config);
