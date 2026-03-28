@@ -37,10 +37,7 @@ Status of production-readiness tasks. Completed tasks are listed briefly for ref
 ## Remaining Work
 
 ### Test coverage gaps (from "Not Started" list)
-- `LimaManager` (`lib/backends/containerd/lima-manager.js`) — no unit tests
-- `WslHelper` (`lib/backends/containerd/wsl-helper.js`) — no unit tests
 - End-to-end integration test for actual `lando start` via `docker-compose + finch-daemon` path (current integration tests use stubs)
-- Smoke test script (`scripts/test-containerd-engine.sh`) tests `nerdctl compose` instead of the production `docker-compose + DOCKER_HOST` path
 
 ### Other remaining items
 - macOS support (Lima VM integration exists but untested with new architecture)
@@ -51,6 +48,11 @@ Status of production-readiness tasks. Completed tasks are listed briefly for ref
 ---
 
 ## Recently Completed
+
+- **Task 36:** Unit tests for LimaManager, WslHelper, and smoke test script update
+  - `test/lima-manager.spec.js` (new) — **60 tests** covering: constructor defaults/custom options, `getSocketPath()` (path construction, custom vmName), `_parseListOutput()` (empty/null/undefined input, single NDJSON, multiple NDJSON, blank line skipping, invalid JSON tolerance, trailing newline, Buffer input), `vmExists()` (match/no-match/empty/error/correct args/multi-VM), `isRunning()` (Running/Stopped/not-exist/error/empty/all-non-Running statuses), `createVM()` (skip-if-exists, correct create args, custom resource values, error propagation), `startVM()` (skip-if-running, correct args, custom vmName, error propagation), `stopVM()` (skip-if-not-running, correct args, custom vmName, error propagation), `exec()` (args forwarding, custom vmName, return value, error propagation), `nerdctl()` (args including sudo nerdctl, custom vmName, return value, error propagation).
+  - `test/wsl-helper.spec.js` (new) — **19 tests** covering: constructor defaults/custom options, `isWsl()` static method (non-linux platforms, WSL1/WSL2 detection via /proc/version, native Linux detection, read failure), `isDockerDesktopRunning()` (Docker Desktop WSL proxy socket, /var/run/docker.sock, both present, neither present), `ensureSocketPermissions()` (recursive dir creation, chown with uid/gid, debug logging, EPERM error handling, mkdirSync failure handling).
+  - `scripts/test-containerd-engine.sh` — **Rewritten** to test the production compose path: `docker-compose + DOCKER_HOST + finch-daemon` instead of the deprecated `nerdctl compose`. Now starts finch-daemon as the Docker API bridge, uses `docker-compose` with `DOCKER_HOST=unix://<finch-socket>` for all compose operations, verifies containers via `docker-compose ps` and Docker API, and checks finch-daemon Docker API compatibility via `_ping` endpoint. Required binaries updated from `containerd + nerdctl + buildkitd` to `containerd + buildkitd + finch-daemon + docker-compose`.
 
 - **Task 35:** Bug fix, test coverage, and dead code cleanup
   - `hooks/lando-setup-containerd-engine-check.js` — **Bug fix:** binary check was looking in `~/.lando/bin/` for `containerd` and `buildkitd`, but they're installed to `/usr/local/lib/lando/bin/` (system binaries). Only `nerdctl` lives in `~/.lando/bin/`. Fixed to use `containerdSystemBinDir` config, matching the setup hook and backend-manager.
