@@ -10,7 +10,7 @@
  *
  * @param {Object} [opts={}] - Configuration options.
  * @param {string} [opts.socketPath="/run/lando/containerd.sock"] - containerd gRPC socket address.
- * @param {string} [opts.stateDir="/var/lib/lando/containerd"] - containerd state directory.
+ * @param {string} [opts.stateDir="/run/lando/containerd"] - containerd state directory (ephemeral, under RuntimeDirectory).
  * @param {string} [opts.rootDir="/var/lib/lando/containerd/root"] - containerd root directory.
  * @param {boolean} [opts.debug=false] - Enable debug-level logging.
  * @param {string} [opts.snapshotter="overlayfs"] - Snapshotter plugin name.
@@ -26,7 +26,12 @@
  */
 module.exports = (opts = {}) => {
   const socketPath = opts.socketPath || '/run/lando/containerd.sock';
-  const stateDir = opts.stateDir || '/var/lib/lando/containerd';
+  // State directory MUST be under /run/ (tmpfs) so shim bundles are cleaned up on
+  // reboot.  The hardcoded shim socket dir (/run/containerd/s/) is a compile-time
+  // constant in containerd — hashes are unique per containerd instance, so sharing
+  // the directory is safe.  Using a Lando-specific state dir avoids stale-bundle
+  // problems that cause "get state: context deadline exceeded" errors after restarts.
+  const stateDir = opts.stateDir || '/run/lando/containerd';
   const rootDir = opts.rootDir || '/var/lib/lando/containerd/root';
   const debug = opts.debug || false;
   const snapshotter = opts.snapshotter || 'overlayfs';

@@ -26,7 +26,7 @@ describe('get-containerd-config', () => {
     it('should use default socketPath, stateDir, and rootDir', () => {
       const config = getContainerdConfig();
       config.should.include('address = "/run/lando/containerd.sock"');
-      config.should.include('state = "/var/lib/lando/containerd"');
+      config.should.include('state = "/run/lando/containerd"');
       config.should.include('root = "/var/lib/lando/containerd/root"');
     });
 

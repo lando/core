@@ -26,13 +26,15 @@ module.exports = async (lando) => {
   const userBinDir = path.join(userConfRoot, "bin");
   const systemBinDir = lando.config.containerdSystemBinDir || "/usr/local/lib/lando/bin";
 
+  const composeVersion = lando.config.orchestratorVersion || '2.31.0';
   const missing = [];
   const bins = {
-    containerd: lando.config.containerdBin || path.join(systemBinDir, "containerd"),
-    buildkitd: lando.config.buildkitdBin || path.join(systemBinDir, "buildkitd"),
-    runc: lando.config.runcBin || path.join(systemBinDir, "runc"),
-    nerdctl: lando.config.nerdctlBin || path.join(userBinDir, "nerdctl"),
-    "docker-compose": lando.config.dockerComposeBin || path.join(userBinDir, "docker-compose"),
+    containerd: lando.config.containerdBin || path.join(systemBinDir, 'containerd'),
+    buildkitd: lando.config.buildkitdBin || path.join(systemBinDir, 'buildkitd'),
+    runc: lando.config.runcBin || path.join(systemBinDir, 'runc'),
+    nerdctl: lando.config.nerdctlBin || path.join(userBinDir, 'nerdctl'),
+    'docker-compose': lando.config.orchestratorBin
+      || path.join(userBinDir, `docker-compose-v${composeVersion}`),
   };
 
   for (const [name, binPath] of Object.entries(bins)) {

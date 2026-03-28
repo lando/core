@@ -80,7 +80,7 @@ describe('ensure-cni-network', () => {
       expect(content).to.have.property('plugins').that.is.an('array');
     });
 
-    it('should include bridge, firewall, and tc-redirect-tap plugins', () => {
+    it('should include bridge, portmap, firewall, and tuning plugins', () => {
       mockFs({[cniDir]: {}});
 
       ensureCniNetwork('testnet', {cniNetconfPath: cniDir});
@@ -89,7 +89,32 @@ describe('ensure-cni-network', () => {
       const content = JSON.parse(fs.readFileSync(conflistPath, 'utf8'));
       const pluginTypes = content.plugins.map(p => p.type);
 
-      expect(pluginTypes).to.deep.equal(['bridge', 'firewall', 'tc-redirect-tap']);
+      expect(pluginTypes).to.deep.equal(['bridge', 'portmap', 'firewall', 'tuning']);
+    });
+
+    it('should configure portmap plugin with port mapping capabilities', () => {
+      mockFs({[cniDir]: {}});
+
+      ensureCniNetwork('testnet', {cniNetconfPath: cniDir});
+
+      const conflistPath = path.join(cniDir, 'nerdctl-testnet.conflist');
+      const content = JSON.parse(fs.readFileSync(conflistPath, 'utf8'));
+      const portmap = content.plugins.find(p => p.type === 'portmap');
+
+      expect(portmap).to.exist;
+      expect(portmap.capabilities).to.deep.equal({portMappings: true});
+    });
+
+    it('should NOT include tc-redirect-tap plugin', () => {
+      mockFs({[cniDir]: {}});
+
+      ensureCniNetwork('testnet', {cniNetconfPath: cniDir});
+
+      const conflistPath = path.join(cniDir, 'nerdctl-testnet.conflist');
+      const content = JSON.parse(fs.readFileSync(conflistPath, 'utf8'));
+      const pluginTypes = content.plugins.map(p => p.type);
+
+      expect(pluginTypes).to.not.include('tc-redirect-tap');
     });
 
     it('should configure the bridge plugin with correct properties', () => {
@@ -385,6 +410,259 @@ describe('ensure-cni-network', () => {
       // Should not throw
       const result = ensureCniNetwork('testnet');
       expect(result).to.be.true;
+    });
+  });
+
+  describe('conflist migration', () => {
+    it('should migrate old conflist with tc-redirect-tap to new plugin chain', () => {
+      const oldConflist = {
+        cniVersion: '1.0.0',
+        name: 'myapp_default',
+        nerdctlID: 'a'.repeat(64),
+        nerdctlLabels: {},
+        plugins: [
+          {
+            type: 'bridge',
+            bridge: 'br-aaaaaaaaaaaa',
+            isGateway: true,
+            ipMasq: true,
+            hairpinMode: true,
+            ipam: {
+              ranges: [[{gateway: '10.4.3.1', subnet: '10.4.3.0/24'}]],
+              routes: [{dst: '0.0.0.0/0'}],
+              type: 'host-local',
+            },
+          },
+          {type: 'firewall'},
+          {type: 'tc-redirect-tap'},
+        ],
+      };
+
+      mockFs({
+        [cniDir]: {
+          'nerdctl-myapp_default.conflist': JSON.stringify(oldConflist, null, 2),
+        },
+      });
+
+      const result = ensureCniNetwork('myapp_default', {cniNetconfPath: cniDir});
+
+      expect(result).to.be.true;
+
+      const updated = JSON.parse(
+        fs.readFileSync(path.join(cniDir, 'nerdctl-myapp_default.conflist'), 'utf8'),
+      );
+      const pluginTypes = updated.plugins.map(p => p.type);
+      expect(pluginTypes).to.deep.equal(['bridge', 'portmap', 'firewall', 'tuning']);
+    });
+
+    it('should preserve subnet during migration', () => {
+      const oldConflist = {
+        cniVersion: '1.0.0',
+        name: 'myapp_default',
+        nerdctlID: 'b'.repeat(64),
+        nerdctlLabels: {},
+        plugins: [
+          {
+            type: 'bridge',
+            bridge: 'br-bbbbbbbbbbbb',
+            isGateway: true,
+            ipMasq: true,
+            hairpinMode: true,
+            ipam: {
+              ranges: [[{gateway: '10.4.7.1', subnet: '10.4.7.0/24'}]],
+              routes: [{dst: '0.0.0.0/0'}],
+              type: 'host-local',
+            },
+          },
+          {type: 'firewall'},
+          {type: 'tc-redirect-tap'},
+        ],
+      };
+
+      mockFs({
+        [cniDir]: {
+          'nerdctl-myapp_default.conflist': JSON.stringify(oldConflist, null, 2),
+        },
+      });
+
+      ensureCniNetwork('myapp_default', {cniNetconfPath: cniDir});
+
+      const updated = JSON.parse(
+        fs.readFileSync(path.join(cniDir, 'nerdctl-myapp_default.conflist'), 'utf8'),
+      );
+      const subnet = updated.plugins[0].ipam.ranges[0][0].subnet;
+      const gateway = updated.plugins[0].ipam.ranges[0][0].gateway;
+
+      expect(subnet).to.equal('10.4.7.0/24');
+      expect(gateway).to.equal('10.4.7.1');
+    });
+
+    it('should preserve bridge name during migration', () => {
+      const oldConflist = {
+        cniVersion: '1.0.0',
+        name: 'myapp_default',
+        nerdctlID: 'c'.repeat(64),
+        nerdctlLabels: {},
+        plugins: [
+          {
+            type: 'bridge',
+            bridge: 'br-cccccccccccc',
+            isGateway: true,
+            ipMasq: true,
+            ipam: {
+              ranges: [[{gateway: '10.4.2.1', subnet: '10.4.2.0/24'}]],
+              routes: [{dst: '0.0.0.0/0'}],
+              type: 'host-local',
+            },
+          },
+          {type: 'firewall'},
+          {type: 'tc-redirect-tap'},
+        ],
+      };
+
+      mockFs({
+        [cniDir]: {
+          'nerdctl-myapp_default.conflist': JSON.stringify(oldConflist, null, 2),
+        },
+      });
+
+      ensureCniNetwork('myapp_default', {cniNetconfPath: cniDir});
+
+      const updated = JSON.parse(
+        fs.readFileSync(path.join(cniDir, 'nerdctl-myapp_default.conflist'), 'utf8'),
+      );
+
+      expect(updated.plugins[0].bridge).to.equal('br-cccccccccccc');
+    });
+
+    it('should preserve nerdctlID during migration', () => {
+      const nerdctlID = 'd'.repeat(64);
+      const oldConflist = {
+        cniVersion: '1.0.0',
+        name: 'myapp_default',
+        nerdctlID,
+        nerdctlLabels: {foo: 'bar'},
+        plugins: [
+          {
+            type: 'bridge',
+            bridge: 'br-dddddddddddd',
+            isGateway: true,
+            ipMasq: true,
+            ipam: {
+              ranges: [[{gateway: '10.4.1.1', subnet: '10.4.1.0/24'}]],
+              routes: [{dst: '0.0.0.0/0'}],
+              type: 'host-local',
+            },
+          },
+          {type: 'firewall'},
+          {type: 'tc-redirect-tap'},
+        ],
+      };
+
+      mockFs({
+        [cniDir]: {
+          'nerdctl-myapp_default.conflist': JSON.stringify(oldConflist, null, 2),
+        },
+      });
+
+      ensureCniNetwork('myapp_default', {cniNetconfPath: cniDir});
+
+      const updated = JSON.parse(
+        fs.readFileSync(path.join(cniDir, 'nerdctl-myapp_default.conflist'), 'utf8'),
+      );
+
+      expect(updated.nerdctlID).to.equal(nerdctlID);
+      expect(updated.nerdctlLabels).to.deep.equal({foo: 'bar'});
+    });
+
+    it('should return false for conflist with correct plugin chain', () => {
+      mockFs({[cniDir]: {}});
+
+      // First call creates with correct plugins
+      ensureCniNetwork('testnet', {cniNetconfPath: cniDir});
+      // Second call should detect correct plugins and skip
+      const result = ensureCniNetwork('testnet', {cniNetconfPath: cniDir});
+
+      expect(result).to.be.false;
+    });
+
+    it('should migrate conflist missing portmap and tuning plugins', () => {
+      const oldConflist = {
+        cniVersion: '1.0.0',
+        name: 'myapp_default',
+        nerdctlID: 'e'.repeat(64),
+        nerdctlLabels: {},
+        plugins: [
+          {
+            type: 'bridge',
+            bridge: 'br-eeeeeeeeeeee',
+            isGateway: true,
+            ipMasq: true,
+            ipam: {
+              ranges: [[{gateway: '10.4.5.1', subnet: '10.4.5.0/24'}]],
+              routes: [{dst: '0.0.0.0/0'}],
+              type: 'host-local',
+            },
+          },
+          {type: 'firewall'},
+        ],
+      };
+
+      mockFs({
+        [cniDir]: {
+          'nerdctl-myapp_default.conflist': JSON.stringify(oldConflist, null, 2),
+        },
+      });
+
+      const result = ensureCniNetwork('myapp_default', {cniNetconfPath: cniDir});
+
+      expect(result).to.be.true;
+
+      const updated = JSON.parse(
+        fs.readFileSync(path.join(cniDir, 'nerdctl-myapp_default.conflist'), 'utf8'),
+      );
+      const pluginTypes = updated.plugins.map(p => p.type);
+      expect(pluginTypes).to.deep.equal(['bridge', 'portmap', 'firewall', 'tuning']);
+    });
+
+    it('should log debug message during migration', () => {
+      const oldConflist = {
+        cniVersion: '1.0.0',
+        name: 'testnet',
+        nerdctlID: 'f'.repeat(64),
+        nerdctlLabels: {},
+        plugins: [
+          {
+            type: 'bridge',
+            bridge: 'br-ffffffffffff',
+            isGateway: true,
+            ipMasq: true,
+            ipam: {
+              ranges: [[{gateway: '10.4.1.1', subnet: '10.4.1.0/24'}]],
+              routes: [{dst: '0.0.0.0/0'}],
+              type: 'host-local',
+            },
+          },
+          {type: 'firewall'},
+          {type: 'tc-redirect-tap'},
+        ],
+      };
+
+      mockFs({
+        [cniDir]: {
+          'nerdctl-testnet.conflist': JSON.stringify(oldConflist, null, 2),
+        },
+      });
+
+      const messages = [];
+      const debug = (...args) => messages.push(args);
+
+      ensureCniNetwork('testnet', {cniNetconfPath: cniDir, debug});
+
+      const migrateMsg = messages.find(m => m[0].includes('stale plugin chain'));
+      expect(migrateMsg).to.exist;
+      const doneMsg = messages.find(m => m[0].includes('migrated CNI conflist'));
+      expect(doneMsg).to.exist;
     });
   });
 });

@@ -398,6 +398,15 @@ module.exports = async (lando, options) => {
         // ensureCniNetwork() hits EACCES at runtime. Also verify the service file
         // includes the ExecStartPre fix so permissions are maintained across restarts.
         if (!serviceContents.includes(`chgrp lando ${cniConfDir}`)) return false;
+        // Ensure the service pre-creates /run/containerd/s/ (shim socket directory fix)
+        if (!serviceContents.includes('/run/containerd/s')) return false;
+        // Ensure the service sets NERDCTL_TOML so OCI hooks find Lando's CNI config
+        // (without this, hooks deadlock on /etc/cni/net.d/.nerdctl.lock)
+        if (!serviceContents.includes('NERDCTL_TOML=')) return false;
+        // Ensure the service enables IP forwarding (required for container outbound internet)
+        if (!serviceContents.includes('net.ipv4.ip_forward=1')) return false;
+        // Ensure the service creates iptables FORWARD rules for Lando subnets
+        if (!serviceContents.includes('LANDO-FORWARD')) return false;
         if (!fs.existsSync(path.join(cniBinDir, 'bridge'))) return false;
         try {
           const cniStats = fs.statSync(cniConfDir);
@@ -405,7 +414,13 @@ module.exports = async (lando, options) => {
         } catch { return false; }
         if (!fs.existsSync("/run/lando/finch.sock") || !fs.existsSync("/run/lando/containerd.sock")) return false;
         if (!fs.existsSync(path.join(configDir, "finch-daemon.toml"))) return false;
-        return fs.existsSync(path.join(configDir, "buildkitd.toml"));
+        if (!fs.existsSync(path.join(configDir, "buildkitd.toml"))) return false;
+        // Ensure the containerd config uses /run/lando/containerd as state dir (shim socket fix)
+        try {
+          const ctrdConfig = fs.readFileSync(path.join(configDir, "containerd-config.toml"), 'utf8');
+          if (!ctrdConfig.includes('state = "/run/lando/containerd"')) return false;
+        } catch { return false; }
+        return true;
       } catch {
         return false;
       }
@@ -441,9 +456,14 @@ module.exports = async (lando, options) => {
       fs.mkdirSync(configDir, {recursive: true});
       fs.mkdirSync(logDir, {recursive: true});
       const configPath = path.join(configDir, "containerd-config.toml");
-      const stateDir = path.join(userConfRoot, "state", "containerd");
+      // State dir goes under /run/lando/ (tmpfs, created by systemd RuntimeDirectory=lando).
+      // This ensures shim bundles are cleaned up on reboot — preventing stale-bundle
+      // "get state: context deadline exceeded" errors.  The persistent user-space dir
+      // (~/.lando/state/containerd) is no longer used for containerd state.
+      const stateDir = "/run/lando/containerd";
       const rootDir = path.join(userConfRoot, "data", "containerd");
-      fs.mkdirSync(stateDir, {recursive: true});
+      // rootDir is persistent (images, snapshots); stateDir is created at service
+      // start by containerd itself (it runs as root under RuntimeDirectory).
       fs.mkdirSync(rootDir, {recursive: true});
 
       const getContainerdConfig = require("../utils/get-containerd-config");
@@ -485,9 +505,43 @@ module.exports = async (lando, options) => {
         "[Service]",
         "Type=simple",
         "RuntimeDirectory=lando",
-        `ExecStartPre=/bin/sh -c "mkdir -p ${cniConfDir} ${cniBinDir} 2>/dev/null || true; chgrp lando ${cniConfDir} 2>/dev/null || true; chmod g+w ${cniConfDir} 2>/dev/null || true"`,
+        // Pre-create /run/containerd/s/ — containerd v2's shim socket directory is
+        // hardcoded to defaults.DefaultStateDir ("/run/containerd").  Shim socket
+        // filenames are unique per containerd instance (sha256 of address+ns+id), so
+        // sharing this directory with system containerd is safe.  Without this mkdir
+        // the first container start fails with ENOENT for the shim socket.
+        `ExecStartPre=/bin/sh -c "mkdir -p /run/containerd/s ${cniConfDir} ${cniBinDir} 2>/dev/null || true; chgrp lando ${cniConfDir} 2>/dev/null || true; chmod g+w ${cniConfDir} 2>/dev/null || true"`,
+        // Enable IPv4 forwarding — required for container outbound internet access.
+        // The CNI bridge plugin with isGateway:true also sets this per-container,
+        // but doing it here ensures forwarding is enabled before any container starts
+        // and survives across container restarts without relying on the plugin chain.
+        'ExecStartPre=/bin/sh -c "sysctl -w net.ipv4.ip_forward=1 >/dev/null 2>&1 || true"',
+        // Create iptables FORWARD rules for Lando's container subnets (10.4.0.0/16).
+        // The CNI firewall plugin manages per-container rules in CNI-FORWARD, but
+        // the host's default FORWARD policy may be DROP (common on Ubuntu/Debian).
+        // These rules ensure outbound traffic from containers and return traffic to
+        // containers is always accepted, regardless of the host firewall configuration.
+        // Uses a dedicated LANDO-FORWARD chain to avoid interfering with other rules.
+        'ExecStartPre=/bin/sh -c "' + [
+          'iptables -N LANDO-FORWARD 2>/dev/null || true',
+          'iptables -C FORWARD -j LANDO-FORWARD 2>/dev/null || iptables -I FORWARD 1 -j LANDO-FORWARD',
+          'iptables -F LANDO-FORWARD',
+          'iptables -A LANDO-FORWARD -s 10.4.0.0/16 -j ACCEPT',
+          'iptables -A LANDO-FORWARD -d 10.4.0.0/16 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT',
+          'iptables -A LANDO-FORWARD -j RETURN',
+        ].join('; ') + '"',
         `Environment=PATH=${systemBinDir}:/usr/sbin:/usr/bin:/sbin:/bin`,
         `Environment=CONTAINERD_ADDRESS=${socketPath}`,
+        // CRITICAL: NERDCTL_TOML tells nerdctl's OCI hooks where to find Lando's config.
+        // Without this, hooks run as root and read the default /etc/nerdctl/nerdctl.toml
+        // (which doesn't exist), falling back to /etc/cni/net.d/ for CNI — causing a
+        // self-deadlock on /etc/cni/net.d/.nerdctl.lock (flock on two FDs to the same
+        // file).  With this env var, hooks read Lando's nerdctl.toml and use
+        // /etc/lando/cni/ for CNI configs, avoiding the system CNI directory entirely.
+        `Environment=NERDCTL_TOML=${nerdctlConfigPath}`,
+        // Belt-and-suspenders: set standard CNI env vars so CNI plugin libraries
+        // also resolve to Lando's paths even if nerdctl's config loading is bypassed.
+        `Environment=CNI_PATH=${cniBinDir}`,
         `ExecStart=${systemBinDir}/containerd --config ${configPath}`,
         `ExecStartPost=/bin/sh -c "while ! [ -S ${socketPath} ]; do sleep 0.1; done; chgrp lando ${socketPath}; chmod 660 ${socketPath}"`,
         `ExecStartPost=/bin/sh -c "${systemBinDir}/buildkitd --config ${buildkitConfigPath} >/dev/null 2>>/run/lando/buildkitd.log &"`,

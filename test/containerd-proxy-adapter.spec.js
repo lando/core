@@ -73,10 +73,26 @@ describe('ContainerdProxyAdapter', () => {
 
     it('should return false for networks that already have CNI configs', () => {
       const cniDir = '/tmp/test-cni-existing';
+      // Use the expected plugin chain so the conflist is treated as up-to-date
+      // (empty plugins: [] would trigger migration and return true)
+      const validPlugins = [
+        {type: 'bridge', bridge: 'br-aaaaaaaaaaaa', isGateway: true, ipMasq: true, hairpinMode: true,
+          ipam: {ranges: [[{gateway: '10.4.1.1', subnet: '10.4.1.0/24'}]], routes: [{dst: '0.0.0.0/0'}], type: 'host-local'}},
+        {type: 'portmap', capabilities: {portMappings: true}},
+        {type: 'firewall'},
+        {type: 'tuning'},
+      ];
+      const validPlugins2 = [
+        {type: 'bridge', bridge: 'br-bbbbbbbbbbbb', isGateway: true, ipMasq: true, hairpinMode: true,
+          ipam: {ranges: [[{gateway: '10.4.2.1', subnet: '10.4.2.0/24'}]], routes: [{dst: '0.0.0.0/0'}], type: 'host-local'}},
+        {type: 'portmap', capabilities: {portMappings: true}},
+        {type: 'firewall'},
+        {type: 'tuning'},
+      ];
       mockFs({
         [cniDir]: {
-          'nerdctl-myproxy_edge.conflist': JSON.stringify({cniVersion: '1.0.0', name: 'myproxy_edge', plugins: []}),
-          'nerdctl-myproxy_default.conflist': JSON.stringify({cniVersion: '1.0.0', name: 'myproxy_default', plugins: []}),
+          'nerdctl-myproxy_edge.conflist': JSON.stringify({cniVersion: '1.0.0', name: 'myproxy_edge', plugins: validPlugins}),
+          'nerdctl-myproxy_default.conflist': JSON.stringify({cniVersion: '1.0.0', name: 'myproxy_default', plugins: validPlugins2}),
         },
       });
 
@@ -123,12 +139,20 @@ describe('ContainerdProxyAdapter', () => {
     it('should return false if config already exists', () => {
       const cniDir = '/tmp/test-cni-app-existing';
       const networkName = 'landoproxyhyperion5000gandalfedition_edge';
+      // Use the expected plugin chain so the conflist is treated as up-to-date
+      const validPlugins = [
+        {type: 'bridge', bridge: 'br-aaaaaaaaaaaa', isGateway: true, ipMasq: true, hairpinMode: true,
+          ipam: {ranges: [[{gateway: '10.4.1.1', subnet: '10.4.1.0/24'}]], routes: [{dst: '0.0.0.0/0'}], type: 'host-local'}},
+        {type: 'portmap', capabilities: {portMappings: true}},
+        {type: 'firewall'},
+        {type: 'tuning'},
+      ];
       mockFs({
         [cniDir]: {
           [`nerdctl-${networkName}.conflist`]: JSON.stringify({
             cniVersion: '1.0.0',
             name: networkName,
-            plugins: [],
+            plugins: validPlugins,
           }),
         },
       });
