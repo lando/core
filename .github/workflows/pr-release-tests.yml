@@ -40,12 +40,12 @@ jobs:
       - name: Create releases
         run: mkdir -p /tmp/releases
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: /tmp/releases
           merge-multiple: true
       - name: Upload release files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pr-release-test-${{ github.sha }}
           path: /tmp/releases/*
@@ -64,9 +64,9 @@ jobs:
           - '20'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install node ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org
