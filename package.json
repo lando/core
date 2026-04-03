@@ -12,7 +12,7 @@
     "lando-plugin"
   ],
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.17.0"
   },
   "babel": {},
   "lando": {},
