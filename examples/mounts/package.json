@@ -10,10 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@fastify/autoload": "^5.0.0",
-    "@fastify/sensible": "^5.0.0",
-    "fastify": "^4.26.1",
+    "@fastify/autoload": "^6.0.0",
+    "@fastify/sensible": "^6.0.0",
+    "fastify": "^5.0.0",
     "fastify-cli": "^7.4.1",
-    "fastify-plugin": "^4.0.0"
+    "fastify-plugin": "^5.0.0"
   }
 }
