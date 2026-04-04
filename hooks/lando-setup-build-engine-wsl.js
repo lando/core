@@ -3,6 +3,7 @@
 const axios = require('../utils/get-axios')();
 const fs = require('fs');
 const getDockerDesktopBin = require('../utils/get-docker-desktop-x');
+const getSetupEngine = require('../utils/get-setup-engine');
 const getWinEnvar = require('../utils/get-win32-envvar-from-wsl');
 const path = require('path');
 const semver = require('semver');
@@ -97,6 +98,8 @@ module.exports = async (lando, options) => {
   // @NOTE: this is mostly for internal stuff
   if (options.buildEngine === false) return;
 
+  if (getSetupEngine(lando, options) !== 'docker') return;
+
   // get stuff from config/opts
   const build = getId(options.buildEngine);
   const version = getVersion(options.buildEngine);
@@ -117,12 +120,14 @@ module.exports = async (lando, options) => {
       // if we are missing the docker desktop executable then false
       if (!fs.existsSync(getDockerDesktopBin())) return false;
 
-      // if we get here let's make sure the engine is on
+      // WSL special case: docker binaries don't exist in the linux environment
+      // until Docker Desktop has actually started up on Windows, so we need to
+      // attempt a start here to determine if it's installed
       try {
-        await lando.engine.daemon.up({max: 3, backoff: 1000});
+        await lando.engine.daemon.up({max: 1, backoff: 1000});
         return true;
       } catch (error) {
-        lando.log.debug('docker install task has not run %j', error);
+        lando.log.debug('docker engine is not up %j', error);
         return false;
       }
     },
@@ -201,4 +206,3 @@ module.exports = async (lando, options) => {
     },
   });
 };
-

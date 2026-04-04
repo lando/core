@@ -3,6 +3,8 @@
 const _ = require('lodash');
 
 module.exports = async (app, lando) => {
+  if (_.get(lando, 'engine.engineBackend') === 'containerd') return;
+
   _.forEach(_(lando.versions).filter(version => version && version.dockerVersion).value(), thing => {
     // handle generic unsupported or untested notices
     if (!thing.satisfied) app.addMessage(require('../messages/unsupported-version-warning')(thing));

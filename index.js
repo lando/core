@@ -17,6 +17,16 @@ const defaults = {
     appLabels: {
       'io.lando.container': 'TRUE',
     },
+    engine: 'auto',
+    containerdBin: null,
+    nerdctlBin: null,
+    buildkitdBin: null,
+    containerdSocket: null,
+    supportedContainerdVersions: {
+      containerd: {min: '2.0.0', max: '3.0.0', link: 'https://github.com/containerd/containerd/releases'},
+      nerdctl: {min: '2.0.0', max: '3.0.0', link: 'https://github.com/containerd/nerdctl/releases'},
+      buildkit: {min: '0.17.0', max: '1.0.0', link: 'https://github.com/moby/buildkit/releases'},
+    },
     proxy: 'ON',
     proxyName: 'landoproxyhyperion5000gandalfedition',
     proxyCache: 'proxyCache',
@@ -83,6 +93,9 @@ module.exports = async lando => {
   // move v3 scripts directories as needed
   lando.events.on('pre-setup', 0, async () => await require('./hooks/lando-copy-v3-scripts')(lando));
 
+  // Engine selection (before any engine-specific setup)
+  lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-engine-select')(lando, options));
+
   // ensure we setup docker if needed
   lando.events.once('pre-setup', async options => await require(`./hooks/lando-setup-build-engine-${platform}`)(lando, options));
 
@@ -96,6 +109,17 @@ module.exports = async lando => {
 
   // ensure we setup docker-compose if needed
   lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-orchestrator')(lando, options));
+
+  // ensure we setup containerd engine if needed
+  lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-containerd-engine')(lando, options));
+
+  // ensure we setup lima for containerd on macOS
+  if (platform === 'darwin') {
+    lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-containerd-engine-darwin')(lando, options));
+  }
+
+  // ensure we check containerd engine status
+  lando.events.once('pre-engine-autostart', async () => await require('./hooks/lando-setup-containerd-engine-check')(lando));
 
   // ensure we setup landonet
   lando.events.once('pre-setup', async options => await require('./hooks/lando-setup-landonet')(lando, options));
@@ -124,6 +148,7 @@ module.exports = async lando => {
 
   // run engine compat checks
   lando.events.on('almost-ready', 2, async () => await require('./hooks/lando-get-compat')(lando));
+  lando.events.on('almost-ready', 2, async () => await require('./hooks/lando-get-containerd-compat')(lando));
 
   // throw error if engine is not available
   lando.events.once('pre-engine-autostart', async () => await require('./hooks/lando-setup-check')(lando));

@@ -27,6 +27,28 @@ const defaultConfig = options => ({
   disablePlugins: [],
   dockerBin: require('../utils/get-docker-x')(),
   dockerBinDir: require('../utils/get-docker-bin-path')(),
+  // Engine selection: 'auto' | 'docker' | 'containerd'
+  engine: 'auto',
+  // Containerd system-level binary directory for root-owned binaries
+  // (containerd, containerd-shim-runc-v2, runc, buildkitd, buildctl)
+  containerdSystemBinDir: '/usr/local/lib/lando/bin',
+  // Containerd binary path overrides (null = use defaults)
+  // containerdBin defaults to containerdSystemBinDir/containerd
+  // nerdctlBin defaults to ~/.lando/bin/nerdctl (user-owned, only talks to socket)
+  // buildkitdBin defaults to containerdSystemBinDir/buildkitd
+  containerdBin: null,
+  nerdctlBin: null,
+  buildkitdBin: null,
+  // Containerd socket path override (null = use default at /run/lando/containerd.sock)
+  containerdSocket: null,
+  // Finch daemon binary path override (null = use default at ~/.lando/bin/finch-daemon)
+  finchDaemonBin: null,
+  // Finch daemon socket path override (null = use default at /run/lando/finch.sock)
+  finchDaemonSocket: null,
+  // Registry auth config path override (null = use default ~/.docker/config.json)
+  registryAuth: null,
+  // BuildKit build cache max size (human-readable string for config display)
+  buildkitCacheMax: '10GB',
   env: process.env,
   home: os.homedir(),
   isArmed: _.includes(['arm64', 'aarch64'], process.arch),

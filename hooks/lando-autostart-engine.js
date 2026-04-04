@@ -4,6 +4,8 @@
 // @NOTE: for some reason _SOMETIMES_ autostarting before lando start produces an error but we are just
 // not going to address it in favor of lando 4 stuff
 module.exports = async lando => {
+  if (lando.engine?.engineBackend === 'containerd' || lando.config.engine === 'containerd') return;
+
   if (lando._bootstrapLevel >= 3 && await lando.engine.daemon.isUp() === false) {
     const debug = require('../utils/debug-shim')(lando.log);
     const tasks = [{

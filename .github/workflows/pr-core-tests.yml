@@ -5,6 +5,7 @@ on:
 
 jobs:
   leia-tests:
+    name: ${{ matrix.leia-test }} (${{ matrix.engine }})
     runs-on: ${{ matrix.os }}
     env:
       TERM: xterm
@@ -62,6 +63,8 @@ jobs:
           - update
           - version
           - yaml
+        engine:
+          - docker
         node-version:
           - "20"
         os:
@@ -106,13 +109,14 @@ jobs:
           pkg: "@yao-pkg/pkg@5.16.1"
       - name: Install full deps
         run: npm clean-install --prefer-offline --frozen-lockfile
-      - name: Setup lando ${{ steps.pkg-action.outputs.file }}
+      - name: Setup lando ${{ steps.pkg-action.outputs.file }} (${{ matrix.engine }})
         uses: lando/setup-lando@v3
         with:
           lando-version: ${{ steps.pkg-action.outputs.file }}
           telemetry: false
           config: |
             setup.skipCommonPlugins=true
+            engine=${{ matrix.engine }}
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         env:

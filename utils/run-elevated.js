@@ -50,7 +50,6 @@ module.exports = (command, options, stdout = '', stderr = '') => {
     command.unshift('--');
     // if we want to notify the user
     if (options.notify) command.unshift('--bell');
-    // if this is non-interactive then pass that along to sudo
     if (!options.isInteractive) command.unshift('--non-interactive');
     // if interactive and have a password then add -S so we can write the password to stdin
     if (options.isInteractive && options.password) command.unshift('--stdin');

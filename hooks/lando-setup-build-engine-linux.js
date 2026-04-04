@@ -4,6 +4,8 @@ const axios = require('../utils/get-axios')();
 const os = require('os');
 const path = require('path');
 
+const getSetupEngine = require('../utils/get-setup-engine');
+
 const {color} = require('listr2');
 
 const downloadDockerEngine = (url = 'https://get.docker.com', {debug, task}) => new Promise((resolve, reject) => {
@@ -30,6 +32,8 @@ module.exports = async (lando, options) => {
   // @NOTE: this is mostly for internal stuff
   if (options.buildEngine === false) return;
 
+  if (getSetupEngine(lando, options) !== 'docker') return;
+
   const version = options.buildEngine;
   const url = 'https://get.docker.com';
 
@@ -41,15 +45,13 @@ module.exports = async (lando, options) => {
     version: `Docker Engine ${version}`,
     hasRun: async () => {
       // start by looking at the engine install status
-      // @NOTE: is this always defined?
       if (lando.engine.dockerInstalled === false) return false;
 
-      // if we get here let's make sure the engine is on
+      // passive check: see if the daemon is already up without trying to start it
       try {
-        await lando.engine.daemon.up({max: 1, backoff: 1000});
-        return true;
+        return await lando.engine.daemon.isUp();
       } catch (error) {
-        lando.log.debug('docker install task has not run %j', error);
+        lando.log.debug('docker engine is not up %j', error);
         return false;
       }
     },

@@ -4,7 +4,15 @@ const _ = require('lodash');
 const path = require('path');
 
 const getContainer = (app, service) => {
-  return app?.containers?.[service] ?? `${app.project}_${service}_1`;
+  const isContainerd = app?.engine?.engineBackend === 'containerd'
+    || app?._config?.engineConfig?.containerdMode === true
+    || process.env.LANDO_ENGINE === 'containerd';
+
+  if (app?.containers?.[service]) {
+    return isContainerd ? app.containers[service].replace(/_/g, '-') : app.containers[service];
+  }
+
+  return isContainerd ? `${app.project}-${service}-1` : `${app.project}_${service}_1`;
 };
 
 const getContainerPath = (appRoot, appMount = undefined) => {

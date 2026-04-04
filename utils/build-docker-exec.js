@@ -4,6 +4,10 @@ const _ = require('lodash');
 
 /*
  * Build docker exec opts
+ *
+ * Per BRIEF: "No sudo in runtime code" and "Never shell out to nerdctl from
+ * user-facing code." The containerd backend uses docker-compose + finch-daemon
+ * via DOCKER_HOST, so dockerBin is always the docker CLI — never nerdctl.
  */
 const getExecOpts = (docker, datum) => {
   const exec = [docker, 'exec'];

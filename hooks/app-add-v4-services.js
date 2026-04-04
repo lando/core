@@ -3,6 +3,9 @@
 const _ = require('lodash');
 const path = require('path');
 
+const getContainerdPaths = require('../utils/get-containerd-paths');
+const {getContainerdAuthConfig} = require('../utils/setup-containerd-auth');
+
 module.exports = async (app, lando) => {
   // add parsed services to app object so we can use them downstream
   app.v4.parsedConfig = _(require('../utils/parse-v4-services')(_.get(app, 'config.services', {})))
@@ -41,8 +44,31 @@ module.exports = async (app, lando) => {
 
     // retrieve the correct class and mimic-ish v4 patterns to ensure faster loads
     const Service = lando.factory.get(config.builder, config.api);
-    Service.bengineConfig = lando.config.engineConfig;
-    Service.builder = lando.config.dockerBin;
+    const isContainerd = _.get(lando, 'engine.engineBackend') === 'containerd'
+      || lando.config.engine === 'containerd';
+    const containerdPaths = getContainerdPaths(lando.config);
+    const userConfRoot = lando.config.userConfRoot;
+    const nerdctlBin = _.get(lando, 'engine.daemon.nerdctlBin') || path.join(userConfRoot, 'bin', 'nerdctl');
+    const buildkitSocket = _.get(lando, 'engine.daemon.buildkitSocket') || containerdPaths.buildkitSocket;
+    const containerdSocket = _.get(lando, 'engine.daemon.socketPath') || containerdPaths.containerdSocket;
+    const finchSocket = _.get(lando, 'engine.daemon.finchDaemon.getSocketPath')
+      ? lando.engine.daemon.finchDaemon.getSocketPath()
+      : containerdPaths.finchSocket;
+
+    Service.bengineConfig = isContainerd
+      ? {
+        ...lando.config.engineConfig,
+        authConfig: getContainerdAuthConfig({configPath: lando.config.registryAuth}),
+        buildkitHost: `unix://${buildkitSocket}`,
+        containerdMode: true,
+        containerdNamespace: 'default',
+        containerdSocket,
+        engine: 'containerd',
+        nerdctlConfig: path.join(userConfRoot, 'config', 'nerdctl.toml'),
+        socketPath: finchSocket,
+      }
+      : lando.config.engineConfig;
+    Service.builder = isContainerd ? nerdctlBin : lando.config.dockerBin;
     Service.orchestrator = lando.config.orchestratorBin;
 
     // instantiate
