@@ -30,7 +30,10 @@
       "overrides",
       "fragment-check",
       "sqlshack",
-      "/v/"
+      "/v/",
+      "dockerfile-release-notes",
+      "jeffgeerling.com",
+      "hub.docker.com",
     ]
     skipPatterns = [
       ".gif",

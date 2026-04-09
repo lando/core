@@ -34,7 +34,7 @@ jobs:
           mkdir -p /tmp/release-binary-destination/${{ github.sha }}
       - name: Download artifacts
         id: download-artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.download-name }}
           merge-multiple: true
@@ -48,7 +48,7 @@ jobs:
           chmod +x /tmp/release-binary-destination/${{ github.sha }}/*
           ls -lsa /tmp/release-binary-destination/${{ github.sha }}
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-binary-${{ inputs.destination }}${{ contains(inputs.source, '-win-') && !endsWith(inputs.destination, '.exe') && '.exe' || '' }}
           overwrite: true
