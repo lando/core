@@ -15,7 +15,7 @@ There are, however, a few different things you can do to improve performance.
 
 ## 1. VirtioFS on macOS
 
-Docker Desktop [4.16.1](https://docs.docker.com/desktop/release-notes/#4161) finally makes VirtioFS file sharing generally available. VirtioFS offers [significant improvements in performance](https://www.jeffgeerling.com/blog/2022/new-docker-mac-virtiofs-file-sync-4x-faster) over the default gRPC FUSE mechanism. It's worth switching to but you will need at least Lando [3.9.0](https://github.com/lando/lando/releases/tag/v3.9.0) for it to work correctly.
+Docker Desktop [4.16.1](https://docs.docker.com/desktop/release-notes/#4161) finally makes VirtioFS file sharing generally available. VirtioFS offers [significant improvements in performance](https://www.jeffgeerling.com/blog/2022/new-docker-mac-virtiofs-file-sync-4x-faster/) over the default gRPC FUSE mechanism. It's worth switching to but you will need at least Lando [3.9.0](https://github.com/lando/lando/releases/tag/v3.9.0) for it to work correctly.
 
 If you see errors when using it we recommend the following corrective action:
 
