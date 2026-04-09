@@ -73,7 +73,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
@@ -81,7 +81,7 @@ jobs:
           known_hosts: unnecessary
           if_key_exists: replace
       - name: Install node ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org
