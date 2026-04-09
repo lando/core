@@ -50,6 +50,7 @@ const defaultConfig = options => ({
   // @TODO: orchestrator works a bit differently because it predates lando.setup() we set it elsewhere
   setup: {
     buildEngine: getBuildEngineVersion(process.landoPlatform ?? process.platform),
+    buildx: '0.30.1',
     buildEngineAcceptLicense: !require('is-interactive')(),
     commonPlugins: {
       '@lando/acquia': 'latest',

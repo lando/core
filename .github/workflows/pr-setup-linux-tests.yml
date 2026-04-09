@@ -13,6 +13,7 @@ jobs:
       matrix:
         leia-test:
           - setup-linux
+          - setup-linux-buildx
         node-version:
           - "20"
         os:
