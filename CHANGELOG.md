@@ -1,5 +1,9 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed crash when `config.yml` is empty instead of containing `{}` [#439](https://github.com/lando/core/issues/439)
+* Updated `lando setup` to install `docker-buildx` if missing
+* Fixed `buildx` built images not being available locally by adding `--load` flag
+
 ## v3.26.2 - [December 17, 2025](https://github.com/lando/core/releases/tag/v3.26.2)
 
 * Updated to use new Lando Alliance Apple Developer certificates
