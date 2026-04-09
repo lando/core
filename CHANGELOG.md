@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed `buildx` built images not being available locally by adding `--load` flag
+
 ## v3.26.2 - [December 17, 2025](https://github.com/lando/core/releases/tag/v3.26.2)
 
 * Updated to use new Lando Alliance Apple Developer certificates
