@@ -1,5 +1,5 @@
-/*
- * Tests for TTY allocation in docker exec and compose.
+/**
+ * Tests for TTY allocation in docker exec and compose exec.
  * @file tty-allocation.spec.js
  *
  * Validates that TTY is only allocated when BOTH stdin and stdout
@@ -17,57 +17,190 @@ const chai = require('chai');
 const expect = chai.expect;
 chai.should();
 
-describe('TTY allocation', () => {
-  // Save originals
-  const originalStdinIsTTY = process.stdin.isTTY;
-  const originalStdoutIsTTY = process.stdout.isTTY;
+const {buildExecArgs} = require('../utils/build-docker-exec');
 
-  beforeEach(() => {
-    // Clear require cache so compose.js re-evaluates with test-set TTY values
-    delete require.cache[require.resolve('./../lib/compose')];
-    delete require.cache[require.resolve('./../utils/build-docker-exec')];
+// Helper to build a minimal context object for testing
+const makeContext = (overrides = {}) => ({
+  stdin: {isTTY: false, isClosed: false, ...overrides.stdin},
+  stdout: {isTTY: false, columns: 80, rows: 24, ...overrides.stdout},
+  stderr: {isTTY: false, ...overrides.stderr},
+  isNodeMode: true,
+  ci: false,
+  noColor: false,
+  forceColor: undefined,
+  ...overrides,
+});
+
+// Helper to build a minimal datum object for testing
+const makeDatum = (overrides = {}) => ({
+  id: 'test_container',
+  cmd: ['echo', 'hello'],
+  opts: {user: 'www-data', environment: {}, ...overrides.opts},
+  ...overrides,
+});
+
+describe('TTY allocation', () => {
+  describe('docker exec (utils/build-docker-exec.js)', () => {
+    it('should include --tty when both stdin and stdout are TTYs', () => {
+      const ctx = makeContext({stdin: {isTTY: true}, stdout: {isTTY: true}});
+      const args = buildExecArgs('docker', makeDatum(), ctx);
+      expect(args).to.include('--tty');
+    });
+
+    it('should not include --tty when stdout is not a TTY (output redirected)', () => {
+      const ctx = makeContext({stdin: {isTTY: true}, stdout: {isTTY: false}});
+      const args = buildExecArgs('docker', makeDatum(), ctx);
+      expect(args).to.not.include('--tty');
+    });
+
+    it('should not include --tty when stdin is not a TTY', () => {
+      const ctx = makeContext({stdin: {isTTY: false}, stdout: {isTTY: true}});
+      const args = buildExecArgs('docker', makeDatum(), ctx);
+      expect(args).to.not.include('--tty');
+    });
+
+    it('should not include --tty when neither stdin nor stdout is a TTY', () => {
+      const ctx = makeContext({stdin: {isTTY: false}, stdout: {isTTY: false}});
+      const args = buildExecArgs('docker', makeDatum(), ctx);
+      expect(args).to.not.include('--tty');
+    });
   });
 
-  afterEach(() => {
-    // Restore after each test
-    process.stdin.isTTY = originalStdinIsTTY;
-    process.stdout.isTTY = originalStdoutIsTTY;
-    // Clear require cache so compose.js re-evaluates
-    delete require.cache[require.resolve('./../lib/compose')];
-    delete require.cache[require.resolve('./../utils/build-docker-exec')];
+  describe('interactive mode', () => {
+    it('should include --interactive in node mode', () => {
+      const ctx = makeContext({isNodeMode: true});
+      const args = buildExecArgs('docker', makeDatum(), ctx);
+      expect(args).to.include('--interactive');
+    });
+
+    it('should not include --interactive outside node mode', () => {
+      const ctx = makeContext({isNodeMode: false});
+      const args = buildExecArgs('docker', makeDatum(), ctx);
+      expect(args).to.not.include('--interactive');
+    });
+
+    it('should not include --interactive when stdin is closed', () => {
+      const ctx = makeContext({isNodeMode: true, stdin: {isTTY: true, isClosed: true}});
+      const args = buildExecArgs('docker', makeDatum(), ctx);
+      expect(args).to.not.include('--interactive');
+    });
+
+    it('should not include --interactive when detaching', () => {
+      const ctx = makeContext({isNodeMode: true});
+      const datum = makeDatum({cmd: ['sleep', '100', '&']});
+      const args = buildExecArgs('docker', datum, ctx);
+      expect(args).to.include('--detach');
+      expect(args).to.not.include('--interactive');
+    });
+  });
+
+  describe('detach handling', () => {
+    it('should detect trailing & and add --detach', () => {
+      const ctx = makeContext();
+      const datum = makeDatum({cmd: ['sleep', '100', '&']});
+      const args = buildExecArgs('docker', datum, ctx);
+      expect(args).to.include('--detach');
+      expect(args).to.not.include('&');
+    });
+
+    it('should detect appended & and add --detach', () => {
+      const ctx = makeContext();
+      const datum = makeDatum({cmd: ['sleep', '100&']});
+      const args = buildExecArgs('docker', datum, ctx);
+      expect(args).to.include('--detach');
+    });
+
+    it('should not include --tty when detaching', () => {
+      const ctx = makeContext({stdin: {isTTY: true}, stdout: {isTTY: true}});
+      const datum = makeDatum({cmd: ['sleep', '100', '&']});
+      const args = buildExecArgs('docker', datum, ctx);
+      expect(args).to.include('--detach');
+      expect(args).to.not.include('--tty');
+    });
+  });
+
+  describe('command assembly', () => {
+    it('should include workdir when set', () => {
+      const ctx = makeContext();
+      const datum = makeDatum({opts: {user: 'root', environment: {}, workdir: '/app'}});
+      const args = buildExecArgs('docker', datum, ctx);
+      const wdIdx = args.indexOf('--workdir');
+      expect(wdIdx).to.be.greaterThan(-1);
+      expect(args[wdIdx + 1]).to.equal('/app');
+    });
+
+    it('should include user', () => {
+      const ctx = makeContext();
+      const datum = makeDatum({opts: {user: 'root', environment: {}}});
+      const args = buildExecArgs('docker', datum, ctx);
+      const uIdx = args.indexOf('--user');
+      expect(uIdx).to.be.greaterThan(-1);
+      expect(args[uIdx + 1]).to.equal('root');
+    });
+
+    it('should include environment variables', () => {
+      const ctx = makeContext();
+      const datum = makeDatum({opts: {user: 'root', environment: {FOO: 'bar'}}});
+      const args = buildExecArgs('docker', datum, ctx);
+      expect(args).to.include('--env');
+      expect(args).to.include('FOO=bar');
+    });
+
+    it('should place container id before the command', () => {
+      const ctx = makeContext();
+      const datum = makeDatum();
+      const args = buildExecArgs('docker', datum, ctx);
+      const idIdx = args.indexOf('test_container');
+      const cmdIdx = args.indexOf('echo');
+      expect(idIdx).to.be.greaterThan(-1);
+      expect(cmdIdx).to.be.greaterThan(idIdx);
+    });
+
+    it('should use the specified docker binary', () => {
+      const ctx = makeContext();
+      const args = buildExecArgs('/usr/local/bin/docker', makeDatum(), ctx);
+      expect(args[0]).to.equal('/usr/local/bin/docker');
+      expect(args[1]).to.equal('exec');
+    });
   });
 
   describe('compose exec (lib/compose.js)', () => {
+    const originalStdinIsTTY = process.stdin.isTTY;
+    const originalStdoutIsTTY = process.stdout.isTTY;
+
+    afterEach(() => {
+      process.stdin.isTTY = originalStdinIsTTY;
+      process.stdout.isTTY = originalStdoutIsTTY;
+    });
+
     it('should set noTTY=true when stdout is not a TTY (output redirected)', () => {
       process.stdin.isTTY = true;
       process.stdout.isTTY = false;
-      const compose = require('./../lib/compose');
+      const compose = require('../lib/compose');
       const result = compose.run(
         ['docker-compose.yml'],
         'test_project',
         {services: ['web'], cmd: ['echo', 'hello']},
       );
-      // When noTTY is true, the -T flag should be in the command
       expect(result.cmd).to.include('-T');
     });
 
     it('should set noTTY=false when both stdin and stdout are TTYs', () => {
       process.stdin.isTTY = true;
       process.stdout.isTTY = true;
-      const compose = require('./../lib/compose');
+      const compose = require('../lib/compose');
       const result = compose.run(
         ['docker-compose.yml'],
         'test_project',
         {services: ['web'], cmd: ['echo', 'hello']},
       );
-      // When both are TTY, -T should NOT be in the command
       expect(result.cmd).to.not.include('-T');
     });
 
     it('should set noTTY=true when stdin is not a TTY (non-interactive)', () => {
       process.stdin.isTTY = false;
       process.stdout.isTTY = true;
-      const compose = require('./../lib/compose');
+      const compose = require('../lib/compose');
       const result = compose.run(
         ['docker-compose.yml'],
         'test_project',
@@ -79,7 +212,7 @@ describe('TTY allocation', () => {
     it('should set noTTY=true when neither stdin nor stdout is a TTY', () => {
       process.stdin.isTTY = false;
       process.stdout.isTTY = false;
-      const compose = require('./../lib/compose');
+      const compose = require('../lib/compose');
       const result = compose.run(
         ['docker-compose.yml'],
         'test_project',
@@ -87,61 +220,29 @@ describe('TTY allocation', () => {
       );
       expect(result.cmd).to.include('-T');
     });
-  });
 
-  describe('docker exec (utils/build-docker-exec.js)', () => {
-    it('should not include --tty when stdout is not a TTY', () => {
-      process.stdin.isTTY = true;
-      process.stdout.isTTY = false;
-      const buildDockerExec = require('./../utils/build-docker-exec');
-
-      let capturedCmd;
-      const injected = {
-        config: {dockerBin: 'docker'},
-        _config: {dockerBin: 'docker'},
-        shell: {
-          sh: (cmd, opts) => {
-            capturedCmd = cmd;
-            return Promise.resolve();
-          },
-        },
-      };
-
-      const datum = {
-        id: 'test_container',
-        cmd: ['echo', 'hello'],
-        opts: {user: 'www-data', environment: {}},
-      };
-
-      buildDockerExec(injected, 'inherit', datum);
-      expect(capturedCmd).to.not.include('--tty');
-    });
-
-    it('should include --tty when both stdin and stdout are TTYs', () => {
+    it('should allow explicit noTTY override', () => {
       process.stdin.isTTY = true;
       process.stdout.isTTY = true;
-      const buildDockerExec = require('./../utils/build-docker-exec');
+      const compose = require('../lib/compose');
+      const result = compose.run(
+        ['docker-compose.yml'],
+        'test_project',
+        {services: ['web'], cmd: ['echo', 'hello'], noTTY: true},
+      );
+      expect(result.cmd).to.include('-T');
+    });
 
-      let capturedCmd;
-      const injected = {
-        config: {dockerBin: 'docker'},
-        _config: {dockerBin: 'docker'},
-        shell: {
-          sh: (cmd, opts) => {
-            capturedCmd = cmd;
-            return Promise.resolve();
-          },
-        },
-      };
-
-      const datum = {
-        id: 'test_container',
-        cmd: ['echo', 'hello'],
-        opts: {user: 'www-data', environment: {}},
-      };
-
-      buildDockerExec(injected, 'inherit', datum);
-      expect(capturedCmd).to.include('--tty');
+    it('should detect detach from trailing & in command', () => {
+      process.stdin.isTTY = true;
+      process.stdout.isTTY = true;
+      const compose = require('../lib/compose');
+      const result = compose.run(
+        ['docker-compose.yml'],
+        'test_project',
+        {services: ['web'], cmd: ['sleep', '100', '&']},
+      );
+      expect(result.cmd).to.include('--detach');
     });
   });
 });
