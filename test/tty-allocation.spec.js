@@ -20,16 +20,19 @@ chai.should();
 const {buildExecArgs} = require('../utils/build-docker-exec');
 
 // Helper to build a minimal context object for testing
-const makeContext = (overrides = {}) => ({
-  stdin: {isTTY: false, isClosed: false, ...overrides.stdin},
-  stdout: {isTTY: false, columns: 80, rows: 24, ...overrides.stdout},
-  stderr: {isTTY: false, ...overrides.stderr},
-  isNodeMode: true,
-  ci: false,
-  noColor: false,
-  forceColor: undefined,
-  ...overrides,
-});
+const makeContext = (overrides = {}) => {
+  const {stdin, stdout, stderr, ...rest} = overrides;
+  return {
+    stdin: {isTTY: false, isClosed: false, ...stdin},
+    stdout: {isTTY: false, columns: 80, rows: 24, ...stdout},
+    stderr: {isTTY: false, ...stderr},
+    isNodeMode: true,
+    ci: false,
+    noColor: false,
+    forceColor: undefined,
+    ...rest,
+  };
+};
 
 // Helper to build a minimal datum object for testing
 const makeDatum = (overrides = {}) => ({
