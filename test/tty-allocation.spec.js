@@ -103,9 +103,9 @@ describe('TTY allocation', () => {
       expect(args).to.not.include('&');
     });
 
-    it('should detect appended & and add --detach', () => {
+    it('should detect appended & in shell wrappers and add --detach', () => {
       const ctx = makeContext();
-      const datum = makeDatum({cmd: ['sleep', '100&']});
+      const datum = makeDatum({cmd: ['/bin/sh', '-c', 'sleep 100&']});
       const args = buildExecArgs('docker', datum, ctx);
       expect(args).to.include('--detach');
     });
@@ -233,7 +233,7 @@ describe('TTY allocation', () => {
       expect(result.cmd).to.include('-T');
     });
 
-    it('should detect detach from trailing & in command', () => {
+    it('should detect detach from trailing & in command and force noTTY', () => {
       process.stdin.isTTY = true;
       process.stdout.isTTY = true;
       const compose = require('../lib/compose');
@@ -243,6 +243,7 @@ describe('TTY allocation', () => {
         {services: ['web'], cmd: ['sleep', '100', '&']},
       );
       expect(result.cmd).to.include('--detach');
+      expect(result.cmd).to.include('-T');
     });
   });
 });
