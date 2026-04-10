@@ -23,7 +23,12 @@ const forwardKeys = [
 module.exports = (context, userEnv = {}) => {
   const inherited = {};
   for (const key of forwardKeys) {
-    if (process.env[key] !== undefined) inherited[key] = process.env[key];
+    if (process.env[key] !== undefined) {
+      // Skip color-forcing vars when stdout is not a TTY to prevent ANSI leakage
+      const colorVars = ['NO_COLOR', 'FORCE_COLOR', 'CLICOLOR', 'CLICOLOR_FORCE'];
+      if (!context.stdout.isTTY && colorVars.includes(key)) continue;
+      inherited[key] = process.env[key];
+    }
   }
 
   const synthetic = {};
