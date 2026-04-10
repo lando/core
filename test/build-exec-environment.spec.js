@@ -81,16 +81,10 @@ describe('build-exec-environment', () => {
       expect(env).to.not.have.property('LINES');
     });
 
-    it('should set CLICOLOR_FORCE when stdout is piped but stderr is a terminal', () => {
+    it('should not synthetically set CLICOLOR_FORCE when stdout is piped', () => {
       const ctx = {stdout: {isTTY: false, columns: 80, rows: 24}, stderr: {isTTY: true}, noColor: false};
       const env = buildEnvironment(ctx);
-      expect(env.CLICOLOR_FORCE).to.equal('1');
-    });
-
-    it('should not set CLICOLOR_FORCE when NO_COLOR is active', () => {
-      const ctx = {stdout: {isTTY: false, columns: 80, rows: 24}, stderr: {isTTY: true}, noColor: true};
-      const env = buildEnvironment(ctx);
-      // CLICOLOR_FORCE should not be synthetically set when noColor is active
+      // CLICOLOR_FORCE should not be synthetically set because it affects all streams
       expect(env).to.not.have.property('CLICOLOR_FORCE');
     });
 

@@ -22,6 +22,6 @@ module.exports = () => ({
   },
   isNodeMode: process.lando === 'node',
   ci: Boolean(process.env.CI),
-  noColor: Boolean(process.env.NO_COLOR),
+  noColor: process.env.NO_COLOR !== undefined,
   forceColor: process.env.FORCE_COLOR,
 });
