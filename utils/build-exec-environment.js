@@ -34,14 +34,6 @@ module.exports = (context, userEnv = {}) => {
     synthetic.LINES = String(context.stdout.rows);
   }
 
-  // If stdout is piped but stderr is still a terminal, hint to tools
-  // that color on stderr is fine
-  if (!context.stdout.isTTY && context.stderr.isTTY && !context.noColor) {
-    if (!inherited.CLICOLOR_FORCE) {
-      synthetic.CLICOLOR_FORCE = '1';
-    }
-  }
-
   return {...inherited, ...synthetic, ...userEnv};
 };
 
