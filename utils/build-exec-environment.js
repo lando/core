@@ -25,13 +25,13 @@ const forceColorKeys = ['FORCE_COLOR', 'CLICOLOR_FORCE'];
 module.exports = (context, userEnv = {}) => {
   const inherited = {};
   for (const key of forwardKeys) {
-    if (process.env[key] === undefined) continue;
+    if (context.env[key] === undefined) continue;
 
     // Redirected stdout should not inherit env vars that force color,
     // or they can bypass the no-TTY safeguard and reintroduce ANSI codes.
     if (!context.stdout.isTTY && forceColorKeys.includes(key)) continue;
 
-    inherited[key] = process.env[key];
+    inherited[key] = context.env[key];
   }
 
   const synthetic = {};

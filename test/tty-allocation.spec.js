@@ -21,16 +21,13 @@ const {buildExecArgs} = require('../utils/build-docker-exec');
 
 // Helper to build a minimal context object for testing
 const makeContext = (overrides = {}) => {
-  const {stdin, stdout, stderr, ...rest} = overrides;
+  const {stdin, stdout, env, ...rest} = overrides;
 
   return {
     stdin: {isTTY: false, isClosed: false, ...stdin},
     stdout: {isTTY: false, columns: 80, rows: 24, ...stdout},
-    stderr: {isTTY: false, ...stderr},
     isNodeMode: true,
-    ci: false,
-    noColor: false,
-    forceColor: undefined,
+    env: env || {},
     ...rest,
   };
 };

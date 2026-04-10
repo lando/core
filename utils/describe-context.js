@@ -17,11 +17,6 @@ module.exports = () => ({
     columns: process.stdout.columns || 80,
     rows: process.stdout.rows || 24,
   },
-  stderr: {
-    isTTY: Boolean(process.stderr.isTTY),
-  },
   isNodeMode: process.lando === 'node',
-  ci: Boolean(process.env.CI),
-  noColor: process.env.NO_COLOR !== undefined,
-  forceColor: process.env.FORCE_COLOR,
+  env: process.env,
 });
