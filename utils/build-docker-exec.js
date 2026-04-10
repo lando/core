@@ -1,59 +1,60 @@
 'use strict';
 
-const _ = require('lodash');
+const describeContext = require('./describe-context');
+const extractDetach = require('./extract-detach');
+const buildEnvironment = require('./build-exec-environment');
 
 /*
- * Build docker exec opts
+ * Builds the docker exec argument array.
+ *
+ * Each concern — TTY allocation, interactive mode, detach detection,
+ * environment propagation — reads from the context object rather than
+ * from process globals directly. This makes every decision testable
+ * with plain objects.
  */
-const getExecOpts = (docker, datum) => {
-  const exec = [docker, 'exec'];
-  // Should only use this if we have to
-  if (process.stdin.isTTY && process.stdout.isTTY) exec.push('--tty');
-  // Should only set interactive in node mode
-  if (process.lando === 'node') exec.push('--interactive');
-  // add workdir if we can
+const buildExecArgs = (docker, datum, context) => {
+  const args = [docker, 'exec'];
+  const {cmd, detach} = extractDetach(datum.cmd);
+
+  if (detach) {
+    args.push('--detach');
+  } else {
+    // Allocate a PTY only when both sides are real terminals and
+    // we're not detaching (detach + tty is nonsensical)
+    if (context.stdin.isTTY && context.stdout.isTTY) {
+      args.push('--tty');
+    }
+
+    // Keep stdin open when running in node mode and stdin isn't closed.
+    // Skip when detaching — there's no stdin to attach to.
+    if (context.isNodeMode && !context.stdin.isClosed) {
+      args.push('--interactive');
+    }
+  }
+
   if (datum.opts.workdir) {
-    exec.push('--workdir');
-    exec.push(datum.opts.workdir);
-  }
-  // Add user
-  exec.push('--user');
-  exec.push(datum.opts.user);
-  // Add envvvars
-  _.forEach(datum.opts.environment, (value, key) => {
-    exec.push('--env');
-    exec.push(`${key}=${value}`);
-  });
-
-  // Assess the intention to detach for execers
-  if (datum.cmd[0] === '/etc/lando/exec.sh' && datum.cmd[datum.cmd.length - 1] === '&') {
-    datum.cmd.pop();
-    exec.push('--detach');
-  } else if (datum.cmd[0] === '/etc/lando/exec.sh' && datum.cmd[datum.cmd.length - 1].endsWith('&')) {
-    datum.cmd[datum.cmd.length - 1] = datum.cmd[datum.cmd.length - 1].slice(0, -1).trim();
-    exec.push('--detach');
-  // Assess the intention to detach for shell wrappers
-  } else if (datum.cmd[0].endsWith('sh') && datum.cmd[1] === '-c' && datum.cmd[2].endsWith('&')) {
-    datum.cmd[2] = datum.cmd[2].slice(0, -1).trim();
-    exec.push('--detach');
-  } else if (datum.cmd[0].endsWith('bash') && datum.cmd[1] === '-c' && datum.cmd[2].endsWith('&')) {
-    datum.cmd[2] = datum.cmd[2].slice(0, -1).trim();
-    exec.push('--detach');
-  // Assess the intention to detach for everything else
-  } else if (datum.cmd[datum.cmd.length - 1] === '&') {
-    datum.cmd.pop();
-    exec.push('--detach');
+    args.push('--workdir', datum.opts.workdir);
   }
 
-  // Add id
-  exec.push(datum.id);
-  return exec;
+  args.push('--user', datum.opts.user);
+
+  const env = buildEnvironment(context, datum.opts.environment);
+  for (const [key, value] of Object.entries(env)) {
+    args.push('--env', `${key}=${value}`);
+  }
+
+  args.push(datum.id);
+  args.push(...cmd);
+
+  return args;
 };
 
 module.exports = (injected, stdio, datum = {}) => {
-  // Depending on whether injected is the app or lando
   const dockerBin = injected.config.dockerBin || injected._config.dockerBin;
-  const opts = {mode: 'attach', cstdio: stdio};
-  // Run run run
-  return injected.shell.sh(getExecOpts(dockerBin, datum).concat(datum.cmd), opts);
+  const context = describeContext();
+  const args = buildExecArgs(dockerBin, datum, context);
+  return injected.shell.sh(args, {mode: 'attach', cstdio: stdio});
 };
+
+// Expose internals for testing
+module.exports.buildExecArgs = buildExecArgs;
