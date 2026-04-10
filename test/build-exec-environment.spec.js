@@ -64,6 +64,27 @@ describe('build-exec-environment', () => {
       const env = buildEnvironment(ctx);
       expect(env.TZ).to.equal('America/New_York');
     });
+
+    it('should not forward FORCE_COLOR when stdout is not a TTY', () => {
+      process.env.FORCE_COLOR = '1';
+      const ctx = {stdout: {isTTY: false, columns: 80, rows: 24}, stderr: {isTTY: false}, noColor: false};
+      const env = buildEnvironment(ctx);
+      expect(env).to.not.have.property('FORCE_COLOR');
+    });
+
+    it('should not forward CLICOLOR_FORCE when stdout is not a TTY', () => {
+      process.env.CLICOLOR_FORCE = '3';
+      const ctx = {stdout: {isTTY: false, columns: 80, rows: 24}, stderr: {isTTY: false}, noColor: false};
+      const env = buildEnvironment(ctx);
+      expect(env).to.not.have.property('CLICOLOR_FORCE');
+    });
+
+    it('should still forward NO_COLOR when stdout is not a TTY', () => {
+      process.env.NO_COLOR = '1';
+      const ctx = {stdout: {isTTY: false, columns: 80, rows: 24}, stderr: {isTTY: false}, noColor: true};
+      const env = buildEnvironment(ctx);
+      expect(env.NO_COLOR).to.equal('1');
+    });
   });
 
   describe('synthetic vars', () => {
@@ -86,13 +107,6 @@ describe('build-exec-environment', () => {
       const env = buildEnvironment(ctx);
       // CLICOLOR_FORCE affects all streams, not just stderr.
       expect(env).to.not.have.property('CLICOLOR_FORCE');
-    });
-
-    it('should not override inherited CLICOLOR_FORCE with synthetic', () => {
-      process.env.CLICOLOR_FORCE = '3';
-      const ctx = {stdout: {isTTY: false, columns: 80, rows: 24}, stderr: {isTTY: true}, noColor: false};
-      const env = buildEnvironment(ctx);
-      expect(env.CLICOLOR_FORCE).to.equal('3');
     });
   });
 
