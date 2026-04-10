@@ -12,6 +12,8 @@ const forwardKeys = [
   'DEBUG', 'VERBOSE',
 ];
 
+const forceColorKeys = ['FORCE_COLOR', 'CLICOLOR_FORCE'];
+
 /*
  * Builds the environment variables for a docker exec invocation.
  *
@@ -23,7 +25,13 @@ const forwardKeys = [
 module.exports = (context, userEnv = {}) => {
   const inherited = {};
   for (const key of forwardKeys) {
-    if (process.env[key] !== undefined) inherited[key] = process.env[key];
+    if (process.env[key] === undefined) continue;
+
+    // Redirected stdout should not inherit env vars that force color,
+    // or they can bypass the no-TTY safeguard and reintroduce ANSI codes.
+    if (!context.stdout.isTTY && forceColorKeys.includes(key)) continue;
+
+    inherited[key] = process.env[key];
   }
 
   const synthetic = {};
