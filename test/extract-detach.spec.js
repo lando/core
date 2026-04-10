@@ -18,10 +18,10 @@ describe('extract-detach', () => {
     expect(result.cmd).to.eql(['sleep', '100']);
   });
 
-  it('should detect & appended to last argument', () => {
-    const result = extractDetach(['sleep', '100&']);
-    expect(result.detach).to.be.true;
-    expect(result.cmd).to.eql(['sleep', '100']);
+  it('should not treat literal trailing & in a plain argv argument as detach', () => {
+    const result = extractDetach(['curl', 'https://example.test/?a=1&']);
+    expect(result.detach).to.be.false;
+    expect(result.cmd).to.eql(['curl', 'https://example.test/?a=1&']);
   });
 
   it('should return detach=false when no trailing &', () => {
@@ -79,9 +79,9 @@ describe('extract-detach', () => {
     expect(result.cmd).to.eql([]);
   });
 
-  it('should trim whitespace after removing &', () => {
-    const result = extractDetach(['sleep', '100 &']);
+  it('should trim whitespace after removing & from shell wrappers', () => {
+    const result = extractDetach(['/bin/sh', '-c', 'sleep 100 &']);
     expect(result.detach).to.be.true;
-    expect(result.cmd[1]).to.equal('100');
+    expect(result.cmd[2]).to.equal('sleep 100');
   });
 });
