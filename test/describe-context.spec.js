@@ -103,6 +103,14 @@ describe('describe-context', () => {
     expect(describeContext().noColor).to.be.false;
   });
 
+  it('should detect NO_COLOR when set to an empty string', () => {
+    process.env.NO_COLOR = '';
+    expect(describeContext().noColor).to.be.true;
+
+    delete process.env.NO_COLOR;
+    expect(describeContext().noColor).to.be.false;
+  });
+
   it('should capture FORCE_COLOR from environment', () => {
     process.env.FORCE_COLOR = '3';
     expect(describeContext().forceColor).to.equal('3');
