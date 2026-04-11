@@ -32,15 +32,21 @@ describe('describe-context', () => {
     if (originalEnv.FORCE_COLOR !== undefined) process.env.FORCE_COLOR = originalEnv.FORCE_COLOR;
   });
 
-  it('should return an object with stdin, stdout, stderr, and flags', () => {
+  it('should return an object with stdin, stdout, stderr, env, and flags', () => {
     const ctx = describeContext();
     expect(ctx).to.have.property('stdin');
     expect(ctx).to.have.property('stdout');
     expect(ctx).to.have.property('stderr');
+    expect(ctx).to.have.property('env');
     expect(ctx).to.have.property('isNodeMode');
     expect(ctx).to.have.property('ci');
     expect(ctx).to.have.property('noColor');
     expect(ctx).to.have.property('forceColor');
+  });
+
+  it('should expose process.env as env', () => {
+    const ctx = describeContext();
+    expect(ctx.env).to.equal(process.env);
   });
 
   it('should reflect stdin TTY state', () => {

@@ -20,6 +20,7 @@ module.exports = () => ({
   stderr: {
     isTTY: Boolean(process.stderr.isTTY),
   },
+  env: process.env,
   isNodeMode: process.lando === 'node',
   ci: Boolean(process.env.CI),
   noColor: process.env.NO_COLOR !== undefined,
