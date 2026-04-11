@@ -22,16 +22,22 @@ module.exports = cmd => {
 
   if (parts.length === 0) return {cmd: parts, detach};
 
-  // Trailing bare '&'
-  if (parts[parts.length - 1] === '&') {
+  // Check wrapper-specific patterns first to handle edge cases correctly
+  if (parts[0] === '/etc/lando/exec.sh' && parts[parts.length - 1] === '&') {
+    // Bare '&' after exec.sh wrapper
     parts.pop();
     detach = true;
-  // '&' appended to a shell string inside a wrapper command
   } else if (parts[0] === '/etc/lando/exec.sh' && parts[parts.length - 1] && parts[parts.length - 1].endsWith('&')) {
+    // '&' appended to last argument in exec.sh wrapper
     parts[parts.length - 1] = parts[parts.length - 1].slice(0, -1).trim();
     detach = true;
   } else if (parts[0] && parts[0].endsWith('sh') && parts[1] === '-c' && parts[2] && parts[2].endsWith('&')) {
+    // '&' appended to shell string in sh/bash -c wrapper
     parts[2] = parts[2].slice(0, -1).trim();
+    detach = true;
+  } else if (parts[parts.length - 1] === '&') {
+    // Trailing bare '&' for all other commands
+    parts.pop();
     detach = true;
   }
 
