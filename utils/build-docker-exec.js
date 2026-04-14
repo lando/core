@@ -11,6 +11,9 @@ const buildEnvironment = require('./build-exec-environment');
  * environment propagation — reads from the context object rather than
  * from process globals directly. This makes every decision testable
  * with plain objects.
+ *
+ * Returns both the args array and the cleaned command for the caller
+ * to use without re-parsing.
  */
 const buildExecArgs = (docker, datum, context) => {
   const args = [docker, 'exec'];
@@ -46,19 +49,19 @@ const buildExecArgs = (docker, datum, context) => {
   args.push(datum.id);
   args.push(...cmd);
 
-  return args;
+  return {args, cmd};
 };
 
 module.exports = (injected, stdio, datum = {}) => {
   const dockerBin = injected.config.dockerBin || injected._config.dockerBin;
   const context = describeContext();
-  const args = buildExecArgs(dockerBin, datum, context);
+  const {args, cmd} = buildExecArgs(dockerBin, datum, context);
 
   // Write the cleaned command back to datum so callers that reuse the
   // same object (e.g. build-tooling-task.js compose fallback) see it
   // without the trailing '&'.  This preserves the mutation contract
   // the old getExecOpts() relied on.
-  datum.cmd = extractDetach(datum.cmd).cmd;
+  datum.cmd = cmd;
 
   return injected.shell.sh(args, {mode: 'attach', cstdio: stdio});
 };
