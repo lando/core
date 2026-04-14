@@ -19,7 +19,7 @@ const makeCtx = (overrides = {}) => {
     stdout: {isTTY: true, columns: 80, rows: 24, ...stdout},
     stderr: {isTTY: true, ...stderr},
     env: env || {},
-    noColor: false,
+    landoColorLevel: 3,
     ...rest,
   };
 };
@@ -38,16 +38,16 @@ describe('build-exec-environment', () => {
       expect(env).to.not.have.property('TERM');
     });
 
-    it('should forward CI when set', () => {
-      const ctx = makeCtx({env: {CI: 'true'}, stdout: {isTTY: false, columns: 80, rows: 24}});
+    it('should forward COLORTERM when set', () => {
+      const ctx = makeCtx({env: {COLORTERM: 'truecolor'}});
       const env = buildEnvironment(ctx);
-      expect(env.CI).to.equal('true');
+      expect(env.COLORTERM).to.equal('truecolor');
     });
 
-    it('should forward DEBUG when set', () => {
-      const ctx = makeCtx({env: {DEBUG: '*'}});
+    it('should forward TERM_PROGRAM when set', () => {
+      const ctx = makeCtx({env: {TERM_PROGRAM: 'iTerm.app'}});
       const env = buildEnvironment(ctx);
-      expect(env.DEBUG).to.equal('*');
+      expect(env.TERM_PROGRAM).to.equal('iTerm.app');
     });
 
     it('should forward TZ when set', () => {
@@ -56,28 +56,13 @@ describe('build-exec-environment', () => {
       expect(env.TZ).to.equal('America/New_York');
     });
 
-    it('should forward FORCE_COLOR when stdout is a TTY', () => {
-      const ctx = makeCtx({env: {FORCE_COLOR: '1'}});
+    it('should forward locale vars when set', () => {
+      const ctx = makeCtx({env: {LANG: 'en_US.UTF-8', LC_ALL: 'C', LC_CTYPE: 'UTF-8', LC_MESSAGES: 'en_US'}});
       const env = buildEnvironment(ctx);
-      expect(env.FORCE_COLOR).to.equal('1');
-    });
-
-    it('should not forward FORCE_COLOR when stdout is not a TTY', () => {
-      const ctx = makeCtx({env: {FORCE_COLOR: '1'}, stdout: {isTTY: false, columns: 80, rows: 24}});
-      const env = buildEnvironment(ctx);
-      expect(env).to.not.have.property('FORCE_COLOR');
-    });
-
-    it('should not forward CLICOLOR_FORCE when stdout is not a TTY', () => {
-      const ctx = makeCtx({env: {CLICOLOR_FORCE: '3'}, stdout: {isTTY: false, columns: 80, rows: 24}});
-      const env = buildEnvironment(ctx);
-      expect(env).to.not.have.property('CLICOLOR_FORCE');
-    });
-
-    it('should still forward NO_COLOR when stdout is not a TTY', () => {
-      const ctx = makeCtx({env: {NO_COLOR: '1'}, stdout: {isTTY: false, columns: 80, rows: 24}, noColor: true});
-      const env = buildEnvironment(ctx);
-      expect(env.NO_COLOR).to.equal('1');
+      expect(env.LANG).to.equal('en_US.UTF-8');
+      expect(env.LC_ALL).to.equal('C');
+      expect(env.LC_CTYPE).to.equal('UTF-8');
+      expect(env.LC_MESSAGES).to.equal('en_US');
     });
 
     it('should ignore env vars not in forwardKeys', () => {
@@ -85,6 +70,50 @@ describe('build-exec-environment', () => {
       const env = buildEnvironment(ctx);
       expect(env.TERM).to.equal('xterm');
       expect(env).to.not.have.property('SECRET_TOKEN');
+    });
+
+    it('should not forward CI env vars', () => {
+      const ctx = makeCtx({env: {CI: 'true', GITHUB_ACTIONS: 'true', GITLAB_CI: 'true'}});
+      const env = buildEnvironment(ctx);
+      expect(env).to.not.have.property('CI');
+      expect(env).to.not.have.property('GITHUB_ACTIONS');
+      expect(env).to.not.have.property('GITLAB_CI');
+    });
+
+    it('should not forward DEBUG or VERBOSE', () => {
+      const ctx = makeCtx({env: {DEBUG: '*', VERBOSE: '1'}});
+      const env = buildEnvironment(ctx);
+      expect(env).to.not.have.property('DEBUG');
+      expect(env).to.not.have.property('VERBOSE');
+    });
+
+    it('should not forward color env vars from the host', () => {
+      const ctx = makeCtx({env: {FORCE_COLOR: '3', NO_COLOR: '1', CLICOLOR: '1', CLICOLOR_FORCE: '1'}});
+      const env = buildEnvironment(ctx);
+      // Color state is derived from Lando's own chalk level, not host vars
+      expect(env).to.not.have.property('FORCE_COLOR');
+      expect(env).to.not.have.property('CLICOLOR');
+      expect(env).to.not.have.property('CLICOLOR_FORCE');
+    });
+  });
+
+  describe('color suppression from Lando state', () => {
+    it('should set NO_COLOR=1 when Lando is not producing color', () => {
+      const ctx = makeCtx({landoColorLevel: 0});
+      const env = buildEnvironment(ctx);
+      expect(env.NO_COLOR).to.equal('1');
+    });
+
+    it('should not set NO_COLOR when Lando is producing color', () => {
+      const ctx = makeCtx({landoColorLevel: 3});
+      const env = buildEnvironment(ctx);
+      expect(env).to.not.have.property('NO_COLOR');
+    });
+
+    it('should not set NO_COLOR when Lando has basic color support', () => {
+      const ctx = makeCtx({landoColorLevel: 1});
+      const env = buildEnvironment(ctx);
+      expect(env).to.not.have.property('NO_COLOR');
     });
   });
 
@@ -102,12 +131,6 @@ describe('build-exec-environment', () => {
       expect(env).to.not.have.property('COLUMNS');
       expect(env).to.not.have.property('LINES');
     });
-
-    it('should not synthetically set CLICOLOR_FORCE when stdout is piped', () => {
-      const ctx = makeCtx({stdout: {isTTY: false, columns: 80, rows: 24}, stderr: {isTTY: true}});
-      const env = buildEnvironment(ctx);
-      expect(env).to.not.have.property('CLICOLOR_FORCE');
-    });
   });
 
   describe('user overrides', () => {
@@ -123,10 +146,17 @@ describe('build-exec-environment', () => {
       expect(env.COLUMNS).to.equal('200');
     });
 
-    it('should let user env force color vars even when stdout is not a TTY', () => {
-      const ctx = makeCtx({env: {FORCE_COLOR: '1'}, stdout: {isTTY: false, columns: 80, rows: 24}});
+    it('should let user env override NO_COLOR suppression', () => {
+      const ctx = makeCtx({landoColorLevel: 0});
+      const env = buildEnvironment(ctx, {NO_COLOR: ''});
+      // User explicitly clearing NO_COLOR should win
+      expect(env.NO_COLOR).to.equal('');
+    });
+
+    it('should let user env force color even when Lando has no color', () => {
+      const ctx = makeCtx({landoColorLevel: 0});
       const env = buildEnvironment(ctx, {FORCE_COLOR: '3'});
-      // Inherited FORCE_COLOR is skipped, but explicit user override wins
+      // Synthetic NO_COLOR is set, but user FORCE_COLOR is also present
       expect(env.FORCE_COLOR).to.equal('3');
     });
 
@@ -141,12 +171,10 @@ describe('build-exec-environment', () => {
     it('should apply inherited < synthetic < user', () => {
       const env = buildEnvironment(
         makeCtx({stdout: {isTTY: false, columns: 80, rows: 24}}),
-        {COLUMNS: '999', FORCE_COLOR: '3'},
+        {COLUMNS: '999'},
       );
       // User wins over synthetic
       expect(env.COLUMNS).to.equal('999');
-      // User wins (FORCE_COLOR not inherited because !isTTY, but user sets it)
-      expect(env.FORCE_COLOR).to.equal('3');
     });
   });
 });

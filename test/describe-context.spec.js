@@ -25,11 +25,7 @@ describe('describe-context', () => {
     process.lando = originalLando;
     // Restore env vars we may have changed
     delete process.env.CI;
-    delete process.env.NO_COLOR;
-    delete process.env.FORCE_COLOR;
     if (originalEnv.CI !== undefined) process.env.CI = originalEnv.CI;
-    if (originalEnv.NO_COLOR !== undefined) process.env.NO_COLOR = originalEnv.NO_COLOR;
-    if (originalEnv.FORCE_COLOR !== undefined) process.env.FORCE_COLOR = originalEnv.FORCE_COLOR;
   });
 
   it('should return an object with stdin, stdout, stderr, env, and flags', () => {
@@ -40,8 +36,7 @@ describe('describe-context', () => {
     expect(ctx).to.have.property('env');
     expect(ctx).to.have.property('isNodeMode');
     expect(ctx).to.have.property('ci');
-    expect(ctx).to.have.property('noColor');
-    expect(ctx).to.have.property('forceColor');
+    expect(ctx).to.have.property('landoColorLevel');
   });
 
   it('should expose process.env as env', () => {
@@ -101,27 +96,10 @@ describe('describe-context', () => {
     expect(describeContext().ci).to.be.false;
   });
 
-  it('should detect NO_COLOR from environment', () => {
-    process.env.NO_COLOR = '1';
-    expect(describeContext().noColor).to.be.true;
-
-    delete process.env.NO_COLOR;
-    expect(describeContext().noColor).to.be.false;
-  });
-
-  it('should detect NO_COLOR when set to an empty string', () => {
-    process.env.NO_COLOR = '';
-    expect(describeContext().noColor).to.be.true;
-
-    delete process.env.NO_COLOR;
-    expect(describeContext().noColor).to.be.false;
-  });
-
-  it('should capture FORCE_COLOR from environment', () => {
-    process.env.FORCE_COLOR = '3';
-    expect(describeContext().forceColor).to.equal('3');
-
-    delete process.env.FORCE_COLOR;
-    expect(describeContext().forceColor).to.be.undefined;
+  it('should expose landoColorLevel as a number from chalk', () => {
+    const ctx = describeContext();
+    expect(ctx.landoColorLevel).to.be.a('number');
+    expect(ctx.landoColorLevel).to.be.at.least(0);
+    expect(ctx.landoColorLevel).to.be.at.most(3);
   });
 });
