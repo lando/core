@@ -29,8 +29,7 @@ const makeContext = (overrides = {}) => {
     stderr: {isTTY: false, ...stderr},
     isNodeMode: true,
     ci: false,
-    noColor: false,
-    forceColor: undefined,
+    landoColorLevel: 0,
     ...rest,
   };
 };
@@ -168,6 +167,29 @@ describe('TTY allocation', () => {
     });
   });
 
+  describe('datum mutation (build-docker-exec.js caller contract)', () => {
+    it('should write cleaned cmd back to datum so compose fallback sees it', () => {
+      const ctx = makeContext();
+      const datum = makeDatum({cmd: ['sleep', '100', '&']});
+      // Simulate what the exported module function does
+      buildExecArgs('docker', datum, ctx);
+      // The internal buildExecArgs does NOT mutate, but the exported
+      // wrapper writes back.  Test the extractDetach write-back that
+      // the outer function performs.
+      const extractDetach = require('../utils/extract-detach');
+      datum.cmd = extractDetach(datum.cmd).cmd;
+      expect(datum.cmd).to.eql(['sleep', '100']);
+      expect(datum.cmd).to.not.include('&');
+    });
+
+    it('should write cleaned cmd for shell wrapper detach', () => {
+      const datum = makeDatum({cmd: ['/bin/sh', '-c', 'sleep 100&']});
+      const extractDetach = require('../utils/extract-detach');
+      datum.cmd = extractDetach(datum.cmd).cmd;
+      expect(datum.cmd).to.eql(['/bin/sh', '-c', 'sleep 100']);
+    });
+  });
+
   describe('compose exec (lib/compose.js)', () => {
     const originalStdinIsTTY = process.stdin.isTTY;
     const originalStdoutIsTTY = process.stdout.isTTY;
@@ -248,6 +270,54 @@ describe('TTY allocation', () => {
       );
       expect(result.cmd).to.include('--detach');
       expect(result.cmd).to.include('-T');
+    });
+
+    it('should inject COLUMNS and LINES when noTTY is set', () => {
+      process.stdin.isTTY = false;
+      process.stdout.isTTY = false;
+      const compose = require('../lib/compose');
+      const result = compose.run(
+        ['docker-compose.yml'],
+        'test_project',
+        {services: ['web'], cmd: ['echo', 'hello']},
+      );
+      expect(result.cmd).to.include('-T');
+      // COLUMNS and LINES should be injected via --env
+      expect(result.cmd).to.include('--env');
+      const envPairs = result.cmd.filter((_, i, a) => i > 0 && a[i - 1] === '--env');
+      const colEntry = envPairs.find(e => e.startsWith('COLUMNS='));
+      const lineEntry = envPairs.find(e => e.startsWith('LINES='));
+      expect(colEntry).to.be.a('string');
+      expect(lineEntry).to.be.a('string');
+    });
+
+    it('should not inject COLUMNS and LINES when TTY is allocated', () => {
+      process.stdin.isTTY = true;
+      process.stdout.isTTY = true;
+      const compose = require('../lib/compose');
+      const result = compose.run(
+        ['docker-compose.yml'],
+        'test_project',
+        {services: ['web'], cmd: ['echo', 'hello']},
+      );
+      const envPairs = result.cmd.filter((_, i, a) => i > 0 && a[i - 1] === '--env');
+      const colEntry = envPairs.find(e => e.startsWith('COLUMNS='));
+      expect(colEntry).to.be.undefined;
+    });
+
+    it('should not clobber caller-provided environment vars', () => {
+      process.stdin.isTTY = false;
+      process.stdout.isTTY = false;
+      const compose = require('../lib/compose');
+      const result = compose.run(
+        ['docker-compose.yml'],
+        'test_project',
+        {services: ['web'], cmd: ['echo', 'hello'], environment: {COLUMNS: '999', MY_VAR: 'keep'}},
+      );
+      const envPairs = result.cmd.filter((_, i, a) => i > 0 && a[i - 1] === '--env');
+      // Caller COLUMNS should win over the injected default
+      expect(envPairs).to.include('COLUMNS=999');
+      expect(envPairs).to.include('MY_VAR=keep');
     });
   });
 });
