@@ -1,5 +1,7 @@
 'use strict';
 
+const chalk = require('chalk');
+
 /*
  * Describes the current execution context as a plain object.
  *
@@ -23,6 +25,10 @@ module.exports = () => ({
   env: process.env,
   isNodeMode: process.lando === 'node',
   ci: Boolean(process.env.CI),
-  noColor: process.env.NO_COLOR !== undefined,
-  forceColor: process.env.FORCE_COLOR,
+  // chalk.level: 0=none, 1=basic, 2=256, 3=truecolor.
+  // Reflects whether Lando itself is producing colorful output.
+  // chalk already accounts for NO_COLOR, FORCE_COLOR, TERM=dumb,
+  // TTY state, etc. so downstream code can treat this as the single
+  // source of truth for color support.
+  landoColorLevel: chalk.level,
 });

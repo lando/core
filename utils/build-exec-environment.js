@@ -1,25 +1,21 @@
 'use strict';
 
-// Host variables to forward when set. These provide terminal, locale,
-// and CI context to whatever runs inside the container.
+// Host variables to forward when set.  Terminal type and locale
+// provide context so tools inside the container produce appropriate
+// output; TZ keeps timestamps consistent with the host.
 const forwardKeys = [
   'TERM', 'COLORTERM', 'TERM_PROGRAM',
-  'NO_COLOR', 'FORCE_COLOR', 'CLICOLOR', 'CLICOLOR_FORCE',
   'LANG', 'LC_ALL', 'LC_CTYPE', 'LC_MESSAGES',
   'TZ',
-  'CI', 'GITHUB_ACTIONS', 'GITLAB_CI', 'CIRCLECI',
-  'BUILDKITE', 'JENKINS_URL', 'TRAVIS',
-  'DEBUG', 'VERBOSE',
 ];
-
-const forceColorKeys = ['FORCE_COLOR', 'CLICOLOR_FORCE'];
 
 /*
  * Builds the environment variables for a docker exec invocation.
  *
  * Three layers with explicit precedence:
  *   1. inherited — host vars forwarded when set
- *   2. synthetic — derived from context analysis (e.g. COLUMNS/LINES)
+ *   2. synthetic — derived from context analysis (e.g. COLUMNS/LINES,
+ *      color suppression when Lando itself is not producing color)
  *   3. userEnv   — explicit user overrides (always win)
  */
 module.exports = (context, userEnv = {}) => {
@@ -27,15 +23,18 @@ module.exports = (context, userEnv = {}) => {
   const inherited = {};
   for (const key of forwardKeys) {
     if (hostEnv[key] === undefined) continue;
-
-    // Redirected stdout should not inherit env vars that force color,
-    // or they can bypass the no-TTY safeguard and reintroduce ANSI codes.
-    if (!context.stdout.isTTY && forceColorKeys.includes(key)) continue;
-
     inherited[key] = hostEnv[key];
   }
 
   const synthetic = {};
+
+  // When Lando itself isn't producing colorful output, tell containers
+  // not to either.  context.landoColorLevel mirrors chalk.level which
+  // already accounts for NO_COLOR, FORCE_COLOR, TERM=dumb, TTY state,
+  // and every other signal the host uses to decide on color support.
+  if (context.landoColorLevel === 0) {
+    synthetic.NO_COLOR = '1';
+  }
 
   if (!context.stdout.isTTY) {
     // No PTY means no SIGWINCH, but a static hint is better than nothing

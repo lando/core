@@ -53,6 +53,13 @@ module.exports = (injected, stdio, datum = {}) => {
   const dockerBin = injected.config.dockerBin || injected._config.dockerBin;
   const context = describeContext();
   const args = buildExecArgs(dockerBin, datum, context);
+
+  // Write the cleaned command back to datum so callers that reuse the
+  // same object (e.g. build-tooling-task.js compose fallback) see it
+  // without the trailing '&'.  This preserves the mutation contract
+  // the old getExecOpts() relied on.
+  datum.cmd = extractDetach(datum.cmd).cmd;
+
   return injected.shell.sh(args, {mode: 'attach', cstdio: stdio});
 };
 
