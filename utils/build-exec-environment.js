@@ -36,7 +36,7 @@ module.exports = (context, userEnv = {}) => {
     synthetic.NO_COLOR = '1';
   }
 
-  if (!context.stdout.isTTY) {
+  if (!(context.stdin.isTTY && context.stdout.isTTY)) {
     // No PTY means no SIGWINCH, but a static hint is better than nothing
     synthetic.COLUMNS = String(context.stdout.columns);
     synthetic.LINES = String(context.stdout.rows);

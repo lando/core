@@ -14,8 +14,9 @@ const buildEnvironment = require('../utils/build-exec-environment');
 // Helper — build a context with a controlled env so tests never
 // touch process.env and don't need save/restore boilerplate.
 const makeCtx = (overrides = {}) => {
-  const {env, stdout, stderr, ...rest} = overrides;
+  const {env, stdin, stdout, stderr, ...rest} = overrides;
   return {
+    stdin: {isTTY: true, ...stdin},
     stdout: {isTTY: true, columns: 80, rows: 24, ...stdout},
     stderr: {isTTY: true, ...stderr},
     env: env || {},
@@ -125,8 +126,15 @@ describe('build-exec-environment', () => {
       expect(env.LINES).to.equal('40');
     });
 
-    it('should not set COLUMNS and LINES when stdout is a TTY', () => {
-      const ctx = makeCtx({stdout: {isTTY: true, columns: 120, rows: 40}});
+    it('should set COLUMNS and LINES when stdin is not a TTY but stdout is', () => {
+      const ctx = makeCtx({stdin: {isTTY: false}, stdout: {isTTY: true, columns: 120, rows: 40}});
+      const env = buildEnvironment(ctx);
+      expect(env.COLUMNS).to.equal('120');
+      expect(env.LINES).to.equal('40');
+    });
+
+    it('should not set COLUMNS and LINES when both stdin and stdout are TTY', () => {
+      const ctx = makeCtx({stdin: {isTTY: true}, stdout: {isTTY: true, columns: 120, rows: 40}});
       const env = buildEnvironment(ctx);
       expect(env).to.not.have.property('COLUMNS');
       expect(env).to.not.have.property('LINES');
