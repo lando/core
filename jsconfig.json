@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "strict": false,
+    "moduleResolution": "node",
+    "target": "es2022",
+    "resolveJsonModule": true
+  },
+  "include": [
+    "builders/**/*.js",
+    "components/**/*.js",
+    "hooks/**/*.js",
+    "lib/**/*.js",
+    "plugins/**/*.js",
+    "renderers/**/*.js",
+    "sources/**/*.js",
+    "tasks/**/*.js",
+    "utils/**/*.js"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
