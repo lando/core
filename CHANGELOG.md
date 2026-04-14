@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.26.3 - [April 14, 2026](https://github.com/lando/core/releases/tag/v3.26.3)
+
 * Fixed crash when `config.yml` is empty instead of containing `{}` [#439](https://github.com/lando/core/issues/439)
 * Updated `lando setup` to install `docker-buildx` if missing
 * Fixed `buildx` built images not being available locally by adding `--load` flag
