@@ -13,7 +13,7 @@ Lando is a local development orchestration tool built around Docker, recipes, an
 
 ## Architecture
 - `bin/lando` — CLI entrypoint/runtime selector.
-- `lib/lando.js` — package `main`; owns bootstrap sequencing.
+- `lib/lando.js` — package main export; owns bootstrap sequencing.
 - `index.js` — **not** the library entrypoint; it's the core plugin bootstrap that registers default config and lifecycle hooks.
 - Most behavior is wired through events and hook modules, not direct imports. Start with `lib/lando.js`, `app.js`, and `index.js`, then follow `hooks/`.
 - Bootstrap levels: `config → tasks → engine → app`. Tooling commands may only reach `engine` if compose cache exists, so not every CLI path initializes a full app.
