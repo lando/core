@@ -23,14 +23,18 @@ Lando is a local development orchestration tool built around Docker, recipes, an
 - CLI relies heavily on task cache and compose cache to decide bootstrap level and available commands.
 - If a command change seems ignored, clear caches with `lando --clear` before assuming the code path is wrong.
 
-## TypeScript Migration
-- We are incrementally migrating to TypeScript via JSDoc type definitions. Add `@param`, `@return`, `@typedef` to any functions you modify or create.
-- Type definitions go in co-located `.types.js` files (e.g., `utils/foo.types.js` next to `utils/foo.js`).
-- `npm run typecheck` is not gated in CI. Use `npm run typecheck:full` to include node_modules errors.
-- Use standard JSDoc type names (`any`, `number`, etc.) — not `Any`, `Integer`, `Opts`.
+## Writing
+- Keep commit messages, PR descriptions, and issue comments concise.
+- User-facing changes only in `CHANGELOG.md`'s `## {{ UNRELEASED_VERSION }}` section; follow the existing bullet and verb style.
 
 ## Repo-Specific Gotchas
 - **Packaged binary**: adding runtime-loaded files or new top-level directories requires updating `pkg.assets` and `pkg.scripts` in `package.json`, or they'll be missing from the packaged CLI.
 - **New source directories** must be added to `jsconfig.json` `include`, `package.json` `nyc.include`, and `package.json` `pkg.scripts`.
 - **ESLint**: `require-jsdoc` applies to `FunctionDeclaration` only — arrow functions and expressions do not need JSDoc to pass lint.
 - **`examples/**/README.md`** files are executable Leia specs — edits there affect CI test behavior.
+
+## TypeScript Migration
+- We are incrementally migrating to TypeScript via JSDoc type definitions. Add `@param`, `@return`, `@typedef` to any functions you modify or create.
+- Type definitions go in co-located `.types.js` files (e.g., `utils/foo.types.js` next to `utils/foo.js`).
+- `npm run typecheck` is not gated in CI. Use `npm run typecheck:full` to include node_modules errors.
+- Use standard JSDoc type names (`any`, `number`, etc.) — not `Any`, `Integer`, `Opts`.
