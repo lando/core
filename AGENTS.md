@@ -29,15 +29,14 @@ Lando is a local development orchestration tool built around Docker, recipes, an
 - If a command/task change seems ignored, clear caches with `lando --clear` or remove the relevant cache files before assuming the code path is wrong.
 
 ## TypeScript Migration
-- This project is incrementally migrating to TypeScript via JSDoc type definitions.
-- When touching any module, add `@param`, `@return`, and `@typedef` annotations to any functions you modify or create.
+- Incremental migration via JSDoc type definitions. Add `@param`, `@return`, and `@typedef` annotations to any functions you modify or create.
 - Type definitions live in co-located `.types.js` files (e.g., `utils/foo.types.js` next to `utils/foo.js`). Source files import from them via `/** @typedef {import('./foo.types').MyType} MyType */`.
-- Modules that only consume types from other modules do not need their own `.types.js` file.
-- `jsconfig.json` has `checkJs: true` for all source directories; the TS language service validates JSDoc types automatically.
+- `jsconfig.json` has `checkJs: true`; `tsc` uses it directly via `--project jsconfig.json`.
+- Run `npm run typecheck` locally to track progress (not yet gated in CI). `npm run typecheck:full` includes node_modules errors.
+- Do not use non-standard JSDoc type names like `Any`, `Integer`, or `Opts`; use `any`, `number`, and proper `@typedef` definitions instead.
 
 ## Repo-Specific Gotchas
 - Packaged binary support is explicit. If you add runtime-loaded files or a new top-level code directory, update `package.json` `pkg.assets` and `pkg.scripts` or the packaged CLI can miss them.
-- Coverage is also opt-in by directory via `package.json` `nyc.include`; new source directories are not covered automatically.
-- ESLint uses `eslint-config-google` plus `require-jsdoc` for `FunctionDeclaration` only. New function declarations usually need JSDoc to pass lint; arrow functions and function expressions do not.
-- `jsconfig.json` `checkJs` only covers `lib/**/*.js`, `utils/**/*.js`, and other source directories. Changes outside those paths do not get editor type-check coverage from this config.
+- New source directories must be added to `jsconfig.json` `include` (type checking), `package.json` `nyc.include` (coverage), and `package.json` `pkg.scripts` (packaging).
+- ESLint uses `eslint-config-google` plus `require-jsdoc` for `FunctionDeclaration` only. Arrow functions and function expressions do not require JSDoc to pass lint.
 - `examples/**/README.md` files double as executable Leia specs; changes there can change CI coverage and test behavior.

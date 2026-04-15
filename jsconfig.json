@@ -1,8 +1,12 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "checkJs": true,
+    "noEmit": true,
+    "skipLibCheck": true,
     "strict": false,
     "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
     "target": "es2022",
     "resolveJsonModule": true
   },
