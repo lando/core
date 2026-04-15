@@ -11,10 +11,16 @@
     "resolveJsonModule": true
   },
   "include": [
+    "app.js",
+    "index.js",
     "builders/**/*.js",
     "components/**/*.js",
+    "experimental/**/*.js",
     "hooks/**/*.js",
+    "inits/**/*.js",
     "lib/**/*.js",
+    "messages/**/*.js",
+    "packages/**/*.js",
     "plugins/**/*.js",
     "renderers/**/*.js",
     "sources/**/*.js",
