@@ -1,11 +1,14 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed ANSI escape codes appearing in redirected output by checking `stdout.isTTY` instead of `stdin.isTTY` for TTY allocation [#345](https://github.com/lando/core/issues/345)
+* Improved exec and tooling commands to forward host terminal environment (`TERM`, `LANG`, `TZ`, etc.) into containers
+* Improved color output handling so containers receive `NO_COLOR=1` when Lando itself is running without color
+
 ## v3.26.3 - [April 14, 2026](https://github.com/lando/core/releases/tag/v3.26.3)
 
 * Fixed crash when `config.yml` is empty instead of containing `{}` [#439](https://github.com/lando/core/issues/439)
 * Updated `lando setup` to install `docker-buildx` if missing
 * Fixed `buildx` built images not being available locally by adding `--load` flag
-* Fixed ANSI escape codes appearing in redirected output by checking `stdout.isTTY` instead of `stdin.isTTY` for TTY allocation [#345](https://github.com/lando/core/issues/345)
 
 ## v3.26.2 - [December 17, 2025](https://github.com/lando/core/releases/tag/v3.26.2)
 
