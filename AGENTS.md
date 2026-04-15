@@ -13,7 +13,7 @@ Lando is a local development orchestration tool built around Docker, recipes, an
 
 ## Architecture
 - `bin/lando` — CLI entrypoint/runtime selector.
-- `lib/lando.js` — package `main`; owns bootstrap sequencing.
+- `lib/lando.js` — package main export; owns bootstrap sequencing.
 - `index.js` — **not** the library entrypoint; it's the core plugin bootstrap that registers default config and lifecycle hooks.
 - Most behavior is wired through events and hook modules, not direct imports. Start with `lib/lando.js`, `app.js`, and `index.js`, then follow `hooks/`.
 - Bootstrap levels: `config → tasks → engine → app`. Tooling commands may only reach `engine` if compose cache exists, so not every CLI path initializes a full app.
@@ -37,4 +37,4 @@ Lando is a local development orchestration tool built around Docker, recipes, an
 - We are incrementally migrating to TypeScript via JSDoc type definitions. Add `@param`, `@return`, `@typedef` to any functions you modify or create.
 - Type definitions go in co-located `.types.js` files (e.g., `utils/foo.types.js` next to `utils/foo.js`).
 - `npm run typecheck` is not gated in CI. Use `npm run typecheck:full` to include node_modules errors.
-- Use standard JSDoc type names (`any`, `number`, etc.) — not `Any`, `Integer`, `Opts`.
+- Use proper TypeScript types in JSDoc annotations.
