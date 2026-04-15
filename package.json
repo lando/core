@@ -39,7 +39,7 @@
     "all": true
   },
   "scripts": {
-    "postinstall": "command -v claude >/dev/null 2>&1 && ln -sf AGENTS.md CLAUDE.md || true",
+    "postinstall": "node -e \"try { require('child_process').execSync('claude --version', {stdio: 'ignore'}); require('fs').symlinkSync('AGENTS.md', 'CLAUDE.md', 'file'); } catch {}\"",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "docs:build": "VPL_MVB_VERSION=$(git describe --tags --always --abbrev=1 --match=\"v[0-9].*\") vitepress build docs && npm run docs:rename-sitemap",
     "docs:dev": "VPL_BASE_URL=http://localhost:5173 VPL_MVB_VERSION=$(git describe --tags --always --abbrev=1 --match=\"v[0-9].*\") vitepress dev docs",
