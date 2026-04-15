@@ -27,6 +27,7 @@ const makeContext = (overrides = {}) => {
     stdin: {isTTY: false, isClosed: false, ...stdin},
     stdout: {isTTY: false, columns: 80, rows: 24, ...stdout},
     stderr: {isTTY: false, ...stderr},
+    env: {},
     isNodeMode: true,
     ci: false,
     landoColorLevel: 0,
