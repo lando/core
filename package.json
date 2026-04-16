@@ -39,7 +39,6 @@
     "all": true
   },
   "scripts": {
-    "postinstall": "node -e \"try{require('fs').statSync('CLAUDE.md')}catch{console.log('Tip: symlink CLAUDE.md -> AGENTS.md for Claude Code support:\\n  Unix:    ln -sf AGENTS.md CLAUDE.md\\n  Windows: mklink CLAUDE.md AGENTS.md')}\"",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "docs:build": "VPL_MVB_VERSION=$(git describe --tags --always --abbrev=1 --match=\"v[0-9].*\") vitepress build docs && npm run docs:rename-sitemap",
     "docs:dev": "VPL_BASE_URL=http://localhost:5173 VPL_MVB_VERSION=$(git describe --tags --always --abbrev=1 --match=\"v[0-9].*\") vitepress dev docs",
