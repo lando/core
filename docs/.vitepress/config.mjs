@@ -86,18 +86,7 @@ export default defineConfig({
         patterns: ['help/**/*.md', 'troubleshooting/**/*.md'],
       },
     },
-    contributors: {
-      include: [
-        // Mike, Alec, and Aaron come from the landov3 defaults already
-        // (see @lando/vitepress-theme-default-plus/config/landov3.js).
-        // Only override the bits we want to change locally.
-        {
-          email: 'mike@lando.dev',
-          desc: 'SLAVE4U',
-          mergeOnly: true,
-        },
-      ],
-    },
+
     sidebar: {
       '/cli': cliBar(),
       '/config': configBar(),
