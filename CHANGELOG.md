@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed `lando ssh` defaulting to a v3 service instead of the v4 `appserver` in mixed-api apps [#461](https://github.com/lando/core/pull/461)
+
 ## v3.26.3 - [April 14, 2026](https://github.com/lando/core/releases/tag/v3.26.3)
 
 * Fixed crash when `config.yml` is empty instead of containing `{}` [#439](https://github.com/lando/core/issues/439)
