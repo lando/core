@@ -5,7 +5,11 @@ description: lando plugin-logout Logs you out of all active sessions established
 
 # lando plugin-logout
 
-Logs you out of _all_ active sessions established by `lando plugin-login`
+Logs you out of _all_ active sessions established by `lando plugin-login` by clearing `~/.lando/plugin-auth.json`.
+
+::: warning System-level credentials are not affected
+If credentials were deployed to the system-level `plugin-auth.json` (by an IT/MDM process), this command will not remove them. Those must be removed manually from the system path.
+:::
 
 ## Usage
 
