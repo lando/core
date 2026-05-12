@@ -58,6 +58,16 @@ lando config | grep -q "plugins/@lando/php"
 lando plugin-remove "@lando/php"
 lando config | grep -qv "plugins/@lando/php"
 
+# Should be able to add a private plugin using only system-level plugin-auth.json credentials
+sudo mkdir -p /srv/lando
+echo "{\"@lando:registry\":\"https://npm.pkg.github.com\",\"//npm.pkg.github.com/:_authToken\":\"$GITHUB_PAT\"}" | sudo tee /srv/lando/plugin-auth.json > /dev/null
+lando config | grep -qv "plugins/@lando/lando-plugin-test"
+lando plugin-add "@lando/lando-plugin-test"
+lando config | grep -q "plugins/@lando/lando-plugin-test"
+lando plugin-remove "@lando/lando-plugin-test"
+lando config | grep -qv "plugins/@lando/lando-plugin-test"
+sudo rm /srv/lando/plugin-auth.json
+
 # Should execute `lando plugin-login`
 lando plugin-login --registry "https://npm.pkg.github.com" --password "$GITHUB_PAT" --username "rtfm-47" --scope "lando::registry=https://npm.pkg.github.com"
 

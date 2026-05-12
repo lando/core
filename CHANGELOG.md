@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Added system-level `plugin-auth.json` support so IT/MDM-managed machines can deploy private registry credentials once for all users (macOS: `/Library/Application Support/Lando/plugin-auth.json`, Linux: `/srv/lando/plugin-auth.json`, Windows: `%PROGRAMDATA%\Lando\plugin-auth.json`)
+
 ## v3.26.4 - [April 28, 2026](https://github.com/lando/core/releases/tag/v3.26.4)
 
 * Fixed `lando ssh` defaulting to a v3 service instead of the v4 `appserver` in mixed-api apps [#461](https://github.com/lando/core/pull/461)

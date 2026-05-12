@@ -7,7 +7,7 @@ description: lando plugin-login logs you into a valid lando plugin registry
 
 Logs into a Lando plugin registry.
 
-This will authorize your Lando installation against a Lando plugin registry. A "Lando Plugin Registry" is any `npm` compatible regsitry eg:
+This will authorize your Lando installation against a Lando plugin registry and write the resulting credentials to `~/.lando/plugin-auth.json`. A "Lando Plugin Registry" is any `npm` compatible regsitry eg:
 
 * `https://registry.npmjs.org`
 * `https://npm.pkg.github.com`
