@@ -165,7 +165,7 @@ jobs:
       TERM: xterm
     steps:
       - name: Push release to lando/lando
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           repository: lando/lando
           name: ${{ github.event.release.tag_name }}
@@ -191,7 +191,7 @@ jobs:
             * [Extended release notes](https://lando.dev/blog/2024/01/16/v321-extended.html)
 
       - name: Push release to lando/cli
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           repository: lando/legacy-cli
           name: ${{ github.event.release.tag_name }}
