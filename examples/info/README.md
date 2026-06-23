@@ -42,7 +42,7 @@ lando info --deep --format table | grep NetworkSettings.Networks.lando_bridge_ne
 
 # Should return a specified --path when given with lando info
 lando info --path "[0]" | grep service | wc -l | grep 1
-lando info --deep --filter service=web4 --path "[0].Config.User" | grep nginx
+lando info --deep --service web4 --path Config.User | grep nginx
 
 # Should return --path without preceding index if array has size 1
 lando info --path service --service web4 | grep web4
