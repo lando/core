@@ -12,7 +12,7 @@ Run the following commands to get up and running with this example.
 # Should clone code down from a remote git repo
 mkdir -p git && cd git
 rm -rf ~/.lando/scripts
-lando init --source remote --recipe none --remote-url="git@github.com:lando/lando.git" --yes
+lando init --source remote --recipe none --remote-url="https://github.com/lando/lando.git" --yes
 
 # Should extract code from a remote tar file
 mkdir -p tar && cd tar
