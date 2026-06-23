@@ -46,7 +46,7 @@ jobs:
       TERM: xterm
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Ensure path
         run: mkdir -p /tmp/checksums/${{ github.sha }}
       - name: Download artifacts

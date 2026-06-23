@@ -73,7 +73,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
