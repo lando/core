@@ -4,9 +4,15 @@ const fs = require('fs');
 const merge = require('lodash/merge');
 const read = require('./read-file');
 
-module.exports = (file, config = {}) => {
-  // if config file exists then rebase config on top of it
-  if (fs.existsSync(file)) return merge({}, read(file), config);
-  // otherwise return config alone
-  return config;
+module.exports = (file, config = {}, systemFile = null) => {
+  let base = {};
+  if (systemFile && fs.existsSync(systemFile)) {
+    try {
+      base = read(systemFile);
+    } catch {
+      // system file unreadable (e.g. wrong permissions) — skip silently
+    }
+  }
+  if (fs.existsSync(file)) return merge({}, base, read(file), config);
+  return merge({}, base, config);
 };

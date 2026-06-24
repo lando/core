@@ -59,7 +59,7 @@ module.exports = lando => {
 
       // normalize incoming options on top of any managed or user plugin config we already have
       options.config = merge({}, [
-        getPluginConfig(lando.config.pluginConfigFile, lando.config.pluginConfig),
+        getPluginConfig(lando.config.pluginConfigFile, lando.config.pluginConfig, lando.config.systemPluginConfigFile),
         lopts2Popts(options),
       ]);
 
