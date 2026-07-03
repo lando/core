@@ -47,11 +47,11 @@ By sponsoring Lando with your hard earned American dollars, the Lando team can d
 
 If you'd like to read more about why you should sponsor Lando, we encourage you to check out the posts as follows:
 
-* [Why you should sponsor Lando](https://lando.dev/blog/2020/02/07/why-you-should-sponsor-lando.html)
-* [Why your agency or org should sponsor Lando](https://lando.dev/blog/2020/02/08/why-your-agency-should-sponsor-lando.html)
-* [Why your PaaS or dev tool should sponsor Lando](https://lando.dev/blog/2020/02/08/why-your-pass-should-sponsor-lando.html)
+* [Why you should sponsor Lando](https://www.lando.dev/blog/2020/02/07/why-you-should-sponsor-lando.html)
+* [Why your agency or org should sponsor Lando](https://www.lando.dev/blog/2020/02/08/why-your-agency-should-sponsor-lando.html)
+* [Why your PaaS or dev tool should sponsor Lando](https://www.lando.dev/blog/2020/02/08/why-your-pass-should-sponsor-lando.html)
 
-If you are interested in sponsoring at one of our higher tiers, then definitely [contact us](https://lando.dev/contact/) so we can figure out the terms of your sponsorship.
+If you are interested in sponsoring at one of our higher tiers, then definitely [contact us](https://www.lando.dev/contact/) so we can figure out the terms of your sponsorship.
 
 ## Helping others sponsors
 
@@ -73,9 +73,9 @@ If you and your team are saving development time using Lando, your organization 
 
 Asking your boss to sponsor Lando might seem tough. Why should they pay for something they're already getting for free? There are _many_ reasons and we've prepared them all in the easily distributable blog content below:
 
-* [Why you should sponsor Lando](https://lando.dev/blog/2020/02/07/why-you-should-sponsor-lando.html)
-* [Why your agency or org should sponsor Lando](https://lando.dev/blog/2020/02/08/why-your-agency-should-sponsor-lando.html)
-* [Why your PaaS or dev tool should sponsor Lando](https://lando.dev/blog/2020/02/08/why-your-pass-should-sponsor-lando.html)
+* [Why you should sponsor Lando](https://www.lando.dev/blog/2020/02/07/why-you-should-sponsor-lando.html)
+* [Why your agency or org should sponsor Lando](https://www.lando.dev/blog/2020/02/08/why-your-agency-should-sponsor-lando.html)
+* [Why your PaaS or dev tool should sponsor Lando](https://www.lando.dev/blog/2020/02/08/why-your-pass-should-sponsor-lando.html)
 
 ### They're Ready to Sponsor. Now What?
 
@@ -89,7 +89,7 @@ Some answers to some of our most frequent questions about sponsorship are shown 
 
 ### When will I show up on the website, Twitter, etc?
 
-We usually batch update our [list of sponsors](https://lando.dev/sponsor/) and Twitter queue _at least_ once a week so you should expect to see yourself or your org on the website within a week. Twitter can be a different story and depends on the queue. If there are a lot of sponsors in front of you, you might have to wait up to a month to get your shoutout.
+We usually batch update our [list of sponsors](https://www.lando.dev/sponsor/) and Twitter queue _at least_ once a week so you should expect to see yourself or your org on the website within a week. Twitter can be a different story and depends on the queue. If there are a lot of sponsors in front of you, you might have to wait up to a month to get your shoutout.
 
 An exception to the above rule is if you have sponsored at one of our higher tiers and we've provided custom marketing benefits. However, in this case, you will be directly in touch with one of our team members to coordinate the rollout.
 
@@ -103,7 +103,7 @@ Due to the time and administrative overhead, we usually send swag out once a qua
 
 Yes!
 
-Our highest two tiers are fairly customizable based around your needs. If you would like to put together custom sponsorship terms, then [contact us](https://lando.dev/contact/) and let us know what you are looking for. Our team will get in touch with you shortly and try to figure out something that works for all.
+Our highest two tiers are fairly customizable based around your needs. If you would like to put together custom sponsorship terms, then [contact us](https://www.lando.dev/contact/) and let us know what you are looking for. Our team will get in touch with you shortly and try to figure out something that works for all.
 
 ### How do I cancel a sponsorship?
 
@@ -115,4 +115,4 @@ We rely on third party sponsorship platforms to manage your sponsorship so you w
 
 ### How can I convince my boss or org to sponsor?
 
-We have some ideas for that [over here](https://lando.dev/blog/2020/02/08/why-your-agency-should-sponsor-lando.html)!
+We have some ideas for that [over here](https://www.lando.dev/blog/2020/02/08/why-your-agency-should-sponsor-lando.html)!

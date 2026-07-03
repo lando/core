@@ -25,28 +25,31 @@ on:
     secrets:
       certificate-data:
         description: "A `base64` encoded string of your `p12` or `pfx` cert contents."
-        required: true
+        required: false
       certificate-password:
         description: "The password to unlock the certificate-data"
-        required: true
+        required: false
       apple-notary-password:
         description: "The Apple Developer account password to use in notarization"
         required: false
       apple-notary-user:
         description: "The Apple Developer account email to use in notarization"
         required: false
-      keylocker-api-key:
-        description: "The API key to use for KeyLocker"
+      azure-client-id:
+        description: "The Azure application client ID to use for Azure Artifact Signing"
         required: false
-      keylocker-cert-sha1-hash:
-        description: "The SHA1 hash of the certificate to use for KeyLocker"
+      azure-subscription-id:
+        description: "The Azure subscription ID to use for Azure Artifact Signing"
         required: false
-      keylocker-keypair-alias:
-        description: "The alias of the keypair to use for KeyLocker"
+      azure-tenant-id:
+        description: "The Azure tenant ID to use for Azure Artifact Signing"
         required: false
 
 jobs:
   codesign-binary:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ${{
       (contains(inputs.os, 'linux') || contains(inputs.file, 'linux')) && 'ubuntu-24.04' ||
       (contains(inputs.os, 'macos') || contains(inputs.file, 'macos')) && 'macos-15' ||
@@ -75,15 +78,17 @@ jobs:
           apple-notary-password: ${{ secrets.apple-notary-password }}
           apple-product-id: dev.lando.cli
           apple-team-id: 466VYKC9T5
+          azure-client-id: ${{ secrets.azure-client-id }}
+          azure-signing-account-name: lando
+          azure-signing-endpoint: https://eus.codesigning.azure.net/
+          azure-subscription-id: ${{ secrets.azure-subscription-id }}
+          azure-tenant-id: ${{ secrets.azure-tenant-id }}
           certificate-data: ${{ secrets.certificate-data }}
-          certificate-id: 466VYKC9T5
+          certificate-id: ${{ runner.os == 'Windows' && 'lando' || '466VYKC9T5' }}
           certificate-password: ${{ secrets.certificate-password }}
           file: ${{ steps.download-artifacts.outputs.download-path }}/${{ inputs.file }}${{ runner.os == 'Windows' && !endsWith(inputs.file, '.exe') && '.exe' || '' }}
-          keylocker-api-key: ${{ secrets.keylocker-api-key }}
-          keylocker-cert-sha1-hash: ${{ secrets.keylocker-cert-sha1-hash }}
-          keylocker-host: https://clientauth.one.digicert.com
-          keylocker-keypair-alias: ${{ secrets.keylocker-keypair-alias }}
           options: ${{ runner.os == 'macOS' && '--options runtime --entitlements "$GITHUB_WORKSPACE/entitlements.xml"' || '' }}
+          signtool: ${{ runner.os == 'Windows' && 'azure' || 'auto' }}
       - name: Upload signed binaries
         uses: actions/upload-artifact@v7
         with:
