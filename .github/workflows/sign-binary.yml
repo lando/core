@@ -50,7 +50,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    environment: prod
+    environment: signing
     runs-on: ${{
       (contains(inputs.os, 'linux') || contains(inputs.file, 'linux')) && 'ubuntu-24.04' ||
       (contains(inputs.os, 'macos') || contains(inputs.file, 'macos')) && 'macos-15' ||
