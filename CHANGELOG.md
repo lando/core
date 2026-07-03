@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.26.7 - [July 3, 2026](https://github.com/lando/core/releases/tag/v3.26.7)
+
 * Updated to use new Lando Alliance [Azure Artificate Signing](https://learn.microsoft.com/en-us/azure/artifact-signing/) certs
 
 ## v3.26.6 - [July 3, 2026](https://github.com/lando/core/releases/tag/v3.26.6)
