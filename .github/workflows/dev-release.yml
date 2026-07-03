@@ -30,6 +30,9 @@ jobs:
       version: dev
 
   sign:
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/sign-binary.yml
     needs:
       - package
@@ -51,11 +54,11 @@ jobs:
     secrets:
       apple-notary-user: ${{ secrets.APPLE_NOTARY_USER }}
       apple-notary-password: ${{ secrets.APPLE_NOTARY_PASSWORD }}
-      certificate-data: ${{ contains(matrix.file, 'macos') && secrets.APPLE_CERT_DATA || secrets.KEYLOCKER_CLIENT_CERT }}
-      certificate-password: ${{ contains(matrix.file, 'macos') && secrets.APPLE_CERT_PASSWORD || secrets.KEYLOCKER_CLIENT_CERT_PASSWORD }}
-      keylocker-api-key: ${{ secrets.KEYLOCKER_API_KEY }}
-      keylocker-cert-sha1-hash: ${{ secrets.KEYLOCKER_CERT_SHA1_HASH }}
-      keylocker-keypair-alias: ${{ secrets.KEYLOCKER_KEYPAIR_ALIAS }}
+      azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+      azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+      certificate-data: ${{ contains(matrix.file, 'macos') && secrets.APPLE_CERT_DATA || '' }}
+      certificate-password: ${{ contains(matrix.file, 'macos') && secrets.APPLE_CERT_PASSWORD || '' }}
 
   build-release-binary-alias:
     uses: ./.github/workflows/release-rename-binary.yml
