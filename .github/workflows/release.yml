@@ -6,6 +6,7 @@ on:
       - created
 
 permissions:
+  id-token: write
   contents: write
 
 jobs:
