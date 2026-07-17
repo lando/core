@@ -18,6 +18,15 @@ dns.setDefaultResultOrder('ipv4first');
 
 // other mods
 const fs = require('fs');
+
+// Node >=24 emits DEP0187 when fs.existsSync gets a non path-like argument; lando passes
+// undefined/objects in a number of spots. Preserve the pre-24 behavior (return false) globally
+// so we do not have to guard every call site. fs is a singleton so this covers all downstream uses.
+const _existsSync = fs.existsSync;
+fs.existsSync = function(p) {
+  if (typeof p !== "string" && !Buffer.isBuffer(p) && !(p instanceof URL)) return false;
+  return _existsSync.apply(this, arguments);
+};
 const path = require('path');
 
 const _ = require('lodash');
