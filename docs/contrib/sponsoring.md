@@ -20,11 +20,11 @@ GitHub Sponsors, Patreon, and Open Collective: all three of these official Lando
 
 [Sponsor With GitHub Here](https://github.com/sponsors/lando)
 
-### [With Patreon](https://www.patreon.com/devwithlando)
+### [With Patreon](https://www.patreon.com/cw/devwithlando)
 
-The gold standard of sponsoring creatives, [Patreon](https://www.patreon.com/devwithlando) does charge a transactional fee; hence why you'll see sponsorship rates are a little higher there. Rest assured that Lando gets the same amount, but all things being equal, you might want to use GitHub Sponsors instead.
+The gold standard of sponsoring creatives, [Patreon](https://www.patreon.com/cw/devwithlando) does charge a transactional fee; hence why you'll see sponsorship rates are a little higher there. Rest assured that Lando gets the same amount, but all things being equal, you might want to use GitHub Sponsors instead.
 
-[Sponsor with Patreon Here](https://www.patreon.com/devwithlando)
+[Sponsor with Patreon Here](https://www.patreon.com/cw/devwithlando)
 
 ### [With Open Collective](https://opencollective.com/lando)
 
