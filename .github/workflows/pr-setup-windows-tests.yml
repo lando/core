@@ -64,7 +64,7 @@ jobs:
         run: |
           $actual = (Get-Item "$env:ProgramFiles\Docker\Docker\Docker Desktop.exe").VersionInfo.ProductVersion
           $expected = [regex]::Escape('${{ steps.docker-desktop.outputs.version }}')
-          if ($actual -notmatch "^$expected(?:\.0)?$") {
+          if ($actual -notmatch "^$expected(?:\.\d+)*$") {
             throw "Expected Docker Desktop ${{ steps.docker-desktop.outputs.version }}, got: $actual"
           }
       - name: Verify lando setup
