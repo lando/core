@@ -1,10 +1,7 @@
 name: Setup macOS Tests
 
 on:
-  # pull_request:
-  push:
-    branches:
-      - SKIPFORNOW
+  pull_request:
 
 jobs:
   leia-tests:
@@ -14,8 +11,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        leia-test:
-          - setup-macos
         node-version:
           - "20"
         os:
@@ -56,10 +51,26 @@ jobs:
           auto-setup: false
           lando-version: ${{ steps.pkg-action.outputs.file }}
           telemetry: false
-      - name: Run Leia Tests
+      - name: Get default Docker Desktop version
+        id: docker-desktop
+        run: echo "version=$(node -p \"require('./utils/get-config-defaults')({}).setup.buildEngine\")" >> "$GITHUB_OUTPUT"
+      - name: Install Docker Desktop ${{ steps.docker-desktop.outputs.version }}
+        run: |
+          brew uninstall --force --ignore-dependencies docker-desktop
+          lando setup -y --skip-networking --skip-common-plugins --build-engine ${{ steps.docker-desktop.outputs.version }}
+      - name: Verify Docker Desktop ${{ steps.docker-desktop.outputs.version }}
+        run: test "$(defaults read /Applications/Docker.app/Contents/Info CFBundleShortVersionString)" = "${{ steps.docker-desktop.outputs.version }}"
+      - name: Verify lando setup
         uses: lando/run-leia-action@v2
         with:
-          leia-test: "./examples/${{ matrix.leia-test }}/README.md"
+          leia-test: "./examples/setup-macos/README.md"
+          cleanup-header: "Destroy tests"
+          shell: bash
+          stdin: true
+      - name: Run Docker Desktop smoke tests
+        uses: lando/run-leia-action@v2
+        with:
+          leia-test: "./examples/desktop-smoke/README.md"
           cleanup-header: "Destroy tests"
           shell: bash
           stdin: true

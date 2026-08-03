@@ -1,0 +1,15 @@
+name: lando-desktop-smoke
+
+services:
+  appserver:
+    api: 4
+    type: lando
+    image: node:20-alpine
+    command: sleep infinity
+
+tooling:
+  node:
+    service: appserver
+
+plugins:
+  "@lando/core": ../..
