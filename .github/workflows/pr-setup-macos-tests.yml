@@ -65,6 +65,8 @@ jobs:
           stdin: true
       - name: Verify Docker Desktop ${{ steps.docker-desktop.outputs.version }}
         run: test "$(defaults read /Applications/Docker.app/Contents/Info CFBundleShortVersionString)" = "${{ steps.docker-desktop.outputs.version }}"
+      - name: Install LAMP plugin
+        run: lando plugin-add "@lando/lamp@latest"
       - name: Run Docker Desktop smoke tests
         uses: lando/run-leia-action@v2
         with:

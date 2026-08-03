@@ -5,9 +5,6 @@ This example verifies a tiny LAMP application and its HTTPS proxy against the de
 ## Start up tests
 
 ```bash
-# Should install the LAMP recipe plugin
-lando plugin-add "@lando/lamp@latest"
-
 # Should start an app with the default Docker Desktop version
 lando poweroff
 lando start

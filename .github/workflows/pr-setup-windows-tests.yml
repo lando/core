@@ -72,6 +72,9 @@ jobs:
           if ($actual -notmatch "^$expected(?:\.\d+)*$") {
             throw "Expected Docker Desktop ${{ steps.docker-desktop.outputs.version }}, got: $actual"
           }
+      - name: Install LAMP plugin
+        shell: pwsh
+        run: lando plugin-add "@lando/lamp@latest"
       - name: Run Docker Desktop smoke tests
         uses: lando/run-leia-action@v2
         with:
