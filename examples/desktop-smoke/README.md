@@ -1,6 +1,6 @@
 # Docker Desktop Smoke Tests
 
-This example verifies a compact set of key Lando features against the default Docker Desktop version on macOS and Windows.
+This example verifies a tiny LAMP application and its HTTPS proxy against the default Docker Desktop version on macOS and Windows.
 
 ## Start up tests
 
@@ -13,17 +13,18 @@ lando start
 ## Verification commands
 
 ```bash
-# Should discover the running service
+# Should discover the running application and database services
 lando info --service appserver
+lando info --service database
 
-# Should execute a command in the service
-lando ssh --service appserver --command "echo lando-ssh-is-working"
+# Should execute PHP in the application service
+lando php -r "echo 'lando-php-is-working';"
 
-# Should invoke custom tooling
-lando node --version
+# Should connect PHP to the database
+lando php -r '$db = new mysqli("database", "lamp", "lamp", "lamp"); exit($db->connect_errno);'
 
-# Should expose the service through the Docker engine
-lando info --service appserver | grep running
+# Should serve the application through its HTTPS proxy URL
+node -e "const https = require('https'); process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; https.get('https://lando-desktop-smoke.lndo.site', response => { let body = ''; response.on('data', chunk => body += chunk); response.on('end', () => { if (response.statusCode !== 200 || !body.includes('lando-lamp-https-is-working')) process.exit(1); }); }).on('error', error => { console.error(error); process.exit(1); });"
 ```
 
 ## Destroy tests
