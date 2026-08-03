@@ -35,14 +35,14 @@ LANDO_ORCHESTRATOR_VERSION="2.19.1" lando start -vvv 2>&1 | grep ".lando/bin/doc
 LANDO_ORCHESTRATOR_VERSION="UHNO" lando start -vvv 2>&1 | grep -E "/usr/local/bin/docker-compose|.lando/bin/docker-compose"
 
 # Should use the orchestratorBin if set
-LANDO_ORCHESTRATOR_BIN="/usr/local/bin/docker-compose" lando config --path orchestratorBin | grep "$LANDO_ORCHESTRATOR_BIN"
-LANDO_ORCHESTRATOR_BIN="/usr/local/bin/docker-compose" lando start -vvv 2>&1 | grep "$LANDO_ORCHESTRATOR_BIN"
+LANDO_ORCHESTRATOR_BIN="$HOME/.lando/bin/docker-compose-v2.19.1" lando config --path orchestratorBin --format json | tr -d '"' | grep -Fx "$HOME/.lando/bin/docker-compose-v2.19.1"
+LANDO_ORCHESTRATOR_BIN="$HOME/.lando/bin/docker-compose-v2.19.1" lando start -vvv 2>&1 | grep -F "$HOME/.lando/bin/docker-compose-v2.19.1"
 
 # Should set orchestratorBin with composeBin if orchestratorBin is not set
-LANDO_COMPOSE_BIN="/usr/local/bin/docker-compose" lando config --path orchestratorBin | grep "$LANDO_COMPOSE_BIN"
+LANDO_COMPOSE_BIN="$HOME/.lando/bin/docker-compose-v2.19.1" lando config --path orchestratorBin --format json | tr -d '"' | grep -Fx "$HOME/.lando/bin/docker-compose-v2.19.1"
 
 # Should prefer orchestratorBin to composeBin
-LANDO_COMPOSE_BIN="/usr/local/bin/bogus" LANDO_ORCHESTRATOR_BIN="/usr/local/bin/docker-compose" lando config --path orchestratorBin | grep "$LANDO_ORCHESTRATOR_BIN"
+LANDO_COMPOSE_BIN="/usr/local/bin/bogus" LANDO_ORCHESTRATOR_BIN="$HOME/.lando/bin/docker-compose-v2.19.1" lando config --path orchestratorBin --format json | tr -d '"' | grep -Fx "$HOME/.lando/bin/docker-compose-v2.19.1"
 ```
 
 ## Destroy tests
