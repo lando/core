@@ -53,7 +53,9 @@ jobs:
           telemetry: false
       - name: Get default Docker Desktop version
         id: docker-desktop
-        run: echo "version=$(node -p \"require('./utils/get-config-defaults')({}).setup.buildEngine\")" >> "$GITHUB_OUTPUT"
+        run: |
+          version=$(node -p "require('./utils/get-config-defaults')({}).setup.buildEngine")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - name: Run lando setup tests
         uses: lando/run-leia-action@v2
         with:
