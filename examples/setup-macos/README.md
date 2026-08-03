@@ -30,5 +30,5 @@ find ~/.lando/bin -type f -name 'docker-compose-v2*' -exec {} version \;
 stat ~/.lando/certs/LandoCA.crt
 
 # Should have installed the Lando Development CA
-security find-certificate -a -c "Lando Development CA" -p ~/Library/Keychains/login.keychain-db
+security find-certificate -c "Lando Development CA" ~/Library/Keychains/login.keychain-db
 ```
