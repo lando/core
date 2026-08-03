@@ -12,6 +12,9 @@ Run the following commands to validate things are rolling as they should.
 # Should dogfood the core plugin we are testing against
 lando plugin-add "@lando/core@file:../.."
 
+# Should be able to run lando setup
+lando setup -y --skip-networking --skip-common-plugins
+
 # Should have installed Docker Desktop
 Test-Path "$env:ProgramFiles\\Docker\\Docker\\Docker Desktop.exe"
 & "$env:ProgramFiles\\Docker\\Docker\\resources\\bin\\docker.exe" --version

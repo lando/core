@@ -56,9 +56,14 @@ jobs:
         run: |
           $version = node -p "require('./utils/get-config-defaults')({}).setup.buildEngine"
           "version=$version" >> $env:GITHUB_OUTPUT
-      - name: Install Docker Desktop ${{ steps.docker-desktop.outputs.version }}
-        shell: pwsh
-        run: lando setup -y --skip-networking --skip-common-plugins --build-engine ${{ steps.docker-desktop.outputs.version }}
+      - name: Run lando setup tests
+        uses: lando/run-leia-action@v2
+        with:
+          leia-test: "./examples/setup-windows/README.md"
+          cleanup-header: "Destroy tests"
+          shell: powershell
+          stdin: true
+          debug: true
       - name: Verify Docker Desktop ${{ steps.docker-desktop.outputs.version }}
         shell: pwsh
         run: |
@@ -67,14 +72,6 @@ jobs:
           if ($actual -notmatch "^$expected(?:\.\d+)*$") {
             throw "Expected Docker Desktop ${{ steps.docker-desktop.outputs.version }}, got: $actual"
           }
-      - name: Verify lando setup
-        uses: lando/run-leia-action@v2
-        with:
-          leia-test: "./examples/setup-windows/README.md"
-          cleanup-header: "Destroy tests"
-          shell: powershell
-          stdin: true
-          debug: true
       - name: Run Docker Desktop smoke tests
         uses: lando/run-leia-action@v2
         with:

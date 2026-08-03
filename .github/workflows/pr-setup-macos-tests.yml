@@ -54,19 +54,15 @@ jobs:
       - name: Get default Docker Desktop version
         id: docker-desktop
         run: echo "version=$(node -p \"require('./utils/get-config-defaults')({}).setup.buildEngine\")" >> "$GITHUB_OUTPUT"
-      - name: Install Docker Desktop ${{ steps.docker-desktop.outputs.version }}
-        run: |
-          brew uninstall --force --ignore-dependencies docker-desktop
-          lando setup -y --skip-networking --skip-common-plugins --build-engine ${{ steps.docker-desktop.outputs.version }}
-      - name: Verify Docker Desktop ${{ steps.docker-desktop.outputs.version }}
-        run: test "$(defaults read /Applications/Docker.app/Contents/Info CFBundleShortVersionString)" = "${{ steps.docker-desktop.outputs.version }}"
-      - name: Verify lando setup
+      - name: Run lando setup tests
         uses: lando/run-leia-action@v2
         with:
           leia-test: "./examples/setup-macos/README.md"
           cleanup-header: "Destroy tests"
           shell: bash
           stdin: true
+      - name: Verify Docker Desktop ${{ steps.docker-desktop.outputs.version }}
+        run: test "$(defaults read /Applications/Docker.app/Contents/Info CFBundleShortVersionString)" = "${{ steps.docker-desktop.outputs.version }}"
       - name: Run Docker Desktop smoke tests
         uses: lando/run-leia-action@v2
         with:

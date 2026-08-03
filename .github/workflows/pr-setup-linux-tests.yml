@@ -54,6 +54,9 @@ jobs:
           auto-setup: false
           lando-version: ${{ steps.pkg-action.outputs.file }}
           telemetry: false
+      - name: Get default Docker Engine version
+        id: docker-engine
+        run: echo "version=$(node -p \"require('./utils/get-config-defaults')({}).setup.buildEngine\")" >> "$GITHUB_OUTPUT"
       - name: Run Leia Tests
         uses: lando/run-leia-action@v2
         with:
@@ -61,3 +64,6 @@ jobs:
           cleanup-header: "Destroy tests"
           shell: bash
           stdin: true
+      - name: Verify Docker Engine ${{ steps.docker-engine.outputs.version }}
+        if: matrix.leia-test == 'setup-linux'
+        run: test "$(docker version --format '{{.Server.Version}}')" = "${{ steps.docker-engine.outputs.version }}"
