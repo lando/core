@@ -23,6 +23,13 @@ if [ $(id -u) != 0 ]; then
   exit 0
 fi
 
+# Cert paths are applied when the service container is created. If they are missing then
+# the container is stale and needs to be recreated before we can install its certificates.
+if [ -z "${LANDO_SERVICE_CERT:-}" ] || [ -z "${LANDO_SERVICE_KEY:-}" ]; then
+  lando_error "Service certificate paths are missing. Run 'lando rebuild' to recreate this container."
+  exit 1
+fi
+
 # Vars and defaults
 : ${LANDO_CA_CERT:="/lando/certs/LandoCA.crt"}
 : ${LANDO_CA_KEY:="/lando/certs/LandoCA.key"}

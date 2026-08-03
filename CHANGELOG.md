@@ -1,5 +1,6 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Improved service certificate errors to recommend rebuilding stale containers [#462](https://github.com/lando/core/issues/462)
 * Fixed valid custom `orchestratorBin` paths being overwritten by the Docker Compose fallback [lando/lando#3847](https://github.com/lando/lando/issues/3847)
 * Fixed interactive sudo password handling to avoid combining `--bell` with `--stdin` [#386](https://github.com/lando/core/issues/386)
 
