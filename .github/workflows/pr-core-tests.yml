@@ -65,7 +65,7 @@ jobs:
         node-version:
           - "20"
         os:
-          # - macos-15
+          # - macos-26
           - ubuntu-24.04
           # - windows-2022
         shell:
