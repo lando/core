@@ -57,12 +57,15 @@ jobs:
           version=$(node -p "require('./utils/get-config-defaults')({}).setup.buildEngine")
           echo "version=$version" >> "$GITHUB_OUTPUT"
       - name: Run lando setup tests
+        timeout-minutes: 25
         uses: lando/run-leia-action@v2
         with:
           leia-test: "./examples/setup-macos/README.md"
           cleanup-header: "Destroy tests"
+          retry: 0
           shell: bash
           stdin: true
+          timeout: 1200
       - name: Verify Docker Desktop ${{ steps.docker-desktop.outputs.version }}
         run: test "$(defaults read /Applications/Docker.app/Contents/Info CFBundleShortVersionString)" = "${{ steps.docker-desktop.outputs.version }}"
       - name: Install LAMP plugin
