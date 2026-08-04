@@ -40,7 +40,7 @@ footer: Copyright ©2025 Lando Alliance
         </a>
         <VPIconChevronRight v-if="showVersionSelector" class="version-dropdown-icon" @click="toggleVersion"/>
       </div>
-      <a class="VPButton medium alt sponsor" href="https://lando.dev/sponsor" target="_blank" rel="noreferrer">
+      <a class="VPButton medium alt sponsor" href="https://www.lando.dev/sponsor" target="_blank" rel="noreferrer">
         <svg class="vibe" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="red" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
         Sponsor
       </a>
@@ -53,7 +53,7 @@ footer: Copyright ©2025 Lando Alliance
 <div class="home-other-stuff">
   <VPSponsors tier="special thanks to" mode="normal" :data="all" size="medium"/>
   <div class="et-tu">
-    <a href="https://lando.dev/sponsor" target="_blank" rel="noopener">
+    <a href="https://www.lando.dev/sponsor" target="_blank" rel="noopener">
       {{ `and ${heraldcompute} others, including you?` }}
     </a>
   </div>
@@ -96,19 +96,19 @@ footer: Copyright ©2025 Lando Alliance
         <div class="menu-primary">
           <ul>
             <li>
-              <a href="https://lando.dev" target="_blank" rel="noopener noreferrer">Website</a>
+              <a href="https://www.lando.dev" target="_blank" rel="noopener noreferrer">Website</a>
             </li>
             <li>
-              <a href="https://lando.dev/blog/" target="_blank" rel="noopener noreferrer">Blog</a>
+              <a href="https://www.lando.dev/blog/" target="_blank" rel="noopener noreferrer">Blog</a>
             </li>
             <li>
-              <a href="https://lando.dev/events/" target="_blank" rel="noopener noreferrer">Events</a>
+              <a href="https://www.lando.dev/events/" target="_blank" rel="noopener noreferrer">Events</a>
             </li>
             <li>
-              <a href="https://lando.dev/support/" target="_blank" rel="noopener noreferrer">Support</a>
+              <a href="https://www.lando.dev/support/" target="_blank" rel="noopener noreferrer">Support</a>
             </li>
             <li>
-              <a href="https://lando.dev/contact/" target="_blank" rel="noopener noreferrer">Contact Us</a>
+              <a href="https://www.lando.dev/contact/" target="_blank" rel="noopener noreferrer">Contact Us</a>
             </li>
           </ul>
         </div>

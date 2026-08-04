@@ -3,6 +3,25 @@
 * Fixed ANSI escape codes appearing in redirected output by checking `stdout.isTTY` instead of `stdin.isTTY` for TTY allocation [#345](https://github.com/lando/core/issues/345)
 * Improved exec and tooling commands to forward host terminal environment (`TERM`, `LANG`, `TZ`, etc.) into containers
 * Improved color output handling so containers receive `NO_COLOR=1` when Lando itself is running without color
+* Improved service certificate errors to recommend rebuilding stale containers [#462](https://github.com/lando/core/issues/462)
+* Fixed valid custom `orchestratorBin` paths being overwritten by the Docker Compose fallback [lando/lando#3847](https://github.com/lando/lando/issues/3847)
+* Fixed interactive sudo password handling to avoid combining `--bell` with `--stdin` [#386](https://github.com/lando/core/issues/386)
+
+## v3.26.7 - [July 3, 2026](https://github.com/lando/core/releases/tag/v3.26.7)
+
+* Updated to use new Lando Alliance [Azure Artificate Signing](https://learn.microsoft.com/en-us/azure/artifact-signing/) certs
+
+## v3.26.6 - [July 3, 2026](https://github.com/lando/core/releases/tag/v3.26.6)
+
+* Updated to use new Lando Alliance [Azure Artificate Signing](https://learn.microsoft.com/en-us/azure/artifact-signing/) certs
+
+## v3.26.5 - [July 3, 2026](https://github.com/lando/core/releases/tag/v3.26.5)
+
+* Updated to use new Lando Alliance [Azure Artificate Signing](https://learn.microsoft.com/en-us/azure/artifact-signing/) certs
+
+## v3.26.4 - [April 28, 2026](https://github.com/lando/core/releases/tag/v3.26.4)
+
+* Fixed `lando ssh` defaulting to a v3 service instead of the v4 `appserver` in mixed-api apps [#461](https://github.com/lando/core/pull/461)
 
 ## v3.26.3 - [April 14, 2026](https://github.com/lando/core/releases/tag/v3.26.3)
 

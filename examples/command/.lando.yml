@@ -20,15 +20,15 @@ x-service:
 services:
   web1:
     << : *default-service
-    image: node:18
+    image: node:20
     command: !load ./scripts/start.sh
   web2:
     << : *default-service
-    image: node:18
+    image: node:20
     command: npm run dev
   web3:
     << : *default-service
-    image: node:18
+    image: node:20
     command: |
       #!/bin/sh
       set -e
@@ -36,19 +36,19 @@ services:
   web4:
     << : *default-service
     image: |
-      FROM node:18
+      FROM node:20
       RUN echo "npm run dev" > /run.sh
       RUN chmod +x /run.sh
     command: /run.sh
   web5:
     << : *default-service
     image: |
-      FROM node:18
+      FROM node:20
       CMD ["npm", "run", "dev"]
   web6:
     << : *default-service
     image: |
-      FROM node:18
+      FROM node:20
       CMD npm run dev
 
 plugins:

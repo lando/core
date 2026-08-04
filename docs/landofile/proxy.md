@@ -273,7 +273,7 @@ Note that we generate a [Certificate Authority](../config/security.md) based on 
 
 If you are working offline and/or have added custom domains and want to get them to work, you will need to edit your `hosts` file. Generally, this file is located at `/etc/hosts` on Linux and macOS and `C:\Windows\System32\Drivers\etc\host` on Windows. You will need administrative privileges to edit this file.
 
-Here is a [good read](https://www.hostinger.com/tutorials/how-to-edit-hosts-file) if you are not very familiar with the `hosts` file, how to edit it and how it works.
+Here is a [good read](https://www.hostinger.com/tutorials/how-to-edit-hosts-file/) if you are not very familiar with the `hosts` file, how to edit it and how it works.
 
 An example is shown below:
 

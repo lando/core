@@ -17,7 +17,7 @@ updated:
 
 > Switching from Docker Desktop is 100% seamless: just open OrbStack and get started.
 
-Official support for swapping Docker providers will be available in [Lando 4](https://lando.dev/blog/2023/01/23/roadmap-of-2023.html). In the meantime, you can use [Orbstack](https://orbstack.dev/) as a drop-in replacement.
+Official support for swapping Docker providers will be available in [Lando 4](https://www.lando.dev/blog/2023/01/23/roadmap-of-2023.html). In the meantime, you can use [Orbstack](https://orbstack.dev/) as a drop-in replacement.
 
 After installing Lando, follow these steps:
 

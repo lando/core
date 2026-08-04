@@ -12,7 +12,7 @@ Because Lando is a free and open source project without :unicorn: money, we rely
 
 While you should _do you_ and evangelize in the way that best suits you, here are some things our more successful advocates do:
 
-* Present, talk or train about Lando or Lando-adjacent materials at conference, camps, meetups, etc and to post those events at <https://lando.dev/events>.
+* Present, talk or train about Lando or Lando-adjacent materials at conference, camps, meetups, etc and to post those events at <https://www.lando.dev/events>.
 * Retweet Lando content, tweet directly at [@devwithlando](https://twitter.com/devwithlando) or engage in local dev or DevOps related Twitter threads.
 * Troll local development blog content and mention Lando in the comments, if applicable.
 * Get friends, colleagues, spouses, partners, pets, grandparents, former roommates, etc. to follow us [@devwithlando](https://twitter.com/devwithlando) and [star our project on GitHub](https://github.com/lando/lando).
@@ -90,7 +90,7 @@ If you are interested in helping, make sure you [join our Slack org](https://www
 
 Some talking points you can use in your presentations or next dinner date are shown below:
 
-These are intended to try and convince a more-technical audience to adopt Lando. If you are interested in more business focused talking points, particularly if you are trying to convince an org to sponsor Lando, then check [these out](https://lando.dev/blog/2020/02/08/why-your-agency-should-sponsor-lando.html) instead.
+These are intended to try and convince a more-technical audience to adopt Lando. If you are interested in more business focused talking points, particularly if you are trying to convince an org to sponsor Lando, then check [these out](https://www.lando.dev/blog/2020/02/08/why-your-agency-should-sponsor-lando.html) instead.
 
 ### High Level
 

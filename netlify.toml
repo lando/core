@@ -12,6 +12,9 @@
   [context.deploy-preview.plugins.inputs]
     todoPatterns = [
       "https://support.patreon.com",
+      "https://support.mozilla.org",
+      # Upstream/shared docs content still emits bare-domain redirects.
+      "https://lando.dev",
       "https://docs.google.com/document",
       "https://docs.google.com/forms",
       "https://github.com",

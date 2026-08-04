@@ -16,14 +16,14 @@ jobs:
           - "20"
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Cache version builds
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           key: lando-mvb-docs
           path: docs/.vitepress/cache/@lando/mvb
       - name: Install node ${{ matrix.node-version }}
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
@@ -51,9 +51,9 @@ jobs:
           - "20"
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install node ${{ matrix.node-version }}
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
