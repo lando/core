@@ -11,22 +11,6 @@ debug() {
   if [ "${DEBUG}" == 1 ]; then printf '%s\n' "$1" >&2; fi
 }
 
-run_security() {
-  if [[ "$NONINTERACTIVE" == "1" ]]; then
-    security "$@" </dev/null >/dev/null 2>&1
-  else
-    security "$@"
-  fi
-}
-
-run_sudo_security() {
-  if [[ "$NONINTERACTIVE" == "1" ]]; then
-    sudo security "$@" </dev/null >/dev/null 2>&1
-  else
-    sudo security "$@"
-  fi
-}
-
 # PARSE THE ARGZZ
 while (( "$#" )); do
   case "$1" in
@@ -93,12 +77,12 @@ fi
 # suppress GUI prompt in non interactive situations
 if [[ "$NONINTERACTIVE" == "1" ]]; then
   debug "disabling password popup because in noninteractive mode"
-  run_sudo_security authorizationdb write com.apple.trust-settings.user allow
+  sudo security authorizationdb write com.apple.trust-settings.user allow
 fi
 
 # add CA to default login keychain
-run_security add-trusted-cert \
+security add-trusted-cert \
   -r trustRoot \
   -k "$KEYCHAIN" \
   "$CA" \
-  || (run_security delete-certificate -Z "$FINGERPRINT" -t "$KEYCHAIN" && exit 1)
+  || (security delete-certificate -Z "$FINGERPRINT" -t "$KEYCHAIN" && exit 1)
