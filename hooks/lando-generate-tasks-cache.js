@@ -4,6 +4,8 @@ const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 
+const exists = require('../utils/exists-sync');
+
 module.exports = async lando => {
   // load in legacy inits
   await require('./lando-load-legacy-inits')(lando);
@@ -11,7 +13,7 @@ module.exports = async lando => {
   // build the cache
   return lando.Promise.resolve(lando.config.plugins)
     // Make sure the tasks dir exists
-    .filter(plugin => fs.existsSync(plugin.tasks))
+    .filter(plugin => exists(plugin.tasks))
     // Get a list off full js files that exist in that dir
     .map(plugin => _(fs.readdirSync(plugin.tasks))
       .map(file => path.join(plugin.tasks, file))
