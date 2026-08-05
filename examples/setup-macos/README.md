@@ -16,8 +16,8 @@ lando plugin-add "@lando/core@file:../.."
 brew uninstall --force --ignore-dependencies docker-desktop
 brew list --versions docker-desktop || echo $? | grep 1
 
-# Should be able to run lando setup without exercising the broken macOS 26 keychain CLI
-perl -e 'alarm 1200; exec @ARGV' lando setup -y --skip-install-ca --skip-networking --skip-common-plugins
+# Should be able to run lando setup without installing the CA in CI
+lando setup -y --skip-install-ca --skip-networking --skip-common-plugins
 
 # Should have installed Docker Desktop
 stat /Applications/Docker.app

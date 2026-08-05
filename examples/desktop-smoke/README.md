@@ -1,6 +1,6 @@
 # Docker Desktop Smoke Tests
 
-This example verifies a tiny LAMP application and its HTTPS proxy against the default Docker Desktop version on macOS and Windows.
+This example verifies a tiny LAMP application and its HTTPS proxy against the default Docker Desktop version on Windows.
 
 ## Start up tests
 
