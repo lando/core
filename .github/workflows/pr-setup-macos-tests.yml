@@ -68,12 +68,7 @@ jobs:
           timeout: 1200
       - name: Verify Docker Desktop ${{ steps.docker-desktop.outputs.version }}
         run: test "$(defaults read /Applications/Docker.app/Contents/Info CFBundleShortVersionString)" = "${{ steps.docker-desktop.outputs.version }}"
-      - name: Install LAMP plugin
-        run: lando plugin-add "@lando/lamp@latest"
-      - name: Run Docker Desktop smoke tests
-        uses: lando/run-leia-action@v2
-        with:
-          leia-test: "./examples/desktop-smoke/README.md"
-          cleanup-header: "Destroy tests"
-          shell: bash
-          stdin: true
+
+      # GitHub-hosted macOS runners do not support the nested virtualization
+      # required to start Docker Desktop. The Windows setup job runs the full
+      # Docker Desktop smoke test after verifying the installed version.
