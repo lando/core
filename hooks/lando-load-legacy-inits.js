@@ -5,23 +5,27 @@ const fs = require('fs');
 const glob = require('glob');
 const path = require('path');
 
+// @NOTE: dirs are plucked off of the plugin objects so they are undefined for any plugin that
+// does not have that particular dir, hence the permissive exists check
+const exists = require('../utils/exists-sync');
+
 // Helper to get init config
 const getLegacyInitConfig = dirs => _(dirs)
-  .filter(dir => fs.existsSync(dir))
+  .filter(dir => exists(dir))
   .flatMap(dir => glob.sync(path.join(dir, '*', 'init.js')))
   .map(file => require(file))
   .value();
 
 // Helper to get init config
 const getInitConfig = dirs => _(dirs)
-  .filter(dir => fs.existsSync(dir))
+  .filter(dir => exists(dir))
   .flatMap(dir => fs.readdirSync(dir).map(file => path.join(dir, file)))
   .map(file => require(file))
   .value();
 
 // Helper to get init source config
 const getInitSourceConfig = dirs => _(dirs)
-  .filter(dir => fs.existsSync(dir))
+  .filter(dir => exists(dir))
   .flatMap(dir => glob.sync(path.join(dir, '*.js')))
   .map(file => require(file))
   .flatMap(source => source.sources)
