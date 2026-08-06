@@ -66,10 +66,11 @@ const props = defineProps({
 const amount = ref(props.pager);
 const key = ref(0);
 
+const sort = items => [...items].sort((a, b) => a.title.localeCompare(b.title));
+
 // normalize data and sort
-let pages = props.items
-  .map(item => Object.assign(item, {show: true, timestamp: item.date ? item.date : item.timestamp}))
-  .sort((a, b) => a.title > b.title ? 1 : -1);
+let pages = sort(props.items
+  .map(item => Object.assign(item, {show: true, timestamp: item.date ? item.date : item.timestamp})));
 
 const adder = () => amount.value += props.pager;
 
@@ -96,8 +97,8 @@ const pagination = () => pages.slice(0, amount.value);
 
 const filter = () => {
   const tagList = Object.entries(props.tags).filter(pair => pair[1].selected === true).map(pair => pair[0]);
-  if (tagList.length === 0) return props.items;
-  return props.items.filter(item => Array.isArray(item.tags) && tagList.every(tag => item.tags.includes(tag)));
+  if (tagList.length === 0) return sort(props.items);
+  return sort(props.items.filter(item => Array.isArray(item.tags) && tagList.every(tag => item.tags.includes(tag))));
 };
 
 // recompute filter when tags change
