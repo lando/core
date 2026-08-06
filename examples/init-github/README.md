@@ -12,7 +12,7 @@ Run the following commands to get up and running with this example.
 # Should clone code down from GitHub
 mkdir -p github && cd github
 rm -rf ~/.lando/scripts
-lando init --source github --recipe none --github-repo="https://github.com/lando/lando.git" --yes
+lando init --source github --recipe none --github-auth=false --github-repo="https://github.com/lando/lando.git" --yes
 ```
 
 ## Verification commands

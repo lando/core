@@ -9,11 +9,22 @@ const chai = require('chai');
 chai.should();
 
 const source = require('../sources/github').sources[0];
-const lando = {config: {uid: 1000, userConfRoot: '/tmp/lando'}};
+const lando = {
+  cache: {get: () => []},
+  config: {uid: 1000, userConfRoot: '/tmp/lando'},
+};
 
 describe('github source', () => {
+  it('should not prompt for a token when GitHub authentication is explicitly disabled', () => {
+    const authPrompt = source.options(lando)['github-auth-token'].interactive;
+    authPrompt.when({source: 'github', 'github-auth': false}).should.equal(false);
+  });
+
   it('should clone public HTTPS repositories without GitHub credentials or SSH key mutation', () => {
-    const steps = source.build({'github-repo': 'https://github.com/lando/lando.git'}, lando);
+    const steps = source.build({
+      'github-auth': false,
+      'github-repo': 'https://github.com/lando/lando.git',
+    }, lando);
     steps.map(step => step.name).should.deep.equal(['wait-for-user', 'clone-repo']);
   });
 

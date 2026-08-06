@@ -4,6 +4,7 @@
 const _ = require('lodash');
 const fs = require('fs');
 const getOctokit = require('../utils/get-octokit');
+const isDisabled = require('../utils/is-disabled');
 const os = require('os');
 const path = require('path');
 
@@ -67,7 +68,10 @@ const setCaches = (options, lando) => {
 const showTokenList = (source, tokens = []) => !_.isEmpty(tokens) && source === 'github';
 
 // Helper to determine whether to show token password entry or not
-const showTokenEntry = (source, answer, tkez = []) => ((_.isEmpty(tkez) || answer === 'more')) && source === 'github';
+const showTokenEntry = (source, answer, tkez = []) => {
+  const explicitlyDisabled = answer !== undefined && isDisabled(answer);
+  return !explicitlyDisabled && (_.isEmpty(tkez) || answer === 'more') && source === 'github';
+};
 
 // Helper to get list of github projects
 const getRepos = answers => {
@@ -165,7 +169,9 @@ module.exports = {
       }
 
       steps.push({name: 'clone-repo', cmd: `/helpers/get-remote-url.sh ${options['github-repo']}`, remove: true});
-      if (options['github-auth']) steps.push({name: 'set-caches', func: (options, lando) => setCaches(options, lando)});
+      if (!isDisabled(options['github-auth'])) {
+        steps.push({name: 'set-caches', func: (options, lando) => setCaches(options, lando)});
+      }
       return steps;
     },
   }],
