@@ -77,15 +77,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
-      - name: Install SSH key
-        if: github.event.pull_request.head.repo.full_name == github.repository
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.DEPLOY_KEY }}
-          known_hosts: unnecessary
-          if_key_exists: replace
       - name: Generate test SSH key
-        if: github.event.pull_request.head.repo.full_name != github.repository
         run: |
           mkdir -p ~/.ssh
           ssh-keygen -q -t ed25519 -N '' -f ~/.ssh/id_rsa
@@ -123,15 +115,7 @@ jobs:
           config: |
             setup.skipCommonPlugins=true
       - name: Run Leia Tests
-        if: >-
-          github.event.pull_request.head.repo.full_name == github.repository ||
-          !contains(fromJSON('["init-github", "plugins"]'), matrix.leia-test)
         uses: lando/run-leia-action@v2
-        env:
-          GITHUB_PAT: >-
-            ${{ github.event.pull_request.head.repo.full_name == github.repository &&
-            secrets.KYBER_AMPLIFICATION_MATRIX || github.token }}
-          GITHUB_KEY_NAME: "${{ github.sha }}${{ matrix.os }}"
         with:
           leia-test: "./examples/${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"

@@ -10,6 +10,20 @@ See the [Landofiles](https://docs.lando.dev/config/lando.html) in this directory
 
 ```bash
 # Should start successfully
+docker run -d --name lando-plugin-registry -p 4873:4873 \
+  --volume "$PWD/verdaccio.yml:/verdaccio/conf/config.yaml" \
+  verdaccio/verdaccio:6
+until curl --silent --fail http://localhost:4873/-/ping; do sleep 1; done
+REGISTRY_TOKEN=$(curl --silent --fail \
+  --request PUT \
+  --header "content-type: application/json" \
+  --data '{"name":"lando","password":"lando-test","email":"lando@example.com","type":"user"}' \
+  http://localhost:4873/-/user/org.couchdb.user:lando \
+  | node -pe "JSON.parse(require('fs').readFileSync(0)).token")
+npm publish ./registry-test-plugin \
+  --access public \
+  --registry http://localhost:4873 \
+  --//localhost:4873/:_authToken="$REGISTRY_TOKEN"
 lando poweroff
 lando start
 ```
@@ -58,8 +72,8 @@ lando config | grep -q "plugins/@lando/php"
 lando plugin-remove "@lando/php"
 lando config | grep -qv "plugins/@lando/php"
 
-# Should execute `lando plugin-login`
-lando plugin-login --registry "https://npm.pkg.github.com" --password "$GITHUB_PAT" --username "rtfm-47" --scope "lando::registry=https://npm.pkg.github.com"
+# Should execute `lando plugin-login` against an isolated registry
+lando plugin-login --registry "http://localhost:4873" --password "lando-test" --username "lando" --scope "lando::registry=http://localhost:4873"
 
 # Should be able to add and remove a private plugin via a registry string.
 lando config | grep -qv "plugins/@lando/lando-plugin-test"
@@ -75,4 +89,5 @@ lando config | grep -qv "plugins/@lando/lando-plugin-test"
 # Should destroy successfully
 lando destroy -y
 lando poweroff
+docker rm --force lando-plugin-registry
 ```
