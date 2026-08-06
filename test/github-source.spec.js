@@ -17,7 +17,7 @@ const lando = {
 describe('github source', () => {
   it('should not prompt for a token when GitHub authentication is explicitly disabled', () => {
     const authPrompt = source.options(lando)['github-auth-token'].interactive;
-    authPrompt.when({source: 'github', 'github-auth': false}).should.equal(false);
+    authPrompt.when({'source': 'github', 'github-auth': false}).should.equal(false);
   });
 
   it('should clone public HTTPS repositories without GitHub credentials or SSH key mutation', () => {
