@@ -1,10 +1,7 @@
 name: Setup macOS Tests
 
 on:
-  # pull_request:
-  push:
-    branches:
-      - SKIPFORNOW
+  pull_request:
 
 jobs:
   leia-tests:
@@ -14,12 +11,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        leia-test:
-          - setup-macos
         node-version:
           - "20"
         os:
-          - macos-15
+          - macos-26
 
     steps:
       - name: Checkout code
@@ -56,10 +51,20 @@ jobs:
           auto-setup: false
           lando-version: ${{ steps.pkg-action.outputs.file }}
           telemetry: false
-      - name: Run Leia Tests
+      - name: Get default Docker Desktop version
+        id: docker-desktop
+        run: |
+          version=$(node -p "require('./utils/get-config-defaults')({}).setup.buildEngine")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Run lando setup tests
         uses: lando/run-leia-action@v2
         with:
-          leia-test: "./examples/${{ matrix.leia-test }}/README.md"
+          leia-test: "./examples/setup-macos/README.md"
           cleanup-header: "Destroy tests"
           shell: bash
           stdin: true
+      - name: Verify Docker Desktop ${{ steps.docker-desktop.outputs.version }}
+        run: test "$(defaults read /Applications/Docker.app/Contents/Info CFBundleShortVersionString)" = "${{ steps.docker-desktop.outputs.version }}"
+      # GitHub-hosted macOS runners do not support the nested virtualization
+      # required to start Docker Desktop. The Windows setup job runs the full
+      # Docker Desktop smoke test after verifying the installed version.

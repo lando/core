@@ -16,8 +16,8 @@ lando plugin-add "@lando/core@file:../.."
 brew uninstall --force --ignore-dependencies docker-desktop
 brew list --versions docker-desktop || echo $? | grep 1
 
-# Should be able to run lando setup
-lando setup -y --skip-networking --skip-common-plugins
+# Should be able to run lando setup without installing the CA in CI
+lando setup -y --skip-install-ca --skip-networking --skip-common-plugins
 
 # Should have installed Docker Desktop
 stat /Applications/Docker.app
@@ -28,7 +28,4 @@ find ~/.lando/bin -type f -name 'docker-compose-v2*' -exec {} version \;
 
 # Should have created the Lando Development CA
 stat ~/.lando/certs/LandoCA.crt
-
-# Should have installed the Lando Development CA
-security find-certificate -a -c "Lando Development CA" -p ~/Library/Keychains/login.keychain-db
 ```
