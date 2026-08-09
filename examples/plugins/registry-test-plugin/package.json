@@ -1,0 +1,10 @@
+{
+  "name": "@lando/lando-plugin-test",
+  "version": "1.0.0",
+  "description": "A disposable plugin package used by the plugins Leia test",
+  "main": "index.js",
+  "keywords": [
+    "lando-plugin"
+  ],
+  "license": "MIT"
+}
