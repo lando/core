@@ -9,8 +9,14 @@ See the [Landofiles](https://docs.lando.dev/config/lando.html) in this directory
 ## Start up tests
 
 ```bash
-# Should start
+# Should poweroff
 lando poweroff
+
+# Should be able to run a pre-start command without messing downstream things up
+# https://github.com/lando/core/issues/486
+lando certinfo || true
+
+# Should start
 lando start
 ```
 
