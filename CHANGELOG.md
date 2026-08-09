@@ -10,6 +10,7 @@
 * Fixed valid custom `orchestratorBin` paths being overwritten by the Docker Compose fallback [lando/lando#3847](https://github.com/lando/lando/issues/3847)
 * Fixed interactive sudo password handling to avoid combining `--bell` with `--stdin` [#386](https://github.com/lando/core/issues/386)
 * Improved the GitHub init source to support `--github-auth=false` for cloning public repositories without a GitHub token or SSH key upload
+* Fixed Node 24 `DEP0187` deprecation warnings from permissive `fs.existsSync()` usage [#474](https://github.com/lando/core/pull/474)
 
 ## v3.26.7 - [July 3, 2026](https://github.com/lando/core/releases/tag/v3.26.7)
 
