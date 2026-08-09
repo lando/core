@@ -4,6 +4,9 @@ const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 
+// @NOTE: the various caches below are all optional config keys so they may be undefined
+const exists = require('./exists-sync');
+
 /*
  * Paths to /
  */
@@ -21,7 +24,7 @@ const pathsToRoot = (startFrom = process.cwd()) => {
 const getBsLevel = (config, command) => {
   if (_.has(config, `tooling.${command}.level`)) return config.tooling[command].level;
   else if (_.find(config.tooling, {id: command}).level) return _.find(config.tooling, {id: command}).level;
-  else return (!fs.existsSync(config.composeCache)) ? 'app' : 'engine';
+  else return (!exists(config.composeCache)) ? 'app' : 'engine';
 };
 
 /*
@@ -99,12 +102,12 @@ const engineRunner = (config, command) => (argv, lando) => {
 
 module.exports = (config = {}, argv = {}, tasks = []) => {
   // merge in recipe cache config first
-  if (fs.existsSync(config.recipeCache) && _.has(config, 'recipe')) {
+  if (exists(config.recipeCache) && _.has(config, 'recipe')) {
     config = _.merge({}, JSON.parse(fs.readFileSync(config.recipeCache, {encoding: 'utf-8'})), config);
   }
 
   // If we have a tooling router lets rebase on that
-  if (fs.existsSync(config.toolingRouter)) {
+  if (exists(config.toolingRouter)) {
     // Get the closest route
     const closestRoute = _(loadCacheFile(config.toolingRouter))
       .map(route => _.merge({}, route, {
@@ -153,7 +156,7 @@ module.exports = (config = {}, argv = {}, tasks = []) => {
   const coreTasks = _(loadCacheFile(process.landoTaskCacheFile)).map(t => ([t.command, t])).fromPairs().value();
 
   // mix in any relevant compose cache things
-  if (fs.existsSync(config.composeCache)) {
+  if (exists(config.composeCache)) {
     try {
       const composeCache = JSON.parse(fs.readFileSync(config.composeCache, {encoding: 'utf-8'}));
 
