@@ -27,7 +27,7 @@ dockerSupportedVersions:
       win32: https://docs.docker.com/desktop/install/windows-install/
       wsl: https://docs.docker.com/desktop/install/windows-install/
   engine:
-    satisfies: ">=18 <28"
-    tested: "<=27.5.99"
+    satisfies: ">=18 <30"
+    tested: "<=29.6.99"
     link:
       linux: https://docs.docker.com/engine/install/debian/#install-using-the-convenience-script

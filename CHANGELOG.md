@@ -2,6 +2,7 @@
 
 * Updated Docker Desktop `tested` range to `<=4.85.99`, default `lando setup` install to 4.85.0, and Desktop installer build-id maps so current Desktop users are no longer treated as pioneers [#472](https://github.com/lando/core/issues/472)
 * Updated default Docker Compose orchestrator to `2.40.3` and Compose `tested` range to `<=2.40.99`
+* Updated default Docker Engine to `29.6.2` (matches Docker Desktop 4.85.x) and Engine `tested` range to `<=29.6.99`
 * Fixed ANSI escape codes appearing in redirected output by checking `stdout.isTTY` instead of `stdin.isTTY` for TTY allocation [#345](https://github.com/lando/core/issues/345)
 * Improved exec and tooling commands to forward host terminal environment (`TERM`, `LANG`, `TZ`, etc.) into containers
 * Improved color output handling so containers receive `NO_COLOR=1` when Lando itself is running without color
