@@ -12,8 +12,8 @@ stats:
 dockerSupportedVersions:
   compose:
     satisfies: "1.x.x || 2.x.x"
-    recommendUpdate: "<=2.24.6"
-    tested: "<=2.32.99"
+    recommendUpdate: "<=2.31"
+    tested: "<=2.40.99"
     link:
       linux: https://docs.docker.com/compose/install/#install-compose-on-linux-systems
       darwin: https://docs.docker.com/desktop/install/mac-install/
