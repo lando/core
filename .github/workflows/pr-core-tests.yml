@@ -2,12 +2,24 @@ name: Core Tests
 
 on:
   pull_request:
+  pull_request_target:
+  workflow_dispatch:
+    inputs:
+      pull_request:
+        description: Pull request number containing the commit
+        required: true
+        type: string
+      commit_sha:
+        description: Exact reviewed 40-character PR head commit SHA
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 jobs:
   leia-tests:
+    if: github.event_name == 'pull_request'
     runs-on: ${{ matrix.os }}
     env:
       TERM: xterm
@@ -125,15 +137,144 @@ jobs:
       - name: Run Leia Tests
         if: >-
           github.event.pull_request.head.repo.full_name == github.repository ||
-          !contains(fromJSON('["init-github", "plugins"]'), matrix.leia-test)
+          !contains(fromJSON('["l337", "lando-v4"]'), matrix.leia-test)
         uses: lando/run-leia-action@v2
-        env:
-          GITHUB_PAT: >-
-            ${{ github.event.pull_request.head.repo.full_name == github.repository &&
-            secrets.KYBER_AMPLIFICATION_MATRIX || github.token }}
-          GITHUB_KEY_NAME: "${{ github.sha }}${{ matrix.os }}"
         with:
           leia-test: "./examples/${{ matrix.leia-test }}/README.md"
           cleanup-header: "Destroy tests"
           shell: ${{ matrix.shell }}
+          stdin: true
+
+  privileged-tests-comment:
+    if: >-
+      github.event_name == 'pull_request_target' &&
+      github.event.pull_request.head.repo.full_name != github.repository
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-24.04
+    steps:
+      # This job runs workflow code from the base repository and must never check
+      # out or execute code from the fork.
+      - name: Post dispatch instructions for skipped privileged tests
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          marker="<!-- privileged-leia-tests-dispatch -->"
+          body="$marker
+          ### Privileged Leia tests skipped
+
+          The \`l337\` and \`lando-v4\` Leia suites verify authenticated SSH cloning and need the deploy key, so they do not run for fork pull requests.
+
+          After reviewing \`$HEAD_SHA\`, a maintainer can run them against it with:
+
+          \`\`\`sh
+          gh workflow run pr-core-tests.yml --repo $REPO -f pull_request=$PR_NUMBER -f commit_sha=$HEAD_SHA
+          \`\`\`
+
+          or from the [workflow page](https://github.com/$REPO/actions/workflows/pr-core-tests.yml) using the same inputs. This comment updates when new commits are pushed and the dispatch only accepts the current head commit."
+          comment_id=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
+            --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -n1)
+          if [ -n "$comment_id" ]; then
+            gh api --method PATCH "repos/$REPO/issues/comments/$comment_id" -f body="$body" > /dev/null
+            echo "updated comment $comment_id"
+          else
+            gh api --method POST "repos/$REPO/issues/$PR_NUMBER/comments" -f body="$body" > /dev/null
+            echo "created comment"
+          fi
+
+  privileged-leia-tests:
+    if: github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        leia-test:
+          - l337
+          - lando-v4
+    env:
+      TERM: xterm
+    steps:
+      - name: Validate pull request commit
+        env:
+          COMMIT_SHA: ${{ inputs.commit_sha }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pull_request }}
+        run: |
+          if [[ ! "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "pull_request must be a pull request number"
+            exit 1
+          fi
+          if [[ ! "$COMMIT_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "commit_sha must be an exact lowercase 40-character commit SHA"
+            exit 1
+          fi
+          PR_HEAD_SHA=$(gh api "repos/${{ github.repository }}/pulls/$PR_NUMBER" --jq .head.sha)
+          if [[ "$COMMIT_SHA" != "$PR_HEAD_SHA" ]]; then
+            echo "commit_sha does not match the current head of pull request #$PR_NUMBER"
+            exit 1
+          fi
+      # Check out the base repository so upstream tags are available for version
+      # derivation, then fetch the reviewed commit from the pull request head ref.
+      # Pull refs live in the base repository so this works even if the fork is
+      # deleted, and checking out the pinned SHA preserves the security property.
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Checkout pull request commit
+        env:
+          COMMIT_SHA: ${{ inputs.commit_sha }}
+          PR_NUMBER: ${{ inputs.pull_request }}
+        run: |
+          git fetch origin "pull/$PR_NUMBER/head"
+          git checkout "$COMMIT_SHA"
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DEPLOY_KEY }}
+          known_hosts: unnecessary
+          if_key_exists: replace
+      - name: Install node 20
+        uses: actions/setup-node@v7
+        with:
+          node-version: "20"
+          registry-url: https://registry.npmjs.org
+          cache: npm
+      - name: Bundle Deps
+        uses: lando/prepare-release-action@v3
+        with:
+          lando-plugin: true
+          version: dev
+          sync: false
+      - name: Install pkg dependencies
+        run: npm clean-install --prefer-offline --frozen-lockfile --production
+      - name: Package into node binary
+        uses: lando/pkg-action@v6
+        id: pkg-action
+        with:
+          entrypoint: bin/lando
+          filename: lando
+          node-version: "20"
+          options: --options dns-result-order=ipv4first
+          upload: false
+          pkg: "@yao-pkg/pkg@5.16.1"
+      - name: Install full deps
+        run: npm clean-install --prefer-offline --frozen-lockfile
+      - name: Setup lando ${{ steps.pkg-action.outputs.file }}
+        uses: lando/setup-lando@v3
+        with:
+          lando-version: ${{ steps.pkg-action.outputs.file }}
+          telemetry: false
+          config: |
+            setup.skipCommonPlugins=true
+      - name: Run Leia Tests
+        uses: lando/run-leia-action@v2
+        with:
+          leia-test: "./examples/${{ matrix.leia-test }}/README.md"
+          cleanup-header: "Destroy tests"
+          shell: bash
           stdin: true

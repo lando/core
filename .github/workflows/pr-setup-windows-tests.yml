@@ -11,8 +11,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        leia-test:
-          - setup-windows
         node-version:
           - "20"
         os:
@@ -52,11 +50,35 @@ jobs:
           auto-setup: false
           lando-version: ${{ steps.pkg-action.outputs.file }}
           telemetry: false
-      - name: Run Leia Tests
+      - name: Get default Docker Desktop version
+        id: docker-desktop
+        shell: pwsh
+        run: |
+          $version = node -p "require('./utils/get-config-defaults')({}).setup.buildEngine"
+          "version=$version" >> $env:GITHUB_OUTPUT
+      - name: Run lando setup tests
         uses: lando/run-leia-action@v2
         with:
-          leia-test: "./examples/${{ matrix.leia-test }}/README.md"
+          leia-test: "./examples/setup-windows/README.md"
           cleanup-header: "Destroy tests"
           shell: powershell
           stdin: true
           debug: true
+      - name: Verify Docker Desktop ${{ steps.docker-desktop.outputs.version }}
+        shell: pwsh
+        run: |
+          $actual = (Get-Item "$env:ProgramFiles\Docker\Docker\Docker Desktop.exe").VersionInfo.ProductVersion
+          $expected = [regex]::Escape('${{ steps.docker-desktop.outputs.version }}')
+          if ($actual -notmatch "^$expected(?:\.\d+)*$") {
+            throw "Expected Docker Desktop ${{ steps.docker-desktop.outputs.version }}, got: $actual"
+          }
+      - name: Install LAMP plugin
+        shell: pwsh
+        run: lando plugin-add "@lando/lamp@latest"
+      - name: Run Docker Desktop smoke tests
+        uses: lando/run-leia-action@v2
+        with:
+          leia-test: "./examples/desktop-smoke/README.md"
+          cleanup-header: "Destroy tests"
+          shell: powershell
+          stdin: true

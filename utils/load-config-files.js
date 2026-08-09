@@ -5,6 +5,8 @@ const fs = require('fs');
 const path = require('path');
 const yaml = require('../components/yaml');
 
+const exists = require('./exists-sync');
+
 /*
  * @TODO
  */
@@ -49,7 +51,7 @@ const normalizePlugins = (plugins = [], baseDir = __dirname) => _(plugins)
 
 module.exports = files => _(files)
   // Filter the source out if it doesn't exist
-  .filter(source => fs.existsSync(source) || fs.existsSync(source.file))
+  .filter(source => exists(source) || exists(source.file))
   // If the file is just a string lets map it to an object
   .map(source => {
     return _.isString(source) ? {file: source, data: yaml.load(fs.readFileSync(source)) || {}} : source;

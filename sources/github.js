@@ -4,6 +4,7 @@
 const _ = require('lodash');
 const fs = require('fs');
 const getOctokit = require('../utils/get-octokit');
+const isDisabled = require('../utils/is-disabled');
 const os = require('os');
 const path = require('path');
 
@@ -67,7 +68,10 @@ const setCaches = (options, lando) => {
 const showTokenList = (source, tokens = []) => !_.isEmpty(tokens) && source === 'github';
 
 // Helper to determine whether to show token password entry or not
-const showTokenEntry = (source, answer, tkez = []) => ((_.isEmpty(tkez) || answer === 'more')) && source === 'github';
+const showTokenEntry = (source, answer, tkez = []) => {
+  const explicitlyDisabled = answer !== undefined && isDisabled(answer);
+  return !explicitlyDisabled && (_.isEmpty(tkez) || answer === 'more') && source === 'github';
+};
 
 // Helper to get list of github projects
 const getRepos = answers => {
@@ -142,19 +146,33 @@ module.exports = {
         default: 'Landokey',
       },
     }),
-    build: (options, lando) => ([
-      {name: 'wait-for-user', cmd: `/helpers/wait-for-user.sh www-data ${lando.config.uid}`},
-      {name: 'generate-key', cmd: `/helpers/generate-key.sh ${gitHubLandoKey} ${gitHubLandoKeyComment}`},
-      {name: 'post-key', func: (options, lando) => {
-        return postKey(
-          path.join(lando.config.userConfRoot, 'keys'),
-          options['github-auth'],
-          options['github-key-name'],
+    build: (options, lando) => {
+      // explicitly disabled auth means an unauthenticated public clone so we can skip
+      // SSH key management and credential caching entirely
+      const authDisabled = isDisabled(options['github-auth']);
+      const steps = [
+        {name: 'wait-for-user', cmd: `/helpers/wait-for-user.sh www-data ${lando.config.uid}`},
+      ];
+
+      if (!authDisabled) {
+        steps.push(
+          {name: 'generate-key', cmd: `/helpers/generate-key.sh ${gitHubLandoKey} ${gitHubLandoKeyComment}`},
+          {name: 'post-key', func: (options, lando) => {
+            return postKey(
+              path.join(lando.config.userConfRoot, 'keys'),
+              options['github-auth'],
+              options['github-key-name'],
+            );
+          }},
+          {name: 'reload-keys', cmd: '/helpers/load-keys.sh --silent', user: 'root'},
         );
-      }},
-      {name: 'reload-keys', cmd: '/helpers/load-keys.sh --silent', user: 'root'},
-      {name: 'clone-repo', cmd: `/helpers/get-remote-url.sh ${options['github-repo']}`, remove: true},
-      {name: 'set-caches', func: (options, lando) => setCaches(options, lando)},
-    ]),
+      }
+
+      steps.push({name: 'clone-repo', cmd: `/helpers/get-remote-url.sh ${options['github-repo']}`, remove: true});
+      if (!authDisabled) {
+        steps.push({name: 'set-caches', func: (options, lando) => setCaches(options, lando)});
+      }
+      return steps;
+    },
   }],
 };
