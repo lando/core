@@ -18,6 +18,7 @@ lando certinfo || true
 
 # Should start even if rogue directories exist at cert paths
 # https://github.com/lando/core/issues/486
+rm -rf ~/.lando/certs/web.landocerts.crt ~/.lando/certs/web.landocerts.key
 mkdir -p ~/.lando/certs/web.landocerts.crt/rogue ~/.lando/certs/web.landocerts.key/rogue
 lando start
 ```
