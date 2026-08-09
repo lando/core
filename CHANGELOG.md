@@ -11,6 +11,8 @@
 * Fixed interactive sudo password handling to avoid combining `--bell` with `--stdin` [#386](https://github.com/lando/core/issues/386)
 * Improved the GitHub init source to support `--github-auth=false` for cloning public repositories without a GitHub token or SSH key upload
 * Fixed Node 24 `DEP0187` deprecation warnings from permissive `fs.existsSync()` usage [#474](https://github.com/lando/core/pull/474)
+* Fixed cert generation failing with `EISDIR` when a rogue directory exists at a cert path [#486](https://github.com/lando/core/issues/486)
+* Improved `ssl` services to ensure cert paths exist as files before bind mounting them so Docker cannot create them as directories [#486](https://github.com/lando/core/issues/486)
 
 ## v3.26.7 - [July 3, 2026](https://github.com/lando/core/releases/tag/v3.26.7)
 
