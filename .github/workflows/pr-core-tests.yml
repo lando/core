@@ -200,8 +200,7 @@ jobs:
     env:
       TERM: xterm
     steps:
-      - name: Resolve and validate pull request commit
-        id: resolve
+      - name: Validate pull request commit
         env:
           COMMIT_SHA: ${{ inputs.commit_sha }}
           GH_TOKEN: ${{ github.token }}
@@ -211,22 +210,28 @@ jobs:
             echo "pull_request must be a pull request number"
             exit 1
           fi
-          if [[ ! "$COMMIT_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
-            echo "commit_sha must be an exact 40-character commit SHA"
+          if [[ ! "$COMMIT_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "commit_sha must be an exact lowercase 40-character commit SHA"
             exit 1
           fi
           PR_HEAD_SHA=$(gh api "repos/${{ github.repository }}/pulls/$PR_NUMBER" --jq .head.sha)
-          PR_HEAD_REPO=$(gh api "repos/${{ github.repository }}/pulls/$PR_NUMBER" --jq .head.repo.full_name)
           if [[ "$COMMIT_SHA" != "$PR_HEAD_SHA" ]]; then
             echo "commit_sha does not match the current head of pull request #$PR_NUMBER"
             exit 1
           fi
-          echo "repository=$PR_HEAD_REPO" >> "$GITHUB_OUTPUT"
+      # Check out the base repository so upstream tags are available for version
+      # derivation, then fetch the reviewed commit from the pull request head ref.
+      # Pull refs live in the base repository so this works even if the fork is
+      # deleted, and checking out the pinned SHA preserves the security property.
       - name: Checkout code
         uses: actions/checkout@v7
-        with:
-          repository: ${{ steps.resolve.outputs.repository }}
-          ref: ${{ inputs.commit_sha }}
+      - name: Checkout pull request commit
+        env:
+          COMMIT_SHA: ${{ inputs.commit_sha }}
+          PR_NUMBER: ${{ inputs.pull_request }}
+        run: |
+          git fetch origin "pull/$PR_NUMBER/head"
+          git checkout "$COMMIT_SHA"
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
