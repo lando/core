@@ -10,11 +10,13 @@ See the [Landofiles](https://docs.lando.dev/config/lando.html) in this directory
 
 ```bash
 # Should start successfully
+docker rm --force lando-plugin-registry 2>/dev/null || true
 docker run -d --name lando-plugin-registry -p 4873:4873 \
   --volume "$PWD/verdaccio.yml:/verdaccio/conf/config.yaml" \
   verdaccio/verdaccio:6
 until curl --silent --fail http://localhost:4873/-/ping; do sleep 1; done
 REGISTRY_TOKEN=$(curl --silent --fail \
+  --user lando:lando-test \
   --request PUT \
   --header "content-type: application/json" \
   --data '{"name":"lando","password":"lando-test","email":"lando@example.com","type":"user"}' \

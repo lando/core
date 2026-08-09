@@ -20,7 +20,7 @@ describe('github source', () => {
     authPrompt.when({'source': 'github', 'github-auth': false}).should.equal(false);
   });
 
-  it('should clone public HTTPS repositories without GitHub credentials or SSH key mutation', () => {
+  it('should clone repositories without GitHub credentials or SSH key mutation when auth is disabled', () => {
     const steps = source.build({
       'github-auth': false,
       'github-repo': 'https://github.com/lando/lando.git',
@@ -44,11 +44,27 @@ describe('github source', () => {
     ]);
   });
 
-  it('should cache credentials without uploading an SSH key for HTTPS repositories', () => {
+  it('should preserve SSH key setup and credential caching for HTTPS repositories when auth is provided', () => {
     const steps = source.build({
       'github-auth': 'token',
+      'github-key-name': 'Landokey',
       'github-repo': 'https://github.com/lando/lando.git',
     }, lando);
-    steps.map(step => step.name).should.deep.equal(['wait-for-user', 'clone-repo', 'set-caches']);
+    steps.map(step => step.name).should.deep.equal([
+      'wait-for-user',
+      'generate-key',
+      'post-key',
+      'reload-keys',
+      'clone-repo',
+      'set-caches',
+    ]);
+  });
+
+  it('should skip SSH key setup and credential caching when auth is explicitly disabled', () => {
+    const steps = source.build({
+      'github-auth': 'false',
+      'github-repo': 'git@github.com:lando/lando.git',
+    }, lando);
+    steps.map(step => step.name).should.deep.equal(['wait-for-user', 'clone-repo']);
   });
 });

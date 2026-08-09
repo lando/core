@@ -100,9 +100,6 @@ const getAutoCompleteRepos = (answers, Promise, input = null) => {
   }
 };
 
-// Public HTTPS repositories do not need an SSH key uploaded to a GitHub account.
-const requiresSshKey = repo => !_.startsWith(repo, 'https://') && !_.startsWith(repo, 'http://');
-
 module.exports = {
   sources: [{
     name: 'github',
@@ -150,11 +147,14 @@ module.exports = {
       },
     }),
     build: (options, lando) => {
+      // explicitly disabled auth means an unauthenticated public clone so we can skip
+      // SSH key management and credential caching entirely
+      const authDisabled = isDisabled(options['github-auth']);
       const steps = [
         {name: 'wait-for-user', cmd: `/helpers/wait-for-user.sh www-data ${lando.config.uid}`},
       ];
 
-      if (requiresSshKey(options['github-repo'])) {
+      if (!authDisabled) {
         steps.push(
           {name: 'generate-key', cmd: `/helpers/generate-key.sh ${gitHubLandoKey} ${gitHubLandoKeyComment}`},
           {name: 'post-key', func: (options, lando) => {
@@ -169,7 +169,7 @@ module.exports = {
       }
 
       steps.push({name: 'clone-repo', cmd: `/helpers/get-remote-url.sh ${options['github-repo']}`, remove: true});
-      if (!isDisabled(options['github-auth'])) {
+      if (!authDisabled) {
         steps.push({name: 'set-caches', func: (options, lando) => setCaches(options, lando)});
       }
       return steps;
