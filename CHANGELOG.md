@@ -17,6 +17,8 @@
 * Fixed the v4 `/run/host-services` bind mount exception matching unrelated paths that share the prefix
 * Updated minimum Node version to `20.17.0`, as required by major bumps of `@npmcli/arborist`, `pacote`, and `npm-profile` [#433](https://github.com/lando/core/issues/433)
 * Updated `tar` to `7.5.22` to resolve outstanding `node-tar` security advisories [#433](https://github.com/lando/core/issues/433)
+* Updated `axios`, `js-yaml`, `lodash`, `nanoid`, and `node-forge` to their latest patched releases to resolve security advisories
+* Updated transitive dependencies via npm `overrides` to resolve security advisories in `undici`, `form-data`, `minimatch`, `brace-expansion`, `tmp`, and others
 
 ## v3.26.7 - [July 3, 2026](https://github.com/lando/core/releases/tag/v3.26.7)
 
