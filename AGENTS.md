@@ -8,6 +8,7 @@ Lando is a local development orchestration tool built around Docker, recipes, an
 ## Commands
 - Use `npm`. Node 20 required.
 - Full verification: `npm test`. Focused unit test: `npx mocha --timeout 5000 test/<file>.spec.js`.
+- Node 20 really is required to run `npm test`. On Node 24 the `test/**/*.spec.js` glob crashes with `TypeError: Cannot convert a Symbol value to a string` — `mocha` pins a nested `glob` 7.2.0 that broke on newer Node. This is not a code failure. Either use Node 20, or expand the glob in the shell: `shopt -s globstar && npx mocha --timeout 5000 test/**/*.spec.js`.
 - Integration tests: `npm run test:leia`. **Do not run locally** — they modify the host system and are CI-only.
 - The `.lando.yml` at the project root is solely for docs work (VitePress); it has no relation to app code.
 
