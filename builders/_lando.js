@@ -127,11 +127,21 @@ module.exports = {
         // certs
         const certname = `${id}.${project}.crt`;
         const keyname = `${id}.${project}.key`;
+        const certpath = path.join(userConfRoot, 'certs', certname);
+        const keypath = path.join(userConfRoot, 'certs', keyname);
         environment.LANDO_SERVICE_CERT = `/lando/certs/${certname}`;
         environment.LANDO_SERVICE_KEY = `/lando/certs/${keyname}`;
+
+        // ensure the cert paths exist as files before we bind mount them, otherwise docker will
+        // create them as directories and break cert generation downstream
+        // https://github.com/lando/core/issues/486
+        for (const file of [certpath, keypath]) {
+          if (!fs.existsSync(file) || fs.statSync(file).isDirectory()) write(file, '');
+        }
+
         volumes.push(`${addCertsScript}:/scripts/000-add-cert`);
-        volumes.push(`${path.join(userConfRoot, 'certs', certname)}:/certs/cert.crt`);
-        volumes.push(`${path.join(userConfRoot, 'certs', keyname)}:/certs/cert.key`);
+        volumes.push(`${certpath}:/certs/cert.crt`);
+        volumes.push(`${keypath}:/certs/cert.key`);
       }
 
       // Add in some more dirz if it makes sense

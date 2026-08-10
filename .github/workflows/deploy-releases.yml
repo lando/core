@@ -23,14 +23,14 @@ jobs:
       - name: Create paths
         run: mkdir -p /tmp/deploy-releases/${{ github.sha }}
       - name: Download releases
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.download-name }}
           merge-multiple: true
           path: /tmp/deploy-releases/${{ github.sha }}
           pattern: ${{ inputs.download-pattern }}
       - name: Upload releases to GitHub Releases
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:

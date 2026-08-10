@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
+    "target": "es2022",
+    "resolveJsonModule": true
+  },
+  "include": [
+    "app.js",
+    "index.js",
+    "builders/**/*.js",
+    "components/**/*.js",
+    "experimental/**/*.js",
+    "hooks/**/*.js",
+    "inits/**/*.js",
+    "lib/**/*.js",
+    "messages/**/*.js",
+    "packages/**/*.js",
+    "plugins/**/*.js",
+    "renderers/**/*.js",
+    "sources/**/*.js",
+    "tasks/**/*.js",
+    "utils/**/*.js"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

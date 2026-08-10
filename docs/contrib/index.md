@@ -5,7 +5,7 @@ description: Learn how to contribute to Lando.
 # Getting Involved
 
 ::: center
-![Lando Alliance](https://lando.dev/images/lando-alliance.png)
+![Lando Alliance](https://www.lando.dev/images/lando-alliance.png)
 :::
 
 If you are interested in helping out with the Lando project, then you've come to the _**right place!**_ We are looking for people to help out in any of the capacities as follows:

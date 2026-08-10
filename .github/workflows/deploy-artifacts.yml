@@ -28,14 +28,14 @@ jobs:
       - name: Create paths
         run: mkdir -p /tmp/deploy-artifacts/${{ github.sha }}
       - name: Download releases
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.download-name }}
           merge-multiple: true
           path: /tmp/deploy-artifacts/${{ github.sha }}
           pattern: ${{ inputs.download-pattern }}
       - name: Upload releases
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ inputs.upload-name }}
           path: /tmp/deploy-artifacts/${{ github.sha }}/*

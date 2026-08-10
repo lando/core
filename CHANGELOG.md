@@ -1,5 +1,47 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.26.8 - [August 10, 2026](https://github.com/lando/core/releases/tag/v3.26.8)
+
+* Updated Docker Desktop `tested` range to `<=4.85.99`, default `lando setup` install to 4.85.0, and Desktop installer build-id maps so current Desktop users are no longer treated as pioneers [#472](https://github.com/lando/core/issues/472)
+* Updated default Docker Compose orchestrator to `2.40.3` and Compose `tested` range to `<=2.40.99`
+* Updated default Docker Engine to `29.6.2` (matches Docker Desktop 4.85.x) and Engine `tested` range to `<=29.6.99`
+* Fixed ANSI escape codes appearing in redirected output by checking `stdout.isTTY` instead of `stdin.isTTY` for TTY allocation [#345](https://github.com/lando/core/issues/345)
+* Improved exec and tooling commands to forward host terminal environment (`TERM`, `LANG`, `TZ`, etc.) into containers
+* Improved color output handling so containers receive `NO_COLOR=1` when Lando itself is running without color
+* Improved service certificate errors to recommend rebuilding stale containers [#462](https://github.com/lando/core/issues/462)
+* Fixed valid custom `orchestratorBin` paths being overwritten by the Docker Compose fallback [lando/lando#3847](https://github.com/lando/lando/issues/3847)
+* Fixed interactive sudo password handling to avoid combining `--bell` with `--stdin` [#386](https://github.com/lando/core/issues/386)
+* Improved the GitHub init source to support `--github-auth=false` for cloning public repositories without a GitHub token or SSH key upload
+* Fixed Node 24 `DEP0187` deprecation warnings from permissive `fs.existsSync()` usage [#474](https://github.com/lando/core/pull/474)
+* Fixed cert generation failing with `EISDIR` when a rogue directory exists at a cert path [#486](https://github.com/lando/core/issues/486)
+* Improved `ssl` services to ensure cert paths exist as files before bind mounting them so Docker cannot create them as directories [#486](https://github.com/lando/core/issues/486)
+* Improved v4 bind mounts to respect `create_host_path: false` so Lando no longer creates missing bind sources that users manage themselves [#486](https://github.com/lando/core/issues/486)
+* Fixed the v4 `/run/host-services` bind mount exception matching unrelated paths that share the prefix
+* Updated minimum Node version to `20.17.0`, as required by major bumps of `@npmcli/arborist`, `pacote`, and `npm-profile` [#433](https://github.com/lando/core/issues/433)
+* Updated `tar` to `7.5.22` to resolve outstanding `node-tar` security advisories [#433](https://github.com/lando/core/issues/433)
+
+## v3.26.7 - [July 3, 2026](https://github.com/lando/core/releases/tag/v3.26.7)
+
+* Updated to use new Lando Alliance [Azure Artificate Signing](https://learn.microsoft.com/en-us/azure/artifact-signing/) certs
+
+## v3.26.6 - [July 3, 2026](https://github.com/lando/core/releases/tag/v3.26.6)
+
+* Updated to use new Lando Alliance [Azure Artificate Signing](https://learn.microsoft.com/en-us/azure/artifact-signing/) certs
+
+## v3.26.5 - [July 3, 2026](https://github.com/lando/core/releases/tag/v3.26.5)
+
+* Updated to use new Lando Alliance [Azure Artificate Signing](https://learn.microsoft.com/en-us/azure/artifact-signing/) certs
+
+## v3.26.4 - [April 28, 2026](https://github.com/lando/core/releases/tag/v3.26.4)
+
+* Fixed `lando ssh` defaulting to a v3 service instead of the v4 `appserver` in mixed-api apps [#461](https://github.com/lando/core/pull/461)
+
+## v3.26.3 - [April 14, 2026](https://github.com/lando/core/releases/tag/v3.26.3)
+
+* Fixed crash when `config.yml` is empty instead of containing `{}` [#439](https://github.com/lando/core/issues/439)
+* Updated `lando setup` to install `docker-buildx` if missing
+* Fixed `buildx` built images not being available locally by adding `--load` flag
+
 ## v3.26.2 - [December 17, 2025](https://github.com/lando/core/releases/tag/v3.26.2)
 
 * Updated to use new Lando Alliance Apple Developer certificates

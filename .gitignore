@@ -56,6 +56,9 @@ config.*.timestamp-*-*.*
 yarn.lock
 
 
+# Claude
+CLAUDE.md
+
 # Syncthing
 .stfolder/
 .stversions/
