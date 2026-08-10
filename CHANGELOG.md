@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.26.8 - [August 10, 2026](https://github.com/lando/core/releases/tag/v3.26.8)
+
 * Updated Docker Desktop `tested` range to `<=4.85.99`, default `lando setup` install to 4.85.0, and Desktop installer build-id maps so current Desktop users are no longer treated as pioneers [#472](https://github.com/lando/core/issues/472)
 * Updated default Docker Compose orchestrator to `2.40.3` and Compose `tested` range to `<=2.40.99`
 * Updated default Docker Engine to `29.6.2` (matches Docker Desktop 4.85.x) and Engine `tested` range to `<=29.6.99`
