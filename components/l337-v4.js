@@ -726,8 +726,14 @@ class L337ServiceV4 extends EventEmitter {
     return file;
   }
 
+  /**
+   * Normalize compose volume input into long syntax objects and ensure bind mount sources exist.
+   *
+   * @param {Array<string|object>} [volumes] - Compose style volume definitions.
+   * @return {Array<string|object>} Normalized volume definitions.
+   */
   normalizeVolumes(volumes = []) {
-    if (!Array.isArray) return [];
+    if (!Array.isArray(volumes)) return [];
 
     // normalize and return
     return volumes.map(volume => {
@@ -760,13 +766,22 @@ class L337ServiceV4 extends EventEmitter {
         volume.source = path.join(this.appRoot, volume.source);
       }
 
-      // if the bind mount source does not exist then attempt to create it?
+      // if the bind mount source does not exist then attempt to create it as a directory so the
+      // invoking user owns it instead of whatever docker decides to do with it
       // we make an "exception" for any /run/host-services things that are in the docker vm
-      // @NOTE: is this actually a good idea?
+      // and we also allow the user to opt out with bind.create_host_path: false eg for sources
+      // that are meant to be files they manage themselves
+      // https://github.com/lando/core/issues/486
       if (volume.type === 'bind'
         && !fs.existsSync(volume.source)
-        && !volume.source.startsWith('/run/host-services')) {
-        fs.mkdirSync(volume.source, {recursive: true});
+        && volume.source !== '/run/host-services'
+        && !volume.source.startsWith('/run/host-services/')) {
+        if (volume.bind?.create_host_path === false) {
+          this.debug('not creating missing bind mount source %o because create_host_path is false', volume.source);
+        } else {
+          fs.mkdirSync(volume.source, {recursive: true});
+          this.debug('created missing bind mount source %o as a directory for %o', volume.source, volume.target);
+        }
       }
 
       // return

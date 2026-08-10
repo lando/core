@@ -13,6 +13,8 @@
 * Fixed Node 24 `DEP0187` deprecation warnings from permissive `fs.existsSync()` usage [#474](https://github.com/lando/core/pull/474)
 * Fixed cert generation failing with `EISDIR` when a rogue directory exists at a cert path [#486](https://github.com/lando/core/issues/486)
 * Improved `ssl` services to ensure cert paths exist as files before bind mounting them so Docker cannot create them as directories [#486](https://github.com/lando/core/issues/486)
+* Improved v4 bind mounts to respect `create_host_path: false` so Lando no longer creates missing bind sources that users manage themselves [#486](https://github.com/lando/core/issues/486)
+* Fixed the v4 `/run/host-services` bind mount exception matching unrelated paths that share the prefix
 
 ## v3.26.7 - [July 3, 2026](https://github.com/lando/core/releases/tag/v3.26.7)
 
