@@ -6,9 +6,25 @@ const path = require('path');
 
 // @TODO: maybe extension should be in {options}?
 // @TODO: error handling, defaults etc?
+/**
+ * Write data to a file, serializing based on the file extension.
+ *
+ * @param {string} file - Destination file path.
+ * @param {*} data - Data to write.
+ * @param {object} [options] - Write options, also passed to the relevant serializer.
+ * @param {string} [options.extension] - Extension override for serialization format.
+ * @param {boolean} [options.forcePosixLineEndings=false] - Normalize CRLF to LF.
+ * @return {void}
+ */
 module.exports = (file, data, options = {}) => {
   // set extension if not set
   const extension = options.extension || path.extname(file);
+  // if the target path exists as a directory then remove it so we can write a file there instead
+  // this can happen when eg docker compose creates a missing bind mount source as a directory
+  // https://github.com/lando/core/issues/486
+  // @NOTE: we intentionally do not remove existing files here so bind mounted files keep their
+  // inode across rewrites, see https://github.com/lando/core/issues/242
+  if (fs.existsSync(file) && fs.statSync(file).isDirectory()) require('./remove')(file);
   // linux line endings
   const forcePosixLineEndings = options.forcePosixLineEndings ?? false;
 
