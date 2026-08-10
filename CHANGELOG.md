@@ -15,6 +15,8 @@
 * Improved `ssl` services to ensure cert paths exist as files before bind mounting them so Docker cannot create them as directories [#486](https://github.com/lando/core/issues/486)
 * Improved v4 bind mounts to respect `create_host_path: false` so Lando no longer creates missing bind sources that users manage themselves [#486](https://github.com/lando/core/issues/486)
 * Fixed the v4 `/run/host-services` bind mount exception matching unrelated paths that share the prefix
+* Updated minimum Node version to `20.17.0`, as required by major bumps of `@npmcli/arborist`, `pacote`, and `npm-profile` [#433](https://github.com/lando/core/issues/433)
+* Updated `tar` to `7.5.22` to resolve outstanding `node-tar` security advisories [#433](https://github.com/lando/core/issues/433)
 
 ## v3.26.7 - [July 3, 2026](https://github.com/lando/core/releases/tag/v3.26.7)
 
