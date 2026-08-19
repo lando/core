@@ -11,9 +11,37 @@ else
   OPTIONS="$2"
 fi
 
-# Determine whether this is an archive or a giturl and set other helpers
-TYPE=$(git ls-remote "$URL" --quiet 2>/dev/null && echo "git repo" || echo "tar archive")
 SRC_DIR=/tmp/source
+
+is_http_url() {
+  case "$1" in
+    http://*|https://*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+is_git_url() {
+  case "$1" in
+    ssh://*|git://*|git@*|*.git) return 0 ;;
+  esac
+  case "$1" in
+    *://*) return 1 ;;
+    *@*:*) return 0 ;;
+  esac
+  return 1
+}
+
+if is_git_url "$URL"; then
+  TYPE="git repo"
+elif is_http_url "$URL" && git ls-remote "$URL" --quiet >/dev/null 2>&1; then
+  TYPE="git repo"
+elif is_http_url "$URL"; then
+  TYPE="tar archive"
+else
+  echo "Could not fetch $URL as a git repository." >&2
+  echo "Refusing to download a non-http(s) URL as an archive." >&2
+  exit 1
+fi
 
 # Do some basic reporting
 echo "Detected that $URL is a $TYPE"
