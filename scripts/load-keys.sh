@@ -48,27 +48,23 @@ for SSH_DIR in "${SSH_DIRS[@]}"; do
   mkdir -p "$SSH_DIR"
 done
 
-# We need to do some different magic on Windows because file sharing on windows
-# does not let you chmod files that are mounted
-if [ "$LANDO_HOST_OS" = "win32" ]; then
-  lando_warn "Creating a special not-mounted key directory for Windows"
-  mkdir -p /lando_keys
-  for SSH_DIR in "${SSH_DIRS[@]}"; do
-    readarray -t SSH_KEYS < <(find "$SSH_DIR" -maxdepth 1 -not -name 'known_hosts' -type f)
-    for SSH_KEY in "${SSH_KEYS[@]}"; do
-      lando_debug "Copying $SSH_KEY from $SSH_DIR to /lando_keys"
-      cp -rfp "$SSH_KEY" /lando_keys
-    done
+rm -rf /lando_keys
+mkdir -p /lando_keys
+for SSH_DIR in "${SSH_DIRS[@]}"; do
+  readarray -t SSH_KEYS < <(find "$SSH_DIR" -maxdepth 1 -not -name 'known_hosts' -type f)
+  for SSH_KEY in "${SSH_KEYS[@]}"; do
+    lando_debug "Copying $SSH_KEY from $SSH_DIR to /lando_keys"
+    cp -rfp "$SSH_KEY" /lando_keys
   done
-  chown -R $LANDO_WEBROOT_USER:$GROUP /lando_keys
-  SSH_DIRS=( "/lando_keys" )
-  SSH_KEYS=()
-fi
+done
+chown -R $LANDO_WEBROOT_USER:$GROUP /lando_keys
+SSH_DIRS=( "/lando_keys" )
+SSH_KEYS=()
 
 # Scan the following directories for keys and filter out non-private keys
 for SSH_DIR in "${SSH_DIRS[@]}"; do
   lando_info "Scanning $SSH_DIR for keys..."
-  readarray -t RAW_LIST < <(find "$SSH_DIR" -maxdepth 1 -not -name '*.pub' -not -name 'known_hosts' -user $LANDO_WEBROOT_USER -type f)
+  readarray -t RAW_LIST < <(find "$SSH_DIR" -maxdepth 1 -not -name '*.pub' -not -name 'known_hosts' -type f)
   for RAW_KEY in "${RAW_LIST[@]}"; do
     SSH_CANDIDATES+=("$RAW_KEY")
   done
@@ -78,7 +74,12 @@ done
 if [ "$LANDO_LOAD_KEYS" != "true" ] && [ "$LANDO_LOAD_KEYS" != "false" ]; then
   RAW_LIST=($LANDO_LOAD_KEYS)
   for RAW_KEY in "${RAW_LIST[@]}"; do
-    SSH_CANDIDATES+=("/user/.ssh/$RAW_KEY")
+    if [ -f "/user/.ssh/$RAW_KEY" ]; then
+      cp -fp "/user/.ssh/$RAW_KEY" "/lando_keys/$RAW_KEY"
+      chown $LANDO_WEBROOT_USER:$GROUP "/lando_keys/$RAW_KEY"
+      chmod 600 "/lando_keys/$RAW_KEY"
+      SSH_CANDIDATES+=("/lando_keys/$RAW_KEY")
+    fi
   done
 fi
 
