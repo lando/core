@@ -50,8 +50,8 @@ done
 
 # We need to do some different magic on Windows because file sharing on windows
 # does not let you chmod files that are mounted
-if [ "$LANDO_HOST_OS" = "win32" ] || [ "$LANDO_HOST_OS" = "darwin" ]; then
-  lando_warn "Creating a special not-mounted key directory"
+if [ "$LANDO_HOST_OS" = "win32" ]; then
+  lando_warn "Creating a special not-mounted key directory for Windows"
   mkdir -p /lando_keys
   for SSH_DIR in "${SSH_DIRS[@]}"; do
     readarray -t SSH_KEYS < <(find "$SSH_DIR" -maxdepth 1 -not -name 'known_hosts' -type f)
@@ -68,7 +68,7 @@ fi
 # Scan the following directories for keys and filter out non-private keys
 for SSH_DIR in "${SSH_DIRS[@]}"; do
   lando_info "Scanning $SSH_DIR for keys..."
-  readarray -t RAW_LIST < <(find "$SSH_DIR" -maxdepth 1 -not -name '*.pub' -not -name 'known_hosts' -user $LANDO_WEBROOT_USER -type f)
+  readarray -t RAW_LIST < <(find "$SSH_DIR" -maxdepth 1 -not -name '*.pub' -not -name 'known_hosts' -type f)
   for RAW_KEY in "${RAW_LIST[@]}"; do
     SSH_CANDIDATES+=("$RAW_KEY")
   done
@@ -87,8 +87,16 @@ lando_info "Found keys ${SSH_CANDIDATES[*]}"
 # Go through and validate our candidates
 for SSH_CANDIDATE in "${SSH_CANDIDATES[@]}"; do
   lando_debug "Ensuring permissions and ownership of $SSH_CANDIDATE..."
-  chown -R $LANDO_WEBROOT_USER:$GROUP "$SSH_CANDIDATE"
-  chmod 600 "$SSH_CANDIDATE"
+  chown -R $LANDO_WEBROOT_USER:$GROUP "$SSH_CANDIDATE" || true
+  chmod 600 "$SSH_CANDIDATE" || true
+  if ! su "$LANDO_WEBROOT_USER" -s /bin/sh -c "test -r \"$SSH_CANDIDATE\""; then
+    mkdir -p /lando_keys
+    KEY_COPY="/lando_keys/$(basename "$SSH_CANDIDATE")"
+    cp -fp "$SSH_CANDIDATE" "$KEY_COPY"
+    chown -R $LANDO_WEBROOT_USER:$GROUP "$KEY_COPY"
+    chmod 600 "$KEY_COPY"
+    SSH_CANDIDATE="$KEY_COPY"
+  fi
   lando_debug "Checking whether $SSH_CANDIDATE is a private key..."
   if grep -l "PRIVATE KEY" "$SSH_CANDIDATE" &> /dev/null; then
     if command -v ssh-keygen >/dev/null 2>&1; then
