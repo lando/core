@@ -64,6 +64,11 @@ fi
 
 # Or archive
 if [ "$TYPE" = "tar archive" ]; then
+  if ! is_http_url "$URL"; then
+    echo "Cannot download $URL as an archive." >&2
+    echo "Only http(s) archive URLs are supported." >&2
+    exit 1
+  fi
   echo "Downloading $URL..."
   cd "$SRC_DIR" && curl -fsSL -O "$URL"
 
