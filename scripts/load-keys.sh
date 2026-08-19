@@ -48,6 +48,7 @@ for SSH_DIR in "${SSH_DIRS[@]}"; do
   mkdir -p "$SSH_DIR"
 done
 
+rm -rf /lando_keys
 mkdir -p /lando_keys
 for SSH_DIR in "${SSH_DIRS[@]}"; do
   readarray -t SSH_KEYS < <(find "$SSH_DIR" -maxdepth 1 -not -name 'known_hosts' -type f)
