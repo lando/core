@@ -1,6 +1,6 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
-* Fixed `lando init` mis-detecting failed git clones (including `ssh://` Pantheon URLs) as tar archives and then failing with a misleading curl protocol error
+* Fixed `lando init` treating failed git clones as tar archives
 
 ## v3.26.8 - [August 10, 2026](https://github.com/lando/core/releases/tag/v3.26.8)
 
