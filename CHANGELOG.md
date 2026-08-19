@@ -1,6 +1,6 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
-* Fixed `load-keys.sh` ignoring SSH keys that Docker bind-mounts as root
+* Fixed `load-keys.sh` using bind-mounted SSH keys by copying them to `/lando_keys` on all platforms
 * Fixed `lando init` treating failed git clones as tar archives
 
 ## v3.26.8 - [August 10, 2026](https://github.com/lando/core/releases/tag/v3.26.8)

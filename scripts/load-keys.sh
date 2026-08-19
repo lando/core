@@ -48,22 +48,17 @@ for SSH_DIR in "${SSH_DIRS[@]}"; do
   mkdir -p "$SSH_DIR"
 done
 
-# We need to do some different magic on Windows because file sharing on windows
-# does not let you chmod files that are mounted
-if [ "$LANDO_HOST_OS" = "win32" ]; then
-  lando_warn "Creating a special not-mounted key directory for Windows"
-  mkdir -p /lando_keys
-  for SSH_DIR in "${SSH_DIRS[@]}"; do
-    readarray -t SSH_KEYS < <(find "$SSH_DIR" -maxdepth 1 -not -name 'known_hosts' -type f)
-    for SSH_KEY in "${SSH_KEYS[@]}"; do
-      lando_debug "Copying $SSH_KEY from $SSH_DIR to /lando_keys"
-      cp -rfp "$SSH_KEY" /lando_keys
-    done
+mkdir -p /lando_keys
+for SSH_DIR in "${SSH_DIRS[@]}"; do
+  readarray -t SSH_KEYS < <(find "$SSH_DIR" -maxdepth 1 -not -name 'known_hosts' -type f)
+  for SSH_KEY in "${SSH_KEYS[@]}"; do
+    lando_debug "Copying $SSH_KEY from $SSH_DIR to /lando_keys"
+    cp -rfp "$SSH_KEY" /lando_keys
   done
-  chown -R $LANDO_WEBROOT_USER:$GROUP /lando_keys
-  SSH_DIRS=( "/lando_keys" )
-  SSH_KEYS=()
-fi
+done
+chown -R $LANDO_WEBROOT_USER:$GROUP /lando_keys
+SSH_DIRS=( "/lando_keys" )
+SSH_KEYS=()
 
 # Scan the following directories for keys and filter out non-private keys
 for SSH_DIR in "${SSH_DIRS[@]}"; do
@@ -78,7 +73,12 @@ done
 if [ "$LANDO_LOAD_KEYS" != "true" ] && [ "$LANDO_LOAD_KEYS" != "false" ]; then
   RAW_LIST=($LANDO_LOAD_KEYS)
   for RAW_KEY in "${RAW_LIST[@]}"; do
-    SSH_CANDIDATES+=("/user/.ssh/$RAW_KEY")
+    if [ -f "/user/.ssh/$RAW_KEY" ]; then
+      cp -fp "/user/.ssh/$RAW_KEY" "/lando_keys/$RAW_KEY"
+      chown $LANDO_WEBROOT_USER:$GROUP "/lando_keys/$RAW_KEY"
+      chmod 600 "/lando_keys/$RAW_KEY"
+      SSH_CANDIDATES+=("/lando_keys/$RAW_KEY")
+    fi
   done
 fi
 
@@ -87,16 +87,8 @@ lando_info "Found keys ${SSH_CANDIDATES[*]}"
 # Go through and validate our candidates
 for SSH_CANDIDATE in "${SSH_CANDIDATES[@]}"; do
   lando_debug "Ensuring permissions and ownership of $SSH_CANDIDATE..."
-  chown -R $LANDO_WEBROOT_USER:$GROUP "$SSH_CANDIDATE" || true
-  chmod 600 "$SSH_CANDIDATE" || true
-  if ! su "$LANDO_WEBROOT_USER" -s /bin/sh -c "test -r \"$SSH_CANDIDATE\""; then
-    mkdir -p /lando_keys
-    KEY_COPY="/lando_keys/$(basename "$SSH_CANDIDATE")"
-    cp -fp "$SSH_CANDIDATE" "$KEY_COPY"
-    chown -R $LANDO_WEBROOT_USER:$GROUP "$KEY_COPY"
-    chmod 600 "$KEY_COPY"
-    SSH_CANDIDATE="$KEY_COPY"
-  fi
+  chown -R $LANDO_WEBROOT_USER:$GROUP "$SSH_CANDIDATE"
+  chmod 600 "$SSH_CANDIDATE"
   lando_debug "Checking whether $SSH_CANDIDATE is a private key..."
   if grep -l "PRIVATE KEY" "$SSH_CANDIDATE" &> /dev/null; then
     if command -v ssh-keygen >/dev/null 2>&1; then
