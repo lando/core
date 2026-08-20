@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+## v3.26.9 - [August 20, 2026](https://github.com/lando/core/releases/tag/v3.26.9)
+
 * Fixed `load-keys.sh` using bind-mounted SSH keys by copying them to `/lando_keys` on all platforms
 * Fixed `lando init` treating failed git clones as tar archives
 
