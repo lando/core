@@ -2,6 +2,7 @@
 
 * Fixed `docker` and `docker compose` subprocesses ignoring `engineConfig.socketPath` and following the active docker context instead
 * Fixed first-run autosetup resetting a custom `engineConfig` back to the default socket
+* Fixed `Cannot read properties of null (reading 'trim')` on macOS when `Docker.app` is missing, eg on OrbStack [#138](https://github.com/lando/core/issues/138)
 
 ## v3.26.9 - [August 20, 2026](https://github.com/lando/core/releases/tag/v3.26.9)
 
