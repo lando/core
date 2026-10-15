@@ -39,7 +39,11 @@ module.exports = async (lando, options) => {
       if (lando.engine.dockerInstalled === false) return false;
 
       // we also want to do an additional check on docker-destkop
-      if (lando.config.os.landoPlatform !== 'linux' && !fs.existsSync(getDockerDesktopBin())) return false;
+      // on macOS that is whichever engine provider app is in use
+      const engineApp = lando.config.os.landoPlatform === 'darwin'
+        ? require('../utils/get-engine-provider')(lando.config.engineProvider).app
+        : getDockerDesktopBin();
+      if (lando.config.os.landoPlatform !== 'linux' && !fs.existsSync(engineApp)) return false;
 
       // otherwise attempt to sus things out
       try {
@@ -55,7 +59,11 @@ module.exports = async (lando, options) => {
     task: async (ctx, task) => {
       // we reinstantiate instead of using lando.engine.daemon so we can ensure an up-to-date docker bin
       const LandoDaemon = require('../lib/daemon');
-      const daemon = new LandoDaemon(lando.cache, lando.events, undefined, lando.log);
+      // pass the engine provider through, otherwise auto resolves to docker desktop and relaunches it
+      const daemon = new LandoDaemon(
+        lando.cache, lando.events, undefined, lando.log,
+        undefined, undefined, undefined, undefined, lando.config.engineProvider,
+      );
 
       // we need docker up for this
       await daemon.up({max: 5, backoff: 1000});
