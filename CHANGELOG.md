@@ -1,5 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed `Cannot read properties of null (reading 'trim')` on macOS when `Docker.app` is missing, eg on OrbStack [#138](https://github.com/lando/core/issues/138)
+
 ## v3.26.9 - [August 20, 2026](https://github.com/lando/core/releases/tag/v3.26.9)
 
 * Fixed `load-keys.sh` using bind-mounted SSH keys by copying them to `/lando_keys` on all platforms
