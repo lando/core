@@ -14,7 +14,7 @@ const setDockerHost = (hostname, port = 2376) => url.format({
   port,
 });
 
-module.exports = ({engineConfig = {}, env = {}}) => {
+module.exports = ({engineConfig = {}, engineProvider, env = {}}) => {
   // Set defaults if we have to
   if (_.isEmpty(engineConfig)) {
     engineConfig = {
@@ -22,6 +22,10 @@ module.exports = ({engineConfig = {}, env = {}}) => {
       host: '127.0.0.1',
       port: 2376,
     };
+    // an explicitly configured macOS provider brings its own socket
+    if (engineProvider && (process.landoPlatform ?? process.platform) === 'darwin') {
+      engineConfig.socketPath = require('./get-engine-provider')(engineProvider).socketPath;
+    }
   }
   // Set the docker host if its non-standard
   if (engineConfig.host !== '127.0.0.1') env.DOCKER_HOST = setDockerHost(engineConfig.host, engineConfig.port);

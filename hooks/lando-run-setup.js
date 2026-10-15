@@ -37,6 +37,7 @@ module.exports = async lando => {
       // DOCKER_HOST, which silently moved apps to Docker Desktop after autosetup
       const engineConfig = require('../utils/get-engine-config')({
         engineConfig: lando.config.engineConfig,
+        engineProvider: lando.config.engineProvider,
         env: process.env,
       });
       // reset needed config

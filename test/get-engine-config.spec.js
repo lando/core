@@ -7,6 +7,8 @@
 
 const chai = require('chai');
 const expect = chai.expect;
+const os = require('os');
+const path = require('path');
 
 const getEngineConfig = require('../utils/get-engine-config');
 
@@ -24,6 +26,15 @@ describe('get-engine-config', () => {
     const config = getEngineConfig({env});
     expect(config.socketPath).to.equal(process.platform === 'win32' ? '//./pipe/docker_engine' : '/var/run/docker.sock');
     expect(env).to.not.have.property('DOCKER_HOST');
+  });
+
+  it('should use the orbstack socket for dockerode and export it to subprocesses', () => {
+    if (process.platform === 'win32') return;
+    const env = {};
+    const config = getEngineConfig({engineProvider: 'orbstack', env});
+    const socket = path.join(os.homedir(), '.orbstack', 'run', 'docker.sock');
+    expect(config.socketPath).to.equal(socket);
+    expect(env.DOCKER_HOST).to.equal(`unix://${socket}`);
   });
 
   // the lando/lando#3388 colima workaround: socketPath alone used to steer dockerode but not docker compose

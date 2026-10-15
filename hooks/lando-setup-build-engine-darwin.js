@@ -88,6 +88,8 @@ module.exports = async (lando, options) => {
   // if build engine is set to false allow it to be skipped
   // @NOTE: this is mostly for internal stuff
   if (options.buildEngine === false) return;
+  // another engine provider (orbstack, rancher) means there is no docker desktop to install
+  if (require('../utils/get-engine-provider')(lando.config.engineProvider).name !== 'docker-desktop') return;
 
   // get stuff from config/opts
   const build = getId(options.buildEngine);

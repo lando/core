@@ -26,7 +26,7 @@ describe('lando-run-setup', () => {
     if (process.platform === 'win32') return;
     const engineConfig = {host: '127.0.0.1', port: 2376, socketPath: '/tmp/orbstack.sock'};
     const lando = {
-      config: {setup: {}, engineConfig, userConfRoot: '/tmp', instance: 'test'},
+      config: {setup: {}, engineConfig, engineProvider: 'orbstack', userConfRoot: '/tmp', instance: 'test'},
       cache: new Cache(),
       events: new Events(),
       log: new Log(),
