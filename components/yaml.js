@@ -1,5 +1,6 @@
 'use strict';
 
+const exists = require('../utils/exists-sync');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
@@ -43,7 +44,7 @@ const fileloader = {
     if (!path.isAbsolute(input.file)) input.file = findFile(input.file, this.base);
 
     // Otherwise check the path exists
-    return fs.existsSync(input.file);
+    return exists(input.file);
   },
   construct: function(data) {
     // transform data

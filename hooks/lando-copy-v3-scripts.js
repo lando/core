@@ -3,9 +3,12 @@
 const fs = require('fs');
 const path = require('path');
 
+const exists = require('../utils/exists-sync');
+
 module.exports = async lando => {
   return lando.Promise.map(lando.config.plugins, plugin => {
-    if (fs.existsSync(plugin.scripts)) {
+    // @NOTE: plugin.scripts is undefined for plugins that do not ship scripts
+    if (exists(plugin.scripts)) {
       const confDir = path.join(lando.config.userConfRoot, 'scripts');
       const dest = require('../utils/move-config')(plugin.scripts, confDir);
       require('../utils/make-executable')(fs.readdirSync(dest), dest);

@@ -80,6 +80,11 @@ module.exports = lando => {
       default: defaults.orchestrator,
       string: true,
     },
+    'buildx': {
+      describe: 'Sets the version of buildx to install',
+      default: defaults.buildx,
+      string: true,
+    },
     'plugin': {
       describe: 'Sets additional plugin(s) to install',
       default: require('../utils/parse-to-plugin-strings')(defaults.plugins),
@@ -129,6 +134,7 @@ module.exports = lando => {
     [--build-engine <version>]
     [--build-engine-accept-license]
     [--orchestrator <version>]
+    [--buildx <version>]
     [--plugin <plugin>...]
     [--skip-common-plugins]
     [--skip-install-ca]

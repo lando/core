@@ -21,10 +21,10 @@ Run the following commands to verify things work as expected
 
 ```bash
 # Should have our keys
-lando exec cli -u root -- cat /etc/ssh/ssh_config | grep "/lando/keys/badbadkey"
-lando exec cli2 -u root -- cat /etc/ssh/ssh_config | grep "/lando/keys/ppkey"
-lando exec cli2 -u root -- cat /etc/ssh/ssh_config | grep "/lando/keys/key with space"
-lando exec thesekeys -u root -- cat /etc/ssh/ssh_config | grep "/user/.ssh/mykey3"
+lando exec cli -u root -- cat /etc/ssh/ssh_config | grep "/lando_keys/badbadkey"
+lando exec cli2 -u root -- cat /etc/ssh/ssh_config | grep "/lando_keys/ppkey"
+lando exec cli2 -u root -- cat /etc/ssh/ssh_config | grep "/lando_keys/key with space"
+lando exec thesekeys -u root -- cat /etc/ssh/ssh_config | grep "/lando_keys/mykey3"
 
 # Should have the LANDO_LOAD_KEYS envvar set correctly by default
 lando exec cli -- env | grep LANDO_LOAD_KEYS | grep true
@@ -40,9 +40,9 @@ lando exec cli -- cat /etc/ssh/ssh_config | grep "/user/.ssh" || echo "$?" | gre
 cp -f .lando.local.yml.thesekeys .lando.local.yml
 lando rebuild -y
 lando exec thesekeys -- env | grep LANDO_LOAD_KEYS | grep "mykey mykey2"
-lando exec thesekeys -- cat /etc/ssh/ssh_config | grep "/user/.ssh/mykey"
-lando exec thesekeys -- cat /etc/ssh/ssh_config | grep "/user/.ssh/mykey2"
-lando exec thesekeys -- cat /etc/ssh/ssh_config | grep "/user/.ssh/mykey3" || echo "$?" | grep 1
+lando exec thesekeys -- cat /etc/ssh/ssh_config | grep "/lando_keys/mykey"
+lando exec thesekeys -- cat /etc/ssh/ssh_config | grep "/lando_keys/mykey2"
+lando exec thesekeys -- cat /etc/ssh/ssh_config | grep "/lando_keys/mykey3" || echo "$?" | grep 1
 ```
 
 ## Destroy tests

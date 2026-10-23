@@ -1,5 +1,6 @@
 'use strict';
 
+const exists = require('./exists-sync');
 const fs = require('fs');
 const path = require('path');
 const read = require('./read-file');
@@ -37,7 +38,8 @@ module.exports = (paths = []) => {
 
   // now lets try to find all the private keys without passphrases
   return paths
-    .filter(path => fs.existsSync(path))
+    // @NOTE: paths comes from user config so it can contain basically anything
+    .filter(path => exists(path))
     .map(path => fs.statSync(path).isDirectory() ? getAllFiles(path) : path)
     .flat(Number.POSITIVE_INFINITY)
     .map(file => ({file, contents: read(file)}))

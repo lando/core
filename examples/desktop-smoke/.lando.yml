@@ -1,0 +1,5 @@
+name: lando-desktop-smoke
+recipe: lamp
+
+plugins:
+  "@lando/core": ../..

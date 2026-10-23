@@ -33,14 +33,14 @@ jobs:
       - name: Create paths
         run: mkdir -p /tmp/deploy-s3/${{ github.sha }}
       - name: Download releases
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.download-name }}
           merge-multiple: true
           path: /tmp/deploy-s3/${{ github.sha }}
           pattern: ${{ inputs.download-pattern }}
       - name: Configure S3 Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.aws-access-key-id }}
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}

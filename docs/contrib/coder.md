@@ -4,7 +4,7 @@ description: Learn about how to get started contributing code to Lando.
 
 # Coding
 
-This section is designed for people who want to contribute `code things` to Lando. Specifically, that means [opening a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) against one of the many [Lando respositories](https://github.com/orgs/lando/repositories).
+This section is designed for people who want to contribute `code things` to Lando. Specifically, that means [opening a pull request](https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request) against one of the many [Lando respositories](https://github.com/orgs/lando/repositories).
 
 [[toc]]
 
@@ -20,11 +20,11 @@ If you are having issues with any of the above or need some guidance from one of
 
 ## Making your first pull request
 
-1. [Create a fork of the repo you are working on](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo).
+1. [Create a fork of the repo you are working on](https://docs.github.com/en/pull-requests/how-tos/work-with-forks/fork-a-repo).
 2. [Follow the GitHub flow](https://docs.github.com/en/get-started/using-github/github-flow).
 3. Make sure you complete any requested/applicable tasks in the PR template.
 4. Make sure all status checks and tests pass.
-5. Ping the `#contributors` channel in Slack for any needed [PR review](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/about-pull-request-reviews) or any other help you may need advancing your PR.
+5. Ping the `#contributors` channel in Slack for any needed [PR review](https://docs.github.com/en/pull-requests/reference/pull-request-reviews) or any other help you may need advancing your PR.
 6. When all checks, tests and reviews are in the green ping a `maintainer` and/or apply the <Badge type="flag">flag</Badge> label.
 
 **If you have any trouble, need clarification, guidance, help, etc jump into the `#contributors` channel in Slack and another contributor will gladly help you out!**

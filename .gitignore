@@ -54,3 +54,14 @@ config.*.timestamp-*-*.*
 
 # YARN
 yarn.lock
+
+
+# Claude
+CLAUDE.md
+
+# Syncthing
+.stfolder/
+.stversions/
+.stignore
+*.sync-conflict-*
+

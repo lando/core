@@ -20,17 +20,17 @@ x-service:
 services:
   web1:
     << : *default-service
-    image: node:18
+    image: node:20
     entrypoint: !load scripts/entrypoint.sh
     command: run dev
   web2:
     << : *default-service
-    image: node:18
+    image: node:20
     entrypoint: npm
     command: run dev
   web3:
     << : *default-service
-    image: node:18
+    image: node:20
     entrypoint: |
       #!/bin/bash
       set -eo pipefail
@@ -39,7 +39,7 @@ services:
   web4:
     << : *default-service
     image: |
-      FROM node:18
+      FROM node:20
       RUN echo 'npm "$@"' > /entrypoint.sh
       RUN chmod +x /entrypoint.sh
     entrypoint: /entrypoint.sh
@@ -47,14 +47,14 @@ services:
   web5:
     << : *default-service
     image: |
-      FROM node:18
+      FROM node:20
       ENTRYPOINT ["npm"]
       CMD ["run", "dev"]
 
   web6:
     << : *default-service
     image: |
-      FROM node:18
+      FROM node:20
       ENTRYPOINT npm run dev
       CMD doesnt matter
 

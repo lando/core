@@ -66,7 +66,7 @@ services:
           - "node_modules"
           - "other-deps/that-go-here"
 
-    image: node:18
+    image: node:20
     command: npm run dev
     ports:
       - 3000/http
@@ -88,7 +88,7 @@ services:
           - routes/example
           - routes
 
-    image: node:18
+    image: node:20
     command: npm run dev
     ports:
       - 3000/http

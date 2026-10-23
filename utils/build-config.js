@@ -84,7 +84,7 @@ module.exports = options => {
   }
 
   // if orchestrator is not a valid version then remove it and try to use a system provided orchestartor
-  if (require('semver/functions/valid')(config.orchestratorVersion) === null) {
+  if (!config.orchestratorBin && require('semver/functions/valid')(config.orchestratorVersion) === null) {
     config.orchestratorBin = require('./get-compose-x')(config);
     delete config.orchestratorVersion;
   }
@@ -108,4 +108,3 @@ module.exports = options => {
   // Return the config
   return config;
 };
-

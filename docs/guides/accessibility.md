@@ -33,6 +33,6 @@ Lando is committed to ensuring digital accessibility for people with disabilitie
 We welcome your feedback on the accessibility of Lando. Please let us know if you encounter accessibility barriers:
 
 - **Contact Information**: vpat@lando.dev
-- **Support**: Support for Lando as a free, open-source tool is provided by the Lando community on a volunteer basis via [documented support channels.](https://lando.dev/support)
+- **Support**: Support for Lando as a free, open-source tool is provided by the Lando community on a volunteer basis via [documented support channels.](https://www.lando.dev/support)
 
-Please [contact us](https://lando.dev/contact) if you're interested in paid enterprise support, including accessibility support.
+Please [contact us](https://www.lando.dev/contact) if you're interested in paid enterprise support, including accessibility support.
