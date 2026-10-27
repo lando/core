@@ -17,6 +17,17 @@ module.exports = async lando => {
   lando.config.proxyDir = path.join(lando.config.userConfRoot, 'proxy');
   lando.config.proxyHttpPorts = _.flatten([lando.config.proxyHttpPort, lando.config.proxyHttpFallbacks]);
   lando.config.proxyHttpsPorts = _.flatten([lando.config.proxyHttpsPort, lando.config.proxyHttpsFallbacks]);
+  // an engine whose port forwarder runs unprivileged (podman's gvproxy) cannot bind ports below 1024 to a specific
+  // ip on macOS, so keep the proxy on loopback and drop those ports rather than binding every interface
+  const unprivileged = lando.config.os?.landoPlatform === 'darwin'
+    && lando.config.proxyBindAddress !== '0.0.0.0'
+    && require('../utils/get-engine-provider')(lando.config.engineProvider).unprivilegedPorts;
+  if (unprivileged) {
+    const high = ports => ports.filter(port => Number(port) >= 1024);
+    lando.config.proxyHttpPorts = high(lando.config.proxyHttpPorts);
+    lando.config.proxyHttpsPorts = high(lando.config.proxyHttpsPorts);
+    lando.config.proxyCurrentPorts = {http: lando.config.proxyHttpPorts[0], https: lando.config.proxyHttpsPorts[0]};
+  }
   lando.config.proxyLastPorts = lando.cache.get(lando.config.proxyCache);
   lando.config.proxyNet = `${lando.config.proxyName}_edge`;
   lando.config.proxyScanHttp = ports2Urls(lando.config.proxyHttpPorts, false, lando.config.proxyBindAddress);

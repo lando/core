@@ -6,10 +6,14 @@ const _ = require('lodash');
 /*
  * Helper to get core proxy service
  */
-const getProxy = ({proxyCommand, proxyPassThru, proxyDomain, userConfRoot, version = 'unknown'} = {}) => {
+const getProxy = ({proxyCommand, proxyPassThru, proxyDomain, userConfRoot, version = 'unknown', engineProvider} = {}) => {
+  // an selinux-enforcing engine vm (podman machine) denies the docker socket mount unless labeling is off for it
+  const selinux = (process.landoPlatform ?? process.platform) === 'darwin'
+    && require('../utils/get-engine-provider')(engineProvider).selinux;
   return {
     services: {
       proxy: {
+        ...(selinux ? {security_opt: ['label=disable']} : {}),
         image: 'traefik:2.11.31',
         command: proxyCommand.join(' '),
         environment: {

@@ -22,6 +22,7 @@ module.exports = (config, cache, events, log, shell, id) => {
     orchestratorBin,
     orchestratorVersion,
     config.userConfRoot,
+    config.engineProvider,
   );
   const compose = (cmd, datum) => dc(shell, orchestratorBin, cmd, datum);
   return new Engine(daemon, docker, compose, config);

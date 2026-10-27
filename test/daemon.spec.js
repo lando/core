@@ -108,4 +108,78 @@ describe('daemon', () => {
     it('Should return true if docker is running');
     it('Should return false if docker is not running');
   });
+
+  describe('#getVersions', () => {
+    const sinon = require('sinon');
+    const Shell = require('./../lib/shell');
+
+    // lando/core#138: no Docker.app must report "skip", never null
+    it('should report desktop as skip on darwin when Docker.app cannot be read', async () => {
+      const daemon = new Daemon();
+      daemon.platform = 'darwin';
+      daemon.engineProvider = 'docker-desktop';
+      const sh = sinon.stub(Shell.prototype, 'sh').rejects(new Error('no Docker.app'));
+      try {
+        const versions = await daemon.getVersions();
+        versions.desktop.should.equal('skip');
+      } finally {
+        sh.restore();
+      }
+    });
+
+    it('should report the Docker.app version on darwin when it exists', async () => {
+      const daemon = new Daemon();
+      daemon.platform = 'darwin';
+      daemon.engineProvider = 'docker-desktop';
+      const sh = sinon.stub(Shell.prototype, 'sh').resolves('4.85.0\n');
+      try {
+        const versions = await daemon.getVersions();
+        versions.desktop.should.equal('4.85.0');
+      } finally {
+        sh.restore();
+      }
+    });
+
+    it('should skip the Docker Desktop version check on other providers', async () => {
+      const daemon = new Daemon();
+      daemon.platform = 'darwin';
+      daemon.engineProvider = 'orbstack';
+      const sh = sinon.stub(Shell.prototype, 'sh').resolves('4.85.0\n');
+      try {
+        const versions = await daemon.getVersions();
+        versions.desktop.should.equal('skip');
+        sh.called.should.equal(false);
+      } finally {
+        sh.restore();
+      }
+    });
+  });
+
+  describe('#up on darwin with another provider', () => {
+    const sinon = require('sinon');
+    const runCommandPath = require.resolve('./../utils/run-command');
+
+    it('should start the provider engine with its own cli instead of Docker Desktop', async () => {
+      require('./../utils/run-command');
+      const original = require.cache[runCommandPath].exports;
+      const calls = [];
+      require.cache[runCommandPath].exports = async (cmd, args) => calls.push([cmd, ...args]);
+
+      const daemon = new Daemon();
+      daemon.platform = 'darwin';
+      daemon.engineProvider = 'orbstack';
+      // down on the first check, up after the start command
+      const isUp = sinon.stub(daemon, 'isUp');
+      isUp.onFirstCall().resolves(false);
+      isUp.resolves(true);
+      try {
+        await daemon.up({max: 2, backoff: 1});
+        // live-tested: `open -a OrbStack` is a no-op once `orbctl stop` has stopped the engine
+        calls.should.deep.equal([['/Applications/OrbStack.app/Contents/MacOS/bin/orbctl', 'start']]);
+      } finally {
+        require.cache[runCommandPath].exports = original;
+        isUp.restore();
+      }
+    });
+  });
 });
