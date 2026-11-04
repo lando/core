@@ -32,7 +32,13 @@ module.exports = async lando => {
       // reload plugins
       await lando.reloadPlugins();
       // reload needed config
-      const {orchestratorBin, orchestratorVersion, dockerBin, engineConfig} = require('../utils/build-config')();
+      const {orchestratorBin, orchestratorVersion, dockerBin} = require('../utils/build-config')();
+      // keep the configured engine: build-config() without options resets it to the default socket and strips
+      // DOCKER_HOST, which silently moved apps to Docker Desktop after autosetup
+      const engineConfig = require('../utils/get-engine-config')({
+        engineConfig: lando.config.engineConfig,
+        env: process.env,
+      });
       // reset needed config
       lando.config = {...lando.config, orchestratorBin, orchestratorVersion, dockerBin, engineConfig};
       // we need to explicitly reset this for some reason
