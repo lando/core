@@ -8,7 +8,10 @@ module.exports = (raw, {
   satisfies = 'x.x.x',
 } = {}) => {
   // get a cleaned version string and any prerelease data
-  const {version, prerelease} = semver.parse(semver.clean(raw), {includePrerelease, loose});
+  // @NOTE: a missing or unparseable version (eg no Docker.app on macOS) is incompatible, not a crash
+  const parsed = semver.parse(semver.clean(String(raw ?? '')), {includePrerelease, loose});
+  if (parsed === null) return false;
+  const {version, prerelease} = parsed;
 
   // figure out whether we should drop the prerelease string or nto
   const cversion = prerelease.every(item => Number.isInteger(item)) ? version.split('-')[0] : version;
