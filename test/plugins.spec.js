@@ -119,7 +119,7 @@ describe('plugins', () => {
       const development = addPlugin('platformsh', '@lando/upsun', 'development');
       const plugins = find();
       plugins.should.have.lengthOf(1);
-      plugins[0].dir.should.equal(development);
+      path.normalize(plugins[0].dir).should.equal(development);
       plugins[0].builders.should.equal(path.join(development, 'builders'));
     });
 
@@ -140,7 +140,7 @@ describe('plugins', () => {
       const development = addPlugin('upsun', '@lando/upsun', 'development');
       const plugins = find();
       plugins.should.have.lengthOf(1);
-      plugins[0].dir.should.equal(development);
+      path.normalize(plugins[0].dir).should.equal(development);
     });
 
     it('handles explicit local plugins and respects their disabled discovery names', () => {
