@@ -22,8 +22,11 @@ module.exports = async (app, lando) => {
     // @NOTE: we dump pre-merge so that tooling directly in the landofile is not mixed in
     lando.cache.set(app.recipeCache, recipe, {persist: true});
 
+    // apply the closest tooling route, utils/get-tasks does the same on the warm path
+    const {tooling} = require('../utils/apply-tooling-route')(recipe.tooling, recipe.toolingRoutes);
+
     // Merge stuff together correctly
     app.config.proxy = _.merge({}, recipe.proxy, _.get(app, 'config.proxy', {}));
-    app.config = lando.utils.merge({services: recipe.services, tooling: recipe.tooling}, app.config);
+    app.config = lando.utils.merge({services: recipe.services, tooling}, app.config);
   }
 };
