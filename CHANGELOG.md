@@ -1,5 +1,9 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed Landofile tooling being overridden by cached per-directory tooling routes in multi-app recipes [#502](https://github.com/lando/core/issues/502)
+* Added `toolingRoutes` to recipe config so recipes can route tooling by directory, with each route command replacing the recipe command whole and Landofile tooling applied last [#502](https://github.com/lando/core/issues/502)
+* Fixed disabled tooling commands being built as broken tasks during app init [#502](https://github.com/lando/core/issues/502)
+
 ## v3.26.9 - [August 20, 2026](https://github.com/lando/core/releases/tag/v3.26.9)
 
 * Fixed `load-keys.sh` using bind-mounted SSH keys by copying them to `/lando_keys` on all platforms
