@@ -106,6 +106,9 @@
     <loc>https://docs.lando.dev/plugins/tomcat/sitemap.xml</loc>
   </sitemap>
   <sitemap>
+    <loc>https://docs.lando.dev/plugins/upsun/sitemap.xml</loc>
+  </sitemap>
+  <sitemap>
     <loc>https://docs.lando.dev/plugins/varnish/sitemap.xml</loc>
   </sitemap>
   <sitemap>

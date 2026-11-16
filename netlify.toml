@@ -220,6 +220,10 @@
   to = "https://lando-tomcat.netlify.app/:splat"
   status = 200
 [[redirects]]
+  from = "/plugins/upsun/*"
+  to = "https://lando-platformsh.netlify.app/:splat"
+  status = 200
+[[redirects]]
   from = "/plugins/varnish/*"
   to = "https://lando-varnish.netlify.app/:splat"
   status = 200

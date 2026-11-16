@@ -31,6 +31,7 @@ Lando is a local development orchestration tool built around Docker, recipes, an
 - **Packaged binary**: adding runtime-loaded files or new top-level directories requires updating `pkg.assets` and `pkg.scripts` in `package.json`, or they'll be missing from the packaged CLI.
 - **New source directories** must be added to `jsconfig.json` `include`, `package.json` `nyc.include`, and `package.json` `pkg.scripts`.
 - **ESLint**: `require-jsdoc` applies to `FunctionDeclaration` only — arrow functions and expressions do not need JSDoc to pass lint.
+- **Upsun replacement**: `lib/plugins.js` suppresses legacy `@lando/platformsh` only when an enabled Upsun plugin is discovered. Package identity, not only the directory-derived discovery name, matters for development checkouts still named `platformsh`. Preserve legacy-only loading and do not delete plugin files or credentials during discovery.
 - **`examples/**/README.md`** files are executable Leia specs — edits there affect CI test behavior.
 
 ## TypeScript Migration

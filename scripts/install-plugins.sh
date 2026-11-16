@@ -87,6 +87,7 @@ fi
   @lando/solr@$TAG \
   @lando/symfony@$TAG \
   @lando/tomcat@$TAG \
+  @lando/upsun@$TAG \
   @lando/varnish@$TAG \
   @lando/wordpress@$TAG \
   --dir plugins \
