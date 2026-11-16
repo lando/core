@@ -8,17 +8,6 @@ const path = require('path');
 const exists = require('./exists-sync');
 
 /*
- * Paths to /
- */
-const pathsToRoot = (startFrom = process.cwd()) => {
-  return _(_.range(path.dirname(startFrom).split(path.sep).length))
-    .map(end => _.dropRight(path.dirname(startFrom).split(path.sep), end).join(path.sep))
-    .unshift(startFrom)
-    .dropRight()
-    .value();
-};
-
-/*
  * Helper to determine bootstrap level
  */
 const getBsLevel = (config, command) => {
@@ -101,29 +90,18 @@ const engineRunner = (config, command) => (argv, lando) => {
 };
 
 module.exports = (config = {}, argv = {}, tasks = []) => {
-  // merge in recipe cache config first
-  if (exists(config.recipeCache) && _.has(config, 'recipe')) {
-    config = _.merge({}, JSON.parse(fs.readFileSync(config.recipeCache, {encoding: 'utf-8'})), config);
-  }
+  const hasRecipe = exists(config.recipeCache) && _.has(config, 'recipe');
+  const {toolingRoutes, ...recipe} = hasRecipe ? JSON.parse(fs.readFileSync(config.recipeCache, {encoding: 'utf-8'})) : {};
 
-  // If we have a tooling router lets rebase on that
-  if (exists(config.toolingRouter)) {
-    // Get the closest route
-    const closestRoute = _(loadCacheFile(config.toolingRouter))
-      .map(route => _.merge({}, route, {
-        closeness: _.indexOf(pathsToRoot(), route.route),
-      }))
-      .filter(route => route.closeness !== -1)
-      .orderBy('closeness')
-      .thru(routes => routes[0])
-      .value();
+  // @NOTE: <app>.tooling.router is the legacy route source for plugins that do not publish recipe toolingRoutes,
+  // eg @lando/upsun@1.0.0-alpha.0, which double-JSON encodes it
+  const routes = toolingRoutes ?? (exists(config.toolingRouter) ? loadCacheFile(config.toolingRouter) : []);
+  const {route, tooling} = require('./apply-tooling-route')(recipe.tooling, routes);
 
-    // If we have a closest route lets mod config.tooling
-    if (_.has(closestRoute, 'tooling')) {
-      config.tooling = _.merge({}, config.tooling, closestRoute.tooling);
-      config.route = closestRoute;
-    }
-  }
+  // recipe config goes under the Landofile so Landofile tooling always wins, including over route commands
+  if (route) recipe.tooling = tooling;
+  if (hasRecipe || route) config = _.merge({}, recipe, config);
+  if (route) config.route = route;
 
   // lets add ids to help match commands with args?
   _.forEach(config.tooling, (task, command) => {
