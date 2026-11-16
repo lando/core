@@ -31,6 +31,129 @@ _.forEach(searchDirs, dir => {
 
 // This is the file we are testing
 describe('plugins', () => {
+  describe('#find Upsun replacement', () => {
+    const root = path.join(os.tmpdir(), 'upsun-plugin-test');
+    const dirs = [
+      {path: root, subdir: 'installed', namespace: '@lando'},
+      {path: root, subdir: 'development'},
+    ];
+    let files;
+    let log;
+    const addPlugin = (directory, packageName, source = 'installed') => {
+      const dir = path.join(root, source, directory);
+      files[path.join(dir, 'index.js')] = 'module.exports = () => ({});';
+      files[path.join(dir, 'package.json')] = JSON.stringify({name: packageName});
+      files[path.join(dir, 'builders', 'platformsh.js')] = 'module.exports = () => ({});';
+      return dir;
+    };
+    const find = options => {
+      filesystem(files);
+      return new Plugins(log).find(dirs, options);
+    };
+
+    beforeEach(() => {
+      files = {};
+      log = {warn: sinon.spy(), debug: sinon.spy()};
+    });
+
+    afterEach(() => filesystem.restore());
+
+    it('loads legacy-only installs unchanged', () => {
+      addPlugin('platformsh', '@lando/platformsh');
+      find().map(plugin => plugin.name).should.deep.equal(['@lando/platformsh']);
+      log.warn.callCount.should.equal(0);
+    });
+
+    it('suppresses the legacy implementation without changing its files or credentials', () => {
+      const legacy = addPlugin('platformsh', '@lando/platformsh');
+      addPlugin('upsun', '@lando/upsun');
+      const credentials = path.join(root, 'cache', 'platformsh.tokens');
+      files[credentials] = 'saved-token-cache';
+      find().map(plugin => plugin.name).should.deep.equal(['@lando/upsun']);
+      require('fs').readFileSync(path.join(legacy, 'package.json'), 'utf8')
+        .should.equal(JSON.stringify({name: '@lando/platformsh'}));
+      require('fs').readFileSync(credentials, 'utf8').should.equal('saved-token-cache');
+      log.warn.callCount.should.equal(0);
+      log.debug.callCount.should.equal(1);
+    });
+
+    it('does not suppress legacy when Upsun is disabled', () => {
+      addPlugin('platformsh', '@lando/platformsh');
+      addPlugin('upsun', '@lando/upsun');
+      find({disablePlugins: ['@lando/upsun']}).map(plugin => plugin.name)
+        .should.deep.equal(['@lando/platformsh']);
+    });
+
+    it('includes replaced plugins for management without enabling them by default', () => {
+      addPlugin('platformsh', '@lando/platformsh');
+      addPlugin('upsun', '@lando/upsun');
+      find({includeReplaced: true}).map(plugin => plugin.name)
+        .should.deep.equal(['@lando/platformsh', '@lando/upsun']);
+      log.warn.callCount.should.equal(0);
+    });
+
+    it('disables renamed Upsun checkouts by package identity and restores legacy loading', () => {
+      addPlugin('platformsh', '@lando/platformsh');
+      addPlugin('platformsh', '@lando/upsun', 'development');
+      find({disablePlugins: ['@lando/upsun']}).map(plugin => plugin.name)
+        .should.deep.equal(['@lando/platformsh']);
+    });
+
+    it('does not suppress legacy for an Upsun install without its entrypoint', () => {
+      addPlugin('platformsh', '@lando/platformsh');
+      const upsun = addPlugin('upsun', '@lando/upsun');
+      delete files[path.join(upsun, 'index.js')];
+      find().map(plugin => plugin.name).should.deep.equal(['@lando/platformsh']);
+    });
+
+    it('does not identify malformed package metadata as a replacement', () => {
+      addPlugin('platformsh', '@lando/platformsh');
+      const upsun = addPlugin('upsun', '@lando/upsun');
+      files[path.join(upsun, 'package.json')] = '{';
+      find().map(plugin => plugin.name).should.include('@lando/platformsh');
+      log.warn.callCount.should.equal(0);
+    });
+
+    it('recognizes an Upsun development checkout still in a platformsh directory', () => {
+      addPlugin('platformsh', '@lando/platformsh');
+      const development = addPlugin('platformsh', '@lando/upsun', 'development');
+      const plugins = find();
+      plugins.should.have.lengthOf(1);
+      path.normalize(plugins[0].dir).should.equal(development);
+      plugins[0].builders.should.equal(path.join(development, 'builders'));
+    });
+
+    it('suppresses unnamespaced legacy checkouts using package identity', () => {
+      addPlugin('upsun', '@lando/upsun');
+      addPlugin('platformsh', '@lando/platformsh', 'development');
+      find().map(plugin => plugin.name).should.deep.equal(['@lando/upsun']);
+    });
+
+    it('preserves unrelated plugins whose directory happens to be platformsh', () => {
+      addPlugin('upsun', '@lando/upsun');
+      addPlugin('platformsh', '@example/custom', 'development');
+      find().map(plugin => plugin.name).should.deep.equal(['@lando/upsun', 'platformsh']);
+    });
+
+    it('keeps only the last Upsun candidate across installed and development locations', () => {
+      addPlugin('upsun', '@lando/upsun');
+      const development = addPlugin('upsun', '@lando/upsun', 'development');
+      const plugins = find();
+      plugins.should.have.lengthOf(1);
+      path.normalize(plugins[0].dir).should.equal(development);
+    });
+
+    it('handles explicit local plugins and respects their disabled discovery names', () => {
+      addPlugin('platformsh', '@lando/platformsh');
+      const local = addPlugin('checkout', '@lando/upsun', 'local');
+      find({plugins: [{name: 'my-upsun', type: 'local', path: local}]}).map(plugin => plugin.name)
+        .should.deep.equal(['my-upsun']);
+      filesystem.restore();
+      find({plugins: [{name: 'my-upsun', type: 'local', path: local}], disablePlugins: ['my-upsun']})
+        .map(plugin => plugin.name).should.deep.equal(['@lando/platformsh']);
+    });
+  });
+
   describe('#load', () => {
     beforeEach(() => {
       filesystem(fsConfig);

@@ -31,7 +31,7 @@ gff ~/code/lando-ops/guides-example-code/introduction-to-lando/lando-init
   current working directory
   github
   pantheon
-  platformsh
+  upsun
 ❯ remote git repo or archive
 ```
 
@@ -46,7 +46,7 @@ The next question is `? What recipe do you want to use?`. Recipes are pre-config
   lemp
   mean
   pantheon
-  platformsh
+  upsun
   wordpress
 (Move up and down to reveal more choices)
 ```

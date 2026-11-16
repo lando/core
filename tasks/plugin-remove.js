@@ -26,9 +26,25 @@ module.exports = lando => {
         .filter((plugin, index, array) => array.indexOf(plugin) === index);
       lando.log.debug('attempting to remove plugins %j', plugins);
 
+      // Include replaced plugins so users can remove unused legacy installs.
+      const installed = lando.config.plugins.concat(lando.plugins.find(lando.config.pluginDirs, {
+        ...lando.config,
+        includeReplaced: true,
+      }));
+
+      const localAliases = installed
+        .filter(plugin => plugin.type === 'local' || plugin.localAlias)
+        .map(plugin => plugin.name);
+      const canonicalNames = ['@lando/platformsh', '@lando/upsun', ...installed.map(plugin => plugin.packageName)];
+
       // prep listr things
       const tasks = plugins
-        .map(plugin => ([lando.config.plugins.find(p => p.name === plugin), plugin]))
+        .map(name => {
+          const plugin = installed.find(plugin => plugin.packageName === name)
+            || installed.find(plugin => plugin.dir && plugin.name === name && (!name.startsWith('@')
+              || (localAliases.includes(name) && !canonicalNames.includes(name))));
+          return [plugin, name];
+        })
         .map(([plugin, fallback]) => require('../utils/get-plugin-remove-task')(plugin, {fallback, Plugin}));
 
       // try to remove the plugins

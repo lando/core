@@ -5,6 +5,8 @@ https://docs.devwithlando.io/*        https://docs.lando.dev/:splat          301
 https://api.lando.dev/*               https://docs.lando.dev/:splat          302
 
 # legacy lando/core and lando/cli subsite redirects
+/plugins/platformsh-plugin.html /plugins/upsun-plugin.html          301
+/plugins/platformsh-plugin      /plugins/upsun-plugin.html          301
 /core/v3/index.html             /landofile/index.html               301
 /core/v3/services.html          /landofile/services.html            301
 /core/v3/recipes.html           /landofile/recipes.html             301

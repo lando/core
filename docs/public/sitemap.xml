@@ -82,9 +82,6 @@
     <loc>https://docs.lando.dev/plugins/phpmyadmin/sitemap.xml</loc>
   </sitemap>
   <sitemap>
-    <loc>https://docs.lando.dev/plugins/platformsh/sitemap.xml</loc>
-  </sitemap>
-  <sitemap>
     <loc>https://docs.lando.dev/plugins/postgres/sitemap.xml</loc>
   </sitemap>
   <sitemap>
@@ -104,6 +101,9 @@
   </sitemap>
   <sitemap>
     <loc>https://docs.lando.dev/plugins/tomcat/sitemap.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://docs.lando.dev/plugins/upsun/sitemap.xml</loc>
   </sitemap>
   <sitemap>
     <loc>https://docs.lando.dev/plugins/varnish/sitemap.xml</loc>

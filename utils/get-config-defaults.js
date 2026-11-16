@@ -86,6 +86,7 @@ const defaultConfig = options => ({
       '@lando/solr': 'latest',
       '@lando/symfony': 'latest',
       '@lando/tomcat': 'latest',
+      '@lando/upsun': 'latest',
       '@lando/varnish': 'latest',
       '@lando/wordpress': 'latest',
     },

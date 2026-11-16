@@ -1,5 +1,9 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Added the Upsun plugin to default setup and bundled installations
+* Preferred Upsun over the legacy Platform.sh plugin when both are installed, preserving existing Landofiles and credentials
+* Updated the plugin catalog and documentation routes for Upsun
+
 ## v3.26.9 - [August 20, 2026](https://github.com/lando/core/releases/tag/v3.26.9)
 
 * Fixed `load-keys.sh` using bind-mounted SSH keys by copying them to `/lando_keys` on all platforms
