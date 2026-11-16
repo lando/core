@@ -26,9 +26,15 @@ module.exports = lando => {
         .filter((plugin, index, array) => array.indexOf(plugin) === index);
       lando.log.debug('attempting to remove plugins %j', plugins);
 
+      // Include replaced plugins so users can remove unused legacy installs.
+      const installed = lando.config.plugins.concat(lando.plugins.find(lando.config.pluginDirs, {
+        ...lando.config,
+        includeReplaced: true,
+      }));
+
       // prep listr things
       const tasks = plugins
-        .map(plugin => ([lando.config.plugins.find(p => p.name === plugin), plugin]))
+        .map(plugin => ([installed.find(p => p.name === plugin), plugin]))
         .map(([plugin, fallback]) => require('../utils/get-plugin-remove-task')(plugin, {fallback, Plugin}));
 
       // try to remove the plugins

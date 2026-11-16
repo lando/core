@@ -53,7 +53,7 @@ describe('plugins', () => {
 
     beforeEach(() => {
       files = {};
-      log = {warn: sinon.spy()};
+      log = {warn: sinon.spy(), debug: sinon.spy()};
     });
 
     afterEach(() => filesystem.restore());
@@ -73,12 +73,28 @@ describe('plugins', () => {
       require('fs').readFileSync(path.join(legacy, 'package.json'), 'utf8')
         .should.equal(JSON.stringify({name: '@lando/platformsh'}));
       require('fs').readFileSync(credentials, 'utf8').should.equal('saved-token-cache');
-      log.warn.callCount.should.equal(1);
+      log.warn.callCount.should.equal(0);
+      log.debug.callCount.should.equal(1);
     });
 
     it('does not suppress legacy when Upsun is disabled', () => {
       addPlugin('platformsh', '@lando/platformsh');
       addPlugin('upsun', '@lando/upsun');
+      find({disablePlugins: ['@lando/upsun']}).map(plugin => plugin.name)
+        .should.deep.equal(['@lando/platformsh']);
+    });
+
+    it('includes replaced plugins for management without enabling them by default', () => {
+      addPlugin('platformsh', '@lando/platformsh');
+      addPlugin('upsun', '@lando/upsun');
+      find({includeReplaced: true}).map(plugin => plugin.name)
+        .should.deep.equal(['@lando/platformsh', '@lando/upsun']);
+      log.warn.callCount.should.equal(0);
+    });
+
+    it('disables renamed Upsun checkouts by package identity and restores legacy loading', () => {
+      addPlugin('platformsh', '@lando/platformsh');
+      addPlugin('platformsh', '@lando/upsun', 'development');
       find({disablePlugins: ['@lando/upsun']}).map(plugin => plugin.name)
         .should.deep.equal(['@lando/platformsh']);
     });
