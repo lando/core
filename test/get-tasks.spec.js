@@ -31,7 +31,8 @@ describe('get-tasks', () => {
   const findTask = (tasks, command) => tasks.find(task => task.command === command);
 
   beforeEach(() => {
-    tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), 'lando-get-tasks-test-'));
+    // resolve symlinks (macOS /var -> /private/var) so route paths match process.cwd() after chdir
+    tmpdir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'lando-get-tasks-test-')));
     fs.mkdirSync(path.join(tmpdir, 'app2'), {recursive: true});
     cwd = process.cwd();
     originalTaskCacheFile = process.landoTaskCacheFile;

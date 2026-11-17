@@ -37,7 +37,8 @@ describe('app-add-recipes', () => {
   };
 
   beforeEach(() => {
-    tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), 'lando-app-add-recipes-test-'));
+    // resolve symlinks (macOS /var -> /private/var) so route paths match process.cwd() after chdir
+    tmpdir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'lando-app-add-recipes-test-')));
     fs.mkdirSync(path.join(tmpdir, 'app2'), {recursive: true});
     cwd = process.cwd();
     cached = undefined;
