@@ -32,6 +32,7 @@ Lando is a local development orchestration tool built around Docker, recipes, an
 - **New source directories** must be added to `jsconfig.json` `include`, `package.json` `nyc.include`, and `package.json` `pkg.scripts`.
 - **ESLint**: `require-jsdoc` applies to `FunctionDeclaration` only — arrow functions and expressions do not need JSDoc to pass lint.
 - **`examples/**/README.md`** files are executable Leia specs — edits there affect CI test behavior.
+- **Tooling routes**: recipes publish per-directory tooling as `toolingRoutes`; `utils/apply-tooling-route.js` applies the closest one on both the warm path (`utils/get-tasks.js`) and the live path (`hooks/app-add-recipes.js`) with the Landofile merged last, so change both call sites together; `<app>.tooling.router` is only a legacy fallback for plugins that do not publish `toolingRoutes`.
 
 ## TypeScript Migration
 - We are incrementally migrating to TypeScript via JSDoc type definitions. Add `@param`, `@return`, `@typedef` to any functions you modify or create.
