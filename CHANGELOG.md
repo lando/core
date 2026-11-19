@@ -1,5 +1,6 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+* Fixed synchronous command failures being masked by null output errors during setup [#520](https://github.com/lando/core/issues/520)
 * Fixed Landofile tooling being overridden by cached per-directory tooling routes in multi-app recipes [#502](https://github.com/lando/core/issues/502)
 * Added `toolingRoutes` to recipe config so recipes can route tooling by directory, with each route command replacing the recipe command whole and Landofile tooling applied last [#502](https://github.com/lando/core/issues/502)
 * Fixed disabled tooling commands being built as broken tasks during app init [#502](https://github.com/lando/core/issues/502)
